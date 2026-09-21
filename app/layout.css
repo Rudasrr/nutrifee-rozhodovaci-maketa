@@ -1,0 +1,41 @@
+/* Rozvržení specifické pro rozhodovací maketu. Staví na app/design.css,
+   nepředefinovává barvy ani typografii převzatého systému. */
+
+/* Kontrola má na desktopu působit jako jedna přehledná stránka;
+   na mobilu se stejné pořadí skládá pod sebe bez vodorovného posunu. */
+.onepage{max-width:960px;margin:0 auto}
+.onepage .review-facts{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 44px}
+.onepage .card{padding:20px 0}
+.onepage h2 .eyebrow{display:block;margin-bottom:2px}
+.onepage .evidence-labels dd{max-width:70ch}
+.clinic-page{max-width:960px;margin:0 auto}
+.clinic-page .tablewrap{margin-top:8px}
+
+/* Pořadí částí je pevné; číslo části je součástí nadpisu i pro čtečku. */
+.part-label{font-size:13px;text-transform:uppercase;letter-spacing:.09em;font-weight:750;color:var(--green)}
+
+/* Karty pravidel a incidentů drží čitelnou délku řádku. */
+.rule-card dd{max-width:80ch}
+
+@media(max-width:760px){
+  .onepage .review-facts{grid-template-columns:1fr;gap:0}
+  .onepage .kv{grid-template-columns:1fr auto}
+  .onepage .kv>strong{max-width:14ch}
+}
+
+/* Pacientská nabídka má čtyři místa; převzatý systém počítal se třemi. */
+.patientnav{grid-template-columns:repeat(4,minmax(0,1fr))}
+.patientnav button{font-size:14px;padding:12px 2px}
+.patient{padding-bottom:12px}
+
+@media(max-width:480px){
+  .patientnav button{font-size:13px}
+  .top{gap:10px}
+  .demo-tools{order:4;flex-basis:100%}
+  .demo-tools .btn{flex:1;font-size:13px;min-height:38px}
+}
+
+/* Obal nabídky drží značku průvodce mimo mřížku tlačítek. */
+.patientnav-wrap{position:sticky;bottom:12px;z-index:5}
+.patientnav-wrap .patientnav{position:static;margin-top:24px}
+.patientnav-wrap .guide-marker{position:absolute;right:-4px;top:-14px;background:#fff}

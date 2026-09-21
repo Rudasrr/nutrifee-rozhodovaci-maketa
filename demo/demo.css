@@ -1,0 +1,48 @@
+/* Styly demonstrační vrstvy — demo lišta, panel prezentujícího a průvodce maketou.
+   Nepatří do produkčního sestavení. Bez demo/*.js se žádný z těchto prvků nevykreslí. */
+.demo-tools{display:flex;gap:8px;flex-wrap:wrap}
+.demo-tools .btn{font-size:14px;padding:8px 12px;min-height:40px}
+.demo-banner{gap:10px}
+.demo-flag{display:inline-block;background:var(--purplebg);color:var(--purple);border:1px dashed #b8a2d9;border-radius:8px;padding:3px 8px;font-size:13px;letter-spacing:.02em}
+.demo-banner p{font-size:13px;color:var(--muted)}
+.demo-banner .btn{font-size:13px;min-height:38px;padding:6px 12px}
+
+/* Značka průvodce. Vkládá se až po vykreslení a jen při zapnutém průvodci. */
+.guide-marker{display:inline-grid;place-items:center;width:26px;height:26px;min-width:26px;margin-left:8px;padding:0;
+  border:1.5px dashed var(--purple);border-radius:50%;background:var(--purplebg);color:var(--purple);
+  font:700 14px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;vertical-align:middle;cursor:pointer}
+.guide-marker:hover{background:#ebe1fa}
+.guide-marker:focus-visible{outline:3px solid #b16f08;outline-offset:3px}
+@media(max-width:600px){.guide-marker{width:32px;height:32px;min-width:32px}}
+
+.guide-level{display:inline-block;font-size:12px;font-weight:700;border-radius:8px;padding:3px 8px;border:1px solid}
+.lvl-zasada{background:var(--mint);color:var(--green2);border-color:#a6d4c4}
+.lvl-navrh{background:var(--lightblue);color:#17496f;border-color:#c2d6ee}
+.lvl-otevrene{background:var(--amberbg);color:var(--amber);border-color:#e3cb95}
+
+.guide-row{border-top:1px solid var(--line);padding:12px 0}
+.guide-row dt{font-size:13px;text-transform:uppercase;letter-spacing:.04em;font-weight:750;color:var(--purple);margin-bottom:4px}
+.guide-row dd{margin:0;font-size:15px;line-height:1.6}
+
+.drawerpanel hr{border:0;border-top:1px solid var(--line);margin:22px 0}
+.drawerpanel h3{margin-top:18px;font-size:16px}
+.drawerpanel .buttonlist{display:grid;gap:8px;margin:10px 0}
+.drawerpanel .buttonlist .btn{justify-content:flex-start;text-align:left;font-size:14px}
+
+/* Průvodce ani panel prezentujícího se netisknou. */
+/* Kompaktní demo lišta na telefonu, aby nezabírala první obrazovku. */
+@media(max-width:560px){
+  .demo-banner{padding:8px 16px;gap:6px}
+  .demo-banner p{font-size:12px;line-height:1.45}
+  .demo-flag{font-size:11px;padding:2px 6px}
+  .demo-banner .btn{font-size:12px;min-height:34px;padding:4px 10px}
+  .demo-tools .btn{font-size:12px;min-height:36px;padding:6px 10px}
+}
+
+/* Průvodce ani panel prezentujícího se netisknou.
+   Označení demonstrace na tiskovém podkladu naopak zůstává. */
+@media print{
+  .demo-tools,.demo-banner,.guide-marker,.rolebar,#overlay,.drawer{display:none!important}
+  .onepage::before{content:"DEMO · syntetická data · není určeno pro léčbu";display:block;
+    border:2px dashed #6841a3;color:#6841a3;border-radius:8px;padding:8px 12px;margin:0 0 18px;font-weight:700;font-size:13px}
+}
