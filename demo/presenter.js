@@ -8,6 +8,9 @@ var btn = function (l, a, v, c) { return NF.screens.btn(l, a, v, c); };
 
 NF.demoActions = NF.demoActions || {};
 
+function chapter(S) { return D.chapters[S.chapterIndex || 0]; }
+function act(S) { return D.acts[chapter(S).act]; }
+
 /* ---------- demo lišta ---------- */
 NF.registerSlot('rolebar', function (S) {
   var roles = [['patient', 'Pacient'], ['doctor', 'Lékař'], ['garant', 'Garant']];
@@ -27,68 +30,79 @@ NF.registerSlot('headerTools', function (S) {
 });
 
 NF.registerSlot('banner', function (S) {
-  var sc = S.scenario ? D.byId(S.scenario) : null;
+  var ch = chapter(S), a = act(S);
+  var i = S.chapterIndex || 0;
   return '<div class="banner demo-banner">' +
     '<p><strong class="demo-flag">DEMO · syntetická data · není určeno pro léčbu</strong> ' +
-    (sc ? '· ' + e(sc.id) + ' · varianta: ' + e((sc.variants.filter(function (v) { return v.id === S.variant; })[0] || {}).label || S.variant) : '· žádný scénář') +
+    '· ' + e(a.title) + ' · kapitola ' + (i + 1) + ' z ' + D.chapters.length + ': ' + e(ch.title) +
     ' · modelové datum: ' + e(NF.fmtShort(S.clock)) + ' ' + e(NF.fmtTime(S.clock)) +
-    (NF.storageOK ? '' : ' · <strong>úložiště prohlížeče není dostupné — po obnovení stránky průchod začne znovu</strong>') +
+    (NF.storageOK ? '' : ' · <strong>úložiště prohlížeče není dostupné — po obnovení stránky příběh začne znovu</strong>') +
     '</p>' +
-    '<button type="button" class="btn demo" data-action="resetDemo">Reset demonstrace</button>' +
-    '</div>';
+    '<div class="demo-steps">' +
+    (i > 0 ? btn('◀ Předchozí', 'storyStep', '-1', 'demo') : '') +
+    (i < D.chapters.length - 1 ? btn('Další ▶', 'storyStep', '1', 'demo') : '') +
+    btn('Reset', 'resetDemo', null, 'demo') +
+    '</div></div>';
 });
 
 /* ---------- panel prezentujícího ---------- */
+function branchPicker(S, key) {
+  var b = D.branches[key];
+  var cur = (S.branches || D.defaults)[key];
+  return '<h4>' + e(b.label) + '</h4><div class="buttonlist">' +
+    b.options.map(function (o) {
+      return '<button type="button" class="btn ' + (cur === o.id ? 'selected' : 'secondary') + '" data-action="setBranch" data-value="' +
+        e(key + ':' + o.id) + '">' + e(o.label) + '</button>';
+    }).join('') + '</div>';
+}
+
 function presenterPanel(S) {
-  var sc = S.scenario ? D.byId(S.scenario) : null;
+  var here = S.chapterIndex || 0;
   var out = '<p class="eyebrow">Jen pro prezentujícího</p><h2>Panel prezentujícího</h2>' +
     '<p class="small muted">Tento panel není součástí aplikace pro pacienta ani lékaře. Slouží k vedení ukázky.</p>';
 
-  out += '<h3>Spustit scénář od začátku</h3><div class="buttonlist">' +
-    D.scenarios.map(function (x) {
-      return '<button type="button" class="btn ' + (S.scenario === x.id ? 'selected' : 'secondary') + '" data-action="runScenario" data-value="' + x.id + '">' +
-        e(x.title) + '</button>';
-    }).join('') + '</div>';
+  out += '<div class="next-step"><strong>Jeden příběh</strong>' +
+    '<p>Modelový pacient 01 od zařazení v ordinaci po další kontrolu. Skok na kapitolu přehraje příběh ' +
+    'od začátku, takže stav vždy odpovídá ručnímu průchodu.</p></div>';
 
-  if (sc) {
-    out += '<hr><h3>Cíl scénáře</h3><p>' + e(sc.goal) + '</p>';
-    out += '<h3>Povinné varianty</h3><div class="buttonlist">' +
-      sc.variants.map(function (v) {
-        return '<button type="button" class="btn ' + (S.variant === v.id ? 'selected' : 'secondary') + '" data-action="setVariant" data-value="' + e(v.id) + '">' +
-          e(v.label) + '</button>';
-      }).join('') + '</div>' +
-      '<p class="small muted">Přepnutí varianty načte scénář znovu od vstupního stavu.</p>';
-
-    out += '<h3>Kroky průchodu</h3><div class="buttonlist">' +
-      sc.steps.map(function (st, i) {
-        return '<button type="button" class="btn secondary" data-action="gotoStep" data-value="' + e(sc.id + ':' + st[0]) + '">' +
-          (i + 1) + '. ' + e(st[1]) + '</button>';
-      }).join('') + '</div>';
-
-    if (sc.situations && sc.situations.length) {
-      out += '<h3>Připravené situace a posun času</h3><div class="buttonlist">' +
-        sc.situations.map(function (si) {
-          return '<button type="button" class="btn demo" data-action="applySituation" data-value="' + e(si.id) + '">' + e(si.label) + '</button>';
+  D.acts.forEach(function (a, ai) {
+    out += '<hr><h3>' + e(a.title) + '</h3>' +
+      '<p class="small muted">' + e(a.note) + ' <span class="rule-tag">' + e(a.covers) + '</span></p>' +
+      '<div class="buttonlist">' +
+      D.chapters.map(function (c, ci) { return { c: c, ci: ci }; })
+        .filter(function (x) { return x.c.act === ai; })
+        .map(function (x) {
+          return '<button type="button" class="btn ' + (x.ci === here ? 'selected' : 'secondary') + '" data-action="goChapter" data-value="' + x.ci + '">' +
+            (x.ci + 1) + '. ' + e(x.c.title) + '</button>';
         }).join('') + '</div>';
+    Object.keys(D.branches).forEach(function (k) {
+      var from = D.indexOf(D.branches[k].from);
+      if (from >= 0 && D.chapters[from].act === ai) out += branchPicker(S, k);
+    });
+    if (D.garantQuestions[ai]) {
+      out += '<details><summary>Otázky pro garanta k tomuto dějství</summary><div><ul class="plain-list">' +
+        D.garantQuestions[ai].map(function (q) { return '<li>' + e(q) + '</li>'; }).join('') + '</ul></div></details>';
     }
-    out += '<h3>Otázky pro garanta</h3><ul class="plain-list">' +
-      sc.garantQuestions.map(function (q) { return '<li>' + e(q) + '</li>'; }).join('') + '</ul>';
-  }
+  });
 
-  out += '<hr><h3>Posun modelového času</h3><div class="actions">' +
-    btn('+ 1 den', 'shiftTime', '1', 'demo') + btn('+ 7 dní', 'shiftTime', '7', 'demo') + btn('+ 30 dní', 'shiftTime', '30', 'demo') +
-    '</div><p class="small muted">Čas scénáře je pevný, ne systémové „dnes“. Posun je určený jen pro ukázku.</p>';
+  out += '<hr><h3>Odbočky mimo hlavní linku</h3><div class="buttonlist">' +
+    btn('Samotitrace bazálu — koncept a rozhodnutí', 'openAside', 'protocol', 'demo') +
+    btn('Dávkové podklady — otevřená varianta', 'openAside', 'dose', 'demo') +
+    btn('Rozhodovací list garanta', 'openAside', 'decisions', 'demo') +
+    btn('Verze a stopa demonstrace', 'openAside', 'versions', 'demo') +
+    '</div>' +
+    '<p class="small muted">Nejsou součástí příběhu ani pacientského průchodu. Otevřou se v příslušné roli a do příběhu nezasáhnou.</p>';
 
-  out += '<hr><h3>Okrajové situace</h3><div class="buttonlist">' +
+  out += '<h4>Okrajové situace</h4><div class="buttonlist">' +
     D.edgeCases.map(function (x) {
       return '<button type="button" class="btn ' + (S.edge === x.id ? 'selected' : 'secondary') + '" data-action="setEdge" data-value="' + e(x.id) + '">' + e(x.title) + '</button>';
     }).join('') + '</div>' +
-    (S.edge ? '<div class="actions">' + btn('Zrušit okrajovou situaci', 'setEdge', '', 'secondary') + '</div>' : '') +
-    '<p class="small muted">Nejde o pátý hlavní scénář. Každá situace jen přepne stav a odpovídající obrazovku.</p>';
+    (S.edge ? '<div class="actions">' + btn('Zpět do příběhu', 'setEdge', '', 'secondary') + '</div>' : '') +
+    '<div class="actions">' + btn('Ukončení účasti', 'endParticipation', 'ended', 'demo') + '</div>';
 
-  out += '<hr><h3>Ukončení účasti</h3><div class="actions">' +
-    btn('Ukončit účast', 'endParticipation', 'ended', 'demo') +
-    btn('Odvolání souhlasu', 'setEdge', 'consent', 'demo') + '</div>';
+  out += '<hr><h3>Modelový čas</h3>' +
+    '<p class="small muted">Čas příběhu je pevný, ne systémové „dnes“. Kapitoly jej nastavují samy; tohle je ruční posun navíc.</p>' +
+    '<div class="actions">' + btn('+ 1 den', 'shiftTime', '1', 'demo') + btn('+ 7 dní', 'shiftTime', '7', 'demo') + btn('+ 30 dní', 'shiftTime', '30', 'demo') + '</div>';
 
   var g = global.NutriFeeGuide;
   if (g) {
@@ -101,12 +115,11 @@ function presenterPanel(S) {
 
   out += '<hr><h3>Poznámky z demonstrace</h3>' +
     '<label class="field">Co zaznělo<textarea class="note-copy" data-bind="notes">' + e(S.notes || '') + '</textarea></label>' +
-    '<div class="actions">' + btn('Exportovat poznámky', 'exportNotes', null, 'secondary') +
-    btn('Rozhodovací list garanta', 'openDecisions', null, 'secondary') + '</div>';
+    '<div class="actions">' + btn('Exportovat poznámky', 'exportNotes', null, 'secondary') + '</div>';
 
-  out += '<hr><div class="actions">' + btn('Reset demonstrace', 'resetDemo', null, 'danger') +
+  out += '<hr><div class="actions">' + btn('Reset na začátek příběhu', 'resetDemo', null, 'danger') +
     btn('Zavřít panel', 'closeDrawer', null, 'secondary') + '</div>' +
-    '<p class="small muted">Reset obnoví přesně vstupní data scénáře a odstraní poznámky i změny tohoto běhu.</p>';
+    '<p class="small muted">Reset vrátí kapitolu 1 a výchozí odbočky a odstraní poznámky i změny tohoto běhu.</p>';
   return out;
 }
 
@@ -117,44 +130,37 @@ NF.slots.drawer = function (S, name) {
 };
 
 /* ---------- akce prezentujícího ---------- */
+function go(index, branches) {
+  var S = NF.getState();
+  var next = D.play(index, branches || S.branches);
+  next.notes = '';
+  NF.setState(next);
+}
+
 NF.demoActions.openPresenter = function () { NF.openDrawer('presenter'); };
-NF.demoActions.runScenario = function (v) {
-  var next = D.load(null, v, null);
-  if (!next) return;
-  NF.setState(next);
+NF.demoActions.goChapter = function (v) { go(Number(v)); NF.openDrawer('presenter'); };
+NF.demoActions.storyStep = function (v) {
+  var S = NF.getState();
+  go((S.chapterIndex || 0) + Number(v));
+};
+NF.demoActions.setBranch = function (v) {
+  var S = NF.getState();
+  var i = String(v).indexOf(':');
+  var b = {};
+  Object.keys(S.branches || D.defaults).forEach(function (k) { b[k] = S.branches[k]; });
+  b[v.slice(0, i)] = v.slice(i + 1);
+  var target = D.indexOf(D.branches[v.slice(0, i)].from);
+  var here = S.chapterIndex || 0;
+  go(here >= target ? here : target, b);
   NF.openDrawer('presenter');
 };
-NF.demoActions.setVariant = function (v) {
+NF.demoActions.openAside = function (v) {
   var S = NF.getState();
-  if (!S.scenario) return;
-  var next = D.load(null, S.scenario, v);
-  NF.setState(next);
-  NF.openDrawer('presenter');
-};
-NF.demoActions.gotoStep = function (v) {
-  var S = NF.getState();
-  var parts = String(v).split(':');
-  var map = {
-    S1: { prep: ['patient', 'prep'], understand: ['patient', 'understand'], issue: ['doctor', 'issue'], takeover: ['patient', 'takeover'], episode: ['patient', 'episode'], more: ['patient', 'compare'], compare: ['patient', 'compare'], conclude: ['patient', 'conclude'] },
-    S2: { today: ['patient', 'today'], unclear: ['patient', 'unclear'], safety: ['patient', 'safety'], datastate: ['patient', 'datastate'], restore: ['patient', 'today'], resume: ['doctor', 'resume'] },
-    S3: { preview: ['patient', 'preview'], onepage: ['doctor', 'onepage'], evidence: ['doctor', 'evidence'], decide: ['doctor', 'decide'], newplan: ['patient', 'newplan'], result: ['doctor', 'result'] },
-    S4: { catalog: ['garant', 'catalog'], impulse: ['garant', 'incidents'], impact: ['garant', 'catalog'], 'patient-online': ['patient', 'today'], 'patient-offline': ['patient', 'today'], incident: ['garant', 'incidents'], fix: ['garant', 'catalog'], protocol: ['garant', 'protocol'] }
-  };
-  var t = (map[parts[0]] || {})[parts[1]];
-  if (!t) return;
-  S.role = t[0]; S.page = t[1];
-  if (parts[0] === 'S1' && parts[1] === 'more') NF.demoActions.applySituation('addE2E3');
-  if (parts[0] === 'S4' && parts[1] === 'patient-offline') NF.setOffline(S, true);
-  if (parts[0] === 'S4' && parts[1] === 'patient-online') NF.setOffline(S, false);
-};
-NF.demoActions.applySituation = function (v) {
-  var S = NF.getState();
-  var sc = S.scenario ? D.byId(S.scenario) : null;
-  if (!sc) return;
-  var si = (sc.situations || []).filter(function (x) { return x.id === v; })[0];
-  if (!si) return;
-  var msg = si.apply(S);
-  if (msg) S.toast = msg;
+  if (v === 'protocol') { S.role = 'garant'; S.page = 'protocol'; }
+  else if (v === 'dose') { S.doseBasis = 'open'; S.role = 'doctor'; S.page = 'dose'; }
+  else if (v === 'decisions') { S.role = 'garant'; S.page = 'decisions'; }
+  else if (v === 'versions') { S.role = 'doctor'; S.page = 'versions'; }
+  NF.closeDrawer();
 };
 NF.demoActions.shiftTime = function (v) {
   var S = NF.getState();
@@ -172,21 +178,14 @@ NF.demoActions.endParticipation = function (v) {
   S.role = 'patient'; S.page = 'today';
   NF.closeDrawer();
 };
-NF.demoActions.openDecisions = function () {
-  var S = NF.getState();
-  S.role = 'garant'; S.page = 'decisions';
-  NF.closeDrawer();
-};
 NF.demoActions.resetDemo = function () {
-  var S = NF.getState();
-  if (S.scenario) {
-    var next = D.load(null, S.scenario, S.variant);
-    next.toast = 'Demonstrace je resetovaná na vstupní data scénáře.';
-    NF.setState(next);
-  } else {
-    NF.reset();
-  }
+  var next = D.play(0, null);
+  next.toast = 'Příběh je resetovaný na začátek v ordinaci.';
+  NF.setState(next);
   NF.closeDrawer();
 };
+
+/* Bez uloženého průběhu začne příběh na začátku, v ordinaci. */
+if (!NF.getState().chapter) NF.setState(D.play(0, null));
 
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -111,6 +111,7 @@ function bind(key, value) {
   if (parts[0] === 'form') { S.form = S.form || {}; S.form[parts[1]] = value; return; }
   if (parts[0] === 'draft' && S.draft) { S.draft[parts[1]] = value; return; }
   if (parts[0] === 'onboarding') { S.onboarding[parts[1]] = value; return; }
+  if (parts[0] === 'enrollment') { S.enrollment[parts[1]] = value; return; }
   if (parts[0] === 'edit') { S.edit = S.edit || {}; S.edit[parts[1]] = value; return; }
   if (parts[0] === 'decisionNotes') { S.decisionNotes = S.decisionNotes || {}; S.decisionNotes[parts[1]] = value; return; }
   if (parts[0] === 'ruleExamples') {
@@ -127,53 +128,50 @@ var A = {
   page: function (v) { S.page = v; S.error = ''; },
   role: function (v) {
     S.role = v;
-    S.page = v === 'doctor' ? (S.draft ? 'issue' : 'onepage') : v === 'garant' ? 'catalog' : (NF.activePlan(S) ? 'today' : 'prep');
+    S.page = v === 'doctor' ? (S.draft ? 'issue' : 'onepage') : v === 'garant' ? 'catalog' : (NF.activePlan(S) ? 'today' : 'takeover');
   },
   closeDrawer: function () { drawer = null; },
 
   answerCheck: function (v) { S.onboarding.checkAnswer = v === 'reset' ? null : v; },
+  wizardGo: function (v) { S.wizardStep = Number(v); },
+  eligibility: function (v) {
+    NF.setEligibility(S, v, !S.enrollment.criteria[v]);
+  },
+  trainingStep: function (v) {
+    S.training.steps[v] = !S.training.steps[v];
+    if (S.training.result === 'done' && !NF.TRAINING.every(function (x) { return S.training.steps[x[0]]; })) S.training.result = null;
+  },
+  finishTraining: function (v) {
+    if (v === 'done' && !NF.TRAINING.every(function (x) { return S.training.steps[x[0]]; })) {
+      return fail('Zaučení nelze označit za dokončené, dokud některý bod chybí.');
+    }
+    NF.finishTraining(S, v, v === 'failed' ? 'Pacient si zatím není jistý ovládáním; domluveno opakované zaučení.' : '');
+    if (v === 'failed') toast('Zaučení nebylo dokončeno. Plán se nevydá a úkol se neaktivuje.');
+    else toast('Zaučení je dokončené.');
+  },
   confirmUnderstanding: function () {
     var p = NF.activePlan(S);
     if (p && !p.handedOver) NF.handover(S);
     var r = NF.confirmUnderstanding(S);
     if (!r.ok) return fail(r.error);
     S.page = 'today';
-    toast('Plán je převzatý. Na Dnes máš jeden aktuální úkol.');
+    toast('Hotovo. Odcházíš z ordinace s jedním aktivním úkolem.');
   },
   issuePlan: function () {
     var r = NF.issuePlan(S, S.role);
     if (!r.ok) return fail(r.error);
     NF.handover(S);
     S.role = 'patient'; S.page = 'takeover';
-    toast('Plán P1 je vydaný a modelově předaný pacientovi.');
+    toast('Plán P1 je vydaný a předaný pacientovi. Úkol se aktivuje po ověření porozumění.');
   },
   issueP2: function () {
     if (S.role !== 'doctor') return fail('Plán vydává lékař.');
     var choice = (S.form && S.form.choice) || '';
     if (!choice) return fail('Nejdřív vyber rozhodnutí.');
     if (choice === 'defer') return fail('Zvolil jsi „zatím nelze rozhodnout“. Nový plán se nevydává a stávající platí dál.');
-    var prev = NF.activePlan(S);
-    var t2 = {
-      id: 'T2', kind: 'observe', state: 'prepared',
-      question: (S.questions.length ? S.questions[S.questions.length - 1].text : ''),
-      title: 'Pozoruji, které snídaně se mezi sebou nejvíc liší.',
-      ruleId: 'R-SNIDANE', ruleVersion: 'v1',
-      conditions: 'Zaznamenej tři snídaně, u kterých čekáš rozdíl. U každé uveď údaj o inzulinu, nebo „nevím“.',
-      minimum: 'Epizoda je úplná, když má popis, údaj o inzulinu s časem a senzorový úsek po jídle.',
-      target: 3, planId: null, conclusion: null
-    };
-    S.tasks.push(t2);
-    S.draft = {
-      planId: 'P2', version: 'v1', prescription: prev ? prev.prescription : '',
-      safety: S.safetyPlan, taskId: 'T2', allowChange: false,
-      medicationChecked: true, safetyChecked: true, validUntil: '2027-04-05T00:00:00'
-    };
-    var r = NF.issuePlan(S, 'doctor');
-    if (!r.ok) return fail(r.error);
-    S.reviews.push(NF.buildReview(S));
-    NF.decideReview(S, 'doctor', { choice: choice, reason: (S.form && S.form.reason) || '' });
-    NF.handover(S);
-    S.nextVisit = '2027-04-05T09:00:00';
+    var D = global.NutriFeeDemo;
+    if (!D || !D.issueSecondPlan) return fail('Vydání dalšího plánu je součástí demonstrační vrstvy.');
+    if (!D.issueSecondPlan(S)) return fail('Další plán už byl vydaný, nebo chybí platný plán.');
     S.page = 'result';
     toast('P2 je vydaný. Historie P1 a jeho epizod zůstává beze změny.');
   },

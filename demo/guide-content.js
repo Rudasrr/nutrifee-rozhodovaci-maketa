@@ -18,6 +18,43 @@ G.levels = {
 
 G.topics = {
 
+  /* ---- ordinace: zařazení a zaučení ---- */
+  'enroll-eligibility': {
+    title: 'Cesta začíná u lékaře',
+    level: 'zasada',
+    what: 'První obrazovkou celé makety je zařazení pacienta v ordinaci. Lékař potvrdí čtyři kritéria kohorty; bez nich se nepokračuje.',
+    why: 'Pacient si na začátku nevymýšlí klinický cíl. Posoudit kontext a vydat plán je krok lékaře — proto tu pacient nic nevyplňuje dřív, než lékař vstoupí do hry.',
+    risk: 'Odvrací zařazení mimo kohortu a plán vydaný bez posouzení. Nepotvrzené kritérium není „skoro splněné“ — zařazení prostě nepokračuje.',
+    sim: 'Kritéria jsou čtyři zaškrtávátka. Skutečná kontrola proti dokumentaci se nesimuluje.',
+    decide: 'Přesná definice stability režimu a praktická vstupní kritéria. V maketě jsou čtyři body — to je náš návrh, ne schválený protokol.'
+  },
+  'enroll-question': {
+    title: 'Otázka pacienta se zapisuje hned na začátku',
+    level: 'navrh',
+    what: 'Lékař zaznamená vlastními slovy pacienta, co ho zajímá. Z toho vznikne jeho úkol.',
+    why: 'Odlišovač NutriFee je propojení konkrétní otázky pacienta, jeho zkušenosti a rozhodnutí na kontrole do jednoho doloženého cyklu. Když otázka nevznikne na začátku, není co uzavřít.',
+    risk: 'Bez zapsané otázky by z programu zbyl obecný deník bez adresáta.',
+    decide: 'Zda otázku formuluje lékař, pacient, nebo oba společně. K ověření.'
+  },
+  'training-sensor': {
+    title: 'Připojení senzoru je simulované',
+    level: 'zasada',
+    what: 'Obrazovka to říká přímo: žádná data se nepřenášejí a žádná integrace neexistuje.',
+    why: 'Konkrétní senzor a jeho oficiální datová cesta jsou blokátor před stavbou. Maketa smí cestu pouze výslovně simulovat.',
+    risk: 'Odvrací dojem, že je integrace hotová nebo prokázaná jako proveditelná.',
+    sim: 'Celé připojení. Latence, spolehlivost ani licence se neřeší.',
+    decide: 'Který senzor, jaká datová cesta a za jakých licenčních podmínek.'
+  },
+  'training-steps': {
+    title: 'Zaučení je podmínka, ne formalita',
+    level: 'navrh',
+    what: 'Čtyři konkrétní věci, které pacient v ordinaci předvede. Dokud některá chybí, zaučení nelze označit za dokončené.',
+    why: 'Počáteční edukace je u nově zavedeného senzoru součástí standardu péče. Kdyby stačilo jedno zaškrtnutí, byl by z toho doklad bez obsahu.',
+    risk: 'Při nezvládnutém zaučení se plán nevydá a žádný klinický úkol se neaktivuje. Pacient se nevykazuje jako úspěšně zařazený — to je jinak snadný způsob, jak si nafouknout čísla pilotu.',
+    sim: 'Body zaškrtává prezentující. Skutečné ověření dovednosti se nesimuluje.',
+    decide: 'Kdo řeší neúspěšné zaučení a co se s takovým pacientem děje dál. Opora pro rozsah edukace: ADA, Standards of Care 2026 — konkrétní podoba je k ověření.'
+  },
+
   /* ---- jeden aktivní úkol a jeho dokončení ---- */
   'today-primary': {
     title: 'Jeden aktivní úkol',

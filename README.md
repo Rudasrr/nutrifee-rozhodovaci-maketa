@@ -36,34 +36,48 @@ cd "maketa-rozhodovaci" && node nutrifee-rozhodovaci-maketa.test.cjs
 
 ## Návod k demonstraci
 
+Maketa je **jeden souvislý příběh**: modelový pacient od zařazení v ordinaci po další kontrolu.
+Nemoc, výpadek dat, změna pravidla i kontrola jsou kapitoly téhož příběhu, ne samostatné starty.
+
+**Cesta začíná u lékaře.** První obrazovka je zařazení pacienta v ordinaci. Pacient v aplikaci
+nic nedělá, dokud mu lékař plán nevydá a nepředá.
+
 Nahoře jsou tři demonstrační přepínače rolí (Pacient / Lékař / Garant), tlačítko **Průvodce maketou**
 a tlačítko **Panel prezentujícího**. Přepínač rolí je prezentační pomůcka, ne přihlášení.
+V demo liště je krokování **◀ Předchozí / Další ▶ / Reset**.
 
-**Panel prezentujícího** (není součástí navigace pacienta ani lékaře) umí:
+### Dějství
 
-- spustit každý ze čtyř scénářů od vstupního stavu,
-- přepnout povinnou variantu (přepnutí načte scénář znovu od začátku),
-- přeskočit na konkrétní krok průchodu,
-- vyvolat připravené situace a posunout modelový čas,
-- zapnout nebo vypnout průvodce,
-- zobrazit otázky pro garanta a zapsat poznámky,
-- přepnout okrajové situace a resetovat demonstraci.
+| Dějství | Kapitoly | Co ukazuje | Pokrývá scénář zadání |
+|---|---|---|---|
+| **1 — V ordinaci** | 1–5 | Zařazení, zaučení, vydání plánu, předání, ověření porozumění | 1 |
+| **2 — Doma, první zkušenost** | 6–7 | Jeden úkol, epizody, poctivý závěr o tom, co z dat nelze rozhodnout | 1 |
+| **3 — Když něco nesedí** | 8–10 | Nemoc nebo výpadek dat, bezpečnostní plán, pozastavení a obnovení | 2 |
+| **4 — Správa pravidel** | 11–13 | Podnět, vyřazení pravidla, dopad na pacienta, incident a náprava | 4 B |
+| **5 — Uzavření úkolu** | 14 | Závěr vlastními slovy a konec požadavku na zapisování | 1 |
+| **6 — Kontrola a nový plán** | 15–19 | Jedna stránka, rozhodnutí lékaře, vydání a předání P2 | 3 |
 
-Doporučené pořadí pro ukázku: **S1 → S3 → S2 → S4**. S1 a S3 ukazují hodnotu cyklu, S2 bezpečnostní
-přerušení, S4 správu pravidel a otevřené rozhodnutí o samotitraci.
+**Kapitola ukazuje výchozí stav scény; její akci odehraje prezentující.** Skok na kapitolu přehraje
+příběh deterministicky od začátku, takže stav vždy odpovídá ručnímu průchodu.
 
-### Scénáře a jejich povinné varianty
+### Povinné odbočky
 
-| Scénář | Co ukazuje | Povinné varianty |
-|---|---|---|
-| **S1** od nového senzoru k vlastnímu závěru | pozorovací úkol má začátek i konec, chybějící údaj se nedopočítává | výchozí · málo podkladů (u E3 chybí senzorová data) · bolus podán / stav neznámý · nezvládnuté zaučení |
-| **S2** nejasnost, nemoc nebo výpadek a bezpečný návrat | aplikace umí přestat vyvozovat závěry a přerušit úkol | nemoc · výpadek se systémem výrobce v pořádku · nefunkční senzor · pacient neví |
-| **S3** podklad ke kontrole, rozhodnutí a nový plán | pevné pořadí jedné stránky, rozhodnutí lékaře, vydání P2 | výchozí · A bez zápisů · A bez senzorového souhrnu · B historická bezpečnostní událost · C aktuální problém během návštěvy · D rozsah dávkového podkladu |
-| **S4** hranice samotitrace, vyřazení pravidla a incident | kdo smí pravidlo uvést v platnost, zastavit je a obnovit činnost | A rozhodnutí o samotitraci · B změna pravidla a incident |
+Přepínají se v panelu prezentujícího u příslušného dějství a načtou příběh znovu.
 
-Okrajové situace (dovolená, ztráta motivace, změna léčby jiným lékařem, konec platnosti plánu,
-pečující osoba, změna lékaře, hospitalizace, ukončení účasti, odvolání souhlasu, úmrtí) jsou
-v panelu prezentujícího jako jednoduché přepnutí stavu. Nejsou pátým scénářem.
+| Odbočka | Volby |
+|---|---|
+| Zaučení v ordinaci | proběhlo · **nezdařilo se** — příběh tu končí, plán se nevydá a úkol se neaktivuje |
+| Podklady ze snídaní | tři snídaně se dvěma s kontextem · **málo podkladů** (u E3 chybí senzorová data) |
+| Co se stalo 20. října | nemoc · výrobce hodnoty ukazuje · nefunkční senzor · pacient neví |
+| Zařízení při změně pravidla | online · **offline** — doručení nepotvrzeno |
+| Podklad ke kontrole | zaznamenaný kontext · A bez zápisů · A bez senzorového souhrnu · B historická bezpečnostní událost · C aktuální problém během návštěvy |
+| Dávkové podklady | nezobrazovat · **D** otevřená varianta (jen panel lékaře) |
+
+### Odbočky mimo hlavní linku
+
+Samotitrace bazálu (koncept a rozhodovací karta), dávkové podklady, rozhodovací list garanta,
+verze a stopa demonstrace, deset okrajových situací a ukončení účasti. Nejsou součástí příběhu
+ani pacientského průchodu.
 
 ### Průvodce maketou
 
@@ -97,7 +111,8 @@ složky demo“.
 
 ## Co je funkční a co simulované
 
-**Funkční logika makety:** stavy plánu, úkolu a epizod; blokace vydání plánu bez náležitostí;
+**Funkční logika makety:** posouzení způsobilosti a zaučení jako podmínka vydání plánu;
+stavy plánu, úkolu a epizod; blokace vydání plánu bez náležitostí;
 oddělení zaznamenaných a úplných epizod; pozastavení a obnovení úkolu; katalog pravidel včetně
 schválení, vyřazení a dopadu; jednostránková kontrola s pevným pořadím; vydání P2 se zachováním
 historie P1; rozhodovací list garanta; deterministický reset.

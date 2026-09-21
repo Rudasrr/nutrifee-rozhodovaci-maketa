@@ -13,7 +13,7 @@ function tabs(S, items) {
 
 /* ---------- lékař ---------- */
 V.doctor = function (S) {
-  var items = [['issue', 'Vydání plánu'], ['onepage', 'Kontrola — jedna stránka'], ['decide', 'Rozhodnutí'], ['versions', 'Verze a stopa']];
+  var items = [['issue', 'Zařazení a plán'], ['onepage', 'Kontrola — jedna stránka'], ['decide', 'Rozhodnutí'], ['versions', 'Verze a stopa']];
   if (S.doseBasis) items.splice(3, 0, ['dose', 'Dávkové podklady']);
   var body;
   switch (S.page) {
@@ -33,40 +33,117 @@ V.issue = function (S) {
   var d = S.draft;
   var active = NF.activePlan(S);
   if (!d) {
-    return card('<p class="eyebrow">Vydání plánu</p><h1>Žádný připravený návrh</h1>' +
+    return V.card('<p class="eyebrow">Zařazení a plán</p><h1>Žádný připravený návrh</h1>' +
       (active ? '<p>Platný plán je <strong>' + e(active.id + ' ' + active.version) + '</strong>, účinný od ' + e(NF.fmtDate(active.effectiveFrom)) + '.</p>' +
         '<p class="small muted">Nový plán se připravuje na kontrole v části Rozhodnutí.</p>' +
         '<div class="actions">' + btn('Otevřít kontrolu', 'page', 'onepage', 'primary') + '</div>'
         : '<p>Pro tohoto modelového pacienta zatím není připravený návrh plánu.</p>'));
   }
+  var step = S.wizardStep || 0;
+  var steps = ['Zařazení pacienta', 'Zaučení a předání zařízení', 'Plán a jeho vydání'];
+  var head = '<div class="wizard-layout"><div class="wizard">' +
+    '<div class="wizard-steps" role="tablist" aria-label="Kroky v ordinaci">' +
+    steps.map(function (t, i) {
+      return '<button type="button" data-action="wizardGo" data-value="' + i + '"' +
+        (i === step ? ' aria-current="step"' : '') + '><span aria-hidden="true">' + (i + 1) + '</span>' + e(t) + '</button>';
+    }).join('') + '</div><div class="wizard-body">';
+  var foot = function (inner) { return '<div class="wizard-footer quiet">' + inner + '</div></div></div></div>'; };
+
+  if (step === 0) return head + V.enrollStep(S) + foot(
+    (S.enrollment.eligible
+      ? btn('Pokračovat na zaučení', 'wizardGo', '1', 'primary')
+      : btnHtml('Pokračovat na zaučení', 'noop', null, 'primary', ' disabled')) +
+    (S.enrollment.eligible ? '' : '<p class="small muted">Dokud některé kritérium není potvrzené, pacient do první kohorty nepatří a zařazení nepokračuje.</p>'));
+
+  if (step === 1) return head + V.trainingStep(S) + foot(
+    btn('Zpět na zařazení', 'wizardGo', '0', 'secondary') +
+    (S.training.result === 'done'
+      ? btn('Pokračovat k plánu', 'wizardGo', '2', 'primary')
+      : btnHtml('Pokračovat k plánu', 'noop', null, 'primary', ' disabled')));
+
+  return head + V.planStep(S) + foot(
+    btn('Zpět na zaučení', 'wizardGo', '1', 'secondary') +
+    (V.planBlockers(S).length ? btnHtml('Vydat plán', 'noop', null, 'primary', ' disabled')
+      : btn('Vydat plán a předat pacientovi', 'issuePlan', null, 'primary')));
+};
+
+V.enrollStep = function (S) {
+  var en = S.enrollment;
+  return '<p class="eyebrow">V ordinaci · ' + e(NF.fmtDate(S.clock)) + '</p>' +
+    '<h1>Zařazení pacienta</h1>' +
+    '<p class="muted">Pacient sedí u vás. Projděte společně, zda do první kohorty patří, a zaznamenejte, na co se ptá.</p>' +
+    '<div class="person-line"><span class="person-avatar" aria-hidden="true">P1</span><div><strong>Modelový pacient 01</strong>' +
+    '<span>DEMO-P01 · bez reálných identifikátorů</span></div></div>' +
+    '<h2' + NF.hook('enroll-eligibility') + '>1. Způsobilost pro první kohortu</h2>' +
+    '<div class="eligibility">' + NF.ELIGIBILITY.map(function (c) {
+      return '<label class="check"><input type="checkbox" data-action="eligibility" data-value="' + c[0] + '"' +
+        (en.criteria[c[0]] ? ' checked' : '') + '><span>' + e(c[1]) + '</span></label>';
+    }).join('') + '</div>' +
+    (en.eligible
+      ? hint('Všechna kritéria potvrzena. Přesná definice stability režimu a praktická vstupní kritéria zůstávají k rozhodnutí garantem.', 'success')
+      : hint('Nepotvrzená kritéria znamenají, že pacient do první kohorty nepatří. Nic se nedopočítává a zařazení nepokračuje.', 'warn')) +
+    '<h2' + NF.hook('enroll-question') + '>2. Otázka pacienta</h2>' +
+    '<p class="field-help">Co chce pacient vědět. Z toho vznikne jeho úkol — proto ji zapisujeme hned na začátku.</p>' +
+    '<label class="field">Vlastními slovy pacienta<textarea data-bind="enrollment.question" placeholder="Po podobné snídani mám někdy jiný průběh. Co se z toho můžu dozvědět?">' + e(en.question) + '</textarea></label>' +
+    '<h2>3. Okolnosti a léčba</h2>' +
+    '<label class="field">Okolnosti, které pacient zmínil<textarea data-bind="enrollment.circumstances" placeholder="Například: ráno často spěchá do práce.">' + e(en.circumstances) + '</textarea></label>' +
+    '<label class="field">Modelový seznam užívané léčby<textarea data-bind="enrollment.medication" placeholder="Vypište, co pacient užívá.">' + e(en.medication) + '</textarea></label>' +
+    '<p class="field-help">Seznam je podklad k ověření, ne nový předpis. NutriFee léčbu nemění ani nepočítá.</p>';
+};
+
+V.trainingStep = function (S) {
+  var t = S.training;
+  var all = NF.TRAINING.every(function (x) { return t.steps[x[0]]; });
+  return '<p class="eyebrow">V ordinaci · ' + e(NF.fmtDate(S.clock)) + '</p>' +
+    '<h1>Zaučení a předání zařízení</h1>' +
+    '<p class="muted">Zaučení probíhá tady, s pacientem u stolu. Bez něj se plán nevydá.</p>' +
+    '<div class="next-step"' + NF.hook('training-sensor') + '><strong>Senzor</strong>' +
+    '<p>Připojení senzoru je v této ukázce <strong>simulované</strong>. Žádná data se nepřenášejí a žádná integrace neexistuje.</p></div>' +
+    '<h2' + NF.hook('training-steps') + '>Co pacient zvládl</h2>' +
+    NF.TRAINING.map(function (x) {
+      return '<label class="check"><input type="checkbox" data-action="trainingStep" data-value="' + x[0] + '"' +
+        (t.steps[x[0]] ? ' checked' : '') + '><span>' + e(x[1]) + '</span></label>';
+    }).join('') +
+    (t.result === 'done' ? hint('Zaučení dokončeno ' + e(NF.fmtDateTime(t.at)) + '.', 'success') : '') +
+    (t.result === 'failed' ? hint('<strong>Zaučení nebylo dokončeno.</strong> ' + e(t.note) +
+      '<br>Plán se nevydá a žádný klinický úkol se neaktivuje. Pacient <strong>není</strong> vykázán jako úspěšně zařazený. ' +
+      'Domluvte opakované zaučení nebo pomoc pečující osoby.', 'warn') : '') +
+    '<div class="actions">' +
+    (all ? btn('Zaučení dokončeno', 'finishTraining', 'done', 'primary')
+      : btnHtml('Zaučení dokončeno', 'noop', null, 'primary', ' disabled')) +
+    btn('Zaučení se nezdařilo', 'finishTraining', 'failed', 'secondary') + '</div>' +
+    (all ? '' : '<p class="small muted">Dokud některý bod chybí, zaučení nelze označit za dokončené.</p>');
+};
+
+V.planBlockers = function (S) {
+  var d = S.draft, chybi = [];
+  if (!S.enrollment.eligible) chybi.push('posouzení způsobilosti');
+  if (!d.medicationChecked) chybi.push('ověření seznamu léčby');
+  if (S.training.result !== 'done') chybi.push('dokončené zaučení');
+  if (!d.safetyChecked) chybi.push('předaný bezpečnostní a kontaktní plán');
+  return chybi;
+};
+
+V.planStep = function (S) {
+  var d = S.draft;
   var t = NF.taskById(S, d.taskId);
-  var missing = [];
-  if (!d.medicationChecked) missing.push('ověření modelového seznamu léčby');
-  if (!d.safetyChecked) missing.push('bezpečnostní a kontaktní plán');
-  if (!d.taskId) missing.push('přiřazený úkol');
-  return '<div class="wizard"><div class="wizard-body">' +
-    '<p class="eyebrow">Modelový pacient 01 · DEMO-P01</p>' +
-    '<h1>Vydání plánu ' + e(d.planId + ' ' + d.version) + '</h1>' +
-    '<p class="muted">Dospělý s DM2, stabilní bazál–bolus režim, nově zavedený senzor. Údaje jsou syntetické.</p>' +
-    '<div class="person-line"><span class="person-avatar" aria-hidden="true">P1</span><div><strong>Modelový pacient 01</strong><span>DEMO-P01 · bez reálných identifikátorů</span></div></div>' +
-    '<h2>1. Modelový seznam léčby</h2>' +
-    '<p class="small muted">Vyplnil pacient jako podklad k ověření: „' + e(S.onboarding.medication || 'nevyplněno') + '“</p>' +
-    '<label class="check"' + NF.hook('issue-medication') + '><input type="checkbox" data-bind="draft.medicationChecked"' + (d.medicationChecked ? ' checked' : '') + '>' +
-    '<span>Seznam léčby jsem s pacientem ověřil.</span></label>' +
-    '<h2>2. Bezpečnostní a kontaktní plán</h2>' +
-    '<p class="small muted">Verze ' + e(d.safety.version) + '. ' + e(d.safety.approvedNote) + '</p>' +
-    '<label class="check"' + NF.hook('issue-safety') + '><input type="checkbox" data-bind="draft.safetyChecked"' + (d.safetyChecked ? ' checked' : '') + '>' +
-    '<span>Bezpečnostní a kontaktní plán jsem předal a probral.</span></label>' +
-    '<h2>3. Úkol</h2>' +
-    (t ? '<div class="plan-proposal"><h2>' + e(t.title) + '</h2>' +
-      '<p class="proposal-reason">Otázka pacienta: „' + e(t.question) + '“</p>' +
-      '<p class="small muted">Pravidlo ' + e(t.ruleId + ' ' + t.ruleVersion) + '. Výchozí stav pouze pozorovací — bez doporučení změny jídla či pohybu.</p></div>' : '') +
-    '<h2>4. Modelový předpis</h2><p>' + e(d.prescription) + '</p>' +
+  var chybi = V.planBlockers(S);
+  return '<p class="eyebrow">V ordinaci · ' + e(NF.fmtDate(S.clock)) + '</p>' +
+    '<h1>Plán ' + e(d.planId + ' ' + d.version) + '</h1>' +
+    '<h2>Modelový předpis</h2><p>' + e(d.prescription) + '</p>' +
     '<p class="small muted">Statický text. NutriFee dávku nepočítá, nenavrhuje a nemění.</p>' +
-    (missing.length ? hint('<strong>Plán zatím nelze vydat.</strong> Chybí: ' + e(missing.join(', ')) + '.', 'warn') : '') +
-    '<div class="wizard-footer quiet">' +
-    (missing.length ? btnHtml('Vydat plán', 'noop', null, 'primary', ' disabled') : btn('Vydat plán', 'issuePlan', null, 'primary')) +
-    '</div></div></div>';
+    '<label class="check"' + NF.hook('issue-medication') + '><input type="checkbox" data-bind="draft.medicationChecked"' +
+    (d.medicationChecked ? ' checked' : '') + '><span>Seznam léčby jsem s pacientem ověřil.</span></label>' +
+    '<h2>Bezpečnostní a kontaktní plán</h2>' +
+    '<p class="small muted">Verze ' + e(d.safety.version) + '. ' + e(d.safety.approvedNote) + '</p>' +
+    '<label class="check"' + NF.hook('issue-safety') + '><input type="checkbox" data-bind="draft.safetyChecked"' +
+    (d.safetyChecked ? ' checked' : '') + '><span>Bezpečnostní a kontaktní plán jsem předal a probral.</span></label>' +
+    '<h2>Úkol</h2>' +
+    (t ? '<div class="plan-proposal"><h2>' + e(t.title) + '</h2>' +
+      '<p class="proposal-reason">Vychází z otázky pacienta: „' + e(S.enrollment.question || t.question) + '“</p>' +
+      '<p class="small muted">Pravidlo ' + e(t.ruleId + ' ' + t.ruleVersion) + '. Výchozí stav pouze pozorovací — bez doporučení změny jídla či pohybu.</p></div>' : '') +
+    (chybi.length ? hint('<strong>Plán zatím nelze vydat.</strong> Chybí: ' + e(chybi.join(', ')) + '.', 'warn')
+      : hint('Po vydání se plán předá pacientovi. Úkol se aktivuje až po ověření porozumění.', 'success'));
 };
 
 function sectionHead(n, title, key) {

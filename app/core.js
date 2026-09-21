@@ -60,7 +60,11 @@ NF.createState = function () {
     patient: { id: 'DEMO-P01', label: 'Modelový pacient 01' },
     doctor: { id: 'DEMO-L01', label: 'Modelový lékař 01' },
     garant: { id: 'DEMO-G01', label: 'Modelový garant 01' },
-    onboarding: { circumstances: '', medication: '', checkAnswer: null, trainingFailed: false, done: false },
+    onboarding: { checkAnswer: null, done: false },
+    /* Zařazení a zaučení proběhnou v ordinaci, dřív než lékař vydá plán. */
+    enrollment: { eligible: false, criteria: {}, question: '', circumstances: '', medication: '' },
+    training: { result: null, steps: {}, note: '' },
+    wizardStep: 0,
     plans: [],
     activePlanId: null,
     tasks: [],
@@ -128,6 +132,34 @@ NF.countEpisodes = function (S, taskId) {
   return { recorded: list.length, complete: complete.length, list: list };
 };
 
+/* ---------- zařazení a zaučení ----------
+   Cesta začíná u lékaře v ordinaci. Plán nelze vydat bez posouzení způsobilosti
+   a bez dokončeného zaučení; úkol se neaktivuje bez ověření porozumění. */
+NF.ELIGIBILITY = [
+  ['adult', 'Dospělý pacient s diabetem 2. typu'],
+  ['basal', 'Stabilní bazál–bolus režim, nejméně tři dávky inzulinu denně'],
+  ['cgm', 'Nově zavedený senzor CGM nebo isCGM'],
+  ['excl', 'Není nově zahájený inzulin, pumpa, premix ani prandiální titrace']
+];
+NF.setEligibility = function (S, key, value) {
+  S.enrollment.criteria[key] = !!value;
+  S.enrollment.eligible = NF.ELIGIBILITY.every(function (c) { return !!S.enrollment.criteria[c[0]]; });
+  return S.enrollment.eligible;
+};
+NF.TRAINING = [
+  ['app', 'Pacient si otevřel aplikaci a našel dnešní úkol'],
+  ['record', 'Pacient zvládl zapsat zkušební jídlo'],
+  ['safety', 'Pacient našel bezpečnostní a kontaktní plán'],
+  ['limits', 'Pacient řekl vlastními slovy, co aplikace nedělá']
+];
+NF.finishTraining = function (S, result, note) {
+  S.training.result = result;
+  S.training.note = note || '';
+  S.training.at = S.clock;
+  NF.log(S, 'training.' + result, note || '');
+  return { ok: true };
+};
+
 /* ---------- plán ---------- */
 NF.activePlan = function (S) {
   return S.plans.filter(function (p) { return p.id === S.activePlanId; })[0] || null;
@@ -157,7 +189,9 @@ NF.issuePlan = function (S, role) {
   if (role !== 'doctor') return { ok: false, error: 'Plán vydává lékař. V pacientské roli vydání není možné.' };
   if (!d) return { ok: false, error: 'Není připravený návrh plánu.' };
   var chybi = [];
+  if (!S.enrollment || !S.enrollment.eligible) chybi.push('posouzení způsobilosti pro kohortu');
   if (!d.medicationChecked) chybi.push('ověření modelového seznamu léčby');
+  if (!S.training || S.training.result !== 'done') chybi.push('dokončené zaučení a předání zařízení');
   if (!d.safetyChecked) chybi.push('bezpečnostní a kontaktní plán');
   if (!d.taskId) chybi.push('přiřazený úkol');
   if (chybi.length) return { ok: false, error: 'Plán zatím nelze vydat. Chybí: ' + chybi.join(', ') + '.' };
@@ -198,8 +232,8 @@ NF.handover = function (S) {
 NF.confirmUnderstanding = function (S) {
   var p = NF.activePlan(S);
   if (!p || !p.handedOver) return { ok: false, error: 'Plán zatím nebyl předán.' };
-  if (S.onboarding.trainingFailed) {
-    return { ok: false, error: 'Zaučení zatím nebylo dokončeno. Klinický úkol se neaktivuje.' };
+  if (!S.training || S.training.result !== 'done') {
+    return { ok: false, error: 'Zaučení nebylo dokončeno. Klinický úkol se neaktivuje.' };
   }
   p.understood = true;
   var t = NF.taskById(S, p.taskId);

@@ -104,9 +104,8 @@ function patientNav(S) {
 V.patient = function (S) {
   var body;
   switch (S.page) {
-    case 'prep': body = V.prep(S); break;
-    case 'understand': body = V.understand(S); break;
     case 'takeover': body = V.takeover(S); break;
+    case 'understand': body = V.understand(S); break;
     case 'episode': body = V.episodeForm(S); break;
     case 'compare': body = V.compare(S); break;
     case 'conclude': body = V.conclude(S); break;
@@ -121,38 +120,43 @@ V.patient = function (S) {
     case 'edge': body = V.edgeScreen(S); break;
     default: body = V.today(S);
   }
-  var nav = ['prep', 'understand', 'takeover', 'concept'].indexOf(S.page) === -1;
+  var nav = ['understand', 'takeover', 'concept'].indexOf(S.page) === -1;
   return '<div class="patient">' + body + (nav ? patientNav(S) : '') + '</div>';
 };
 
-/* Příprava — plán zatím nevydán. */
-V.prep = function (S) {
-  var ok = S.onboarding.circumstances && S.onboarding.medication;
-  return card('<p class="eyebrow">Příprava před vydáním plánu</p>' +
-    '<h1>Plán dosud nebyl vydán</h1>' +
-    '<p class="muted">Senzor je v této ukázce <strong>modelově připojený</strong> — jde o simulaci, žádná skutečná data se nepřenášejí. ' +
-    'Než ti lékař vydá plán, doplň dvě věci, které s ním na návštěvě ověříte.</p>' +
-    '<label class="field"' + NF.hook('prep-circumstances') + '>Okolnosti, které bych chtěl zmínit' +
-    '<textarea data-bind="onboarding.circumstances" placeholder="Například: ráno často spěchám do práce.">' + e(S.onboarding.circumstances) + '</textarea></label>' +
-    '<label class="field"' + NF.hook('prep-medication') + '>Léčba, kterou teď užívám' +
-    '<textarea data-bind="onboarding.medication" placeholder="Vypiš, co užíváš. Lékař seznam na návštěvě ověří.">' + e(S.onboarding.medication) + '</textarea></label>' +
-    '<p class="field-help">Tento seznam je podklad k ověření, ne nový předpis. NutriFee léčbu nemění.</p>' +
-    (S.onboarding.trainingFailed
-      ? hint('<strong>Zaučení zatím není dokončené.</strong> Klinický úkol se ti neaktivuje a nejsi vykázán jako úspěšně zařazený. ' +
-        'Co dál: domluv si s ordinací opakované zaučení, nebo požádej o pomoc pečující osobu. ' + btn('Ukázat modelovou cestu k pomoci', 'page', 'safety', 'secondary'), 'warn')
-      : '') +
-    '<div class="actions">' +
-    btnHtml('Začít úkol', 'noop', null, 'primary', ok ? ' disabled aria-describedby="prep-why"' : ' disabled aria-describedby="prep-why"') +
-    btn('Pokračovat na ověření porozumění', 'page', 'understand', 'secondary') + '</div>' +
-    '<p class="small muted" id="prep-why"' + NF.hook('prep-blocked') + '>Úkol zatím nelze začít: <strong>plán ještě nevydal lékař</strong>. ' +
-    'Nejdřív projdeš krátké ověření porozumění, potom lékař plán vydá a předá ti ho.</p>');
+V.takeover = function (S) {
+  var p = NF.activePlan(S);
+  if (!p) return card('<p class="eyebrow">V ordinaci</p><h1>Plán zatím nebyl vydán</h1>' +
+    '<p>Tvůj lékař s tebou právě prochází zařazení a zaučení. Až plán vydá, uvidíš ho tady.</p>' +
+    '<p class="small muted">Plán vydává lékař. Sám si ho nastavit nemůžeš.</p>');
+  var t = NF.taskById(S, p.taskId);
+  return card('<p class="eyebrow">V ordinaci · předání plánu</p>' +
+    '<h1>Tvůj plán ' + e(p.id + ' ' + p.version) + '</h1>' +
+    '<p class="muted">Lékař ti plán právě předal. Projdi si, co obsahuje.</p>' +
+    '<div class="plan-basics"' + NF.hook('takeover-basics') + '>' +
+    kv('Vydal', e(S.doctor.label)) + kv('Účinný od', e(NF.fmtDate(p.effectiveFrom))) +
+    kv('Platnost do', e(NF.fmtShort(p.validUntil))) + '</div>' +
+    '<h2>Modelový předpis</h2><p>' + e(p.prescription) + '</p>' +
+    '<p class="small muted">Předpis zobrazujeme ve statické podobě. NutriFee dávku nepočítá, nemění a nenavrhuje.</p>' +
+    (t ? '<h2>Tvůj úkol</h2><p><strong>' + e(t.title) + '</strong></p><p>' + e(t.conditions) + '</p>' +
+      '<p class="small muted">' + e(t.minimum) + '</p>' : '') +
+    hint('<strong>Hranice služby.</strong> NutriFee tě průběžně nesleduje, neposílá zprávy ordinaci a nemá vlastní akutní detekci. ' +
+      'Akutní upozornění zajišťuje systém výrobce senzoru.') +
+    '<div class="actions"' + NF.hook('takeover-confirm') + '>' +
+    (p.understood ? btn('Přejít na Dnes', 'page', 'today', 'primary')
+      : btn('Plán jsem převzal — pokračovat', 'page', 'understand', 'primary')) +
+    '</div>' +
+    '<p class="small muted">Převzetí znamená, že jsi plán dostal a otevřel. Není to potvrzení, že rozumíš všemu — ' +
+    'proto teď projdete ještě krátké ověření porozumění.</p>');
 };
 
 V.understand = function (S) {
   var a = S.onboarding.checkAnswer;
-  return card('<p class="eyebrow">Ověření porozumění</p>' +
-    '<h1>Jedna otázka, než začneme</h1>' +
-    '<p>Znamená zápis v aplikaci, že ho lékař hned uvidí?</p>' +
+  var p = NF.activePlan(S);
+  return card('<p class="eyebrow">V ordinaci · ověření porozumění</p>' +
+    '<h1>Jedna otázka, než odejdeš</h1>' +
+    '<p class="muted">Lékař je u toho. Odpověď tě neznámkuje a nikam se neukládá jako hodnocení.</p>' +
+    '<p><strong>Znamená zápis v aplikaci, že ho lékař hned uvidí?</strong></p>' +
     '<div class="actions"' + NF.hook('understand-answer') + '>' +
     btn('Ano', 'answerCheck', 'yes', a === 'yes' ? 'selected' : 'secondary') +
     btn('Ne', 'answerCheck', 'no', a === 'no' ? 'selected' : 'secondary') + '</div>' +
@@ -165,34 +169,11 @@ V.understand = function (S) {
     '<div class="divider"></div>' +
     '<div class="split"' + NF.hook('help-split') + '><div><h3>Technická pomoc</h3><p class="small muted">Aplikace nejde spustit, senzor se nepáruje. Řeší podpora, ne ordinace.</p></div>' +
     '<div><h3>Zdravotní kontakt</h3><p class="small muted">Zdravotní potíže a nejasnosti k léčbě. Řeší tvoje ordinace podle bezpečnostního plánu.</p></div></div>' +
-    '<div class="actions">' + (a === 'no'
-      ? btn('Pokračovat', 'page', 'takeover', 'primary')
-      : btnHtml('Pokračovat', 'noop', null, 'primary', ' disabled')) +
-    btn('Zpět na přípravu', 'page', 'prep', 'secondary') + '</div>' +
-    (a !== 'no' ? '<p class="small muted">Odpověď tě neznámkuje. Po vysvětlení se můžeš vrátit a odpovědět znovu.</p>' : ''));
-};
-
-V.takeover = function (S) {
-  var p = NF.activePlan(S);
-  if (!p) return card('<h1>Plán zatím není vydaný</h1><p>Vydání plánu je krok lékaře. Zatím není co převzít.</p>' +
-    '<div class="actions">' + btn('Zpět na přípravu', 'page', 'prep', 'secondary') + '</div>');
-  var t = NF.taskById(S, p.taskId);
-  return card('<p class="eyebrow">Předání plánu</p>' +
-    '<h1>Tvůj plán ' + e(p.id + ' ' + p.version) + '</h1>' +
-    '<div class="plan-basics"' + NF.hook('takeover-basics') + '>' +
-    kv('Vydal', e(S.doctor.label)) + kv('Účinný od', e(NF.fmtDate(p.effectiveFrom))) +
-    kv('Platnost do', e(NF.fmtShort(p.validUntil))) + '</div>' +
-    '<h2>Modelový předpis</h2><p>' + e(p.prescription) + '</p>' +
-    '<p class="small muted">Předpis zobrazujeme ve statické podobě. NutriFee dávku nepočítá, nemění a nenavrhuje.</p>' +
-    (t ? '<h2>Tvůj úkol</h2><p><strong>' + e(t.title) + '</strong></p><p>' + e(t.conditions) + '</p>' +
-      '<p class="small muted">' + e(t.minimum) + '</p>' : '') +
-    hint('<strong>Hranice služby.</strong> NutriFee tě průběžně nesleduje, neposílá zprávy ordinaci a nemá vlastní akutní detekci. ' +
-      'Akutní upozornění zajišťuje systém výrobce senzoru.') +
-    '<div class="actions"' + NF.hook('takeover-confirm') + '>' +
-    (p.understood ? btn('Přejít na Dnes', 'page', 'today', 'primary')
-      : btn('Potvrzuji převzetí plánu', 'confirmUnderstanding', null, 'primary')) +
-    '</div>' +
-    '<p class="small muted">Potvrzení znamená, že jsi plán dostal a otevřel. Není to potvrzení, že rozumíš všemu.</p>');
+    '<div class="actions">' + (a === 'no' && p
+      ? btn('Hotovo — odcházím s aktivním úkolem', 'confirmUnderstanding', null, 'primary')
+      : btnHtml('Hotovo', 'noop', null, 'primary', ' disabled')) +
+    btn('Zpět na plán', 'page', 'takeover', 'secondary') + '</div>' +
+    (a !== 'no' ? '<p class="small muted">Úkol se aktivuje až po téhle odpovědi. Po vysvětlení se můžeš vrátit a odpovědět znovu.</p>' : ''));
 };
 
 V.today = function (S) {
@@ -200,8 +181,8 @@ V.today = function (S) {
   var c = NF.countEpisodes(S, t && t.id);
   var out = planStrip(S);
   if (!p) {
-    out += card('<h1>Zatím nemáš vydaný plán</h1><p>Až ti lékař plán vydá a předá, uvidíš tady jeden aktuální úkol.</p>' +
-      '<div class="actions">' + btn('Zpět na přípravu', 'page', 'prep', 'primary') + '</div>');
+    out += card('<h1>Zatím nemáš vydaný plán</h1><p>Až ti lékař plán v ordinaci vydá a předá, uvidíš tady jeden aktuální úkol.</p>' +
+      '<p class="small muted">Plán vydává lékař. Sám si ho nastavit nemůžeš.</p>');
     return out;
   }
   if (S.participation !== 'active') {

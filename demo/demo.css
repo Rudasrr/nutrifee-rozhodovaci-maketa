@@ -5,6 +5,7 @@
 .demo-banner{gap:10px}
 .demo-flag{display:inline-block;background:var(--purplebg);color:var(--purple);border:1px dashed #b8a2d9;border-radius:8px;padding:3px 8px;font-size:13px;letter-spacing:.02em}
 .demo-banner p{font-size:13px;color:var(--muted)}
+.demo-steps{display:flex;gap:8px;flex-wrap:wrap}
 .demo-banner .btn{font-size:13px;min-height:38px;padding:6px 12px}
 
 /* Značka průvodce. Vkládá se až po vykreslení a jen při zapnutém průvodci. */
