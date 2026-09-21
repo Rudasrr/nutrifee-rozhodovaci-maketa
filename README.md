@@ -6,7 +6,15 @@ Slouží diabetologovi fakultního centra jako podklad k rozhodnutí o rozsahu s
 **Není klinický nástroj, není klinicky validovaná a neobsahuje žádná skutečná pacientská data.**
 V celé maketě zůstává viditelné označení „DEMO · syntetická data · není určeno pro léčbu“.
 
-## Spuštění
+## Kde to běží
+
+**https://rudasrr.github.io/nutrifee-rozhodovaci-maketa/** — veřejná URL, otevře se bez přihlášení.
+Zdroj: https://github.com/Rudasrr/nutrifee-rozhodovaci-maketa
+
+Stránka je statická, bez backendu a bez databáze. Nic se z prohlížeče neodesílá; průběh demonstrace
+zůstává jen v prohlížeči toho, kdo ji otevřel.
+
+## Spuštění lokálně
 
 Dvojklik na `nutrifee-rozhodovaci-maketa.html` v běžném prohlížeči. Nic se neinstaluje a nic se nikam neodesílá.
 
