@@ -13,7 +13,7 @@ function act(S) { return D.acts[chapter(S).act]; }
 
 /* ---------- demo lišta ---------- */
 NF.registerSlot('rolebar', function (S) {
-  var roles = [['patient', 'Pacient'], ['doctor', 'Lékař'], ['garant', 'Garant']];
+  var roles = [['patient', 'Pacient'], ['doctor', 'Lékař'], ['nurse', 'Sestra'], ['garant', 'Garant']];
   return '<nav class="rolebar" aria-label="Demonstrační role">' + roles.map(function (r) {
     return '<button type="button" data-action="role" data-value="' + r[0] + '" class="' + (S.role === r[0] ? 'active' : '') + '"' +
       (S.role === r[0] ? ' aria-current="true"' : '') + '>' + e(r[1]) + '</button>';

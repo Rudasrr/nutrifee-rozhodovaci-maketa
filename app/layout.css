@@ -39,3 +39,7 @@
 .patientnav-wrap{position:sticky;bottom:12px;z-index:5}
 .patientnav-wrap .patientnav{position:static;margin-top:24px}
 .patientnav-wrap .guide-marker{position:absolute;right:-4px;top:-14px;background:#fff}
+
+/* Lékařský průvodce má dva kroky, zaučení vede sestra na vlastní obrazovce. */
+.wizard-steps.two{grid-template-columns:1fr 1fr}
+@media(max-width:600px){.wizard-steps.two{grid-template-columns:1fr}}

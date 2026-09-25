@@ -21,6 +21,7 @@ function fail(msg) { S.error = msg; }
 /* ---------- vykreslení ---------- */
 function content() {
   if (S.role === 'doctor') return V.doctor(S);
+  if (S.role === 'nurse') return V.nurse(S);
   if (S.role === 'garant') return V.garant(S);
   return V.patient(S);
 }
@@ -127,7 +128,9 @@ var A = {
   page: function (v) { S.page = v; S.error = ''; },
   role: function (v) {
     S.role = v;
-    S.page = v === 'doctor' ? (S.draft ? 'issue' : 'onepage') : v === 'garant' ? 'catalog' : (NF.activePlan(S) ? 'today' : 'takeover');
+    S.page = v === 'doctor' ? (S.draft ? 'issue' : 'onepage')
+      : v === 'nurse' ? 'training'
+        : v === 'garant' ? 'catalog' : (NF.activePlan(S) ? 'today' : 'takeover');
   },
   closeDrawer: function () { drawer = null; },
 
@@ -146,6 +149,7 @@ var A = {
   },
   pickReason: function (v) { S.form = S.form || {}; S.form.reason = v; },
   trainingStep: function (v) {
+    if (S.role !== 'nurse') return fail('Zaučení vede sestra.');
     S.training.steps[v] = !S.training.steps[v];
     if (S.training.result === 'done' && !NF.TRAINING.every(function (x) { return S.training.steps[x[0]]; })) S.training.result = null;
   },
@@ -153,7 +157,8 @@ var A = {
     if (v === 'done' && !NF.TRAINING.every(function (x) { return S.training.steps[x[0]]; })) {
       return fail('Zaučení nelze označit za dokončené, dokud některý bod chybí.');
     }
-    NF.finishTraining(S, v, v === 'failed' ? 'Pacient si zatím není jistý ovládáním; domluveno opakované zaučení.' : '');
+    var r = NF.finishTraining(S, S.role, v, v === 'failed' ? 'Pacient si zatím není jistý ovládáním; domluveno opakované zaučení.' : '');
+    if (!r.ok) return fail(r.error);
     if (v === 'failed') toast('Zaučení nebylo dokončeno. Plán se nevydá a úkol se neaktivuje.');
     else toast('Zaučení je dokončené.');
   },

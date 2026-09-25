@@ -39,10 +39,10 @@ V.issue = function (S) {
         '<div class="actions">' + btn('Otevřít kontrolu', 'page', 'onepage', 'primary') + '</div>'
         : '<p>Pro tohoto modelového pacienta zatím není připravený návrh plánu.</p>'));
   }
-  var step = S.wizardStep || 0;
-  var steps = ['Zařazení pacienta', 'Zaučení a předání zařízení', 'Plán a jeho vydání'];
+  var step = Math.min(1, S.wizardStep || 0);
+  var steps = ['Zařazení pacienta', 'Úkol, plán a jeho vydání'];
   var head = '<div class="wizard-layout"><div class="wizard">' +
-    '<div class="wizard-steps" role="tablist" aria-label="Kroky v ordinaci">' +
+    '<div class="wizard-steps two" role="tablist" aria-label="Kroky lékaře v ordinaci">' +
     steps.map(function (t, i) {
       return '<button type="button" data-action="wizardGo" data-value="' + i + '"' +
         (i === step ? ' aria-current="step"' : '') + '><span aria-hidden="true">' + (i + 1) + '</span>' + e(t) + '</button>';
@@ -51,20 +51,14 @@ V.issue = function (S) {
 
   if (step === 0) return head + V.enrollStep(S) + foot(
     (S.enrollment.eligible
-      ? btn('Pokračovat na zaučení', 'wizardGo', '1', 'primary')
-      : btnHtml('Pokračovat na zaučení', 'noop', null, 'primary', ' disabled')) +
+      ? btn('Pokračovat k plánu', 'wizardGo', '1', 'primary')
+      : btnHtml('Pokračovat k plánu', 'noop', null, 'primary', ' disabled')) +
     (S.enrollment.eligible ? '' : '<p class="small muted">Dokud některé kritérium není potvrzené, pacient do první kohorty nepatří a zařazení nepokračuje.</p>'));
 
-  if (step === 1) return head + V.trainingStep(S) + foot(
-    btn('Zpět na zařazení', 'wizardGo', '0', 'secondary') +
-    (S.training.result === 'done'
-      ? btn('Pokračovat k plánu', 'wizardGo', '2', 'primary')
-      : btnHtml('Pokračovat k plánu', 'noop', null, 'primary', ' disabled')));
-
   return head + V.planStep(S) + foot(
-    btn('Zpět na zaučení', 'wizardGo', '1', 'secondary') +
+    btn('Zpět na zařazení', 'wizardGo', '0', 'secondary') +
     (V.planBlockers(S).length ? btnHtml('Vydat plán', 'noop', null, 'primary', ' disabled')
-      : btn('Vydat plán a předat pacientovi', 'issuePlan', null, 'primary')));
+      : btn('Vydat plán a předat zaučení sestře', 'issuePlan', null, 'primary')));
 };
 
 V.enrollStep = function (S) {
@@ -97,12 +91,23 @@ V.enrollStep = function (S) {
       : hint('Nepotvrzená kritéria znamenají, že pacient do první kohorty nepatří. Nic se nedopočítává a zařazení nepokračuje.', 'warn'));
 };
 
+V.nurse = function (S) {
+  return '<nav class="tabs" aria-label="Nabídka sestry">' +
+    '<button type="button" class="btn primary" data-action="page" data-value="training" aria-current="page">Zaučení a předání zařízení</button>' +
+    '</nav><div class="clinic-page">' + V.trainingStep(S) + '</div>';
+};
+
 V.trainingStep = function (S) {
   var t = S.training;
+  var p = NF.activePlan(S);
   var all = NF.TRAINING.every(function (x) { return t.steps[x[0]]; });
-  return '<p class="eyebrow">V ordinaci · ' + e(NF.fmtDate(S.clock)) + '</p>' +
+  return V.card('<p class="eyebrow">V ordinaci · sestra · ' + e(NF.fmtDate(S.clock)) + '</p>' +
     '<h1>Zaučení a předání zařízení</h1>' +
-    '<p class="muted">Zaučení probíhá tady, s pacientem u stolu. Bez něj se plán nevydá.</p>' +
+    '<p class="muted">Zaučení vede sestra. Lékař už plán vydal; úkol se pacientovi aktivuje až po zaučení a ověření porozumění.</p>' +
+    (p ? '<div class="plan-basics">' + kv('Plán k zaučení', e(p.id + ' ' + p.version)) +
+      kv('Vydal', e(S.doctor.label)) +
+      kv('Úkol', e((NF.taskById(S, p.taskId) || {}).title || 'nemáme údaj')) + '</div>'
+      : hint('Lékař zatím plán nevydal. Zaučení proběhne, až bude co předat.', 'warn')) +
     '<div class="next-step"' + NF.hook('training-sensor') + '><strong>Senzor</strong>' +
     '<p>Připojení senzoru je v této ukázce <strong>simulované</strong>. Žádná data se nepřenášejí a žádná integrace neexistuje.</p></div>' +
     '<h2' + NF.hook('training-steps') + '>Co pacient zvládl</h2>' +
@@ -110,15 +115,16 @@ V.trainingStep = function (S) {
       return '<label class="check"><input type="checkbox" data-action="trainingStep" data-value="' + x[0] + '"' +
         (t.steps[x[0]] ? ' checked' : '') + '><span>' + e(x[1]) + '</span></label>';
     }).join('') +
-    (t.result === 'done' ? hint('Zaučení dokončeno ' + e(NF.fmtDateTime(t.at)) + '.', 'success') : '') +
+    (t.result === 'done' ? hint('Zaučení dokončila ' + e(S.nurse.label) + ' ' + e(NF.fmtDateTime(t.at)) +
+      '. Pacient teď může převzít plán a projít ověřením porozumění.', 'success') : '') +
     (t.result === 'failed' ? hint('<strong>Zaučení nebylo dokončeno.</strong> ' + e(t.note) +
-      '<br>Plán se nevydá a žádný klinický úkol se neaktivuje. Pacient <strong>není</strong> vykázán jako úspěšně zařazený. ' +
+      '<br>Úkol se pacientovi <strong>neaktivuje</strong>, i když plán vydaný je. Pacient <strong>není</strong> vykázán jako úspěšně zařazený. ' +
       'Domluvte opakované zaučení nebo pomoc pečující osoby.', 'warn') : '') +
     '<div class="actions">' +
     (all ? btn('Zaučení dokončeno', 'finishTraining', 'done', 'primary')
       : btnHtml('Zaučení dokončeno', 'noop', null, 'primary', ' disabled')) +
     btn('Zaučení se nezdařilo', 'finishTraining', 'failed', 'secondary') + '</div>' +
-    (all ? '' : '<p class="small muted">Dokud některý bod chybí, zaučení nelze označit za dokončené.</p>');
+    (all ? '' : '<p class="small muted">Dokud některý bod chybí, zaučení nelze označit za dokončené.</p>'));
 };
 
 V.planBlockers = function (S) {
@@ -126,7 +132,6 @@ V.planBlockers = function (S) {
   if (!S.enrollment.eligible) chybi.push('posouzení způsobilosti');
   if (!d.taskId) chybi.push('vybraný úkol z katalogu');
   if (!d.medicationChecked) chybi.push('ověření seznamu léčby');
-  if (S.training.result !== 'done') chybi.push('dokončené zaučení');
   if (!d.safetyChecked) chybi.push('předaný bezpečnostní a kontaktní plán');
   return chybi;
 };
@@ -167,7 +172,7 @@ V.planStep = function (S) {
     '<label class="check"' + NF.hook('issue-safety') + '><input type="checkbox" data-bind="draft.safetyChecked"' +
     (d.safetyChecked ? ' checked' : '') + '><span>Bezpečnostní a kontaktní plán jsem předal a probral.</span></label>' +
     (chybi.length ? hint('<strong>Plán zatím nelze vydat.</strong> Chybí: ' + e(chybi.join(', ')) + '.', 'warn')
-      : hint('Po vydání se plán předá pacientovi. Úkol se aktivuje až po ověření porozumění.', 'success'));
+      : hint('Po vydání převezme pacienta sestra: zaučí ho a předá zařízení. Úkol se aktivuje až po zaučení a ověření porozumění.', 'success'));
 };
 
 function sectionHead(n, title, key) {

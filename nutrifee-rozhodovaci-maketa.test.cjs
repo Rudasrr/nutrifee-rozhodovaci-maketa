@@ -90,7 +90,7 @@ test('Pacient na začátku nemá co vyplňovat ani potvrzovat', () => {
 
 test('Pořadí dějství drží ordinaci před domovem', () => {
   const ids = D.chapters.map(c => c.id);
-  const order = ['enroll', 'training', 'plan', 'handover', 'understanding', 'firstMeal'];
+  const order = ['enroll', 'plan', 'training', 'handover', 'understanding', 'firstMeal'];
   let last = -1;
   for (const id of order) {
     const i = ids.indexOf(id);
@@ -99,9 +99,10 @@ test('Pořadí dějství drží ordinaci před domovem', () => {
   }
   assert.equal(D.acts.length, 6);
   const act0 = D.chapters.filter(c => c.act === 0);
-  assert.equal(act0[0].role, 'doctor');
-  assert.equal(act0[1].role, 'doctor');
-  assert.equal(act0[2].role, 'doctor');
+  assert.equal(act0[0].role, 'doctor', 'zařazení vede lékař');
+  assert.equal(act0[1].role, 'doctor', 'plán vydává lékař');
+  assert.equal(act0[2].role, 'nurse', 'zaučení vede sestra');
+  assert.equal(act0[3].role, 'patient');
 });
 
 /* ---------- zařazení a zaučení ---------- */
@@ -131,16 +132,50 @@ test('Zaučení nelze označit za dokončené, dokud některý bod chybí', () =
   assert.equal(S().training.result, 'done');
 });
 
-test('Nezvládnuté zaučení je slepá ulička — plán ani úkol nevzniknou', () => {
-  chapter('plan');
+test('Nezvládnuté zaučení nezastaví vydaný plán, ale úkol se neaktivuje', () => {
   branch('training', 'failed');
+  assert.equal(S().role, 'nurse', 'odbočka přistane u sestry, kde se odehraje');
+  assert.equal(S().activePlanId, 'P1', 'plán lékař vydal už před zaučením');
+  assert.equal(S().training.result, null, 'na začátku scény zaučení teprve proběhne');
+  chapter('handover');
   assert.equal(S().training.result, 'failed');
-  const r = NF.issuePlan(S(), 'doctor');
-  assert.equal(r.ok, false);
-  assert.match(r.error, /zaučení/);
+  const u = NF.confirmUnderstanding(S());
+  assert.equal(u.ok, false);
+  assert.match(u.error, /[Zz]aučení u sestry/);
   chapter('firstMeal');
-  assert.equal(S().activePlanId, null, 'příběh dál nepokračuje');
-  assert.equal(NF.activeTask(S()), null);
+  assert.equal(NF.activeTask(S()), null, 'příběh dál nepokračuje');
+  assert.equal(S().role, 'nurse', 'zůstáváme u sestry');
+});
+
+test('Zaučení vede sestra, ne lékař', () => {
+  chapter('training');
+  assert.equal(D.chapters[D.indexOf('training')].role, 'nurse');
+  assert.equal(S().role, 'nurse');
+  assert.match(markup(), /Zaučení vede sestra/);
+  const r = NF.finishTraining(S(), 'doctor', 'done', '');
+  assert.equal(r.ok, false);
+  assert.match(r.error, /potvrzuje sestra/);
+  act('role', 'doctor');
+  act('trainingStep', 'app');
+  assert.match(S().error, /Zaučení vede sestra/);
+});
+
+test('Sestra vidí, co lékař vydal, a zaučení je zaznamenané na ni', () => {
+  chapter('handover');
+  assert.equal(S().training.result, 'done');
+  assert.equal(S().training.by, 'DEMO-S01');
+  act('role', 'nurse');
+  const m = markup();
+  assert.match(m, /Plán k zaučení/);
+  assert.match(m, /Modelová sestra 01/);
+});
+
+test('Seznam zaučení jsou konkrétní úkony, ne abstraktní zkouška', () => {
+  chapter('training');
+  const labels = NF.TRAINING.map(t => t[1]);
+  assert.equal(labels.length, 4);
+  for (const l of labels) assert.match(markup(), new RegExp(l.split(' ').slice(0, 4).join(' ')));
+  assert.equal(labels.some(l => /vlastními slovy/.test(l)), false, 'žádná abstraktní formulace');
 });
 
 test('Vydání plánu vyžaduje všechny náležitosti', () => {
@@ -180,7 +215,7 @@ test('Úkol se aktivuje až po ověření porozumění v ordinaci', () => {
 
 /* ---------- v ordinaci se nic nevypisuje ---------- */
 test('V ordinaci není jediné pole k vypisování', () => {
-  for (const id of ['enroll', 'training', 'plan']) {
+  for (const id of ['enroll', 'plan', 'training']) {
     chapter(id);
     const m = markup();
     assert.equal(/<textarea/.test(m), false, 'textarea v kroku ' + id);

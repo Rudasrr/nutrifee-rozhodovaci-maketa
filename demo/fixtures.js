@@ -212,11 +212,11 @@ function meal(spec, noSensor) {
 /* ---------- odbočky (mimo hlavní linku) ---------- */
 D.branches = {
   training: {
-    label: 'Zaučení v ordinaci',
+    label: 'Zaučení u sestry',
     from: 'training',
     options: [
       { id: 'done', label: 'Zaučení proběhlo' },
-      { id: 'failed', label: 'Zaučení se nezdařilo — příběh tu končí' }
+      { id: 'failed', label: 'Zaučení se nezdařilo — úkol se neaktivuje' }
     ]
   },
   evidence: {
@@ -294,38 +294,36 @@ function pickTask(S) {
    apply = akce, která se v té scéně teprve odehraje; platí, až scénu opustíš.
    Díky tomu kapitola ukazuje výchozí stav a prezentující ji odehraje. */
 var CH = [
-  /* ---- Dějství 1 — V ordinaci ---- */
+  /* ---- Dějství 1 — V ordinaci ----
+     Lékař rozhodne a vydá plán. Zaučení a předání zařízení vede sestra.
+     Úkol se aktivuje až po zaučení a ověření porozumění. */
   {
     id: 'enroll', act: 0, title: 'Lékař — zařazení pacienta',
     role: 'doctor', page: 'issue', wizardStep: 0, at: '2026-10-05T09:00:00',
     apply: function (S) { enrolled(S); }
   },
   {
-    id: 'training', act: 0, title: 'Lékař — zaučení a předání zařízení',
-    role: 'doctor', page: 'issue', wizardStep: 1, at: '2026-10-05T09:20:00',
+    id: 'plan', act: 0, title: 'Lékař — úkol z katalogu a vydání plánu',
+    role: 'doctor', page: 'issue', wizardStep: 1, at: '2026-10-05T09:15:00',
+    setup: function (S, B) { pickTask(S); },
     apply: function (S, B) {
-      NF.TRAINING.forEach(function (x) { S.training.steps[x[0]] = true; });
-      if (B.training === 'failed') {
-        S.training.steps.limits = false;
-        NF.finishTraining(S, 'failed', 'Pacient si zatím není jistý ovládáním; domluveno opakované zaučení.');
-      } else {
-        NF.finishTraining(S, 'done', '');
-      }
-    }
-  },
-  {
-    id: 'plan', act: 0, title: 'Lékař — sestavení a vydání plánu',
-    role: 'doctor', page: 'issue', wizardStep: 2, at: '2026-10-05T09:40:00',
-    setup: function (S, B) {
-      if (B.training === 'failed') return;
-      pickTask(S);
-    },
-    apply: function (S, B) {
-      if (B.training === 'failed') return;
       S.draft.medicationChecked = true;
       S.draft.safetyChecked = true;
       NF.issuePlan(S, 'doctor');
       NF.handover(S);
+    }
+  },
+  {
+    id: 'training', act: 0, title: 'Sestra — zaučení a předání zařízení',
+    role: 'nurse', page: 'training', at: '2026-10-05T09:35:00',
+    apply: function (S, B) {
+      NF.TRAINING.forEach(function (x) { S.training.steps[x[0]] = true; });
+      if (B.training === 'failed') {
+        S.training.steps.contacts = false;
+        NF.finishTraining(S, 'nurse', 'failed', 'Pacient si zatím není jistý ovládáním; domluveno opakované zaučení.');
+      } else {
+        NF.finishTraining(S, 'nurse', 'done', '');
+      }
     }
   },
   {
@@ -541,7 +539,7 @@ var CH = [
 ];
 
 D.acts = [
-  { title: 'Dějství 1 — V ordinaci', note: 'Zařazení, zaučení a vydání prvního plánu.', covers: 'scénář 1' },
+  { title: 'Dějství 1 — V ordinaci', note: 'Lékař zařadí a vydá plán, sestra zaučí a předá zařízení, pacient plán převezme.', covers: 'scénář 1' },
   { title: 'Dějství 2 — Doma, první zkušenost', note: 'Jeden úkol, epizody a poctivý závěr o tom, co z dat nelze rozhodnout.', covers: 'scénář 1' },
   { title: 'Dějství 3 — Když něco nesedí', note: 'Nemoc nebo výpadek dat, bezpečnostní plán, pozastavení a obnovení.', covers: 'scénář 2' },
   { title: 'Dějství 4 — Správa pravidel', note: 'Podnět, vyřazení pravidla, dopad na pacienta, incident a náprava.', covers: 'scénář 4 B' },
@@ -600,10 +598,10 @@ D.play = function (index, branches) {
   S.chapter = ch.id;
   S.chapterIndex = idx;
   /* Nezvládnuté zaučení je slepá ulička — příběh dál nepokračuje. */
-  if (B.training === 'failed' && idx > 2) {
+  if (B.training === 'failed' && idx > 3) {
     S.chapterIndex = 2;
     S.chapter = CH[2].id;
-    S.role = 'doctor'; S.page = 'issue'; S.wizardStep = 2;
+    S.role = 'nurse'; S.page = 'training';
     S.clock = CH[2].at;
   }
   NF.log(S, 'story.play', S.chapter + ' · ' + JSON.stringify(B));
@@ -641,7 +639,7 @@ D.decisionList = [
 
 /* ---------- otázky pro garanta podle dějství ---------- */
 D.garantQuestions = [
-  ['Jaká jsou praktická vstupní kritéria a co přesně znamená stabilní režim?', 'Kdo řeší neúspěšné zaučení a co se s pacientem děje dál?'],
+  ['Jaká jsou praktická vstupní kritéria a co přesně znamená stabilní režim?', 'Které pozorovací úkoly patří do katalogu?', 'Kdo řeší neúspěšné zaučení a co se s pacientem děje dál?', 'Kolik času zabere zaučení sestře a započítává se do zátěže ambulance?'],
   ['Které pozorovací úkoly patří do první studie?', 'Jaká je minimální epizoda a co znamená dokončení?', 'Kdy lze bezpečně nabídnout změnový úkol?'],
   ['Kdo dodá konkrétní formulace, meze a kontaktní postupy?', 'Které stavy pozastavují úkol a kdo jej obnovuje?', 'Jak odlišit technickou a klinickou pomoc?'],
   ['Kdo řeší incident a nedoručenou aktualizaci?', 'Musí se projít testovací příklady i u drobné formulační opravy?'],

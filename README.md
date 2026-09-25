@@ -48,7 +48,7 @@ tlačítek. Úkoly jsou předem definované v katalogu a lékař jeden vybere; �
 modelově schválenou verzi, je v katalogu vidět, ale přiřadit nejde. Ani důvod rozhodnutí na kontrole
 se nepíše — vybírá se z připravených. V prvních třech krocích není jediné textové pole.
 
-Nahoře jsou tři demonstrační přepínače rolí (Pacient / Lékař / Garant), tlačítko **Průvodce maketou**
+Nahoře jsou čtyři demonstrační přepínače rolí (Pacient / Lékař / Sestra / Garant), tlačítko **Průvodce maketou**
 a tlačítko **Panel prezentujícího**. Přepínač rolí je prezentační pomůcka, ne přihlášení.
 V demo liště je krokování **◀ Předchozí / Další ▶ / Reset**.
 
@@ -56,7 +56,7 @@ V demo liště je krokování **◀ Předchozí / Další ▶ / Reset**.
 
 | Dějství | Kapitoly | Co ukazuje | Pokrývá scénář zadání |
 |---|---|---|---|
-| **1 — V ordinaci** | 1–5 | Zařazení, zaučení, vydání plánu, předání, ověření porozumění | 1 |
+| **1 — V ordinaci** | 1–5 | Lékař zařadí a vydá plán, **sestra** zaučí a předá zařízení, pacient plán převezme | 1 |
 | **2 — Doma, první zkušenost** | 6–7 | Jeden úkol, epizody, poctivý závěr o tom, co z dat nelze rozhodnout | 1 |
 | **3 — Když něco nesedí** | 8–10 | Nemoc nebo výpadek dat, bezpečnostní plán, pozastavení a obnovení | 2 |
 | **4 — Správa pravidel** | 11–13 | Podnět, vyřazení pravidla, dopad na pacienta, incident a náprava | 4 B |
@@ -72,7 +72,7 @@ Přepínají se v panelu prezentujícího u příslušného dějství a načtou 
 
 | Odbočka | Volby |
 |---|---|
-| Zaučení v ordinaci | proběhlo · **nezdařilo se** — příběh tu končí, plán se nevydá a úkol se neaktivuje |
+| Zaučení u sestry | proběhlo · **nezdařilo se** — plán je vydaný, ale úkol se neaktivuje a pacient se nevykazuje jako zařazený |
 | Podklady ze snídaní | tři snídaně se dvěma s kontextem · **málo podkladů** (u E3 chybí senzorová data) |
 | Co se stalo 20. října | nemoc · výrobce hodnoty ukazuje · nefunkční senzor · pacient neví |
 | Zařízení při změně pravidla | online · **offline** — doručení nepotvrzeno |
@@ -117,8 +117,9 @@ složky demo“.
 
 ## Co je funkční a co simulované
 
-**Funkční logika makety:** katalog předdefinovaných úkolů s blokací neschválených pravidel;
-posouzení způsobilosti a zaučení jako podmínka vydání plánu;
+**Funkční logika makety:** rozdělení rolí lékař / sestra; katalog předdefinovaných úkolů s blokací
+neschválených pravidel; způsobilost jako podmínka vydání plánu a zaučení sestrou jako podmínka
+aktivace úkolu;
 stavy plánu, úkolu a epizod; blokace vydání plánu bez náležitostí;
 oddělení zaznamenaných a úplných epizod; pozastavení a obnovení úkolu; katalog pravidel včetně
 schválení, vyřazení a dopadu; jednostránková kontrola s pevným pořadím; vydání P2 se zachováním

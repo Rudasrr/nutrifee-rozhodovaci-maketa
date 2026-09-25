@@ -64,13 +64,13 @@ G.topics = {
     decide: 'Který senzor, jaká datová cesta a za jakých licenčních podmínek.'
   },
   'training-steps': {
-    title: 'Zaučení je podmínka, ne formalita',
+    title: 'Zaučení vede sestra, ne lékař',
     level: 'navrh',
-    what: 'Čtyři konkrétní věci, které pacient v ordinaci předvede. Dokud některá chybí, zaučení nelze označit za dokončené.',
-    why: 'Počáteční edukace je u nově zavedeného senzoru součástí standardu péče. Kdyby stačilo jedno zaškrtnutí, byl by z toho doklad bez obsahu.',
-    risk: 'Při nezvládnutém zaučení se plán nevydá a žádný klinický úkol se neaktivuje. Pacient se nevykazuje jako úspěšně zařazený — to je jinak snadný způsob, jak si nafouknout čísla pilotu.',
-    sim: 'Body zaškrtává prezentující. Skutečné ověření dovednosti se nesimuluje.',
-    decide: 'Kdo řeší neúspěšné zaučení a co se s takovým pacientem děje dál. Opora pro rozsah edukace: ADA, Standards of Care 2026 — konkrétní podoba je k ověření.'
+    what: 'Sestra odškrtne čtyři konkrétní úkony, které pacient při předání zvládl. Dokud některý chybí, zaučení nelze označit za dokončené.',
+    why: 'Lékař rozhodne a vydá plán; edukaci a předání zařízení dělá v ambulanci sestra. Kdyby zaučení viselo na lékaři, program by mu práci přidal — a úspora jeho času je v tomto návrhu rovnocenná pomoci pacientovi.',
+    risk: 'Body jsou konkrétní úkony, ne zkoušení. Porozumění hranicím služby ověřuje samostatná otázka po předání plánu, aby zaučení nebylo doklad bez obsahu. Při nezvládnutém zaučení se úkol neaktivuje, i když plán vydaný je, a pacient se nevykazuje jako úspěšně zařazený — to je jinak snadný způsob, jak si nafouknout čísla pilotu.',
+    sim: 'Body odškrtává prezentující. Skutečné ověření dovednosti se nesimuluje.',
+    decide: 'Kdo řeší neúspěšné zaučení a co se s takovým pacientem děje dál. Kolik času zaučení sestře zabere a jak se započítá do celkové práce ambulance. Opora pro rozsah edukace: ADA, Standards of Care 2026 — konkrétní podoba je k ověření.'
   },
 
   /* ---- jeden aktivní úkol a jeho dokončení ---- */

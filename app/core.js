@@ -59,6 +59,7 @@ NF.createState = function () {
     clock: '2026-10-05T09:00:00',
     patient: { id: 'DEMO-P01', label: 'Modelový pacient 01' },
     doctor: { id: 'DEMO-L01', label: 'Modelový lékař 01' },
+    nurse: { id: 'DEMO-S01', label: 'Modelová sestra 01' },
     garant: { id: 'DEMO-G01', label: 'Modelový garant 01' },
     onboarding: { checkAnswer: null, done: false },
     /* Zařazení a zaučení proběhnou v ordinaci, dřív než lékař vydá plán. */
@@ -166,14 +167,19 @@ NF.assignTask = function (S, item) {
   return { ok: true };
 };
 
+/* Konkrétní úkony, které sestra při předání odškrtne. Nic abstraktního —
+   porozumění hranicím služby ověřuje samostatná otázka po předání plánu. */
 NF.TRAINING = [
-  ['app', 'Pacient si otevřel aplikaci a našel dnešní úkol'],
+  ['app', 'Pacient si otevřel aplikaci a našel svůj úkol'],
   ['record', 'Pacient zvládl zapsat zkušební jídlo'],
   ['safety', 'Pacient našel bezpečnostní a kontaktní plán'],
-  ['limits', 'Pacient řekl vlastními slovy, co aplikace nedělá']
+  ['contacts', 'Pacient ví, kam volat při technickém problému a kam při zdravotním']
 ];
-NF.finishTraining = function (S, result, note) {
+/* Zaučení a předání zařízení dělá sestra, ne lékař. */
+NF.finishTraining = function (S, role, result, note) {
+  if (role !== 'nurse') return { ok: false, error: 'Zaučení potvrzuje sestra.' };
   S.training.result = result;
+  S.training.by = 'DEMO-S01';
   S.training.note = note || '';
   S.training.at = S.clock;
   NF.log(S, 'training.' + result, note || '');
@@ -211,7 +217,6 @@ NF.issuePlan = function (S, role) {
   var chybi = [];
   if (!S.enrollment || !S.enrollment.eligible) chybi.push('posouzení způsobilosti pro kohortu');
   if (!d.medicationChecked) chybi.push('ověření modelového seznamu léčby');
-  if (!S.training || S.training.result !== 'done') chybi.push('dokončené zaučení a předání zařízení');
   if (!d.safetyChecked) chybi.push('bezpečnostní a kontaktní plán');
   if (!d.taskId) chybi.push('přiřazený úkol');
   if (chybi.length) return { ok: false, error: 'Plán zatím nelze vydat. Chybí: ' + chybi.join(', ') + '.' };
@@ -253,7 +258,7 @@ NF.confirmUnderstanding = function (S) {
   var p = NF.activePlan(S);
   if (!p || !p.handedOver) return { ok: false, error: 'Plán zatím nebyl předán.' };
   if (!S.training || S.training.result !== 'done') {
-    return { ok: false, error: 'Zaučení nebylo dokončeno. Klinický úkol se neaktivuje.' };
+    return { ok: false, error: 'Zaučení u sestry nebylo dokončeno. Klinický úkol se neaktivuje.' };
   }
   p.understood = true;
   var t = NF.taskById(S, p.taskId);
