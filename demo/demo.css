@@ -47,3 +47,7 @@
   .onepage::before{content:"DEMO · syntetická data · není určeno pro léčbu";display:block;
     border:2px dashed #6841a3;color:#6841a3;border-radius:8px;padding:8px 12px;margin:0 0 18px;font-weight:700;font-size:13px}
 }
+
+/* Průchod na úrovni garanta — jen schvalovací body. */
+.garant-route{flex-basis:100%;border:1px dashed #b8a2d9;background:var(--purplebg);border-radius:12px;padding:10px 14px;display:grid;gap:8px}
+.garant-route p{font-size:13px;color:var(--ink)}

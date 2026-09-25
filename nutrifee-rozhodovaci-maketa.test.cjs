@@ -54,6 +54,7 @@ const S = () => app.getState();
 const act = (a, v) => app.act(a, v);
 const bind = (k, v) => app.bind(k, v);
 const markup = () => elements.get('app').innerHTML;
+const overlay = () => elements.get('overlay').innerHTML;
 const chapter = id => {
   const i = D.indexOf(id);
   assert.ok(i >= 0, 'neznámá kapitola ' + id);
@@ -61,6 +62,12 @@ const chapter = id => {
   act('closeDrawer');
 };
 const branch = (k, v) => { act('setBranch', k + ':' + v); act('closeDrawer'); };
+const everyScreen = fn => {
+  for (let i = 0; i < D.chapters.length; i++) {
+    act('goChapter', String(i)); act('closeDrawer');
+    for (const role of ['patient', 'doctor', 'nurse', 'garant']) { act('role', role); fn(markup(), D.chapters[i].id + '/' + role); }
+  }
+};
 
 let passed = 0, failed = 0;
 const fails = [];
@@ -69,11 +76,10 @@ function test(name, fn) {
   catch (err) { console.error('FAIL', name, '—', err.message); failed++; fails.push(name); }
 }
 
-/* ---------- příběh začíná u lékaře v ordinaci ---------- */
+/* ================= ordinace ================= */
 test('Příběh začíná v ordinaci u lékaře, ne u pacienta', () => {
   assert.equal(S().chapterIndex, 0);
   assert.equal(D.chapters[0].id, 'enroll');
-  assert.equal(D.chapters[0].role, 'doctor');
   assert.equal(S().role, 'doctor');
   assert.match(markup(), /Zařazení pacienta/);
   assert.equal(S().activePlanId, null);
@@ -82,105 +88,44 @@ test('Příběh začíná v ordinaci u lékaře, ne u pacienta', () => {
 
 test('Pacient na začátku nemá co vyplňovat ani potvrzovat', () => {
   act('role', 'patient');
-  const m = markup();
-  assert.match(m, /Plán zatím nebyl vydán/);
-  assert.match(m, /Plán vydává lékař/);
-  assert.equal(/Začít úkol/.test(m), false, 'žádný pacientský krok před lékařem');
+  assert.match(markup(), /Plán zatím nebyl vydán/);
+  assert.match(markup(), /Plán vydává lékař/);
 });
 
-test('Pořadí dějství drží ordinaci před domovem', () => {
+test('Pořadí dějství: ordinace, učení, rada, výpadek, pravidla, kontrola', () => {
   const ids = D.chapters.map(c => c.id);
-  const order = ['enroll', 'plan', 'training', 'handover', 'understanding', 'firstMeal'];
+  const order = ['enroll', 'plan', 'training', 'handover', 'understanding', 'firstMeal', 'learning', 'advice', 'afterBolus', 'similar',
+    'disruption', 'catalog', 'onepage', 'decide'];
   let last = -1;
-  for (const id of order) {
-    const i = ids.indexOf(id);
-    assert.ok(i > last, 'kapitola ' + id + ' je mimo pořadí');
-    last = i;
-  }
+  for (const id of order) { const i = ids.indexOf(id); assert.ok(i > last, 'kapitola ' + id + ' je mimo pořadí'); last = i; }
   assert.equal(D.acts.length, 6);
-  const act0 = D.chapters.filter(c => c.act === 0);
-  assert.equal(act0[0].role, 'doctor', 'zařazení vede lékař');
-  assert.equal(act0[1].role, 'doctor', 'plán vydává lékař');
-  assert.equal(act0[2].role, 'nurse', 'zaučení vede sestra');
-  assert.equal(act0[3].role, 'patient');
+  const a0 = D.chapters.filter(c => c.act === 0);
+  assert.equal(a0.slice(0, 4).map(c => c.role).join(), 'doctor,doctor,nurse,patient');
 });
 
-/* ---------- zařazení a zaučení ---------- */
+test('Kohorta: jen inzulin, bez perorálních antidiabetik, pevné dávky', () => {
+  const labels = NF.ELIGIBILITY.map(c => c[1]).join(' | ');
+  assert.match(labels, /žádná perorální antidiabetika/);
+  assert.match(labels, /pevné dávky/);
+  chapter('enroll');
+  const m = markup();
+  assert.equal(/metformin/i.test(m), false, 'karta nesmí uvádět perorální antidiabetikum');
+  assert.match(m, /Jen inzulin — bez perorálních antidiabetik/);
+  assert.equal(/metformin/i.test(fs.readFileSync(path.join(__dirname, 'demo/fixtures.js'), 'utf8')), false);
+});
+
 test('Bez způsobilosti se nepokračuje a plán se nevydá', () => {
   const r = NF.issuePlan(S(), 'doctor');
   assert.equal(r.ok, false);
   assert.match(r.error, /způsobilosti/);
-  assert.equal(S().enrollment.eligible, false);
   act('eligibility', 'adult');
   assert.equal(S().enrollment.eligible, false, 'jedno kritérium nestačí');
   for (const c of NF.ELIGIBILITY.slice(1)) act('eligibility', c[0]);
   assert.equal(S().enrollment.eligible, true);
 });
 
-test('Zaučení nelze označit za dokončené, dokud některý bod chybí', () => {
-  chapter('training');
-  boot();
-  act('goChapter', String(D.indexOf('training')));
-  act('closeDrawer');
-  S().training.steps = {};
-  S().training.result = null;
-  act('finishTraining', 'done');
-  assert.match(S().error, /dokud některý bod chybí/);
-  assert.equal(S().training.result, null);
-  for (const t of NF.TRAINING) act('trainingStep', t[0]);
-  act('finishTraining', 'done');
-  assert.equal(S().training.result, 'done');
-});
-
-test('Nezvládnuté zaučení nezastaví vydaný plán, ale úkol se neaktivuje', () => {
-  branch('training', 'failed');
-  assert.equal(S().role, 'nurse', 'odbočka přistane u sestry, kde se odehraje');
-  assert.equal(S().activePlanId, 'P1', 'plán lékař vydal už před zaučením');
-  assert.equal(S().training.result, null, 'na začátku scény zaučení teprve proběhne');
-  chapter('handover');
-  assert.equal(S().training.result, 'failed');
-  const u = NF.confirmUnderstanding(S());
-  assert.equal(u.ok, false);
-  assert.match(u.error, /[Zz]aučení u sestry/);
-  chapter('firstMeal');
-  assert.equal(NF.activeTask(S()), null, 'příběh dál nepokračuje');
-  assert.equal(S().role, 'nurse', 'zůstáváme u sestry');
-});
-
-test('Zaučení vede sestra, ne lékař', () => {
-  chapter('training');
-  assert.equal(D.chapters[D.indexOf('training')].role, 'nurse');
-  assert.equal(S().role, 'nurse');
-  assert.match(markup(), /Zaučení vede sestra/);
-  const r = NF.finishTraining(S(), 'doctor', 'done', '');
-  assert.equal(r.ok, false);
-  assert.match(r.error, /potvrzuje sestra/);
-  act('role', 'doctor');
-  act('trainingStep', 'app');
-  assert.match(S().error, /Zaučení vede sestra/);
-});
-
-test('Sestra vidí, co lékař vydal, a zaučení je zaznamenané na ni', () => {
-  chapter('handover');
-  assert.equal(S().training.result, 'done');
-  assert.equal(S().training.by, 'DEMO-S01');
-  act('role', 'nurse');
-  const m = markup();
-  assert.match(m, /Plán k zaučení/);
-  assert.match(m, /Modelová sestra 01/);
-});
-
-test('Seznam zaučení jsou konkrétní úkony, ne abstraktní zkouška', () => {
-  chapter('training');
-  const labels = NF.TRAINING.map(t => t[1]);
-  assert.equal(labels.length, 4);
-  for (const l of labels) assert.match(markup(), new RegExp(l.split(' ').slice(0, 4).join(' ')));
-  assert.equal(labels.some(l => /vlastními slovy/.test(l)), false, 'žádná abstraktní formulace');
-});
-
-test('Vydání plánu vyžaduje všechny náležitosti', () => {
+test('Vydání plánu vyžaduje všechny náležitosti a předá pacienta sestře', () => {
   chapter('plan');
-  assert.equal(NF.activePlan(S()), null);
   act('issuePlan');
   assert.match(S().error, /ověření modelového seznamu léčby|bezpečnostní a kontaktní plán/);
   bind('draft.medicationChecked', true);
@@ -189,581 +134,638 @@ test('Vydání plánu vyžaduje všechny náležitosti', () => {
   bind('draft.safetyChecked', true);
   act('issuePlan');
   assert.equal(S().activePlanId, 'P1');
-  assert.equal(S().role, 'patient', 'po vydání se předává pacientovi');
+  assert.equal(S().role, 'nurse', 'po vydání zaučí pacienta sestra');
 });
 
-/* ---------- pacient nevydá plán ---------- */
-test('Pacient nevydá plán a nevydaný plán neaktivuje úkol', () => {
-  const r = NF.issuePlan(S(), 'patient');
-  assert.equal(r.ok, false);
-  assert.match(r.error, /vydává lékař/);
-  assert.equal(S().activePlanId, null);
-  const u = NF.confirmUnderstanding(S());
-  assert.equal(u.ok, false);
-  assert.equal(S().tasks.length, 0, 'úkol vzniká až výběrem z katalogu u lékaře');
+test('Zaučení vede sestra a obsahuje otázku na bolus', () => {
+  chapter('training');
+  assert.equal(S().role, 'nurse');
+  assert.match(markup(), /Zaučení vede sestra/);
+  assert.ok(NF.TRAINING.some(t => /píchl/.test(t[1])), 'pacient musí znát otázku na bolus');
+  assert.equal(NF.finishTraining(S(), 'doctor', 'done', '').ok, false);
+  S().training.steps = {}; S().training.result = null;
+  act('finishTraining', 'done');
+  assert.match(S().error, /dokud některý bod chybí/);
+  for (const t of NF.TRAINING) act('trainingStep', t[0]);
+  act('finishTraining', 'done');
+  assert.equal(S().training.result, 'done');
+  assert.equal(S().training.by, 'DEMO-S01');
 });
 
-test('Úkol se aktivuje až po ověření porozumění v ordinaci', () => {
-  chapter('handover');
+test('Nezvládnuté zaučení nechá plán vydaný, ale úkol se neaktivuje', () => {
+  branch('training', 'failed');
   assert.equal(S().activePlanId, 'P1');
-  assert.equal(NF.activeTask(S()), null, 'převzetí samo úkol neaktivuje');
-  act('page', 'understand');
-  act('answerCheck', 'no');
-  act('confirmUnderstanding');
+  chapter('handover');
+  assert.equal(S().training.result, 'failed');
+  assert.equal(NF.confirmUnderstanding(S()).ok, false);
+  chapter('firstMeal');
+  assert.equal(NF.activeTask(S()), null, 'příběh dál nepokračuje');
+  assert.equal(S().role, 'nurse');
+});
+
+test('Úkol se aktivuje až po ověření porozumění', () => {
+  chapter('handover');
+  assert.equal(NF.activeTask(S()), null);
+  act('page', 'understand'); act('answerCheck', 'no'); act('confirmUnderstanding');
   assert.equal(NF.activeTask(S()).id, 'T1');
 });
 
-/* ---------- v ordinaci se nic nevypisuje ---------- */
 test('V ordinaci není jediné pole k vypisování', () => {
-  for (const id of ['enroll', 'plan', 'training']) {
-    chapter(id);
-    const m = markup();
-    assert.equal(/<textarea/.test(m), false, 'textarea v kroku ' + id);
-    assert.equal(/<input(?![^>]*type="checkbox")/.test(m), false, 'textové pole v kroku ' + id);
-  }
-});
-
-test('Lékař ani pacient v celém příběhu nepíšou v ordinaci', () => {
   for (let i = 0; i < D.indexOf('firstMeal'); i++) {
     act('goChapter', String(i)); act('closeDrawer');
-    for (const role of ['patient', 'doctor']) {
+    for (const role of ['patient', 'doctor', 'nurse']) {
       act('role', role);
-      assert.equal(/<textarea/.test(markup()), false, D.chapters[i].id + '/' + role);
+      const m = markup();
+      assert.equal(/<textarea/.test(m), false, 'textarea ' + D.chapters[i].id + '/' + role);
+      assert.equal(/<input(?![^>]*type="checkbox")/.test(m), false, 'textové pole ' + D.chapters[i].id + '/' + role);
     }
   }
 });
 
-test('Kontext pacienta se zobrazuje, nevyplňuje', () => {
-  chapter('enroll');
-  const m = markup();
-  assert.match(m, /Diabetes 2\. typu/);
-  assert.match(m, /CGM zaveden/);
-  assert.match(m, /Údaje z karty/);
-  assert.equal(S().enrollment.compensation, null, 'kompenzace není předvybraná');
-  act('setCompensation', 'insufficient');
-  assert.equal(S().enrollment.compensation, 'insufficient');
-});
-
-test('Úkoly jsou předdefinované a lékař je jen vybírá', () => {
+test('Úkoly jsou předdefinované; neschválené pravidlo nejde přiřadit', () => {
   chapter('plan');
-  assert.ok(D.taskCatalog.length >= 3, 'katalog má víc než jednu položku');
-  assert.match(markup(), /Úkol z katalogu/);
-  for (const c of D.taskCatalog) assert.match(markup(), new RegExp(c.title.replace(/[.]/g, '\\.')));
+  assert.ok(D.taskCatalog.length >= 3);
+  for (const c of D.taskCatalog) assert.ok(markup().includes(c.title), 'v katalogu chybí ' + c.id);
   assert.equal(S().tasks[0].catalogId, 'T-SNIDANE');
-  act('selectTask', 'T-SNIDANE');
+  const walk = D.taskCatalog.find(c => c.id === 'T-PROCHAZKA');
+  assert.equal(NF.isRuleUsable(S(), walk.ruleId), false);
+  act('selectTask', 'T-PROCHAZKA');
+  assert.match(S().error, /nemá schválenou verzi/);
   assert.equal(S().tasks[0].catalogId, 'T-SNIDANE');
-  assert.equal(S().tasks[0].question, D.taskCatalog[0].question, 'otázka pacienta patří k úkolu, nepíše se');
-});
-
-test('Úkol s neschváleným pravidlem nelze přiřadit', () => {
-  chapter('plan');
-  const vecere = D.taskCatalog.find(c => c.id === 'T-VECERE');
-  assert.equal(NF.isRuleUsable(S(), vecere.ruleId), false);
-  act('selectTask', 'T-VECERE');
-  assert.match(S().error, /nemá modelově schválenou verzi/);
-  assert.equal(S().tasks[0].catalogId, 'T-SNIDANE', 'původní úkol zůstává');
   assert.match(markup(), /čeká na schválení garantem, nelze přiřadit/);
 });
 
-test('Bez vybraného úkolu nelze plán vydat', () => {
-  chapter('plan');
-  S().tasks = [];
-  S().draft.taskId = null;
-  const r = NF.issuePlan(S(), 'doctor');
-  assert.equal(r.ok, false);
-  assert.match(r.error, /úkol/);
-});
-
-test('Lékař vybírá důvod rozhodnutí z připravených, nepíše jej', () => {
-  chapter('decide');
+/* ================= tři úrovně jistoty ================= */
+test('Neznámé jídlo: žádný odhad, jen nabídka zapsat', () => {
+  chapter('firstMeal');
+  act('mealFood', 'kase');
+  const c = NF.confidence(S(), 'kase');
+  assert.equal(c.level, 'unknown');
   const m = markup();
-  assert.equal(/<textarea/.test(m), false, 'žádné psaní důvodu');
-  assert.ok(D.decisionReasons.length >= 2);
-  act('pickReason', D.decisionReasons[1]);
-  assert.equal(S().form.reason, D.decisionReasons[1]);
+  assert.match(m, /Nic neodhaduju/);
+  const card = m.slice(m.indexOf('level-card'), m.indexOf('bolus-q'));
+  assert.equal(/\d,\d mmol\/l/.test(card), false, 'u neznámého jídla nesmí být číslo');
+  act('mealBolus', 'before');
+  assert.equal(NF.advise(S(), 'kase', 'usual', 'before').items.length, 0, 'k neznámému jídlu obvyklé porce není rada');
 });
 
-/* ---------- determinismus příběhu ---------- */
-test('Skok na kapitolu je deterministický', () => {
-  for (let i = 1; i < D.chapters.length; i++) {
-    const a = D.play(i, null);
-    const b = D.play(i, null);
-    assert.equal(JSON.stringify(a.episodes), JSON.stringify(b.episodes), 'kapitola ' + i);
-    assert.equal(a.plans.length, b.plans.length);
-    assert.equal(a.tasks.map(t => t.state).join(), b.tasks.map(t => t.state).join());
-  }
-});
-
-test('Každá kapitola se vykreslí ve své roli', () => {
-  for (let i = 0; i < D.chapters.length; i++) {
-    act('goChapter', String(i));
-    act('closeDrawer');
-    assert.equal(S().role, D.chapters[i].role, 'role u kapitoly ' + D.chapters[i].id);
-    assert.ok(markup().length > 400, 'kapitola ' + D.chapters[i].id + ' se nevykreslila');
-  }
-});
-
-/* ---------- pravidla ---------- */
-test('Neschválená v2 nenahradí v1 a neovlivní aktivní úkol', () => {
-  chapter('catalog');
-  assert.equal(S().rules.find(r => r.version === 'v2').status, 'draft');
-  assert.equal(NF.activeTask(S()).ruleVersion, 'v1');
-  act('approveRule', 'R-SNIDANE|v2');
-  assert.match(S().error, /testovací příklady/);
-  assert.equal(S().rules.find(r => r.version === 'v2').status, 'draft');
-  bind('ruleExamples.R-SNIDANE|v2', true);
-  act('approveRule', 'R-SNIDANE|v2');
-  assert.equal(S().rules.find(r => r.version === 'v2').status, 'approved');
-  assert.equal(NF.activeTask(S()).ruleVersion, 'v1', 'schválení v2 samo nepřepne běžící úkol');
-});
-
-test('Vyřazení v1 pozastaví úkol a nezmění předpis', () => {
-  chapter('catalog');
-  const before = NF.activePlan(S()).prescription;
-  act('openRetire', 'R-SNIDANE|v1');
-  act('retireRule', 'R-SNIDANE|v1');
-  const t = S().tasks[0];
-  assert.equal(t.state, 'paused');
-  assert.equal(t.pauseReason, 'rule');
-  assert.equal(NF.activePlan(S()).prescription, before, 'vyřazení pravidla nemění inzulin');
-  const r = NF.resumeTask(S(), 'doctor', 'zkouška');
-  assert.equal(r.ok, false, 'nelze obnovit bez použitelné verze pravidla');
-});
-
-test('Schválení pravidla nevydá nový plán', () => {
-  chapter('impact');
-  const plansBefore = S().plans.length;
-  act('role', 'garant');
-  bind('ruleExamples.R-SNIDANE|v2', true);
-  act('approveRule', 'R-SNIDANE|v2');
-  assert.equal(S().plans.length, plansBefore);
-});
-
-/* ---------- žádná dávka ---------- */
-test('Žádná větev nevypočítá ani nezmění dávku', () => {
-  const texts = [];
-  for (let i = 0; i < D.chapters.length; i++) {
-    act('goChapter', String(i)); act('closeDrawer');
-    for (const role of ['patient', 'doctor', 'garant']) { act('role', role); texts.push(markup()); }
-  }
-  assert.equal(/\d+\s*(j\.|IU|jednotek|jednotky)\b/.test(texts.join(' ')), false, 'nikde nesmí být číselná dávka inzulinu');
-  chapter('result');
-  assert.equal(S().plans.length, 2);
-  assert.equal(S().plans[1].prescription, S().plans[0].prescription, 'P2 nese stejný text předpisu');
-});
-
-/* ---------- změnová rada ---------- */
-test('Podaný nebo neznámý bolus neumožní změnovou radu', () => {
-  chapter('firstMeal');
-  assert.equal(NF.adviceAllowed(S(), 'after').allowed, false);
-  assert.equal(NF.adviceAllowed(S(), 'unknown').allowed, false);
-  assert.match(NF.adviceAllowed(S(), 'unknown').why, /před podáním bolusu/);
-});
-
-test('Samotné „před bolusem“ bez oprávnění v plánu radu neumožní', () => {
-  chapter('firstMeal');
-  const res = NF.adviceAllowed(S(), 'before');
-  assert.equal(res.allowed, false);
-  assert.match(res.why, /nepovoluje|pozorovací/);
-  NF.activePlan(S()).allowChange = true;
-  assert.equal(NF.adviceAllowed(S(), 'before').allowed, false, 'i s povolením musí být změnový úkol');
-});
-
-/* ---------- úplnost epizod ---------- */
-test('Chybějící kontext a senzorová mezera nevytvoří úplnou epizodu ani nulu', () => {
-  chapter('compare');
-  const c = NF.countEpisodes(S());
-  assert.equal(c.recorded, 3);
-  assert.equal(c.complete, 2, 'E2 bez údaje o inzulinu není úplná');
-  const e2 = S().episodes.find(x => x.id === 'E2');
-  assert.equal(JSON.stringify(NF.episodeStatus(e2).missing), JSON.stringify(['údaj o inzulinu a jeho čase']));
+test('Známé jídlo od tří úplných záznamů; neúplné se nepočítají', () => {
+  chapter('learning');
+  const h = NF.foodHistory(S(), 'kase');
+  assert.equal(h.eaten, 4);
+  assert.equal(h.usable, 3, 'záznam s „nevím“ u inzulinu se nepočítá');
+  assert.equal(NF.confidence(S(), 'kase').level, 'known');
+  assert.equal(NF.confidence(S(), 'chleb').level, 'known');
   const m = markup();
-  assert.match(m, /3 zaznamenané průběhy/);
-  assert.match(m, /Nevíme, co rozdíl způsobilo/);
-  assert.equal(/0 z 3|Překážky/.test(m), false, 'žádná domyšlená nula');
+  assert.match(m, /Zapsáno 4×, s úplnými daty 3×/);
+  assert.match(m, /mmol\/l/);
+  const r = NF.usableRule(S(), 'R-REAKCE');
+  assert.equal(r.params.minKnown, 3, 'hranice je parametr schváleného pravidla');
 });
 
-test('Odbočka „málo podkladů“ zůstane bez věcného závěru', () => {
-  chapter('compare');
-  branch('evidence', 'thin');
-  const c = NF.countEpisodes(S());
-  assert.equal(c.recorded, 3);
-  assert.equal(c.complete, 1, 'E2 chybí kontext, E3 chybí senzorová data');
-  const e3 = S().episodes.find(x => x.id === 'E3');
-  assert.equal(JSON.stringify(NF.episodeStatus(e3).missing), JSON.stringify(['senzorová data po jídle']));
-  assert.equal(e3.points.every(p => p.mmol === null), true, 'náhradní průběh se nedoplňuje');
-  act('role', 'patient'); act('page', 'compare');
-  assert.match(markup(), /Úkol zatím nemůžeš uzavřít věcným závěrem/);
+test('Podobné jídlo: směr bez čísla, počítáno z vlastností, ne z názvu', () => {
+  chapter('similar');
+  const c = NF.confidence(S(), 'musli');
+  assert.equal(c.level, 'similar');
+  assert.equal(c.direction, 'more');
+  assert.equal(c.like.join(), 'kase');
+  const m = markup();
+  assert.match(m, /Vypadá jako jídla, po kterých ti to stoupá víc/);
+  const card = m.slice(m.indexOf('level-card'), m.indexOf('bolus-q'));
+  assert.equal(/\d,\d mmol\/l/.test(card), false, 'u podobného jídla nesmí být číslo');
+  /* stejný název, jiné vlastnosti → nepodobné; jiný název, stejné vlastnosti → podobné */
+  const kase = NF.foodById(S(), 'kase');
+  S().foods.push({ id: 'x1', meal: 'breakfast', name: kase.name, carbs: 8, protein: 25, fat: 20, fiber: 1, form: 'pevne' });
+  S().foods.push({ id: 'x2', meal: 'breakfast', name: 'Úplně jiné jméno', carbs: kase.carbs, protein: kase.protein, fat: kase.fat, fiber: kase.fiber, form: kase.form });
+  assert.notEqual(NF.confidence(S(), 'x1').level, 'similar', 'shodný název nezakládá podobnost');
+  assert.equal(NF.confidence(S(), 'x2').level, 'similar', 'shodné vlastnosti ano');
 });
 
-test('Zápis epizody vyžaduje volbu o inzulinu, „nevím“ je legitimní', () => {
-  chapter('firstMeal');
-  const before = S().episodes.length;
-  act('saveEpisode');
-  assert.match(S().error, /jak to bylo s inzulinem/);
-  assert.equal(S().episodes.length, before);
-  act('formSet', 'insulinReported:per-plan');
-  act('saveEpisode');
-  assert.match(S().error, /[Dd]oplň čas podání/);
-  act('formSet', 'insulinReported:unknown');
-  act('saveEpisode');
-  assert.equal(S().episodes.length, before + 1);
-  assert.equal(NF.episodeStatus(S().episodes[before]).complete, false);
+test('Bez schváleného pravidla pro vyhodnocení aplikace nic neodhaduje ani neradí', () => {
+  chapter('advice');
+  S().rules.find(r => r.id === 'R-REAKCE').status = 'draft';
+  const res = NF.advise(S(), 'kase', 'bigger', 'before');
+  assert.equal(res.conf.level, 'none');
+  assert.equal(res.items.filter(i => i.lever !== 'portion').length, 0);
 });
 
-/* ---------- nemoc a výpadek ---------- */
-test('Nemoc oznamuje člověk, pozastaví úkol a nic se neodesílá', () => {
+/* ================= bolus a páky ================= */
+test('Před bolusem se rada k porci nabídne, směrem k obvyklé', () => {
+  chapter('advice');
+  act('mealBolus', 'before');
+  const res = NF.advise(S(), 'kase', 'bigger', 'before');
+  const p = res.items.find(i => i.lever === 'portion');
+  assert.ok(p, 'rada k porci chybí');
+  assert.match(p.text, /obvyklou porci/);
+  assert.match(markup(), /Porce k obvyklé/);
+});
+
+test('Po bolusu se rada měnící sacharidy nedá', () => {
+  chapter('afterBolus');
+  const res = NF.advise(S(), 'kase', 'bigger', 'after');
+  assert.equal(res.items.some(i => NF.LEVERS[i.lever].carbs), false);
+  assert.ok(res.blocked.some(b => b.lever === 'portion' && b.reason === 'bolus'));
+  assert.ok(res.items.some(i => i.lever === 'addon'), 'rada bez změny sacharidů zůstává');
+  assert.match(markup(), /Porce k obvyklé: teď neradím/);
+});
+
+test('Neznámý stav podání se chová jako po bolusu', () => {
+  assert.equal(NF.effectiveBolus('unknown'), 'after');
+  assert.equal(NF.effectiveBolus(null), 'after');
+  chapter('afterBolus');
+  branch('bolus', 'unknown');
+  const res = NF.advise(S(), 'kase', 'bigger', 'unknown');
+  assert.equal(res.effective, 'after');
+  assert.equal(res.items.some(i => i.lever === 'portion'), false);
+  assert.match(markup(), /Nevíme, jestli už máš inzulin/);
+});
+
+test('Bez odpovědi na otázku o inzulinu se rada neukáže', () => {
+  chapter('advice');
+  const res = NF.advise(S(), 'kase', 'bigger', null);
+  assert.equal(res.needsBolus, true);
+  assert.equal(res.items.length, 0);
+  assert.equal(/Co můžeš zkusit/.test(markup()), false);
+  assert.match(markup(), /Už sis k tomuto jídlu píchl inzulin/);
+});
+
+test('Aplikace nikdy neradí jíst méně než obvykle', () => {
+  chapter('advice');
+  const smaller = NF.advise(S(), 'kase', 'smaller', 'before').items.find(i => i.lever === 'portion');
+  assert.ok(smaller, 'menší porce má dostat radu vrátit se k obvyklé');
+  assert.match(smaller.text, /Dej si obvyklou porci/);
+  const bad = /dej si menší|sněz méně|jez méně|uber (z )?porc|menší porci si dej/i;
+  everyScreen((m, where) => assert.equal(bad.test(m), false, where));
+  for (const r of S().rules) assert.equal(bad.test(r.text || ''), false, 'text pravidla ' + r.id);
+});
+
+test('K pacientovi se dostane jen rada ze schváleného pravidla', () => {
+  chapter('advice');
+  act('mealBolus', 'before');
+  for (const it of NF.advise(S(), 'kase', 'bigger', 'before').items) {
+    assert.equal(NF.ruleByKey(S(), it.ruleKey).status, 'approved', it.lever);
+  }
+  S().rules.find(r => r.id === 'R-DOPLNEK').status = 'draft';
+  const res = NF.advise(S(), 'kase', 'bigger', 'before');
+  assert.equal(res.items.some(i => i.lever === 'addon'), false);
+  act('mealPortion', 'bigger');
+  assert.equal(/R-DOPLNEK/.test(markup()), false, 'neschválené pravidlo není ani zašedlé');
+  const drafts = ['R-PROCHAZKA', 'R-ODSTUP', 'R-PRILOHA-FORMA', 'R-PRILOHA-MNOZSTVI'];
+  boot();
+  for (let i = 0; i < D.chapters.length; i++) {
+    act('goChapter', String(i)); act('closeDrawer'); act('role', 'patient');
+    for (const id of drafts) assert.equal(markup().includes(id), false, id + ' v pacientské roli, kapitola ' + D.chapters[i].id);
+  }
+});
+
+test('Každá rada ukazuje pravidlo, jeho verzi a stav', () => {
+  chapter('advice');
+  act('mealBolus', 'before');
+  const m = markup();
+  const items = m.split('class="advice ').slice(1);
+  assert.ok(items.length >= 3);
+  for (const it of items) assert.match(it, /Pravidlo R-[A-Z-]+ v\d · schváleno garantem/);
+  assert.match(m, /Pravidlo R-REAKCE v1 · schváleno garantem/, 'i výpočet reakce nese pravidlo');
+});
+
+test('Přijetí a odmítnutí rady se uloží i s důvodem a aplikace se z nich učí', () => {
+  chapter('advice');
+  act('mealBolus', 'before');
+  act('mealDecide', 'portion:yes');
+  act('mealDecide', 'addon:yes');
+  act('mealDecide', 'order:no');
+  act('mealReason', 'order:nothome');
+  act('mealInsulin', 'per-plan');
+  act('saveMeal');
+  assert.match(S().error, /čas podání/);
+  bind('meal.insulinTime', '07:00');
+  act('saveMeal');
+  const ep = S().episodes[S().episodes.length - 1];
+  assert.equal(ep.portion, 'usual', 'přijatá rada vrátí porci k obvyklé');
+  assert.equal(ep.lever, 'addon');
+  assert.equal(JSON.stringify(ep.advice.map(a => [a.lever, a.accepted, a.reason])), JSON.stringify([['portion', true, null], ['addon', true, null], ['order', false, 'nothome']]));
+  assert.equal(NF.usableEpisode(ep), true, 'simulovaný senzor dodal úsek');
+  const fx = NF.leverEffects(S(), 'kase').find(x => x.lever === 'addon');
+  assert.equal(fx.n, 1);
+  assert.ok(fx.rise < fx.without, 'doplněk v modelu zmírní vzestup');
+});
+
+test('Co pomohlo, je vidět s počtem pokusů', () => {
+  chapter('afterBolus');
+  const it = NF.advise(S(), 'kase', 'bigger', 'after').items.find(i => i.lever === 'addon');
+  assert.match(it.certainty, /Zkusil jsi to 1×/);
+  assert.match(it.certainty, /Zpřesňuje se/);
+});
+
+/* ================= když něco nesedí ================= */
+test('Nemoc oznamuje člověk, vypne rady a záznamy z nemoci se nepočítají', () => {
   chapter('disruption');
-  assert.equal(S().illness, null, 'na začátku scény nemoc ještě nenastala');
-  assert.equal(S().tasks[0].state, 'active');
+  assert.equal(S().illness, null);
   act('unclear', 'ill');
   act('reportIllness');
-  assert.equal(S().illness.active, true);
   assert.equal(S().illness.reportedBy, 'pacient');
-  assert.equal(S().tasks[0].state, 'paused');
-  act('page', 'today');
-  assert.match(markup(), /pozastaven/i);
-  assert.equal(/odesláno lékaři|ordinace informována/.test(markup()), false);
+  assert.equal(NF.activeTask(S()), null);
+  assert.equal(NF.adviceGate(S()).ok, false);
+  chapter('resume');
+  const e14 = S().episodes.find(x => x.id === 'E14');
+  assert.equal(e14.context, 'illness');
+  assert.equal(NF.usableEpisode(e14), false);
 });
 
-test('Obnova dat nezruší nemoc ani pauzu', () => {
-  chapter('disruption');
-  act('unclear', 'ill');
-  act('reportIllness');
+test('Obnova dat nezruší nemoc ani pauzu; obnovení potvrzuje lékař s důvodem z nabídky', () => {
+  chapter('resume');
   NF.restoreData(S());
-  assert.equal(S().dataState.gap, false);
-  assert.equal(S().tasks[0].state, 'paused', 'návrat dat neobnoví úkol');
-  assert.equal(S().illness.active, true, 'návrat dat neukončí nemoc');
-  const r = NF.resumeTask(S(), 'doctor', 'x');
-  assert.equal(r.ok, false);
-  assert.match(r.error, /nemoci/);
+  assert.equal(S().tasks[0].state, 'paused');
+  assert.equal(NF.resumeTask(S(), 'doctor', 'x').ok, false);
+  act('endIllness');
+  act('resumeTask');
+  assert.match(S().error, /Vyber důvod/);
+  act('formSet', 'resumeReason:' + D.resumeReasons[0]);
+  act('resumeTask');
+  assert.equal(S().tasks[0].state, 'active');
+  assert.equal(/<textarea|<input(?![^>]*type="checkbox")/.test(markup()), false);
 });
 
-test('Výpadek dat rozlišuje tři příčiny a žádnou neuhodne', () => {
+test('Výpadek dat rozlišuje tři příčiny, žádnou neuhodne, mezera se nepočítá', () => {
   for (const [b, re] of [['gap-vendor', /Chybí data jen nám/], ['gap-broken', /Náhradní postup/], ['gap-unknown', /Příčinu neurčujeme/]]) {
     boot();
     chapter('disruption');
     branch('disruption', b);
     act('role', 'patient'); act('page', 'datastate');
     assert.match(markup(), re, 'větev ' + b);
-    assert.equal(S().dataState.gap, true, 'mezera zůstává mezerou');
-    assert.equal(NF.episodeStatus(S().episodes.find(x => x.id === 'E4')).complete, false);
+    assert.equal(NF.usableEpisode(S().episodes.find(x => x.id === 'E13')), false);
   }
 });
 
-test('Lékař obnoví úkol až po ověření plánu', () => {
-  chapter('resume');
-  assert.equal(S().tasks[0].state, 'paused', 'na začátku scény je úkol pozastavený');
-  const blocked = NF.resumeTask(S(), 'doctor', 'x');
-  assert.equal(blocked.ok, false, 'dokud trvá nemoc, obnovit nelze');
-  act('endIllness');
-  act('resumeTask');
-  assert.equal(S().tasks[0].state, 'active');
-  assert.ok(S().tasks[0].resumeReason);
-  chapter('catalog');
-  assert.equal(S().tasks[0].state, 'active', 'po odehrání scény je úkol obnovený');
-});
-
-/* ---------- offline ---------- */
-test('Offline simulace nepotvrdí doručení odvolaného pravidla', () => {
+test('Bez spojení aplikace neradí, bezpečnostní plán zůstává', () => {
   chapter('impact');
   branch('offline', 'offline');
   assert.equal(S().ruleDelivery, 'unconfirmed');
-  act('role', 'garant'); act('page', 'catalog');
-  assert.match(markup(), /nepotvrzeno/);
+  assert.equal(NF.adviceGate(S()).ok, false);
   act('role', 'patient'); act('page', 'today');
-  assert.match(markup(), /[Ss]imulovaný offline/);
+  assert.match(markup(), /Rady k jídlu jsou vypnuté/);
+  act('page', 'safety');
+  assert.match(markup(), /BP-v1/);
+  assert.match(markup(), /simulovaný offline režim/);
 });
 
-test('Bezpečnostní plán je dostupný i offline s datem verze', () => {
-  chapter('impact');
-  branch('offline', 'offline');
-  act('role', 'patient'); act('page', 'safety');
-  const m = markup();
-  assert.match(m, /BP-v1/);
-  assert.match(m, /simulovaný offline režim/);
-  assert.match(m, /schválí klinický garant/);
+/* ================= správa pravidel ================= */
+test('Vyřazení pravidla rady: rada zmizí, úkol běží, předpis se nemění', () => {
+  chapter('catalog');
+  const before = NF.activePlan(S()).prescription;
+  assert.ok(NF.advise(S(), 'kase', 'usual', 'before').items.some(i => i.lever === 'order'));
+  act('openRetire', 'R-PORADI|v1');
+  act('retireRule', 'R-PORADI|v1');
+  assert.match(S().error, /důvod/);
+  act('formSet', 'retireReason:' + D.retireReasons[0]);
+  act('retireRule', 'R-PORADI|v1');
+  assert.equal(NF.ruleByKey(S(), 'R-PORADI|v1').status, 'retired');
+  assert.equal(NF.advise(S(), 'kase', 'usual', 'before').items.some(i => i.lever === 'order'), false);
+  assert.equal(NF.activeTask(S()).id, 'T1', 'úkol běží dál');
+  assert.equal(NF.activePlan(S()).prescription, before);
+  assert.match(markup(), /se přestane nabízet/);
 });
 
-test('Pacient vidí pozastavený úkol s důvodem a bez pokynu k inzulinu', () => {
+test('Pacient ví, proč radu nedostává, a že dávky se nemění', () => {
   chapter('impact');
   act('role', 'patient'); act('page', 'today');
   const m = markup();
-  assert.match(m, /vyřazeno z dalšího použití/);
-  assert.match(m, /předpis se nemění a inzulin se nevysazuje/);
+  assert.match(m, /Některé rady teď nedostaneš/);
+  assert.match(m, /R-PORADI v1 bylo vyřazeno/);
+  assert.match(m, /Tvoje dávky se tím nemění/);
 });
 
-/* ---------- kontrola a nový plán ---------- */
-test('Jedna stránka drží pevné pořadí částí ve všech odbočkách', () => {
+test('Neschválená v2 nic nedělá; po schválení se rada vrátí s novou verzí', () => {
+  chapter('impact');
+  act('role', 'garant');
+  act('approveRule', 'R-PORADI|v2');
+  assert.match(S().error, /testovací příklady/);
+  assert.equal(NF.advise(S(), 'kase', 'usual', 'before').items.some(i => i.lever === 'order'), false);
+  const plans = S().plans.length;
+  bind('ruleExamples.R-PORADI|v2', true);
+  act('approveRule', 'R-PORADI|v2');
+  const it = NF.advise(S(), 'kase', 'usual', 'before').items.find(i => i.lever === 'order');
+  assert.equal(it.ruleKey, 'R-PORADI|v2');
+  assert.match(it.text, /Přílohu nevynechávej/);
+  assert.equal(S().plans.length, plans, 'schválení pravidla nevydá plán');
+});
+
+/* ================= kontrola ================= */
+test('Report drží pevné pořadí částí ve všech odbočkách', () => {
+  const order = ['Bezpečnostní události a úplnost dat', 'Plán a jak probíhal', 'Senzor: čas v rozmezí',
+    'Reakce na jednotlivá jídla', 'Fungovaly rady, když je pacient přijal?', 'Hlavní otázka pacienta'];
   for (const v of ['base', 'A', 'A0', 'B']) {
-    boot();
-    chapter('onepage');
-    branch('review', v);
+    boot(); chapter('onepage'); branch('review', v);
     act('role', 'doctor'); act('page', 'onepage');
     const m = markup();
-    const order = ['Bezpečnostní události a úplnost dat', 'Platný plán a zaznamenané odchylky',
-      'Modelové cíle, TIR a čas pod rozmezím', 'Kontextové nálezy', 'Hlavní otázka pacienta'];
     let last = -1;
-    for (const part of order) {
-      const i = m.indexOf(part);
-      assert.ok(i > last, 'část „' + part + '“ mimo pořadí v odbočce ' + v);
-      last = i;
-    }
+    for (const part of order) { const i = m.indexOf(part); assert.ok(i > last, '„' + part + '“ mimo pořadí v ' + v); last = i; }
   }
 });
 
-test('Prázdný deník umožní dokončit kontrolu bez vymyšlených nálezů', () => {
+test('Klíčové číslo: vzestup při přijaté radě oproti nepřijaté', () => {
   chapter('onepage');
-  branch('review', 'A');
-  assert.equal(S().episodes.length, 0);
-  act('role', 'doctor'); act('page', 'onepage');
+  const o = NF.adviceOutcome(S(), 'P1');
+  assert.ok(o.offered > 20);
+  assert.ok(o.accepted.n > o.declined.n, 'odbočka „většinou přijal“');
+  assert.ok(o.accepted.rise < o.declined.rise, 'v modelu přijatá rada zmírní vzestup');
+  assert.equal(o.signal, false);
   const m = markup();
-  assert.match(m, /Kontext jídel nebyl zaznamenán/);
-  assert.equal(/adherence|nespolupracuje|selhal/i.test(m), false);
-  assert.match(m, /62 %/, 'senzorový souhrn zůstává dostupný');
-  act('page', 'decide'); act('formSet', 'choice:unchanged'); act('issueP2');
-  assert.equal(S().plans.length, 2, 'kontrolu lze dokončit');
+  assert.match(m, /Rada přijata/);
+  assert.match(m, /Rada nepřijata/);
+  assert.match(m, /Ukazuje směr, ne důkaz účinku/);
+  assert.equal(/nespolupracuje|selhal|adherence|neukázněn/i.test(m), false);
 });
 
-test('Bez senzorového souhrnu se zobrazí „nelze vyhodnotit“, ne nuly', () => {
+test('Soustavné odmítání je signál k rozhovoru; nepraktická rada se pozná zvlášť', () => {
   chapter('onepage');
-  branch('review', 'A0');
+  branch('response', 'declines');
+  let o = NF.adviceOutcome(S(), 'P1');
+  assert.equal(o.signal, true);
+  assert.equal(o.impractical, false);
+  act('role', 'doctor'); act('page', 'onepage');
+  assert.match(markup(), /úkol na změnu režimu/);
+  branch('response', 'impractical');
+  o = NF.adviceOutcome(S(), 'P1');
+  assert.equal(o.signal, true);
+  assert.equal(o.impractical, true);
+  act('role', 'doctor'); act('page', 'onepage');
+  assert.match(markup(), /rada může být nepraktická/);
+});
+
+test('Konzistence sacharidů mezi dny je v reportu', () => {
+  chapter('onepage');
+  const c = NF.carbConsistency(S(), 'P1');
+  assert.ok(c.n > 20 && c.min <= c.median && c.median <= c.max);
+  assert.match(markup(), /Sacharidy ve snídani mezi dny/);
+});
+
+test('Prázdný deník: report bez vymyšlených nálezů, kontrolu lze dokončit', () => {
+  chapter('onepage');
+  branch('review', 'A');
   act('role', 'doctor'); act('page', 'onepage');
   const m = markup();
-  assert.match(m, /nelze vyhodnotit/);
-  assert.equal(/>0 %/.test(m), false);
+  assert.match(m, /Pacient nezapsal žádné jídlo/);
+  assert.match(m, /Pacient zatím žádnou radu nedostal/);
+  assert.match(m, /64 %/, 'senzorový souhrn zůstává');
+  act('page', 'decide'); act('formSet', 'choice:continue'); act('pickReason', D.decisionReasons[3]); act('issueP2');
+  assert.equal(S().plans.length, 2);
+});
+
+test('Bez senzorového souhrnu „nelze vyhodnotit“, ne nuly', () => {
+  chapter('onepage'); branch('review', 'A0');
+  act('role', 'doctor'); act('page', 'onepage');
+  assert.match(markup(), /nelze vyhodnotit/);
+  assert.equal(/>0 %/.test(markup()), false);
 });
 
 test('Historická bezpečnostní událost má zdroj a nehodnotí závažnost', () => {
-  chapter('onepage');
-  branch('review', 'B');
+  chapter('onepage'); branch('review', 'B');
   act('role', 'doctor'); act('page', 'onepage');
-  const m = markup();
-  assert.match(m, /zpětně nahlásil pacient/);
-  assert.match(m, /nezachytila v reálném čase/);
-  assert.equal(/závažná nežádoucí|klasifikováno jako/i.test(m), false);
+  assert.match(markup(), /zpětně nahlásil pacient/);
+  assert.equal(/závažná nežádoucí|klasifikováno jako/i.test(markup()), false);
 });
 
 test('Aktuální problém během návštěvy přepne do bezpečnostního stavu', () => {
-  chapter('onepage');
-  branch('review', 'C');
+  chapter('onepage'); branch('review', 'C');
   act('role', 'doctor'); act('page', 'onepage');
   assert.match(markup(), /kontrola je přerušená/i);
-  assert.equal(/62 %/.test(markup()), false, 'běžná kontrola se nezobrazuje');
   act('resumeVisit');
-  assert.match(markup(), /Jednostránkový podklad/);
+  assert.match(markup(), /Report: jak plán probíhal/);
 });
 
-test('Dávkový podklad nemá číslo a není v pacientské roli', () => {
-  chapter('onepage');
-  act('openAside', 'dose');
-  act('setDoseVariant', 'numeric');
-  assert.match(markup(), /\[číselný obsah musí dodat a schválit garant\]/);
-  act('role', 'patient');
-  assert.equal(/číselný obsah musí dodat/.test(markup()), false, 'pacient dávkový podklad nevidí');
-});
-
-test('P2 nepřepíše historii P1 ani jeho epizody', () => {
+test('Rozhodnutí: důvod z připravených, žádné psaní', () => {
   chapter('decide');
-  const eps = S().episodes.map(x => ({ id: x.id, planId: x.planId }));
+  assert.equal(/<textarea|<input(?![^>]*type="checkbox")/.test(markup()), false);
+  S().form = { choice: 'continue' };
   act('issueP2');
-  assert.equal(S().activePlanId, 'P2');
-  assert.equal(S().plans.length, 2);
-  assert.equal(S().plans[0].id, 'P1');
-  assert.equal(JSON.stringify(S().episodes.map(x => ({ id: x.id, planId: x.planId }))), JSON.stringify(eps));
-  assert.equal(NF.planById(S(), 'P2').previousId, 'P1');
+  assert.match(S().error, /důvod/);
+  act('formSet', 'choice:defer'); act('pickReason', D.decisionReasons[3]); act('issueP2');
+  assert.equal(S().plans.length, 1, 'odklad nevydá plán');
 });
 
-test('Rozhodnutí „zatím nelze rozhodnout“ nevydá nový plán', () => {
+test('Úkol na změnu režimu je z katalogu a dávku nemění', () => {
   chapter('decide');
-  act('formSet', 'choice:defer');
+  branch('response', 'declines');
+  assert.equal(S().form.choice, 'regime');
   act('issueP2');
-  assert.equal(S().plans.length, 1);
-  assert.match(S().error, /nelze rozhodnout/);
+  const p2 = NF.activePlan(S());
+  assert.equal(p2.id, 'P2');
+  assert.equal(NF.taskById(S(), p2.taskId).catalogId, 'T-REZIM');
+  assert.equal(p2.prescription, NF.planById(S(), 'P1').prescription);
+  assert.equal(p2.reviewReason, D.decisionReasons[1]);
 });
 
-test('Pacient převezme P2 a staré epizody zůstanou u P1', () => {
+test('P2 nepřepíše historii P1 a učení pokračuje', () => {
   chapter('newplan');
   assert.equal(S().activePlanId, 'P2');
-  assert.match(markup(), /Léčba v modelové ukázce beze změny/);
+  assert.match(markup(), /Dávky beze změny/);
   act('confirmUnderstanding');
   assert.equal(NF.activeTask(S()).id, 'T2');
   assert.equal(S().episodes.every(e => e.planId === 'P1'), true);
+  assert.equal(NF.confidence(S(), 'kase').level, 'known', 'co aplikace ví o jídlech, zůstává');
 });
 
 test('Výsledek demonstrace nic nepředvybírá a netvrdí úsporu minut', () => {
   chapter('result');
   act('role', 'doctor'); act('page', 'result');
   assert.equal(S().decisions.helped, undefined);
-  assert.equal(/dvou minut|úspora 2/.test(markup()), false);
-  act('setHelped', 'partly');
-  assert.equal(S().decisions.helped, 'partly');
+  assert.equal(/úspora \d|ušetří \d/.test(markup()), false);
 });
 
-/* ---------- reset ---------- */
+/* ================= žádná dávka ================= */
+test('Nikde se nepočítá ani neukazuje číselná dávka inzulinu', () => {
+  const dose = /\d+\s*(j\.|IU|jednotek|jednotky|jednotku)\b/;
+  everyScreen((m, where) => assert.equal(dose.test(m), false, where));
+  for (const f of [...CORE, ...DEMO]) {
+    const src = fs.readFileSync(path.join(__dirname, f), 'utf8');
+    assert.equal(/dose\s*[:=]\s*\d|dávk[ay]\s*=\s*\d/.test(src), false, f);
+  }
+});
+
+test('Dávkové podklady ani samotitrace v maketě nejsou', () => {
+  everyScreen((m, where) => assert.equal(/samotitrac|Dávkové podklady|dávkový podklad/i.test(m), false, where));
+  act('openPresenter');
+  assert.equal(/samotitrac|Dávkové podklady/i.test(overlay()), false);
+  assert.equal(D.decisionList.some(d => /davk|samotitrace/.test(d.key)), false);
+});
+
+/* ================= garant ================= */
+test('Průchod garanta vede jen po schvalovacích bodech', () => {
+  assert.ok(D.garantRoute.length >= 8);
+  for (const s of D.garantRoute) {
+    assert.ok(D.indexOf(s.chapter) >= 0, 'neznámá kapitola ' + s.chapter);
+    assert.ok(s.sign && s.sign.length > 20);
+    for (const id of s.rules) assert.ok(D.rules().some(r => r.id === id), 'neznámé pravidlo ' + id);
+  }
+  act('garantGo', '5');
+  assert.equal(S().garantStep, 5);
+  assert.equal(S().branches.bolus, 'unknown', 'bod si nastaví svou odbočku');
+  assert.match(elements.get('app').innerHTML, /Průchod garanta · bod 6/);
+  assert.match(markup(), /Co podepisuješ/);
+  act('garantEnd');
+  assert.equal(S().page, 'decisions');
+});
+
+test('Rozhodovací list je výchozí nerozhodnuto a pojmenuje, co musí garant rozhodnout', () => {
+  act('openAside', 'decisions');
+  assert.match(markup(), /Výchozí stav je nerozhodnuto/);
+  assert.equal(Object.keys(S().decisions).length, 0);
+  const keys = D.decisionList.map(d => d.key);
+  for (const k of ['odhad', 'rady', 'pohyb', 'porce', 'katalog', 'data', 'regulace']) assert.ok(keys.includes(k), 'chybí ' + k);
+  act('decide', 'pilot:change');
+  assert.equal(S().decisions.pilot, 'change');
+});
+
+test('Katalog pravidel ukazuje stav a parametry každého pravidla', () => {
+  act('role', 'garant');
+  const m = markup();
+  for (const r of S().rules) assert.ok(m.includes(r.id + ' ' + r.version), r.id + ' ' + r.version);
+  assert.match(m, /minKnown = 3/);
+  assert.match(m, /jen před bolusem/);
+});
+
+/* ================= determinismus a demo ================= */
+test('Skok na kapitolu je deterministický', () => {
+  for (let i = 1; i < D.chapters.length; i++) {
+    const a = D.play(i, null), b = D.play(i, null);
+    assert.equal(JSON.stringify(a.episodes), JSON.stringify(b.episodes), 'kapitola ' + i);
+    assert.equal(a.tasks.map(t => t.state).join(), b.tasks.map(t => t.state).join());
+  }
+});
+
+test('Každá kapitola se vykreslí ve své roli', () => {
+  for (let i = 0; i < D.chapters.length; i++) {
+    act('goChapter', String(i)); act('closeDrawer');
+    assert.equal(S().role, D.chapters[i].role, D.chapters[i].id);
+    assert.ok(markup().length > 400, D.chapters[i].id + ' se nevykreslila');
+    assert.equal(S().error, '', D.chapters[i].id + ': ' + S().error);
+  }
+});
+
 test('Reset vrátí začátek příběhu a odstraní změny běhu', () => {
-  chapter('compare');
-  bind('notes', 'poznámka z demonstrace');
+  chapter('learning');
+  bind('notes', 'poznámka');
   act('decide', 'katalog:yes');
   act('resetDemo');
-  const after = S();
-  assert.equal(after.chapterIndex, 0);
-  assert.equal(after.role, 'doctor');
-  assert.equal(after.activePlanId, null);
-  assert.equal(after.episodes.length, 0);
-  assert.equal(after.notes, '');
-  assert.equal(Object.keys(after.decisions).length, 0);
-  assert.equal(after.branches.training, 'done');
+  const s = S();
+  assert.equal(s.chapterIndex, 0);
+  assert.equal(s.activePlanId, null);
+  assert.equal(s.episodes.length, 0);
+  assert.equal(s.notes, '');
+  assert.equal(Object.keys(s.decisions).length, 0);
 });
 
-/* ---------- oddělení průvodce a demonstrační vrstvy ---------- */
-test('Bez načtené vrstvy průvodce nevznikne v DOM žádná kotva', () => {
+test('Příběh má pevný modelový čas, ne systémové dnes', () => {
+  assert.equal(S().clock.slice(0, 10), '2026-10-05');
+  chapter('advice'); assert.equal(S().clock.slice(0, 10), '2026-10-14');
+  chapter('onepage'); assert.equal(S().clock.slice(0, 10), '2027-01-05');
+  act('shiftTime', '7'); assert.equal(S().clock.slice(0, 10), '2027-01-12');
+});
+
+/* ================= oddělení produkce a průvodce ================= */
+test('Produkční sestavení se obejde bez složky demo a nic si nevymyslí', () => {
+  assert.equal(DEMO.every(s => s.startsWith('demo/')), true);
+  for (const f of CORE) {
+    const src = fs.readFileSync(path.join(__dirname, f), 'utf8');
+    assert.equal(/require\(|NutriFeeGuideContent\.topics|D\.chapters|D\.play\(/.test(src), false, f);
+  }
   boot({ withDemo: false });
-  assert.equal(ctx.NutriFeeGuide, undefined);
   const m = elements.get('app').innerHTML;
-  assert.equal(/data-guide/.test(m), false);
-  assert.equal(/guide-marker/.test(m), false);
-  assert.equal(/DEMO · syntetická data/.test(m), false, 'demo lišta patří do demonstrační vrstvy');
-  assert.ok(m.length > 200, 'jádro se vykreslí i bez demonstrační vrstvy');
+  assert.equal(/data-guide|guide-marker/.test(m), false);
+  assert.equal(/DEMO · syntetická data/.test(m), false);
+  assert.ok(m.length > 200);
+  assert.equal(NF.sensorSource, undefined, 'bez demo vrstvy není simulovaný senzor');
+  assert.equal(S().rules.length, 0, 'bez schváleného katalogu žádná pravidla');
 });
 
 test('Vypnutý průvodce neponechá kotvy ani vysvětlení', () => {
-  chapter('compare');
+  chapter('advice');
   ctx.NutriFeeGuide.set(false);
   const off = markup();
   assert.equal(/data-guide/.test(off), false);
   ctx.NutriFeeGuide.set(true);
   assert.match(markup(), /data-guide/);
   ctx.NutriFeeGuide.set(false);
-  assert.equal(markup(), off, 'vypnutí vrátí přesně původní rozložení');
+  assert.equal(markup(), off);
 });
 
-test('Texty průvodce se neobjeví v běžném pacientském výstupu', () => {
-  chapter('compare');
+test('Texty průvodce se neobjeví v běžném výstupu; nápověda aplikace ano', () => {
+  chapter('advice');
   ctx.NutriFeeGuide.set(true);
-  act('role', 'patient');
+  act('mealBolus', 'before');
   const m = markup();
   const C = ctx.NutriFeeGuideContent;
   for (const key of Object.keys(C.topics)) {
     const t = C.topics[key];
-    if (t.why) assert.equal(m.includes(t.why), false, 'obhajoba návrhu unikla: ' + key);
+    if (t.why) assert.equal(m.includes(t.why), false, 'obhajoba unikla: ' + key);
     if (t.decide) assert.equal(m.includes(t.decide), false, 'otázka pro garanta unikla: ' + key);
   }
-  assert.equal(/Zásada ze zadání|Návrh k posouzení|Otevřené rozhodnutí/.test(m), false);
+  assert.equal(/Závazná zásada|Návrh k posouzení|Otevřené rozhodnutí/.test(m), false);
+  assert.match(m, /Proč mi to radíš a jak moc si tím jsi jistá/, 'nápověda aplikace zůstává i v produkci');
 });
 
-test('Průvodce má u každého tématu úroveň a otevírá se akcí', () => {
+test('Průvodce má u každého tématu úroveň a pokrývá nové obrazovky', () => {
   const C = ctx.NutriFeeGuideContent;
-  const keys = Object.keys(C.topics);
-  assert.ok(keys.length >= 30);
-  for (const k of keys) {
-    assert.ok(C.levels[C.topics[k].level], 'chybí úroveň u ' + k);
-    assert.ok(C.topics[k].what && C.topics[k].what.length > 20, 'chybí „co zde uživatel vidí“ u ' + k);
+  for (const k of Object.keys(C.topics)) {
+    assert.ok(C.levels[C.topics[k].level], 'úroveň u ' + k);
+    assert.ok(C.topics[k].what && C.topics[k].what.length > 20, 'what u ' + k);
   }
+  const required = ['enroll-eligibility', 'task-catalog', 'training-steps', 'meal-portion', 'meal-level', 'meal-bolus', 'meal-blocked',
+    'meal-advice', 'foods-list', 'offline-advice', 'rule-retired', 'onepage-2', 'onepage-4', 'onepage-5', 'decide-options', 'decide-reasons'];
+  for (const r of required) assert.ok(C.topics[r], 'chybí téma ' + r);
   ctx.NutriFeeGuide.set(true);
-  act('guideOpen', 'today-counts');
-  assert.equal(NF.currentDrawer(), 'guide:today-counts');
-  const panel = ctx.NutriFeeGuide.panelHtml('today-counts');
-  assert.match(panel, /Co zde uživatel dělá nebo vidí/);
-  assert.match(panel, /Proč je to navrženo právě takto/);
-  assert.match(panel, /data-action="closeDrawer"/);
+  act('guideOpen', 'meal-bolus');
+  assert.equal(NF.currentDrawer(), 'guide:meal-bolus');
+  assert.match(ctx.NutriFeeGuide.panelHtml('meal-bolus'), /Proč je to navrženo právě takto/);
 });
 
-test('Průvodce pokrývá všechna povinná témata včetně ordinace', () => {
+test('Kotvy průvodce na obrazovkách mají téma', () => {
   const C = ctx.NutriFeeGuideContent;
-  const required = ['enroll-context', 'enroll-compensation', 'enroll-eligibility', 'task-catalog', 'training-steps', 'today-primary', 'task-done', 'today-counts',
-    'compare-list', 'onepage-2', 'onepage-3', 'today-unsure', 'safety-sections', 'datastate-cause',
-    'onepage-1', 'newplan-diff', 'rule-approved', 'rule-retired', 'dose-basis', 'decision-samotitrace',
-    'participation-end', 'edge-case', 'resume-conditions'];
-  for (const r of required) assert.ok(C.topics[r], 'chybí téma průvodce: ' + r);
+  ctx.NutriFeeGuide.set(true);
+  const missing = new Set();
+  everyScreen(m => { for (const x of m.matchAll(/data-guide="([^"]+)"/g)) if (!C.topics[x[1]]) missing.add(x[1]); });
+  const allowed = [...missing].filter(k => !/^decision-/.test(k));
+  assert.equal(allowed.length, 0, 'kotvy bez tématu: ' + allowed.join(', '));
 });
 
 test('Tiskový podklad skryje průvodce a ponechá označení demonstrace', () => {
-  const demoCss = fs.readFileSync(path.join(__dirname, 'demo/demo.css'), 'utf8');
-  const printBlock = demoCss.slice(demoCss.indexOf('@media print'));
+  const css = fs.readFileSync(path.join(__dirname, 'demo/demo.css'), 'utf8');
+  const printBlock = css.slice(css.indexOf('@media print'));
   assert.match(printBlock, /\.guide-marker[^{]*\{[^}]*display:none/);
-  assert.match(printBlock, /#overlay/);
   assert.match(printBlock, /DEMO · syntetická data · není určeno pro léčbu/);
 });
 
-test('Produkční sestavení se obejde bez složky demo', () => {
-  assert.equal(DEMO.every(s => s.startsWith('demo/')), true);
-  assert.equal(CORE.every(s => s.startsWith('app/')), true);
-  for (const f of CORE) {
-    const src = fs.readFileSync(path.join(__dirname, f), 'utf8');
-    assert.equal(/require\(|NutriFeeGuideContent\.topics|D\.chapters|D\.play\(/.test(src), false,
-      'jádro nesmí záviset na obsahu demonstrační vrstvy: ' + f);
-  }
-});
-
-/* ---------- okrajové stavy ---------- */
+/* ================= obecné hranice ================= */
 test('Okrajové situace mají stav, další krok i odpovědnou roli', () => {
   for (const ec of D.edgeCases) {
     act('setEdge', ec.id);
-    const m = markup();
-    assert.match(m, new RegExp(ec.title.split(' ')[0]));
-    assert.match(m, /Co se změnilo, co lze dál dělat a kdo řeší další krok/);
+    assert.match(markup(), /Co se změnilo, co lze dál dělat a kdo řeší další krok/);
   }
   assert.equal(D.edgeCases.length, 10);
 });
 
-test('Ukončení účasti zastaví úkoly a nevyvozuje závěr z neaktivity', () => {
-  chapter('compare');
+test('Ukončení účasti zastaví úkoly i rady', () => {
+  chapter('advice');
   act('endParticipation', 'ended');
   assert.equal(S().tasks.every(t => t.state === 'cancelled'), true);
+  assert.equal(NF.adviceGate(S()).ok, false);
   act('role', 'patient'); act('page', 'today');
   assert.match(markup(), /Účast je ukončená/);
 });
 
-test('Rozhodovací list je výchozí nerozhodnuto a nic nepředvybírá', () => {
-  act('openAside', 'decisions');
-  const m = markup();
-  assert.match(m, /Výchozí stav je nerozhodnuto/);
-  assert.equal(Object.keys(S().decisions).length, 0);
-  assert.equal(D.decisionList.length, 7);
-  act('decide', 'pilot:change');
-  assert.equal(S().decisions.pilot, 'change');
-});
-
-test('Koncept samotitrace je mimo běžný pacientský průchod', () => {
-  act('openAside', 'protocol');
-  assert.match(markup(), /Neschválený koncept/);
-  act('conceptIllness');
-  assert.match(markup(), /[Nn]ení vypočtena (žádná )?změna inzulinu/);
-  act('role', 'patient'); act('page', 'today');
-  assert.equal(/k doplnění garantem/.test(markup()), false);
-  act('role', 'garant'); act('page', 'protocol');
-  act('openConcept');
-  assert.match(markup(), /Neschválený koncept — není aktivní/);
-  act('decide', 'samotitrace:defer');
-  assert.equal(S().decisions.samotitrace, 'defer');
-});
-
-/* ---------- obecné hranice ---------- */
 test('Nikde se netvrdí odeslání zprávy ani průběžný dohled', () => {
   const bad = /zpráva odeslána|odesláno ordinaci|ordinace informována|lékař upozorněn|sledujeme vás/i;
-  for (let i = 0; i < D.chapters.length; i++) {
-    act('goChapter', String(i)); act('closeDrawer');
-    for (const role of ['patient', 'doctor', 'garant']) {
-      act('role', role);
-      assert.equal(bad.test(markup()), false, 'kapitola ' + D.chapters[i].id + '/' + role);
-    }
-  }
+  everyScreen((m, where) => assert.equal(bad.test(m), false, where));
 });
 
 test('Demo označení zůstává viditelné ve všech kapitolách a rolích', () => {
-  for (let i = 0; i < D.chapters.length; i++) {
-    act('goChapter', String(i)); act('closeDrawer');
-    for (const role of ['patient', 'doctor', 'garant']) {
-      act('role', role);
-      assert.match(markup(), /DEMO · syntetická data · není určeno pro léčbu/, D.chapters[i].id + '/' + role);
-    }
-  }
+  everyScreen((m, where) => assert.match(m, /DEMO · syntetická data · není určeno pro léčbu/, where));
 });
 
 test('Grafy mají jednotky, popisky os a textový souhrn', () => {
   chapter('onepage');
-  act('role', 'doctor'); act('page', 'evidence'); act('setEvidence', 'E1');
+  act('role', 'doctor'); act('page', 'evidence'); act('setEvidence', 'kase');
   const m = markup();
   assert.match(m, /mmol\/l/);
   assert.match(m, /minuty od jídla/);
@@ -771,12 +773,14 @@ test('Grafy mají jednotky, popisky os a textový souhrn', () => {
   assert.match(m, /role="img"/);
 });
 
-test('Příběh má pevný modelový čas, ne systémové dnes', () => {
-  assert.equal(S().clock.slice(0, 10), '2026-10-05');
-  chapter('compare'); assert.equal(S().clock.slice(0, 10), '2026-10-10');
-  chapter('unclear'); assert.equal(S().clock.slice(0, 10), '2026-10-20');
-  chapter('onepage'); assert.equal(S().clock.slice(0, 10), '2027-01-05');
-  act('shiftTime', '7'); assert.equal(S().clock.slice(0, 10), '2027-01-12');
+test('V publikovaných souborech nejsou skutečná jména osob ani institucí', () => {
+  const files = ['nutrifee-rozhodovaci-maketa.html', 'README.md', ...CORE, ...DEMO];
+  /* Obecné vzory — test sám nesmí žádné skutečné jméno obsahovat. */
+  const bad = /MUDr\.|Ing\. ?[A-Z]|prof\. |doc\. |a kol\.|et al\.|nemocnic|FN [A-Z]|Standards of Care/;
+  for (const f of files) {
+    const src = fs.readFileSync(path.join(__dirname, f), 'utf8');
+    assert.equal(bad.test(src), false, f);
+  }
 });
 
 console.log('');

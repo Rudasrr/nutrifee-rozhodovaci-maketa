@@ -43,3 +43,51 @@
 /* Lékařský průvodce má dva kroky, zaučení vede sestra na vlastní obrazovce. */
 .wizard-steps.two{grid-template-columns:1fr 1fr}
 @media(max-width:600px){.wizard-steps.two{grid-template-columns:1fr}}
+
+/* ---------- vyhodnocení a rady ----------
+   Pravidlo a jeho stav je u každého výpočtu a rady vidět. */
+.tag.info{background:var(--lightblue);color:#17496f}
+.rule-line{margin:10px 0 0;display:flex;flex-wrap:wrap;gap:6px}
+.rule-chip{display:inline-flex;align-items:center;border-radius:8px;font-size:12px;line-height:1.3;padding:4px 8px;font-weight:650;
+  background:#eef2ec;color:var(--muted);border:1px solid var(--line)}
+.rule-chip.approved{background:var(--mint);color:var(--green2);border-color:#a6d4c4}
+.rule-chip.draft{background:var(--amberbg);color:var(--amber);border-color:#e3cb95}
+.rule-chip.retired{background:var(--redbg);color:var(--red);border-color:#e2b4b8}
+
+.food-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:14px 0 20px}
+.food-option{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;border:1px solid var(--line);border-radius:14px;
+  background:#fff;color:var(--ink);padding:14px 16px;min-height:74px}
+.food-option small{color:var(--muted);font-size:13px}
+.food-option.chosen{border:2px solid var(--green);background:var(--mint)}
+
+.level-card{border:1px solid var(--line);border-left:4px solid var(--green);border-radius:14px;padding:16px 18px;margin:18px 0;background:#fbfdfc}
+.level-card h2{font-size:18px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.level-card .chart{margin:12px 0 0}
+
+.bolus-q{border:2px solid var(--green);border-radius:14px;padding:14px 16px;margin:18px 0 6px}
+.bolus-q legend{font-weight:750;padding:0 6px}
+
+.advice-list{list-style:none;padding:0;margin:10px 0}
+.advice{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 10px;background:#fff}
+.advice.taken{border-color:#a6d4c4;background:var(--mint)}
+.advice.declined{background:#f7f9f6}
+.advice-lever{font-size:13px;text-transform:uppercase;letter-spacing:.05em;font-weight:750;color:var(--green);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.advice-text{font-size:17px;font-weight:650;margin:6px 0}
+.advice .choice-row{margin-top:10px}
+.advice .reasons .choice{font-size:14px;min-height:40px}
+
+.app-help{margin-top:14px}
+.app-help summary{font-weight:650;color:var(--green2)}
+
+.learn-bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin:8px 0 6px;max-width:260px}
+.learn-bar span{display:block;height:100%;background:var(--green)}
+
+.outcome-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0 14px}
+.outcome{border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.outcome span{font-size:13px;text-transform:uppercase;letter-spacing:.05em;font-weight:750;color:var(--muted)}
+.outcome strong{display:block;font-size:30px;line-height:1.2;margin:4px 0}
+.outcome p{margin:0;font-weight:650}
+.outcome small{color:var(--muted)}
+@media(max-width:560px){.outcome-grid{grid-template-columns:1fr}.food-grid{grid-template-columns:1fr}}
+.chart-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0}
+.chart-legend span{display:inline-flex;align-items:center;gap:6px}

@@ -50,7 +50,7 @@ NF.render = function () {
     '<main class="shell" id="main" tabindex="-1">' +
     (S.error ? '<div id="error" class="error" role="alert" tabindex="-1">' + e(S.error) + '</div>' : '') +
     content() +
-    '<footer class="footer">NutriFee · rozhodovací maketa · syntetická data · verze pravidel z katalogu garanta<br>' +
+    '<footer class="footer">NutriFee · každý výpočet a rada pochází ze schváleného pravidla v katalogu garanta · aplikace nepočítá dávku inzulinu<br>' +
     'Neodesílají se žádné zprávy, žádná data neopouštějí tento prohlížeč.</footer>' +
     '</main>';
 
@@ -83,16 +83,10 @@ function renderDrawer() {
   if (drawer.indexOf('correct:') === 0) {
     var id = drawer.slice(8);
     var ep = S.episodes.filter(function (x) { return x.id === id; })[0];
-    body = '<h2>Oprava popisu epizody ' + e(id) + '</h2>' +
+    body = '<h2>Oprava popisu záznamu ' + e(id) + '</h2>' +
       '<label class="field">Popis<textarea data-bind="edit.' + e(id) + '">' + e(ep ? ep.desc : '') + '</textarea></label>' +
       '<p class="small muted">Předchozí hodnota zůstane v historii epizody.</p>' +
       '<div class="actions">' + V.btn('Uložit opravu', 'saveCorrection', id, 'primary') + V.btn('Zrušit', 'closeDrawer', null, 'secondary') + '</div>';
-  } else if (drawer === 'incident') {
-    body = '<h2>Založit záznam incidentu</h2>' +
-      '<p class="small muted">Modelová evidence. Nikam se neodesílá a maketa neurčuje povinnost regulatorního hlášení.</p>' +
-      '<label class="field">Podnět<textarea data-bind="form.incidentText">' +
-      e((S.form && S.form.incidentText) || (S.impulse ? S.impulse.text : '')) + '</textarea></label>' +
-      '<div class="actions">' + V.btn('Založit záznam', 'createIncident', null, 'primary') + V.btn('Zrušit', 'closeDrawer', null, 'secondary') + '</div>';
   } else if (NF.slots.drawer) {
     body = NF.slots.drawer(S, drawer) || '';
     if (!body) { el.innerHTML = ''; drawer = null; return; }
@@ -113,6 +107,7 @@ function bind(key, value) {
   if (parts[0] === 'draft' && S.draft) { S.draft[parts[1]] = value; return; }
   if (parts[0] === 'onboarding') { S.onboarding[parts[1]] = value; return; }
   if (parts[0] === 'edit') { S.edit = S.edit || {}; S.edit[parts[1]] = value; return; }
+  if (parts[0] === 'meal') { S.meal = S.meal || { portion: 'usual', decisions: {}, reasons: {} }; S.meal[parts[1]] = value; return; }
   if (parts[0] === 'decisionNotes') { S.decisionNotes = S.decisionNotes || {}; S.decisionNotes[parts[1]] = value; return; }
   if (parts[0] === 'ruleExamples') {
     var r = NF.ruleByKey(S, parts.slice(1).join('.'));
@@ -123,6 +118,7 @@ function bind(key, value) {
 }
 
 /* ---------- akce ---------- */
+function mealState() { S.meal = S.meal || { portion: 'usual', decisions: {}, reasons: {} }; return S.meal; }
 var A = {
   noop: function () { },
   page: function (v) { S.page = v; S.error = ''; },
@@ -159,7 +155,7 @@ var A = {
     }
     var r = NF.finishTraining(S, S.role, v, v === 'failed' ? 'Pacient si zatím není jistý ovládáním; domluveno opakované zaučení.' : '');
     if (!r.ok) return fail(r.error);
-    if (v === 'failed') toast('Zaučení nebylo dokončeno. Plán se nevydá a úkol se neaktivuje.');
+    if (v === 'failed') toast('Zaučení nebylo dokončeno. Úkol se neaktivuje.');
     else toast('Zaučení je dokončené.');
   },
   confirmUnderstanding: function () {
@@ -168,25 +164,27 @@ var A = {
     var r = NF.confirmUnderstanding(S);
     if (!r.ok) return fail(r.error);
     S.page = 'today';
-    toast('Hotovo. Odcházíš z ordinace s jedním aktivním úkolem.');
+    toast('Hotovo. Úkol je aktivní.');
   },
   issuePlan: function () {
     var r = NF.issuePlan(S, S.role);
     if (!r.ok) return fail(r.error);
     NF.handover(S);
-    S.role = 'patient'; S.page = 'takeover';
-    toast('Plán P1 je vydaný a předaný pacientovi. Úkol se aktivuje po ověření porozumění.');
+    S.role = 'nurse'; S.page = 'training';
+    toast('Plán P1 je vydaný. Pacienta teď zaučí sestra.');
   },
   issueP2: function () {
     if (S.role !== 'doctor') return fail('Plán vydává lékař.');
     var choice = (S.form && S.form.choice) || '';
     if (!choice) return fail('Nejdřív vyber rozhodnutí.');
     if (choice === 'defer') return fail('Zvolil jsi „zatím nelze rozhodnout“. Nový plán se nevydává a stávající platí dál.');
+    if (!(S.form && S.form.reason)) return fail('Vyber důvod rozhodnutí z připravených.');
     var D = global.NutriFeeDemo;
     if (!D || !D.issueSecondPlan) return fail('Vydání dalšího plánu je součástí demonstrační vrstvy.');
-    if (!D.issueSecondPlan(S)) return fail('Další plán už byl vydaný, nebo chybí platný plán.');
+    var r = D.issueSecondPlan(S);
+    if (!r.ok) return fail(r.error);
     S.page = 'result';
-    toast('P2 je vydaný. Historie P1 a jeho epizod zůstává beze změny.');
+    toast('P2 je vydaný. Historie P1 zůstává beze změny.');
   },
 
   formSet: function (v) {
@@ -194,95 +192,98 @@ var A = {
     S.form = S.form || {};
     S.form[v.slice(0, i)] = v.slice(i + 1);
   },
-  pickConclusion: function (v) {
-    var D = global.NutriFeeDemo;
-    S.form = S.form || {};
-    S.form.conclusion = D && D.conclusions ? D.conclusions[Number(v)] : '';
+
+  /* ---- před jídlem ---- */
+  startMeal: function () { S.meal = { portion: 'usual', decisions: {}, reasons: {} }; S.page = 'meal'; },
+  mealFood: function (v) { var m = mealState(); if (m.foodId !== v) { m.foodId = v; m.desc = null; m.decisions = {}; m.reasons = {}; } },
+  mealPortion: function (v) { var m = mealState(); m.portion = v; m.decisions = {}; m.reasons = {}; },
+  mealBolus: function (v) {
+    var m = mealState(); m.bolus = v; m.decisions = {}; m.reasons = {};
+    if (v === 'after' && !m.insulinReported) m.insulinReported = 'per-plan';
   },
-  saveEpisode: function () {
-    var f = S.form || {};
-    if (!f.insulinReported) return fail('Vyber, jak to bylo s inzulinem. Můžeš zvolit i „nevím“.');
-    if (f.insulinReported !== 'unknown' && !f.insulinTime) return fail('Doplň čas podání, nebo zvol „nevím“. Čas nedopočítáváme.');
-    var at = S.clock;
-    var r = NF.saveEpisode(S, {
-      at: at, desc: f.desc == null ? 'Chléb, sýr a neslazený čaj; pacient uvádí obvyklou porci' : f.desc,
-      usualPortion: true,
-      insulinReported: f.insulinReported, insulinTime: f.insulinTime || null,
-      circumstances: f.circumstances || '',
-      points: [
-        { min: 0, at: at, mmol: 7.2 }, { min: 30, at: at, mmol: 8.1 }, { min: 60, at: at, mmol: 9.6 },
-        { min: 90, at: at, mmol: 8.8 }, { min: 120, at: at, mmol: 7.9 }
-      ],
-      importedAt: at
+  mealDecide: function (v) {
+    var m = mealState(), p = String(v).split(':');
+    m.decisions[p[0]] = p[1] === 'yes';
+    if (p[1] === 'yes') delete m.reasons[p[0]];
+  },
+  mealReason: function (v) { var m = mealState(), p = String(v).split(':'); m.reasons[p[0]] = p[1]; },
+  mealInsulin: function (v) { mealState().insulinReported = v; },
+  saveMeal: function () {
+    var m = S.meal || {};
+    if (!m.foodId) return fail('Vyber jídlo.');
+    if (!m.insulinReported) return fail('Vyber, jak to bylo s inzulinem. Můžeš zvolit i „nevím“.');
+    if (m.insulinReported === 'per-plan' && !m.insulinTime) return fail('Doplň čas podání, nebo zvol „nevím“. Čas nedopočítáváme.');
+    var res = NF.advise(S, m.foodId, m.portion || 'usual', m.bolus || null);
+    var advice = res.items.map(function (it) {
+      var d = (m.decisions || {})[it.lever];
+      return { lever: it.lever, ruleKey: it.ruleKey, accepted: d === true ? true : d === false ? false : null, reason: (m.reasons || {})[it.lever] || null };
     });
+    var draft = { foodId: m.foodId, portion: m.portion || 'usual', bolusState: m.bolus || null, advice: advice,
+      desc: m.desc, insulinReported: m.insulinReported, insulinTime: m.insulinTime || null, at: S.clock };
+    /* Senzorový úsek dodá zdroj dat. V maketě je simulovaný demonstrační vrstvou;
+       bez ní zůstane prázdný a záznam se do učení nezapočítá. */
+    var src = NF.sensorSource ? NF.sensorSource(S, draft) : null;
+    draft.points = src ? src.points : [];
+    draft.importedAt = src ? src.importedAt : null;
+    var r = NF.saveEpisode(S, draft);
     if (!r.ok) return fail(r.error);
-    S.form = {};
-    S.page = 'compare';
-    toast('Epizoda ' + r.episode.id + ' je uložená. Opravit ji můžeš kdykoli.');
+    S.meal = null;
+    S.page = 'foods';
+    toast('Jídlo ' + r.episode.id + ' je uložené. Opravit ho můžeš kdykoli.');
   },
+  unclearGo: function (v) { S.unclearBranch = v; S.page = 'unclear'; },
   openCorrect: function (v) { drawer = 'correct:' + v; },
   saveCorrection: function (v) {
     var val = (S.edit || {})[v];
     if (val == null) return fail('Není co uložit.');
-    var r = NF.correctEpisode(S, v, 'desc', val);
+    var r = NF.correctEpisode(S, v, val);
     if (!r.ok) return fail(r.error);
     drawer = null;
     toast('Oprava uložená. Předchozí hodnota zůstává v historii.');
-  },
-  completeTask: function () {
-    var c = (S.form && S.form.conclusion) || '';
-    var r = NF.completeTask(S, c);
-    if (!r.ok) return fail(r.error);
-    S.page = 'today';
-    toast('Úkol je dokončený. Pro tento úkol už nemusíš nic zapisovat.');
   },
 
   saveQuestion: function () {
     var t = (S.form && S.form.question) || '';
     if (!t.trim()) return fail('Napiš, co tě zajímá.');
-    S.questions.push({ id: NF.uid('Q'), at: S.clock, text: t, circumstance: (S.form && S.form.qcirc) || '' });
+    S.questions.push({ id: NF.uid('Q'), at: S.clock, text: t });
     S.form.question = '';
     toast('Otázka je uložená ke kontrole. Lékaři se neodeslala.');
   },
   unclear: function (v) { S.unclearBranch = v; },
-  reportIllness: function () { NF.reportIllness(S); toast('Období nemoci je označené. Pozorování je pozastavené.'); },
+  reportIllness: function () { NF.reportIllness(S); toast('Období nemoci je označené. Úkol je pozastavený a rady se nenabízejí.'); },
   endIllness: function () { var r = NF.endIllness(S); if (!r.ok) return fail(r.error); toast('Období nemoci je ukončené.'); },
   setCause: function (v) { S.dataState.patientCause = v; },
   showContact: function () { S.contactShown = true; },
 
-  setEvidence: function (v) { S.evidenceId = v; },
+  setEvidence: function (v) { S.evidenceFood = v; },
   interruptVisit: function () { S.visitInterrupted = true; toast('Kontrola je přerušená. Maketa přešla do bezpečnostního stavu.'); },
   resumeVisit: function () { S.visitInterrupted = false; },
   assessEvent: function (v) {
     var ev = (S.safetyEvents || []).filter(function (x) { return x.id === v; })[0];
-    if (ev) ev.assessment = 'Vyhodnoceno na kontrole. Modelový záznam bez klasifikace závažnosti.';
-    toast('Vyhodnocení je zaznamenané.');
+    if (ev) ev.assessment = 'Probráno na kontrole. Záznam bez klasifikace závažnosti.';
+    toast('Událost je označená jako probraná.');
   },
   setHelped: function (v) { S.decisions.helped = v; },
   print: function () { if (global.print) global.print(); },
-  setDoseVariant: function (v) { S.doseVariant = v; },
 
   approveRule: function (v) {
     var r = NF.approveRule(S, S.role, v);
     if (!r.ok) return fail(r.error);
-    toast('Verze ' + v + ' je modelově schválená. Nevydává tím žádný inzulinový plán.');
+    toast('Verze ' + v + ' je schválená. Nevydává tím žádný plán.');
   },
   openRetire: function (v) { S.retireOpen = v; },
   closeRetire: function () { S.retireOpen = null; },
   retireRule: function (v) {
-    var reason = (S.form && S.form.retireReason) || 'Formulace nejasně popisuje použití při nemoci.';
+    var reason = (S.form && S.form.retireReason) || '';
     var r = NF.retireRule(S, S.role, v, reason);
     if (!r.ok) return fail(r.error);
     S.retireOpen = null;
     S.lastRetire = v;
     toast('Pravidlo ' + v + ' je vyřazené z dalšího použití. Předpis plánu se nemění.');
   },
-  openIncident: function () { drawer = 'incident'; },
   createIncident: function () {
-    var txt = (S.form && S.form.incidentText) || (S.impulse ? S.impulse.text : '');
-    if (!txt) return fail('Doplň podnět.');
-    NF.addIncident(S, { source: 'interní test', report: txt, versions: ['R-SNIDANE v1'], role: S.garant.id });
-    drawer = null;
+    if (!S.impulse) return fail('Není podnět k založení.');
+    NF.addIncident(S, { source: 'interní test', report: S.impulse.text, versions: S.impulse.versions || [], role: S.garant.id });
     S.page = 'incidents';
     toast('Incident je zaznamenaný. Nikam se neodeslal.');
   },
@@ -290,8 +291,8 @@ var A = {
     var parts = String(v).split(':');
     var inc = S.incidents.filter(function (x) { return x.id === parts[0]; })[0];
     if (!inc) return;
-    if (parts[1] === 'clinical') inc.clinical = 'Posouzeno: formulační problém bez zjištěné újmy. Klasifikaci závažnosti maketa neurčuje.';
-    else inc.technical = 'Připravena verze v2 s doplněnou větou o nemoci. Nasazení mimo maketu.';
+    if (parts[1] === 'clinical') inc.clinical = 'Posouzeno: formulační problém; klasifikaci závažnosti maketa neurčuje.';
+    else inc.technical = 'Připravena verze v2 s upřesněným textem. Nasazení mimo maketu.';
     if (inc.clinical !== 'neposouzeno' && inc.technical !== 'neřešeno') inc.state = 'vyřešeno v maketě';
   },
 
@@ -307,15 +308,14 @@ var A = {
       var n = (S.decisionNotes || {})[it.key];
       if (n) lines.push('  ' + n);
     });
+    if (S.notes) lines.push('', 'Poznámky prezentujícího:', S.notes);
     download('nutrifee-poznamky-demonstrace.txt', lines.join('\n'));
     toast('Poznámky jsou připravené ke stažení.');
   },
-
-  openConcept: function () { S.conceptOpen = true; S.role = 'patient'; S.page = 'concept'; },
-  closeConcept: function () { S.conceptOpen = false; S.role = 'garant'; S.page = 'protocol'; },
-  conceptIllness: function () { S.conceptState = 'paused'; toast('Koncept je pozastavený. Není vypočtena žádná změna inzulinu.'); },
   resumeTask: function () {
-    var r = NF.resumeTask(S, S.role, (S.form && S.form.resumeReason) || '');
+    var reason = (S.form && S.form.resumeReason) || '';
+    if (!reason) return fail('Vyber důvod obnovení z připravených.');
+    var r = NF.resumeTask(S, S.role, reason);
     if (!r.ok) return fail(r.error);
     S.page = 'versions';
     toast('Úkol je obnovený. Pacient vidí důvod obnovení.');

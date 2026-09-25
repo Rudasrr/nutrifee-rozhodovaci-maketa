@@ -32,17 +32,29 @@ NF.registerSlot('headerTools', function (S) {
 NF.registerSlot('banner', function (S) {
   var ch = chapter(S), a = act(S);
   var i = S.chapterIndex || 0;
+  var route = S.garantStep != null ? D.garantRoute[S.garantStep] : null;
   return '<div class="banner demo-banner">' +
     '<p><strong class="demo-flag">DEMO · syntetická data · není určeno pro léčbu</strong> ' +
     '· ' + e(a.title) + ' · kapitola ' + (i + 1) + ' z ' + D.chapters.length + ': ' + e(ch.title) +
     ' · modelové datum: ' + e(NF.fmtShort(S.clock)) + ' ' + e(NF.fmtTime(S.clock)) +
     (NF.storageOK ? '' : ' · <strong>úložiště prohlížeče není dostupné — po obnovení stránky příběh začne znovu</strong>') +
     '</p>' +
-    '<div class="demo-steps">' +
-    (i > 0 ? btn('◀ Předchozí', 'storyStep', '-1', 'demo') : '') +
-    (i < D.chapters.length - 1 ? btn('Další ▶', 'storyStep', '1', 'demo') : '') +
-    btn('Reset', 'resetDemo', null, 'demo') +
-    '</div></div>';
+    (route ? '<div class="garant-route"><p><strong>Průchod garanta · bod ' + (S.garantStep + 1) + ' z ' + D.garantRoute.length + ': ' + e(route.title) + '</strong><br>' +
+      'Co podepisuješ: ' + e(route.sign) + '</p>' +
+      (route.rules.length ? '<p class="small">' + route.rules.map(function (id) {
+        var r = NF.ruleById(S, id);
+        return r ? NF.screens.ruleChip(S, NF.ruleKey(r)) : '';
+      }).join(' ') + '</p>' : '') +
+      '<div class="demo-steps">' +
+      (S.garantStep > 0 ? btn('◀ Předchozí bod', 'garantGo', String(S.garantStep - 1), 'demo') : '') +
+      (S.garantStep < D.garantRoute.length - 1 ? btn('Další bod ▶', 'garantGo', String(S.garantStep + 1), 'demo')
+        : btn('Rozhodovací list', 'garantEnd', null, 'demo')) +
+      btn('Ukončit průchod', 'garantExit', null, 'demo') + '</div></div>'
+    : '<div class="demo-steps">' +
+      (i > 0 ? btn('◀ Předchozí', 'storyStep', '-1', 'demo') : '') +
+      (i < D.chapters.length - 1 ? btn('Další ▶', 'storyStep', '1', 'demo') : '') +
+      btn('Reset', 'resetDemo', null, 'demo') +
+      '</div>') + '</div>';
 });
 
 /* ---------- panel prezentujícího ---------- */
@@ -62,12 +74,16 @@ function presenterPanel(S) {
     '<p class="small muted">Tento panel není součástí aplikace pro pacienta ani lékaře. Slouží k vedení ukázky.</p>';
 
   out += '<div class="next-step"><strong>Jeden příběh</strong>' +
-    '<p>Modelový pacient 01 od zařazení v ordinaci po další kontrolu. Skok na kapitolu přehraje příběh ' +
-    'od začátku, takže stav vždy odpovídá ručnímu průchodu.</p></div>';
+    '<p>Modelový pacient 01 od zařazení v ordinaci po další kontrolu: aplikace se z jeho dat učí, před jídlem radí ' +
+    'a lékař na kontrole vidí, jestli rady fungovaly. Skok na kapitolu přehraje příběh od začátku, takže stav vždy odpovídá ručnímu průchodu.</p></div>';
+
+  out += '<h3>Průchod na úrovni garanta</h3>' +
+    '<p class="small muted">Jen schvalovací body — co by garant musel podepsat. ' + D.garantRoute.length + ' zastávek, u každé pravidla a jejich stav.</p>' +
+    '<div class="actions">' + btn('Začít průchod garanta', 'garantGo', '0', 'primary') + '</div>';
 
   D.acts.forEach(function (a, ai) {
     out += '<hr><h3>' + e(a.title) + '</h3>' +
-      '<p class="small muted">' + e(a.note) + ' <span class="rule-tag">' + e(a.covers) + '</span></p>' +
+      '<p class="small muted">' + e(a.note) + '</p>' +
       '<div class="buttonlist">' +
       D.chapters.map(function (c, ci) { return { c: c, ci: ci }; })
         .filter(function (x) { return x.c.act === ai; })
@@ -86,8 +102,6 @@ function presenterPanel(S) {
   });
 
   out += '<hr><h3>Odbočky mimo hlavní linku</h3><div class="buttonlist">' +
-    btn('Samotitrace bazálu — koncept a rozhodnutí', 'openAside', 'protocol', 'demo') +
-    btn('Dávkové podklady — otevřená varianta', 'openAside', 'dose', 'demo') +
     btn('Rozhodovací list garanta', 'openAside', 'decisions', 'demo') +
     btn('Verze a stopa demonstrace', 'openAside', 'versions', 'demo') +
     '</div>' +
@@ -156,9 +170,7 @@ NF.demoActions.setBranch = function (v) {
 };
 NF.demoActions.openAside = function (v) {
   var S = NF.getState();
-  if (v === 'protocol') { S.role = 'garant'; S.page = 'protocol'; }
-  else if (v === 'dose') { S.doseBasis = 'open'; S.role = 'doctor'; S.page = 'dose'; }
-  else if (v === 'decisions') { S.role = 'garant'; S.page = 'decisions'; }
+  if (v === 'decisions') { S.role = 'garant'; S.page = 'decisions'; }
   else if (v === 'versions') { S.role = 'doctor'; S.page = 'versions'; }
   NF.closeDrawer();
 };
@@ -178,6 +190,22 @@ NF.demoActions.endParticipation = function (v) {
   S.role = 'patient'; S.page = 'today';
   NF.closeDrawer();
 };
+/* Průchod garanta: přehraje příběh do kapitoly bodu (s jeho odbočkou)
+   a v demo liště ukáže, co se v tomto bodě podepisuje. */
+NF.demoActions.garantGo = function (v) {
+  var k = Number(v);
+  var step = D.garantRoute[k];
+  if (!step) return;
+  var b = {};
+  Object.keys(D.defaults).forEach(function (x) { b[x] = D.defaults[x]; });
+  Object.keys(step.branch || {}).forEach(function (x) { b[x] = step.branch[x]; });
+  var next = D.play(D.indexOf(step.chapter), b);
+  next.garantStep = k;
+  NF.setState(next);
+  NF.closeDrawer();
+};
+NF.demoActions.garantExit = function () { var S = NF.getState(); S.garantStep = null; };
+NF.demoActions.garantEnd = function () { var S = NF.getState(); S.garantStep = null; S.role = 'garant'; S.page = 'decisions'; };
 NF.demoActions.resetDemo = function () {
   var next = D.play(0, null);
   next.toast = 'Příběh je resetovaný na začátek v ordinaci.';
