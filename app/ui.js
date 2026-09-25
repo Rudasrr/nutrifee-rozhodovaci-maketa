@@ -111,7 +111,6 @@ function bind(key, value) {
   if (parts[0] === 'form') { S.form = S.form || {}; S.form[parts[1]] = value; return; }
   if (parts[0] === 'draft' && S.draft) { S.draft[parts[1]] = value; return; }
   if (parts[0] === 'onboarding') { S.onboarding[parts[1]] = value; return; }
-  if (parts[0] === 'enrollment') { S.enrollment[parts[1]] = value; return; }
   if (parts[0] === 'edit') { S.edit = S.edit || {}; S.edit[parts[1]] = value; return; }
   if (parts[0] === 'decisionNotes') { S.decisionNotes = S.decisionNotes || {}; S.decisionNotes[parts[1]] = value; return; }
   if (parts[0] === 'ruleExamples') {
@@ -137,6 +136,15 @@ var A = {
   eligibility: function (v) {
     NF.setEligibility(S, v, !S.enrollment.criteria[v]);
   },
+  setCompensation: function (v) { S.enrollment.compensation = v; },
+  selectTask: function (v) {
+    var D = global.NutriFeeDemo;
+    var item = D && D.taskCatalog ? D.taskCatalog.filter(function (x) { return x.id === v; })[0] : null;
+    var r = NF.assignTask(S, item);
+    if (!r.ok) return fail(r.error);
+    toast('Úkol je vybraný z katalogu.');
+  },
+  pickReason: function (v) { S.form = S.form || {}; S.form.reason = v; },
   trainingStep: function (v) {
     S.training.steps[v] = !S.training.steps[v];
     if (S.training.result === 'done' && !NF.TRAINING.every(function (x) { return S.training.steps[x[0]]; })) S.training.result = null;

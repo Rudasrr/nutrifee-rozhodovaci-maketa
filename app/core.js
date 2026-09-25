@@ -62,7 +62,7 @@ NF.createState = function () {
     garant: { id: 'DEMO-G01', label: 'Modelový garant 01' },
     onboarding: { checkAnswer: null, done: false },
     /* Zařazení a zaučení proběhnou v ordinaci, dřív než lékař vydá plán. */
-    enrollment: { eligible: false, criteria: {}, question: '', circumstances: '', medication: '' },
+    enrollment: { eligible: false, criteria: {}, compensation: null },
     training: { result: null, steps: {}, note: '' },
     wizardStep: 0,
     plans: [],
@@ -146,6 +146,26 @@ NF.setEligibility = function (S, key, value) {
   S.enrollment.eligible = NF.ELIGIBILITY.every(function (c) { return !!S.enrollment.criteria[c[0]]; });
   return S.enrollment.eligible;
 };
+/* Úkol jde přiřadit jen z předdefinovaného katalogu a jen s modelově
+   schváleným pravidlem. Lékař žádný text nepíše. */
+NF.assignTask = function (S, item) {
+  if (!item) return { ok: false, error: 'Vyber úkol z katalogu.' };
+  if (!NF.isRuleUsable(S, item.ruleId)) {
+    return { ok: false, error: 'Pravidlo ' + item.ruleId + ' nemá modelově schválenou verzi. Úkol nelze přiřadit.' };
+  }
+  S.tasks = S.tasks.filter(function (t) { return t.id !== 'T1'; });
+  S.tasks.unshift({
+    id: 'T1', catalogId: item.id, kind: item.kind, state: 'prepared',
+    question: item.question, title: item.title,
+    ruleId: item.ruleId, ruleVersion: 'v1',
+    conditions: item.conditions, minimum: item.minimum, burden: item.burden,
+    target: item.target, planId: null, conclusion: null, pauseReason: null
+  });
+  if (S.draft) S.draft.taskId = 'T1';
+  NF.log(S, 'task.assigned', item.id);
+  return { ok: true };
+};
+
 NF.TRAINING = [
   ['app', 'Pacient si otevřel aplikaci a našel dnešní úkol'],
   ['record', 'Pacient zvládl zapsat zkušební jídlo'],

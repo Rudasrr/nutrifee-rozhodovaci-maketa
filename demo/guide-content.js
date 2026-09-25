@@ -28,13 +28,31 @@ G.topics = {
     sim: 'Kritéria jsou čtyři zaškrtávátka. Skutečná kontrola proti dokumentaci se nesimuluje.',
     decide: 'Přesná definice stability režimu a praktická vstupní kritéria. V maketě jsou čtyři body — to je náš návrh, ne schválený protokol.'
   },
-  'enroll-question': {
-    title: 'Otázka pacienta se zapisuje hned na začátku',
+  'enroll-context': {
+    title: 'Co lékař ví, se nevypisuje',
+    level: 'zasada',
+    what: 'Diagnóza, režim, senzor, poslední HbA1c a seznam léčby jsou na kartě. Obrazovka je zobrazuje, lékař je nepřepisuje.',
+    why: 'Lékař nemá čas psát texty. Úspora jeho práce je v tomto programu rovnocenná pomoci pacientovi — kdyby zařazení znamenalo přepisování známých údajů, program by práci přidal, ne ubral.',
+    risk: 'Odvrací duplicitní evidenci vedle zdravotnické dokumentace a s ní i riziko, že se obě rozejdou.',
+    sim: 'Údaje jsou syntetické a jen zobrazené. Žádné napojení na dokumentaci neexistuje a maketa z nich nepočítá.',
+    decide: 'Které údaje by se v provozu skutečně přenesly z karty a kdo odpovídá za jejich aktuálnost. K ověření.'
+  },
+  'enroll-compensation': {
+    title: 'Kompenzace je posouzení lékaře, ne výpočet',
     level: 'navrh',
-    what: 'Lékař zaznamená vlastními slovy pacienta, co ho zajímá. Z toho vznikne jeho úkol.',
-    why: 'Odlišovač NutriFee je propojení konkrétní otázky pacienta, jeho zkušenosti a rozhodnutí na kontrole do jednoho doloženého cyklu. Když otázka nevznikne na začátku, není co uzavřít.',
-    risk: 'Bez zapsané otázky by z programu zbyl obecný deník bez adresáta.',
-    decide: 'Zda otázku formuluje lékař, pacient, nebo oba společně. K ověření.'
+    what: 'Dvě tlačítka: nedostatečná, nebo přijatelná. Nic víc.',
+    why: 'Lékař tohle o pacientovi ví dřív, než se posadí. Stačí to zaznamenat jedním kliknutím, aby se to dalo přenést do podkladu na příští kontrolu.',
+    risk: 'Aplikace kompenzaci nepočítá ani neodvozuje z dat. Kdyby to dělala, byl by z toho klinický závěr bez opory.',
+    decide: 'Zda dvě hodnoty stačí, nebo je potřeba jemnější škála. Návrh k posouzení.'
+  },
+  'task-catalog': {
+    title: 'Úkoly jsou předem definované; lékař vybírá',
+    level: 'zasada',
+    what: 'Katalog nabízí připravené pozorovací úkoly. Každý má hotovou otázku pacienta, podmínky, minimum epizody a odhad zátěže. Lékař klikne na jeden.',
+    why: 'Základní cesta nevyžaduje psaní. Kdyby si lékař úkol formuloval sám, vznikl by u každého pacienta jiný text, který nikdo neschválil a který nejde vyhodnotit napříč studií.',
+    risk: 'Úkol s neschváleným pravidlem nelze přiřadit — je v katalogu vidět, ale nejde vybrat. Neschválené pravidlo se tak nedostane k pacientovi ani omylem.',
+    sim: 'Katalog má tři položky, z toho jednu se schváleným pravidlem. Skutečný rozsah katalogu je otevřený.',
+    decide: 'Které pozorovací úkoly patří do první studie a kolik jich má být. To je první otázka rozhodovacího listu.'
   },
   'training-sensor': {
     title: 'Připojení senzoru je simulované',

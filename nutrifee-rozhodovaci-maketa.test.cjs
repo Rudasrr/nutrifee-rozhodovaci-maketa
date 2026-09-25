@@ -165,7 +165,7 @@ test('Pacient nevydá plán a nevydaný plán neaktivuje úkol', () => {
   assert.equal(S().activePlanId, null);
   const u = NF.confirmUnderstanding(S());
   assert.equal(u.ok, false);
-  assert.equal(S().tasks[0].state, 'prepared');
+  assert.equal(S().tasks.length, 0, 'úkol vzniká až výběrem z katalogu u lékaře');
 });
 
 test('Úkol se aktivuje až po ověření porozumění v ordinaci', () => {
@@ -176,6 +176,76 @@ test('Úkol se aktivuje až po ověření porozumění v ordinaci', () => {
   act('answerCheck', 'no');
   act('confirmUnderstanding');
   assert.equal(NF.activeTask(S()).id, 'T1');
+});
+
+/* ---------- v ordinaci se nic nevypisuje ---------- */
+test('V ordinaci není jediné pole k vypisování', () => {
+  for (const id of ['enroll', 'training', 'plan']) {
+    chapter(id);
+    const m = markup();
+    assert.equal(/<textarea/.test(m), false, 'textarea v kroku ' + id);
+    assert.equal(/<input(?![^>]*type="checkbox")/.test(m), false, 'textové pole v kroku ' + id);
+  }
+});
+
+test('Lékař ani pacient v celém příběhu nepíšou v ordinaci', () => {
+  for (let i = 0; i < D.indexOf('firstMeal'); i++) {
+    act('goChapter', String(i)); act('closeDrawer');
+    for (const role of ['patient', 'doctor']) {
+      act('role', role);
+      assert.equal(/<textarea/.test(markup()), false, D.chapters[i].id + '/' + role);
+    }
+  }
+});
+
+test('Kontext pacienta se zobrazuje, nevyplňuje', () => {
+  chapter('enroll');
+  const m = markup();
+  assert.match(m, /Diabetes 2\. typu/);
+  assert.match(m, /CGM zaveden/);
+  assert.match(m, /Údaje z karty/);
+  assert.equal(S().enrollment.compensation, null, 'kompenzace není předvybraná');
+  act('setCompensation', 'insufficient');
+  assert.equal(S().enrollment.compensation, 'insufficient');
+});
+
+test('Úkoly jsou předdefinované a lékař je jen vybírá', () => {
+  chapter('plan');
+  assert.ok(D.taskCatalog.length >= 3, 'katalog má víc než jednu položku');
+  assert.match(markup(), /Úkol z katalogu/);
+  for (const c of D.taskCatalog) assert.match(markup(), new RegExp(c.title.replace(/[.]/g, '\\.')));
+  assert.equal(S().tasks[0].catalogId, 'T-SNIDANE');
+  act('selectTask', 'T-SNIDANE');
+  assert.equal(S().tasks[0].catalogId, 'T-SNIDANE');
+  assert.equal(S().tasks[0].question, D.taskCatalog[0].question, 'otázka pacienta patří k úkolu, nepíše se');
+});
+
+test('Úkol s neschváleným pravidlem nelze přiřadit', () => {
+  chapter('plan');
+  const vecere = D.taskCatalog.find(c => c.id === 'T-VECERE');
+  assert.equal(NF.isRuleUsable(S(), vecere.ruleId), false);
+  act('selectTask', 'T-VECERE');
+  assert.match(S().error, /nemá modelově schválenou verzi/);
+  assert.equal(S().tasks[0].catalogId, 'T-SNIDANE', 'původní úkol zůstává');
+  assert.match(markup(), /čeká na schválení garantem, nelze přiřadit/);
+});
+
+test('Bez vybraného úkolu nelze plán vydat', () => {
+  chapter('plan');
+  S().tasks = [];
+  S().draft.taskId = null;
+  const r = NF.issuePlan(S(), 'doctor');
+  assert.equal(r.ok, false);
+  assert.match(r.error, /úkol/);
+});
+
+test('Lékař vybírá důvod rozhodnutí z připravených, nepíše jej', () => {
+  chapter('decide');
+  const m = markup();
+  assert.equal(/<textarea/.test(m), false, 'žádné psaní důvodu');
+  assert.ok(D.decisionReasons.length >= 2);
+  act('pickReason', D.decisionReasons[1]);
+  assert.equal(S().form.reason, D.decisionReasons[1]);
 });
 
 /* ---------- determinismus příběhu ---------- */
@@ -566,7 +636,7 @@ test('Průvodce má u každého tématu úroveň a otevírá se akcí', () => {
 
 test('Průvodce pokrývá všechna povinná témata včetně ordinace', () => {
   const C = ctx.NutriFeeGuideContent;
-  const required = ['enroll-eligibility', 'training-steps', 'today-primary', 'task-done', 'today-counts',
+  const required = ['enroll-context', 'enroll-compensation', 'enroll-eligibility', 'task-catalog', 'training-steps', 'today-primary', 'task-done', 'today-counts',
     'compare-list', 'onepage-2', 'onepage-3', 'today-unsure', 'safety-sections', 'datastate-cause',
     'onepage-1', 'newplan-diff', 'rule-approved', 'rule-retired', 'dose-basis', 'decision-samotitrace',
     'participation-end', 'edge-case', 'resume-conditions'];

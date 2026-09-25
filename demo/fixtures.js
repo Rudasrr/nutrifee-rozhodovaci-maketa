@@ -59,6 +59,30 @@ function rules() {
       tasks: []
     },
     {
+      id: 'R-VECERE', version: 'v1', status: 'draft',
+      title: 'Pozorování jedné běžné večeře',
+      purpose: 'Rozšířit pozorování na večerní jídlo.',
+      population: 'Stejná jako u snídaně.',
+      inputs: ['čas a popis jídla', 'pacientem uvedený inzulin a jeho čas nebo „nevím“', 'senzorový úsek 0–120 minut'],
+      limits: ['Návrh k posouzení. Dokud není modelově schválený, nelze úkol přiřadit pacientovi.'],
+      text: 'Zaznamenej tři podobné večeře.',
+      examplesReviewed: false,
+      examples: { use: ['Pacient se ptá na večerní průběhy.'], skip: ['Období oznámené nemoci.'] },
+      tasks: []
+    },
+    {
+      id: 'R-POHYB', version: 'v1', status: 'draft',
+      title: 'Pozorování procházky po jídle',
+      purpose: 'Ukázat, zda pacient dokáže zaznamenat souvislost jídla a pohybu.',
+      population: 'Stejná jako u snídaně.',
+      inputs: ['čas jídla', 'čas a délka procházky', 'senzorový úsek 0–120 minut'],
+      limits: ['Návrh k posouzení.', 'Pozorovací úkol. Nevydává radu ke změně pohybu.'],
+      text: 'Zaznamenej tři procházky po stejném typu jídla.',
+      examplesReviewed: false,
+      examples: { use: ['Pacient se sám ptá na vliv pohybu.'], skip: ['Pacient žádá plán cvičení.'] },
+      tasks: []
+    },
+    {
       id: 'PROTO-BAZAL-DEMO', version: 'koncept', status: 'concept',
       title: 'Koncept protokolu samotitrace bazálu',
       purpose: 'Ukázat, jaká pole by protokol musel mít, aby o něm šlo rozhodnout. Neobsahuje klinické hodnoty.',
@@ -77,15 +101,66 @@ function rules() {
   ];
 }
 
-function makeTask() {
-  return {
-    id: 'T1', kind: 'observe', state: 'prepared',
-    question: QUESTION,
+/* Katalog úkolů je předem definovaný. Lékař v ordinaci nic nepíše, jen vybírá.
+   Úkol lze vybrat jen tehdy, má-li jeho pravidlo modelově schválenou verzi. */
+D.taskCatalog = [
+  {
+    id: 'T-SNIDANE', kind: 'observe', ruleId: 'R-SNIDANE',
     title: 'Pozoruji jednu běžnou snídani.',
-    ruleId: 'R-SNIDANE', ruleVersion: 'v1',
+    question: 'Po podobné snídani mám někdy jiný průběh. Co se z toho můžu dozvědět?',
     conditions: 'Zaznamenej tři podobné snídaně. U každé uveď čas, popis a údaj o inzulinu, nebo „nevím“.',
     minimum: 'Epizoda je úplná, když má popis, údaj o inzulinu s časem a senzorový úsek po jídle.',
-    target: 3, planId: null, conclusion: null, pauseReason: null
+    burden: 'Tři zápisy během dvou týdnů, každý do dvou minut.',
+    target: 3
+  },
+  {
+    id: 'T-VECERE', kind: 'observe', ruleId: 'R-VECERE',
+    title: 'Pozoruji jednu běžnou večeři.',
+    question: 'Po večeři mi průběh vypadá jinak než přes den. Co z toho jde vyčíst?',
+    conditions: 'Zaznamenej tři podobné večeře. U každé uveď čas, popis a údaj o inzulinu, nebo „nevím“.',
+    minimum: 'Stejné jako u snídaně.',
+    burden: 'Tři zápisy během dvou týdnů.',
+    target: 3
+  },
+  {
+    id: 'T-POHYB', kind: 'observe', ruleId: 'R-POHYB',
+    title: 'Pozoruji jednu běžnou procházku po jídle.',
+    question: 'Změní se něco, když se po jídle projdu?',
+    conditions: 'Zaznamenej tři procházky po stejném typu jídla.',
+    minimum: 'Epizoda je úplná, když má čas jídla, čas procházky a senzorový úsek.',
+    burden: 'Tři zápisy během dvou týdnů.',
+    target: 3
+  }
+];
+
+/* Známý kontext pacienta z karty. Zobrazuje se, nevyplňuje se. */
+D.patientContext = [
+  ['Diagnóza', 'Diabetes 2. typu'],
+  ['Režim', 'Bazál–bolus, tři dávky inzulinu denně, dlouhodobě stabilní'],
+  ['Senzor', 'CGM zaveden 28. 9. 2026 — nově'],
+  ['Poslední HbA1c', '62 mmol/mol (23. 9. 2026, syntetický údaj)'],
+  ['Modelový seznam léčby', 'Bazální inzulin večer · prandiální inzulin ke třem hlavním jídlům · metformin ráno a večer']
+];
+
+D.compensations = [
+  ['insufficient', 'Nedostatečná kompenzace'],
+  ['acceptable', 'Přijatelná kompenzace']
+];
+
+D.decisionReasons = [
+  'Dostupný kontext neumožňuje připsat rozdíl konkrétní příčině.',
+  'Kontext potvrdil očekávání; plán zůstává beze změny.',
+  'Podkladů je málo; chci pokračovat ve stejném pozorování.'
+];
+
+function makeTask(catalogId) {
+  var c = D.taskCatalog.filter(function (x) { return x.id === (catalogId || 'T-SNIDANE'); })[0];
+  return {
+    id: 'T1', catalogId: c.id, kind: c.kind, state: 'prepared',
+    question: c.question, title: c.title,
+    ruleId: c.ruleId, ruleVersion: 'v1',
+    conditions: c.conditions, minimum: c.minimum, burden: c.burden,
+    target: c.target, planId: null, conclusion: null, pauseReason: null
   };
 }
 
@@ -196,17 +271,22 @@ D.defaults = { training: 'done', evidence: 'full', disruption: 'illness', offlin
 function setup(S) {
   S.clock = '2026-10-05T09:00:00';
   S.rules = rules();
-  S.tasks = [makeTask()];
+  S.tasks = [];
   S.draft = makeDraft();
+  S.draft.taskId = null;
   S.dataState = { lastValueAt: '2026-10-05T08:45:00', gap: false, patientCause: null, offline: false, simulated: true };
   S.nextVisit = '2027-01-05T09:00:00';
 }
 
 function enrolled(S) {
   NF.ELIGIBILITY.forEach(function (c) { NF.setEligibility(S, c[0], true); });
-  S.enrollment.question = QUESTION;
-  S.enrollment.circumstances = 'Ráno často spěchám do práce.';
-  S.enrollment.medication = 'Bazální inzulin večer, prandiální inzulin k hlavním jídlům, metformin ráno a večer.';
+  S.enrollment.compensation = 'insufficient';
+}
+
+function pickTask(S) {
+  if (S.tasks.length) return;
+  S.tasks.push(makeTask('T-SNIDANE'));
+  S.draft.taskId = 'T1';
 }
 
 /* ---------- kapitoly ----------
@@ -236,6 +316,10 @@ var CH = [
   {
     id: 'plan', act: 0, title: 'Lékař — sestavení a vydání plánu',
     role: 'doctor', page: 'issue', wizardStep: 2, at: '2026-10-05T09:40:00',
+    setup: function (S, B) {
+      if (B.training === 'failed') return;
+      pickTask(S);
+    },
     apply: function (S, B) {
       if (B.training === 'failed') return;
       S.draft.medicationChecked = true;
@@ -471,15 +555,10 @@ D.chapters = CH;
 D.issueSecondPlan = function (S) {
   var prev = NF.activePlan(S);
   if (!prev || S.plans.length > 1) return false;
-  S.tasks.push({
-    id: 'T2', kind: 'observe', state: 'prepared',
-    question: S.questions.length ? S.questions[S.questions.length - 1].text : '',
-    title: 'Pozoruji, které snídaně se mezi sebou nejvíc liší.',
-    ruleId: 'R-SNIDANE', ruleVersion: 'v2',
-    conditions: 'Zaznamenej tři snídaně, u kterých čekáš rozdíl. U každé uveď údaj o inzulinu, nebo „nevím“.',
-    minimum: 'Epizoda je úplná, když má popis, údaj o inzulinu s časem a senzorový úsek po jídle.',
-    target: 3, planId: null, conclusion: null
-  });
+  var t2 = makeTask('T-SNIDANE');
+  t2.id = 'T2';
+  t2.ruleVersion = 'v2';
+  S.tasks.push(t2);
   S.draft = {
     planId: 'P2', version: 'v1', prescription: prev.prescription,
     safety: S.safetyPlan, taskId: 'T2', allowChange: false,

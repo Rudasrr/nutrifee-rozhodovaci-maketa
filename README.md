@@ -42,6 +42,12 @@ Nemoc, výpadek dat, změna pravidla i kontrola jsou kapitoly téhož příběhu
 **Cesta začíná u lékaře.** První obrazovka je zařazení pacienta v ordinaci. Pacient v aplikaci
 nic nedělá, dokud mu lékař plán nevydá a nepředá.
 
+**V ordinaci se nic nevypisuje.** Co lékař o pacientovi ví — diagnóza, režim, senzor, poslední
+HbA1c, seznam léčby — je z karty a jen se zobrazuje. Kompenzaci lékař označí jedním ze dvou
+tlačítek. Úkoly jsou předem definované v katalogu a lékař jeden vybere; úkol, jehož pravidlo nemá
+modelově schválenou verzi, je v katalogu vidět, ale přiřadit nejde. Ani důvod rozhodnutí na kontrole
+se nepíše — vybírá se z připravených. V prvních třech krocích není jediné textové pole.
+
 Nahoře jsou tři demonstrační přepínače rolí (Pacient / Lékař / Garant), tlačítko **Průvodce maketou**
 a tlačítko **Panel prezentujícího**. Přepínač rolí je prezentační pomůcka, ne přihlášení.
 V demo liště je krokování **◀ Předchozí / Další ▶ / Reset**.
@@ -111,7 +117,8 @@ složky demo“.
 
 ## Co je funkční a co simulované
 
-**Funkční logika makety:** posouzení způsobilosti a zaučení jako podmínka vydání plánu;
+**Funkční logika makety:** katalog předdefinovaných úkolů s blokací neschválených pravidel;
+posouzení způsobilosti a zaučení jako podmínka vydání plánu;
 stavy plánu, úkolu a epizod; blokace vydání plánu bez náležitostí;
 oddělení zaznamenaných a úplných epizod; pozastavení a obnovení úkolu; katalog pravidel včetně
 schválení, vyřazení a dopadu; jednostránková kontrola s pevným pořadím; vydání P2 se zachováním

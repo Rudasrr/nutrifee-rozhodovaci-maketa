@@ -68,27 +68,33 @@ V.issue = function (S) {
 };
 
 V.enrollStep = function (S) {
+  var D = global.NutriFeeDemo;
   var en = S.enrollment;
+  var ctx = (D && D.patientContext) || [];
+  var comps = (D && D.compensations) || [];
   return '<p class="eyebrow">V ordinaci · ' + e(NF.fmtDate(S.clock)) + '</p>' +
     '<h1>Zařazení pacienta</h1>' +
-    '<p class="muted">Pacient sedí u vás. Projděte společně, zda do první kohorty patří, a zaznamenejte, na co se ptá.</p>' +
+    '<p class="muted">Pacient sedí u vás. Nic se tu nevypisuje — co o něm víte, je už na kartě.</p>' +
     '<div class="person-line"><span class="person-avatar" aria-hidden="true">P1</span><div><strong>Modelový pacient 01</strong>' +
     '<span>DEMO-P01 · bez reálných identifikátorů</span></div></div>' +
-    '<h2' + NF.hook('enroll-eligibility') + '>1. Způsobilost pro první kohortu</h2>' +
+    '<h2' + NF.hook('enroll-context') + '>1. Co o pacientovi víme</h2>' +
+    '<div class="plan-basics">' + ctx.map(function (row) { return kv(row[0], e(row[1])); }).join('') + '</div>' +
+    '<p class="field-help">Údaje z karty. Maketa je pouze zobrazuje; nepočítá z nich a nemění je.</p>' +
+    '<h2' + NF.hook('enroll-compensation') + '>2. Kompenzace</h2>' +
+    '<fieldset class="choice-field"><legend>Jak je pacient kompenzovaný</legend><div class="choice-row">' +
+    comps.map(function (c) {
+      return '<button type="button" class="choice ' + (en.compensation === c[0] ? 'chosen' : '') + '" data-action="setCompensation" data-value="' +
+        c[0] + '" aria-pressed="' + (en.compensation === c[0]) + '">' + e(c[1]) + '</button>';
+    }).join('') + '</div></fieldset>' +
+    '<p class="field-help">Vaše posouzení. Nevstupuje do žádného výpočtu; přenese se do podkladu na příští kontrolu.</p>' +
+    '<h2' + NF.hook('enroll-eligibility') + '>3. Způsobilost pro první kohortu</h2>' +
     '<div class="eligibility">' + NF.ELIGIBILITY.map(function (c) {
       return '<label class="check"><input type="checkbox" data-action="eligibility" data-value="' + c[0] + '"' +
         (en.criteria[c[0]] ? ' checked' : '') + '><span>' + e(c[1]) + '</span></label>';
     }).join('') + '</div>' +
     (en.eligible
       ? hint('Všechna kritéria potvrzena. Přesná definice stability režimu a praktická vstupní kritéria zůstávají k rozhodnutí garantem.', 'success')
-      : hint('Nepotvrzená kritéria znamenají, že pacient do první kohorty nepatří. Nic se nedopočítává a zařazení nepokračuje.', 'warn')) +
-    '<h2' + NF.hook('enroll-question') + '>2. Otázka pacienta</h2>' +
-    '<p class="field-help">Co chce pacient vědět. Z toho vznikne jeho úkol — proto ji zapisujeme hned na začátku.</p>' +
-    '<label class="field">Vlastními slovy pacienta<textarea data-bind="enrollment.question" placeholder="Po podobné snídani mám někdy jiný průběh. Co se z toho můžu dozvědět?">' + e(en.question) + '</textarea></label>' +
-    '<h2>3. Okolnosti a léčba</h2>' +
-    '<label class="field">Okolnosti, které pacient zmínil<textarea data-bind="enrollment.circumstances" placeholder="Například: ráno často spěchá do práce.">' + e(en.circumstances) + '</textarea></label>' +
-    '<label class="field">Modelový seznam užívané léčby<textarea data-bind="enrollment.medication" placeholder="Vypište, co pacient užívá.">' + e(en.medication) + '</textarea></label>' +
-    '<p class="field-help">Seznam je podklad k ověření, ne nový předpis. NutriFee léčbu nemění ani nepočítá.</p>';
+      : hint('Nepotvrzená kritéria znamenají, že pacient do první kohorty nepatří. Nic se nedopočítává a zařazení nepokračuje.', 'warn'));
 };
 
 V.trainingStep = function (S) {
@@ -118,6 +124,7 @@ V.trainingStep = function (S) {
 V.planBlockers = function (S) {
   var d = S.draft, chybi = [];
   if (!S.enrollment.eligible) chybi.push('posouzení způsobilosti');
+  if (!d.taskId) chybi.push('vybraný úkol z katalogu');
   if (!d.medicationChecked) chybi.push('ověření seznamu léčby');
   if (S.training.result !== 'done') chybi.push('dokončené zaučení');
   if (!d.safetyChecked) chybi.push('předaný bezpečnostní a kontaktní plán');
@@ -125,23 +132,40 @@ V.planBlockers = function (S) {
 };
 
 V.planStep = function (S) {
+  var D = global.NutriFeeDemo;
   var d = S.draft;
   var t = NF.taskById(S, d.taskId);
   var chybi = V.planBlockers(S);
+  var catalog = (D && D.taskCatalog) || [];
   return '<p class="eyebrow">V ordinaci · ' + e(NF.fmtDate(S.clock)) + '</p>' +
     '<h1>Plán ' + e(d.planId + ' ' + d.version) + '</h1>' +
-    '<h2>Modelový předpis</h2><p>' + e(d.prescription) + '</p>' +
-    '<p class="small muted">Statický text. NutriFee dávku nepočítá, nenavrhuje a nemění.</p>' +
+    '<h2' + NF.hook('task-catalog') + '>1. Úkol z katalogu</h2>' +
+    '<p class="field-help">Úkoly jsou předem definované a schvaluje je garant. Vyberte jeden — nic se nepíše.</p>' +
+    '<div class="module-options">' + catalog.map(function (c) {
+      var usable = NF.isRuleUsable(S, c.ruleId);
+      var chosen = t && t.catalogId === c.id;
+      return '<button type="button" class="module-option ' + (chosen ? 'chosen' : '') + '"' +
+        (usable ? ' data-action="selectTask" data-value="' + e(c.id) + '"' : ' disabled') +
+        ' aria-pressed="' + (chosen ? 'true' : 'false') + '">' +
+        '<span class="option-dot" aria-hidden="true">' + (chosen ? '●' : '○') + '</span>' +
+        '<span><strong>' + e(c.title) + '</strong>' +
+        '<small>Otázka pacienta: „' + e(c.question) + '“<br>' + e(c.burden) + '<br>' +
+        'Pravidlo ' + e(c.ruleId) + ' · ' + (usable ? 'modelově schváleno' : 'návrh — čeká na schválení garantem, nelze přiřadit') +
+        '</small></span></button>';
+    }).join('') + '</div>' +
+    (t ? '<div class="plan-proposal"><h2>Vybraný úkol</h2>' +
+      '<p><strong>' + e(t.title) + '</strong></p>' +
+      '<p class="proposal-reason">' + e(t.conditions) + '</p>' +
+      '<p class="small muted">' + e(t.minimum) + ' Výchozí stav pouze pozorovací — bez doporučení změny jídla či pohybu.</p></div>'
+      : hint('Zatím není vybraný žádný úkol.', 'warn')) +
+    '<h2>2. Modelový předpis</h2><p>' + e(d.prescription) + '</p>' +
+    '<p class="small muted">Statický text z karty. NutriFee dávku nepočítá, nenavrhuje a nemění.</p>' +
     '<label class="check"' + NF.hook('issue-medication') + '><input type="checkbox" data-bind="draft.medicationChecked"' +
     (d.medicationChecked ? ' checked' : '') + '><span>Seznam léčby jsem s pacientem ověřil.</span></label>' +
-    '<h2>Bezpečnostní a kontaktní plán</h2>' +
+    '<h2>3. Bezpečnostní a kontaktní plán</h2>' +
     '<p class="small muted">Verze ' + e(d.safety.version) + '. ' + e(d.safety.approvedNote) + '</p>' +
     '<label class="check"' + NF.hook('issue-safety') + '><input type="checkbox" data-bind="draft.safetyChecked"' +
     (d.safetyChecked ? ' checked' : '') + '><span>Bezpečnostní a kontaktní plán jsem předal a probral.</span></label>' +
-    '<h2>Úkol</h2>' +
-    (t ? '<div class="plan-proposal"><h2>' + e(t.title) + '</h2>' +
-      '<p class="proposal-reason">Vychází z otázky pacienta: „' + e(S.enrollment.question || t.question) + '“</p>' +
-      '<p class="small muted">Pravidlo ' + e(t.ruleId + ' ' + t.ruleVersion) + '. Výchozí stav pouze pozorovací — bez doporučení změny jídla či pohybu.</p></div>' : '') +
     (chybi.length ? hint('<strong>Plán zatím nelze vydat.</strong> Chybí: ' + e(chybi.join(', ')) + '.', 'warn')
       : hint('Po vydání se plán předá pacientovi. Úkol se aktivuje až po ověření porozumění.', 'success'));
 };
@@ -266,7 +290,11 @@ V.decide = function (S) {
       opts.map(function (o) {
         return '<button type="button" class="choice ' + (choice === o[0] ? 'chosen' : '') + '" data-action="formSet" data-value="choice:' + o[0] + '" aria-pressed="' + (choice === o[0]) + '">' + e(o[1]) + '</button>';
       }).join('') + '</div></fieldset>' +
-      '<label class="field">Modelový důvod<textarea data-bind="form.reason" placeholder="Například: Dostupný kontext neumožňuje připsat rozdíl konkrétní příčině.">' + e(reason || '') + '</textarea></label>' +
+      '<fieldset class="choice-field"><legend>Modelový důvod</legend><div class="buttonlist">' +
+      ((global.NutriFeeDemo && global.NutriFeeDemo.decisionReasons) || []).map(function (r) {
+        return btn(r, 'pickReason', r, reason === r ? 'selected' : 'secondary');
+      }).join('') + '</div></fieldset>' +
+      '<p class="small muted">Důvody jsou předem připravené. Lékař nic nepíše.</p>' +
       (choice === 'defer' ? hint('Rozhodnutí zůstává otevřené. Nový plán se nevydává a stávající platí dál.') : '') +
       (choice === 'modify' ? hint('Editor plánu nedoporučuje dávku ani ji nepočítá. Měnit lze pozorovací úkol a termín kontroly.') : '') +
       '<div class="actions">' +
