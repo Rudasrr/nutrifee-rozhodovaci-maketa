@@ -26,34 +26,6 @@ var SAFETY = {
   ]
 };
 
-/* ---------- skupiny pravidel ----------
-   Garant nepodepisuje dvanáct samostatných položek, ale tři celky. Uvnitř každého
-   je tabulka řádků; vyřadit nebo schválit jde jednotlivý řádek. */
-D.ruleGroups = [
-  {
-    id: 'vyhodnoceni', title: 'Jak se počítá reakce na jídlo',
-    sign: 'Co je „vzestup“, od kolika záznamů je jídlo známé, které záznamy se nepočítají a jak se hledá podobné jídlo.',
-    how: 'Vzestup jednoho jídla = nejvyšší hodnota glukózy naměřená během dvou hodin po jídle minus hodnota naměřená v okamžiku jídla. Obvyklý vzestup jídla = medián vzestupů ze všech jeho úplných záznamů. Medián, ne průměr, aby jeden mimořádný den výsledek nepřevážil.',
-    ids: ['R-REAKCE', 'R-PODOBNOST']
-  },
-  {
-    id: 'rady', title: 'Jaké rady se smějí dát a kdy',
-    sign: 'Texty jednotlivých rad a podmínku, za které se smějí nabídnout. Zvlášť podmínku vůči podání inzulinu.',
-    how: 'Rada se nabídne jen tehdy, když má svůj řádek schválenou verzi, jídlo je známé a podmínka vůči inzulinu je splněná. Rady, které mění množství sacharidů, se nabízejí jen před podáním inzulinu. Neuvedený stav podání se posuzuje jako „inzulin už podaný“.',
-    ids: ['R-PORCE', 'R-DOPLNEK', 'R-PORADI', 'R-PRILOHA-FORMA', 'R-PRILOHA-MNOZSTVI', 'R-ODSTUP', 'R-PROCHAZKA']
-  },
-  {
-    id: 'ukoly', title: 'Kdy se zasahuje do režimu',
-    sign: 'Které úkoly smí lékař vybrat a kdy smí zadat úkol na změnu režimu.',
-    how: 'Úkol jde přiřadit jen tehdy, má-li jeho pravidlo schválenou verzi. Úkol na změnu režimu vydává výhradně lékař na kontrole a nemění se jím dávka inzulinu.',
-    ids: ['R-ROZLOZENI', 'R-REZIM']
-  }
-];
-D.groupOf = function (ruleId) {
-  var g = D.ruleGroups.filter(function (x) { return x.ids.indexOf(ruleId) !== -1; })[0];
-  return g ? g.id : 'ostatni';
-};
-
 /* ---------- katalog pravidel ----------
    Výpočty, rady (páky) a úkoly. K pacientovi se dostane jen schválená verze.
    Hodnoty parametrů jsou návrh k posouzení, ne klinicky ověřené meze. */
@@ -63,7 +35,6 @@ function rules() {
   return [
     R({ id: 'R-REAKCE', version: 'v1', kind: 'výpočet', title: 'Vyhodnocení reakce na jídlo',
       purpose: 'Z vlastních záznamů pacienta spočítat, o kolik mu po jídle obvykle stoupne glukóza, a rozlišit známé a neznámé jídlo.',
-      how: 'Vzestup jednoho záznamu = nejvyšší hodnota glukózy během dvou hodin po jídle minus hodnota v okamžiku jídla, v milimolech na litr. Obvyklý vzestup jídla = medián vzestupů jeho úplných záznamů. Jídlo je „známé“ od tří úplných záznamů.',
       inputs: ['záznam jídla a porce', 'pacientem uvedený inzulin a jeho čas', 'senzorový úsek 0–120 minut'],
       params: { minKnown: 3, 'okno (min)': 120 },
       limits: ['Počítá jen úplné záznamy mimo období nemoci.', 'Ukazuje pacientovu minulost, ne předpověď.', 'Nikdy nepočítá dávku inzulinu.'],
@@ -71,7 +42,6 @@ function rules() {
     }, approved),
     R({ id: 'R-PODOBNOST', version: 'v1', kind: 'výpočet', title: 'Podobnost jídel z vlastností',
       purpose: 'U jídla, které pacient ještě nezná, najít známá jídla s podobnými vlastnostmi porce a říct jen směr, bez čísla.',
-      how: 'Každé jídlo má čtyři čísla za obvyklou porci — sacharidy, bílkovinu, tuk a vlákninu v gramech — a formu (kašovité nebo pevné). Rozdíl mezi dvěma jídly se spočítá jako průměr rozdílů těchto vlastností, každá vztažená k svému rozsahu. Když je rozdíl menší než stanovený práh a forma se shoduje, jídlo se považuje za podobné. Název jídla do výpočtu nevstupuje.',
       inputs: ['sacharidy, bílkovina, tuk a vláknina v porci (g)', 'forma jídla'],
       params: { maxDistance: 0.35 },
       limits: ['Podobnost se nepočítá z názvu jídla.', 'Neuvádí číselný odhad vzestupu.', 'Když nic podobného není, nic neodhaduje.'],
@@ -262,8 +232,8 @@ D.patientContext = [
   ['Diagnóza', 'Diabetes 2. typu'],
   ['Léčba', 'Jen inzulin — bez perorálních antidiabetik'],
   ['Režim', 'Bazální inzulin 1× večer · prandiální inzulin ke snídani, obědu a večeři · pevné dávky'],
-  ['Senzor', 'Kontinuální monitor glukózy (CGM) zaveden 28. 9. 2026'],
-  ['Poslední HbA1c — dlouhodobý ukazatel kompenzace za zhruba tři měsíce', '62 mmol/mol (23. 9. 2026, syntetický údaj)']
+  ['Senzor', 'CGM zaveden 28. 9. 2026'],
+  ['Poslední HbA1c', '62 mmol/mol (23. 9. 2026, syntetický údaj)']
 ];
 
 D.compensations = [
@@ -300,33 +270,33 @@ function makeDraft() {
   };
 }
 
-/* ---------- odbočky ----------
-   Jen to, co mění průběh příběhu. Volby uvnitř jedné obrazovky (příčina výpadku,
-   stav zařízení) se klikají přímo na obrazovce, nejsou to větve. */
+/* ---------- odbočky ---------- */
 D.branches = {
   training: {
     label: 'Zaučení u sestry', from: 'training',
     options: [{ id: 'done', label: 'Zaučení proběhlo' }, { id: 'failed', label: 'Zaučení se nezdařilo — úkol se neaktivuje' }]
   },
   bolus: {
-    label: 'Měl už pacient inzulin, když otevřel aplikaci?', from: 'advice',
-    options: [
-      { id: 'before', label: 'Ještě si nepíchl — rada k porci se dát smí' },
-      { id: 'after', label: 'Už si píchl — rada k porci se nedává' },
-      { id: 'unknown', label: 'Neví — posuzuje se jako po podání' }
-    ]
+    label: 'Stav inzulinu při druhé radě', from: 'afterBolus',
+    options: [{ id: 'after', label: 'Pacient už si píchl' }, { id: 'unknown', label: 'Pacient neví — chová se jako po bolusu' }]
   },
   disruption: {
     label: 'Co se stalo 20. října', from: 'disruption',
     options: [
       { id: 'illness', label: 'Pacient oznámil nemoc' },
-      { id: 'gap', label: 'Chybí data ze senzoru — příčinu vybere pacient na obrazovce' }
+      { id: 'gap-vendor', label: 'Výpadek — systém výrobce hodnoty ukazuje' },
+      { id: 'gap-broken', label: 'Výpadek — pacient uvádí nefunkční senzor' },
+      { id: 'gap-unknown', label: 'Výpadek — pacient neví' }
     ]
+  },
+  offline: {
+    label: 'Zařízení pacienta při změně pravidla', from: 'catalog',
+    options: [{ id: 'online', label: 'Online — změna doručena' }, { id: 'offline', label: 'Offline — doručení nepotvrzeno, rady vypnuté' }]
   },
   response: {
     label: 'Jak pacient s radami naložil (listopad–prosinec)', from: 'preview',
     options: [
-      { id: 'accepts', label: 'Většinou je přijal' },
+      { id: 'accepts', label: 'Většinou přijal' },
       { id: 'declines', label: 'Většinou nepřijal — „nechci“, „nestihl jsem“' },
       { id: 'impractical', label: 'Většinou nepřijal — „nemám to doma“' }
     ]
@@ -335,14 +305,14 @@ D.branches = {
     label: 'Podklad ke kontrole', from: 'preview',
     options: [
       { id: 'base', label: 'Běžný průběh' },
-      { id: 'A', label: 'Pacient nic nezapisoval' },
-      { id: 'A0', label: 'Pacient nic nezapisoval a chybí i souhrn ze senzoru' },
-      { id: 'B', label: 'Pacient zpětně hlásí bezpečnostní událost' },
-      { id: 'C', label: 'Aktuální problém během návštěvy' }
+      { id: 'A', label: 'A — pacient nic nezapisoval' },
+      { id: 'A0', label: 'A — chybí i senzorový souhrn' },
+      { id: 'B', label: 'B — historická bezpečnostní událost' },
+      { id: 'C', label: 'C — aktuální problém během návštěvy' }
     ]
   }
 };
-D.defaults = { training: 'done', bolus: 'before', disruption: 'illness', response: 'accepts', review: 'base' };
+D.defaults = { training: 'done', bolus: 'after', disruption: 'illness', offline: 'online', response: 'accepts', review: 'base' };
 
 /* ---------- společný výchozí stav ---------- */
 function setup(S) {
@@ -360,12 +330,7 @@ function enrolled(S) {
 }
 function taskItem(id) { return D.taskCatalog.filter(function (x) { return x.id === id; })[0]; }
 function freshMeal(foodId, portion, bolus) {
-  return {
-    foodId: foodId || null, portion: portion || 'usual', bolus: bolus || null,
-    insulinReported: bolus ? NF.bolusRecord(bolus) : null,
-    step: foodId ? (bolus ? 2 : 1) : 0,
-    decisions: {}, reasons: {}, desc: null
-  };
+  return { foodId: foodId || null, portion: portion || 'usual', bolus: bolus || null, decisions: {}, reasons: {}, desc: null };
 }
 
 /* Synthetic listopad–prosinec: deterministicky, podle odbočky „jak pacient s radami naložil“. */
@@ -398,11 +363,15 @@ function series(S, B) {
 var CH = [
   /* ---- Dějství 1 — V ordinaci ---- */
   {
-    id: 'office', act: 0, title: 'Lékař — zařazení pacienta a vydání plánu',
+    id: 'enroll', act: 0, title: 'Lékař — zařazení pacienta',
     role: 'doctor', page: 'issue', wizardStep: 0, at: '2026-10-05T09:00:00',
+    apply: function (S) { enrolled(S); }
+  },
+  {
+    id: 'plan', act: 0, title: 'Lékař — úkol z katalogu a vydání plánu',
+    role: 'doctor', page: 'issue', wizardStep: 1, at: '2026-10-05T09:15:00',
+    setup: function (S) { if (!S.tasks.length) NF.assignTask(S, taskItem('T-SNIDANE')); },
     apply: function (S) {
-      enrolled(S);
-      if (!S.tasks.length) NF.assignTask(S, taskItem('T-SNIDANE'));
       S.draft.medicationChecked = true;
       S.draft.safetyChecked = true;
       NF.issuePlan(S, 'doctor');
@@ -423,8 +392,12 @@ var CH = [
     }
   },
   {
-    id: 'takeover', act: 0, title: 'Pacient — převzetí plánu a ověření porozumění',
-    role: 'patient', page: 'takeover', at: '2026-10-05T09:50:00',
+    id: 'handover', act: 0, title: 'Pacient — převzetí plánu',
+    role: 'patient', page: 'takeover', at: '2026-10-05T09:50:00'
+  },
+  {
+    id: 'understanding', act: 0, title: 'Pacient — ověření porozumění',
+    role: 'patient', page: 'understand', at: '2026-10-05T09:55:00',
     apply: function (S, B) {
       if (B.training === 'failed') return;
       S.onboarding.checkAnswer = 'no';
@@ -434,7 +407,7 @@ var CH = [
 
   /* ---- Dějství 2 — Doma: aplikace se učí ---- */
   {
-    id: 'firstMeal', act: 1, title: 'Pacient — první snídaně: jídlo, které aplikace nezná',
+    id: 'firstMeal', act: 1, title: 'Pacient — první snídaně: neznámé jídlo',
     role: 'patient', page: 'meal', at: '2026-10-06T07:00:00',
     setup: function (S) { S.meal = freshMeal(); },
     apply: function (S) { add(S, { id: 'E1', food: 'kase', at: '2026-10-06T07:05:00' }); S.meal = null; }
@@ -454,20 +427,23 @@ var CH = [
 
   /* ---- Dějství 3 — Rada před jídlem ---- */
   {
-    id: 'advice', act: 2, title: 'Pacient — rada před jídlem podle stavu inzulinu',
+    id: 'advice', act: 2, title: 'Pacient — rada před inzulinem: porce a doplněk',
     role: 'patient', page: 'meal', at: '2026-10-14T07:00:00',
-    setup: function (S, B) {
-      S.meal = freshMeal('kase', 'bigger', B.bolus);
-    },
+    setup: function (S) { S.meal = freshMeal('kase', 'bigger'); },
+    apply: function (S) {
+      add(S, { id: 'E8', food: 'kase', at: '2026-10-14T07:05:00', portion: 'bigger', bolus: 'before',
+        advice: [{ lever: 'portion', accepted: true }, { lever: 'addon', accepted: true }, { lever: 'order' }] });
+      S.meal = null;
+    }
+  },
+  {
+    id: 'afterBolus', act: 2, title: 'Pacient — po inzulinu: rada k porci se nedává',
+    role: 'patient', page: 'meal', at: '2026-10-16T07:30:00',
+    setup: function (S, B) { S.meal = freshMeal('kase', 'bigger', B.bolus); if (B.bolus === 'after') S.meal.insulinReported = 'per-plan'; },
     apply: function (S, B) {
-      if (B.bolus === 'before') {
-        add(S, { id: 'E8', food: 'kase', at: '2026-10-14T07:05:00', portion: 'bigger', bolus: 'before',
-          advice: [{ lever: 'portion', accepted: true }, { lever: 'addon', accepted: true }, { lever: 'order' }] });
-      } else {
-        add(S, { id: 'E8', food: 'kase', at: '2026-10-14T07:05:00', portion: 'bigger', bolus: B.bolus,
-          insulin: B.bolus === 'unknown' ? 'unknown' : 'per-plan',
-          advice: [{ lever: 'addon', accepted: false, reason: 'nothome' }, { lever: 'order', accepted: false }] });
-      }
+      add(S, { id: 'E9', food: 'kase', at: '2026-10-16T07:30:00', portion: 'bigger', bolus: B.bolus,
+        insulin: B.bolus === 'unknown' ? 'unknown' : 'per-plan',
+        advice: [{ lever: 'addon', accepted: false, reason: 'nothome' }, { lever: 'order', accepted: false }] });
       S.meal = null;
     }
   },
@@ -477,7 +453,7 @@ var CH = [
     setup: function (S) {
       add(S, { id: 'E10', food: 'kase', at: '2026-10-17T07:00:00', bolus: 'before', advice: [{ lever: 'addon', accepted: true }, { lever: 'order' }] });
       add(S, { id: 'E11', food: 'chleb', at: '2026-10-18T07:05:00', bolus: 'before', advice: [{ lever: 'addon' }, { lever: 'order', accepted: false, reason: 'nowant' }] });
-      S.meal = freshMeal('musli', 'usual', 'before');
+      S.meal = freshMeal('musli', 'usual');
     },
     apply: function (S) {
       add(S, { id: 'E12', food: 'musli', at: '2026-10-19T07:05:00', bolus: 'before', advice: [{ lever: 'addon', accepted: true }, { lever: 'order' }] });
@@ -485,9 +461,9 @@ var CH = [
     }
   },
 
-  /* ---- Dějství 4 — Když se něco pokazí ---- */
+  /* ---- Dějství 4 — Když něco nesedí ---- */
   {
-    id: 'disruption', act: 3, title: 'Pacient — nemoc nebo chybějící data ze senzoru',
+    id: 'unclear', act: 3, title: 'Pacient — nerozumím tomu, bezpečnostní plán',
     role: 'patient', page: 'unclear', at: '2026-10-20T10:00:00',
     setup: function (S, B) {
       if (B.training === 'failed') return;
@@ -495,7 +471,18 @@ var CH = [
       add(S, { id: 'E13', food: 'kase', at: '2026-10-20T08:00:00', gap: true });
       S.dataState.gap = true;
       S.dataState.lastValueAt = '2026-10-20T08:30:00';
+    }
+  },
+  {
+    id: 'disruption', act: 3, title: 'Pacient — nemoc nebo výpadek dat',
+    role: 'patient', page: 'unclear', at: '2026-10-20T10:20:00',
+    setup: function (S, B) {
+      if (B.training === 'failed') return;
       S.unclearBranch = B.disruption === 'illness' ? 'ill' : 'past';
+      if (B.disruption !== 'illness') {
+        S.dataState.patientCause = B.disruption === 'gap-vendor' ? 'vendor-ok'
+          : B.disruption === 'gap-broken' ? 'broken' : 'unknown';
+      }
     },
     apply: function (S, B) {
       if (B.training === 'failed') return;
@@ -503,7 +490,7 @@ var CH = [
         NF.reportIllness(S);
         add(S, { id: 'E14', food: 'chleb', at: '2026-10-21T08:30:00', context: 'illness' });
       } else {
-        NF.pauseTask(S, 'data', 'V NutriFee chybí data ze senzoru od ' + NF.fmtTime(S.dataState.lastValueAt) + '. Úkol je do ověření pozastavený.');
+        NF.pauseTask(S, 'data', 'V NutriFee chybí senzorová data od ' + NF.fmtTime(S.dataState.lastValueAt) + '. Úkol je do ověření pozastavený.');
       }
     }
   },
@@ -517,19 +504,22 @@ var CH = [
       NF.resumeTask(S, 'doctor', B.disruption === 'illness' ? D.resumeReasons[0] : D.resumeReasons[1]);
     }
   },
+
+  /* ---- Dějství 5 — Správa pravidel ---- */
   {
-    id: 'catalog', act: 3, title: 'Garant — podnět a vyřazení jedné rady',
+    id: 'catalog', act: 4, title: 'Garant — podnět a vyřazení pravidla rady',
     role: 'garant', page: 'catalog', at: '2026-10-22T09:00:00',
     setup: function (S, B) {
       if (B.training === 'failed') return;
       S.safetySyncAt = '2026-10-21T22:10:00';
       S.impulse = {
         id: 'IMP-1',
-        text: 'Při testu pacient pochopil radu „sněz nejdřív jogurt“ jako náhradu přílohy a část kaše nedojedl. Při pevné dávce tím snížil množství sacharidů, na které je dávka nastavená.',
+        text: 'Při testu pacient pochopil radu R-PORADI v1 „sněz nejdřív jogurt“ jako náhradu přílohy a část kaše nedojedl. Při pevné dávce tím snížil sacharidy.',
         note: 'Jde o hlášený problém formulace, ne automaticky o závažnou nežádoucí příhodu.',
         versions: ['R-PORADI v1'],
         at: '2026-10-22T08:30:00'
       };
+      NF.setOffline(S, B.offline === 'offline');
     },
     apply: function (S, B) {
       if (B.training === 'failed') return;
@@ -538,11 +528,11 @@ var CH = [
     }
   },
   {
-    id: 'impact', act: 3, title: 'Pacient — jedna rada zmizela, ostatní platí',
+    id: 'impact', act: 4, title: 'Pacient — rada zmizela, ostatní platí',
     role: 'patient', page: 'today', at: '2026-10-22T10:00:00'
   },
   {
-    id: 'fix', act: 3, title: 'Garant — incident a schválení opravené verze',
+    id: 'fix', act: 4, title: 'Garant — incident a schválení v2',
     role: 'garant', page: 'incidents', at: '2026-10-23T09:00:00',
     apply: function (S, B) {
       if (B.training === 'failed') return;
@@ -554,9 +544,9 @@ var CH = [
     }
   },
 
-  /* ---- Dějství 5 — Kontrola a nový plán ---- */
+  /* ---- Dějství 6 — Kontrola a nový plán ---- */
   {
-    id: 'preview', act: 4, title: 'Pacient — náhled reportu před kontrolou',
+    id: 'preview', act: 5, title: 'Pacient — náhled reportu před kontrolou',
     role: 'patient', page: 'preview', at: '2027-01-04T18:00:00',
     setup: function (S, B) {
       if (B.training === 'failed') return;
@@ -568,7 +558,6 @@ var CH = [
       S.sensorSummary = B.review === 'A0' ? null : {
         period: '22. 12. 2026 – 4. 1. 2027',
         availability: 91, tir: 64, below: 2, above: 34,
-        tirLabel: 'čas strávený v cílovém rozmezí',
         range: '3,9–10,0 mmol/l',
         note: 'Předem vložené syntetické hodnoty, ne výpočet ze záznamů jídel.'
       };
@@ -581,7 +570,7 @@ var CH = [
     }
   },
   {
-    id: 'onepage', act: 4, title: 'Lékař — report: jak plán probíhal a jestli rady fungovaly',
+    id: 'onepage', act: 5, title: 'Lékař — report: jak plán probíhal a jestli rady fungovaly',
     role: 'doctor', page: 'onepage', at: '2027-01-05T09:00:00',
     setup: function (S, B) {
       if (B.training === 'failed') return;
@@ -589,7 +578,7 @@ var CH = [
     }
   },
   {
-    id: 'decide', act: 4, title: 'Lékař — rozhodnutí a vydání dalšího plánu',
+    id: 'decide', act: 5, title: 'Lékař — rozhodnutí z připravených důvodů',
     role: 'doctor', page: 'decide', at: '2027-01-05T09:20:00',
     setup: function (S, B) {
       if (B.training === 'failed') return;
@@ -605,21 +594,26 @@ var CH = [
     }
   },
   {
-    id: 'newplan', act: 4, title: 'Pacient — nový plán a jeho převzetí',
+    id: 'newplan', act: 5, title: 'Pacient — nový plán a jeho převzetí',
     role: 'patient', page: 'newplan', at: '2027-01-05T09:40:00',
     apply: function (S, B) {
       if (B.training === 'failed') return;
       NF.confirmUnderstanding(S);
     }
+  },
+  {
+    id: 'result', act: 5, title: 'Výsledek demonstrace',
+    role: 'doctor', page: 'result', at: '2027-01-05T09:50:00'
   }
 ];
 
 D.acts = [
-  { title: 'Dějství 1 — V ordinaci', note: 'Lékař zařadí pacienta a vydá plán, sestra zaučí a předá zařízení, pacient plán převezme. Nikdo nic nevypisuje.' },
-  { title: 'Dějství 2 — Doma: aplikace se učí', note: 'Neznámé jídlo bez odhadu, po týdnu první známá jídla. Že se aplikace zpřesňuje, je vidět na počtech záznamů.' },
-  { title: 'Dějství 3 — Rada před jídlem', note: 'Otázka na inzulin rozhoduje, které rady se smějí dát. Nové jídlo podobné známému dostane směr, ne číslo.' },
-  { title: 'Dějství 4 — Když se něco pokazí', note: 'Nemoc nebo chybějící data vypnou rady. Nejasná rada se vyřadí, zmizí pacientovi a garant schválí opravenou verzi.' },
-  { title: 'Dějství 5 — Kontrola a nový plán', note: 'Report ukáže, jak plán probíhal a jestli rady fungovaly, když je pacient přijal. Rozhodnutí z připravených důvodů.' }
+  { title: 'Dějství 1 — V ordinaci', note: 'Lékař zařadí a vydá plán, sestra zaučí a předá zařízení, pacient plán převezme. Nikdo nic nevypisuje.' },
+  { title: 'Dějství 2 — Doma: aplikace se učí', note: 'Neznámé jídlo bez odhadu, po týdnu první známá jídla. „Zpřesňuje se“ je vidět na počtech.' },
+  { title: 'Dějství 3 — Rada před jídlem', note: 'Otázka na inzulin, rada k porci jen před bolusem, rady bez sacharidů kdykoli, podobné jídlo bez čísla.' },
+  { title: 'Dějství 4 — Když něco nesedí', note: 'Nemoc nebo výpadek dat: rady se vypnou, záznamy z nemoci se do učení nepočítají.' },
+  { title: 'Dějství 5 — Správa pravidel', note: 'Nejasný text rady, vyřazení pravidla, rada zmizí, ostatní platí, schválení opravené verze.' },
+  { title: 'Dějství 6 — Kontrola a nový plán', note: 'Report: jak plán probíhal a jestli rady fungovaly, když je pacient přijal. Rozhodnutí z připravených důvodů.' }
 ];
 
 D.chapters = CH;
@@ -674,9 +668,9 @@ D.play = function (index, branches) {
   S.chapter = ch.id;
   S.chapterIndex = idx;
   /* Nezvládnuté zaučení je slepá ulička — příběh dál nepokračuje. */
-  if (B.training === 'failed' && idx > 1) {
-    S.chapterIndex = 1;
-    S.chapter = CH[1].id;
+  if (B.training === 'failed' && idx > 3) {
+    S.chapterIndex = 2;
+    S.chapter = CH[2].id;
     S.role = 'nurse'; S.page = 'training';
     S.clock = CH[2].at;
   }
@@ -691,40 +685,31 @@ D.indexOf = function (id) {
 /* ---------- průchod na úrovni garanta ----------
    Cesta jen po schvalovacích bodech: „tohle bys musel podepsat“. */
 D.garantRoute = [
-  { title: 'Katalog úkolů', group: 'ukoly', chapter: 'office',
-    sign: 'Které úkoly smí lékař vybrat. Úkol, jehož pravidlo nemá schválenou verzi, je v katalogu vidět, ale přiřadit ho nelze.' },
-  { title: 'Neznámé jídlo bez odhadu', group: 'vyhodnoceni', chapter: 'firstMeal',
-    sign: 'Že u jídla, ke kterému nemá aplikace nic podobného, neodhaduje nic a jen nabídne zápis.' },
-  { title: 'Jak se počítá reakce na jídlo', group: 'vyhodnoceni', chapter: 'learning',
-    sign: 'Že vzestup je rozdíl mezi nejvyšší hodnotou do dvou hodin po jídle a hodnotou v okamžiku jídla, že se bere medián a že jídlo je známé od tří úplných záznamů.' },
-  { title: 'Které záznamy se do učení nepočítají', group: 'vyhodnoceni', chapter: 'learning',
-    sign: 'Záznam bez údaje o inzulinu, záznam z období nemoci a záznam s mezerou v datech ze senzoru.' },
-  { title: 'Podobné jídlo dostane směr, ne číslo', group: 'vyhodnoceni', chapter: 'similar',
-    sign: 'Z jakých vlastností porce se počítá podobnost a jaký je práh. Název jídla do výpočtu nevstupuje.' },
-  { title: 'Rada k porci jen před podáním inzulinu', group: 'rady', chapter: 'advice',
-    sign: 'Že se porce řídí k obvyklému množství oběma směry a že „dej si menší porci“ nezazní nikdy.' },
-  { title: 'Neuvedený stav podání se bere jako po podání', group: 'rady', chapter: 'advice', branch: { bolus: 'unknown' },
-    sign: 'Že při odpovědi „nevím“ se rada měnící množství sacharidů nedá.' },
-  { title: 'Rady, které množství sacharidů nemění', group: 'rady', chapter: 'advice',
-    sign: 'Texty jednotlivých rad a kdy se nabízejí. Rady bez schválení se k pacientovi nedostanou.' },
-  { title: 'Kdy aplikace neradí vůbec', group: 'rady', chapter: 'disruption',
-    sign: 'Nemoc, pozastavený úkol a ztráta spojení s katalogem pravidel.' },
-  { title: 'Vyřazení rady a její nová verze', group: 'rady', chapter: 'catalog',
-    sign: 'Kdo radu vyřazuje, jak rychle zmizí pacientovi a co se stane, když zařízení není připojené.' },
-  { title: 'Report: přijato oproti nepřijato', group: 'vyhodnoceni', chapter: 'onepage', branch: { response: 'impractical' },
-    sign: 'Co lékař na kontrole vidí a jak se liší „pacient radu nechce“ od „rada je nepraktická“.' },
-  { title: 'Úkol na změnu režimu', group: 'ukoly', chapter: 'decide', branch: { response: 'declines' },
-    sign: 'Kdy ho lékař vydá a že se jím nemění dávka inzulinu.' }
+  { title: 'Katalog úkolů', sign: 'Které úkoly smí lékař vybrat. Úkol s neschváleným pravidlem je vidět, ale nejde přiřadit.', chapter: 'plan', rules: ['R-REAKCE', 'R-ROZLOZENI', 'R-REZIM', 'R-PROCHAZKA'] },
+  { title: 'Vyhodnocení reakce na jídlo', sign: 'Co je „vzestup“, od kolika úplných záznamů je jídlo známé a které záznamy se nepočítají.', chapter: 'learning', rules: ['R-REAKCE'] },
+  { title: 'Neznámé jídlo bez odhadu', sign: 'Že aplikace u jídla bez podobných nic neodhaduje, jen nabídne zapsat.', chapter: 'firstMeal', rules: ['R-REAKCE'] },
+  { title: 'Podobné jídlo bez čísla', sign: 'Z jakých vlastností se počítá podobnost a jaký je práh. Směr se říká, číslo ne.', chapter: 'similar', rules: ['R-PODOBNOST'] },
+  { title: 'Rada k porci jen před bolusem', sign: 'Porce se řídí k obvyklé oběma směry. „Dej si menší porci“ se neříká nikdy.', chapter: 'advice', rules: ['R-PORCE'] },
+  { title: 'Neznámý stav podání = po bolusu', sign: 'Že při „nevím“ se rada měnící sacharidy nedá.', chapter: 'afterBolus', branch: { bolus: 'unknown' }, rules: ['R-PORCE'] },
+  { title: 'Rady, které nemění sacharidy', sign: 'Texty rad a kdy se nabízejí. Rady bez schválení (příloha, odstup, procházka) se k pacientovi nedostanou.', chapter: 'advice', rules: ['R-DOPLNEK', 'R-PORADI', 'R-PRILOHA-FORMA', 'R-ODSTUP', 'R-PROCHAZKA'] },
+  { title: 'Kdy aplikace neradí', sign: 'Nemoc, pozastavený úkol, ztráta spojení s pravidly.', chapter: 'disruption', rules: [] },
+  { title: 'Vyřazení a nová verze pravidla', sign: 'Kdo vyřazuje, jak rychle rada zmizí a co když zařízení není online.', chapter: 'catalog', branch: { offline: 'offline' }, rules: ['R-PORADI'] },
+  { title: 'Report „přijato vs. nepřijato“', sign: 'Co lékař vidí na kontrole a jak se liší „pacient radu nechce“ od „rada je nepraktická“.', chapter: 'onepage', branch: { response: 'impractical' }, rules: ['R-REAKCE'] },
+  { title: 'Úkol na změnu režimu', sign: 'Kdy ho lékař vydá a že se tím nemění dávka.', chapter: 'decide', branch: { response: 'declines' }, rules: ['R-REZIM'] }
 ];
 
-/* ---------- okrajové situace ----------
-   Stavy, ne kroky. Zapínají se v panelu prezentujícího. */
+/* ---------- okrajové situace ---------- */
 D.edgeCases = [
-  { id: 'holiday', title: 'Dovolená nebo změna denního režimu', answer: 'Období je označené, úkol pozastavený, zapsané časy zůstávají. Rady k jídlu se nenabízejí a rada k inzulinu nezazní nikdy.' },
-  { id: 'motivation', title: 'Třetí měsíc bez motivace', answer: 'Nabídneme volby „je to moc práce“, „nerozumím“, „teď nechci“ a z nich pomoc nebo pauzu. Žádný trest ani hodnocení. Na kontrole to lékař uvidí jako signál k rozhovoru.' },
-  { id: 'hosp', title: 'Hospitalizace nebo změna léčby jiným lékařem', answer: 'Ručně oznámená pauza. Záznamy z tohoto období se do učení nepočítají, protože učení stojí na pevných dávkách. Úkol čeká na ověření plánu lékařem.' },
-  { id: 'end', title: 'Ukončení účasti nebo konec studie', answer: 'Zastavené úkoly a rady, modelové předání pokynů a další péče, informace o dostupnosti dokumentů.' },
-  { id: 'consent', title: 'Odvolání souhlasu', answer: 'Rozlišíme ukončení účasti, druhotné použití dat a požadavek na výmaz. Zobrazíme modelové přijetí požadavku bez skutečného mazání a bez slibu, že se vymaže všechno.' }
+  { id: 'holiday', title: 'Dovolená / změna režimu', answer: 'Období je označené, úkol pozastavený, zapsané časy zůstávají. Rady k jídlu se nenabízejí a nikdy žádné rady k posunu inzulinu.' },
+  { id: 'motivation', title: 'Třetí měsíc bez motivace', answer: 'Nabídneme volby „je to moc práce“, „nerozumím“, „teď nechci“ → pomoc nebo pauza. Žádný trest ani hodnocení. Na kontrole to lékař uvidí jako signál k rozhovoru.' },
+  { id: 'otherdoc', title: 'Změna léčby jiným lékařem', answer: 'Pacient změnu nahlásí. Rady se pozastaví, protože učení stojí na pevných dávkách. Úkol čeká na ověření plánu.' },
+  { id: 'expired', title: 'Odložená kontrola / konec platnosti plánu', answer: 'Zobrazíme potřebu ověření a kontakt. Nikdy pokyn přestat podávat inzulin.' },
+  { id: 'carer', title: 'Pečující osoba', answer: 'Výchozí demo ukazuje pomoc při obsluze bez samostatného účtu. Samostatný přístup je otevřená volba; oprávnění nejsou vyřešena.' },
+  { id: 'newdoc', title: 'Změna lékaře', answer: 'Předání podkladu a stav „převzetí nepotvrzeno“. Nový lékař nezíská přístup automaticky.' },
+  { id: 'hosp', title: 'Hospitalizace', answer: 'Ručně oznámená pauza. Záznamy z hospitalizace se nepočítají do učení. Obnovení po kontrole aktuální léčby a plánu.' },
+  { id: 'end', title: 'Ukončení účasti / konec studie', answer: 'Zastavené úkoly a rady, modelové předání pokynů a další péče, informace o dostupnosti dokumentů.' },
+  { id: 'consent', title: 'Odvolání souhlasu', answer: 'Rozlišíme ukončení účasti, druhotné použití a požadavek výmazu. Zobrazíme modelové přijetí požadavku bez skutečného mazání a bez slibu výmazu všech dat.' },
+  { id: 'death', title: 'Úmrtí', answer: 'Ručně vložené ověřené oznámení oprávněnou rolí, konec připomínek a účasti. Žádný závěr z neaktivity.' }
 ];
 
 /* ---------- rozhodovací list garanta ---------- */
@@ -741,7 +726,7 @@ D.decisionList = [
     proposal: 'Snídaně: aplikace se učí a radí; rozložení sacharidů mezi dny; úkol na změnu režimu. Procházka až po schválení hranic.' },
   { key: 'data', title: 'Zdroj a licence potravinových dat', q: 'Odkud se vezmou vlastnosti jídel a za jakých licenčních podmínek?',
     proposal: 'V maketě syntetický katalog čtyř jídel. Skutečný zdroj ani licence nejsou vybrané.' },
-  { key: 'regulace', title: 'Regulatorní zařazení', q: 'Aplikace, která odhaduje reakci na jídlo a doporučuje úpravu jídla, dělá klinické tvrzení. Jaká je třída rizika podle evropského nařízení o zdravotnických prostředcích (MDR) a co z ní plyne pro studii?',
+  { key: 'regulace', title: 'Regulatorní zařazení', q: 'Aplikace, která odhaduje reakci na jídlo a doporučuje úpravu jídla, dělá klinické tvrzení. Jaká je třída rizika podle MDR a co z ní plyne pro studii?',
     proposal: 'Maketa to neřeší. K ověření.' },
   { key: 'provoz', title: 'Provoz', q: 'Kdo řeší neúspěšné zaučení, incident, nedoručenou změnu pravidla a předání při odchodu?' },
   { key: 'pilot', title: 'Pilot', q: 'Co je úspěch u rozdílu „přijato vs. nepřijato“, jak se změří práce ambulance a jaké budou stop/go podmínky?' }
@@ -749,11 +734,12 @@ D.decisionList = [
 
 /* ---------- otázky pro garanta podle dějství ---------- */
 D.garantQuestions = [
-  ['Jaká jsou praktická vstupní kritéria kohorty?', 'Které úkoly patří do katalogu a kolik jich má být?', 'Kdo řeší neúspěšné zaučení a co se s pacientem děje dál?'],
-  ['Od kolika úplných záznamů je jídlo „známé“? V maketě jsou tři.', 'Je vzestup do dvou hodin po jídle správná míra reakce?', 'Které záznamy se do učení nepočítají?'],
-  ['Které rady jsou přípustné a za jakých podmínek?', 'Je správné brát neuvedený stav podání jako „po podání“?', 'Jak se má ukazovat nejistota u podobného jídla?'],
-  ['Které stavy vypínají rady a kdo je obnovuje?', 'Kdo řeší incident a nedoručenou změnu pravidla?', 'Má aplikace bez spojení rady vypnout, jak je navrženo?'],
-  ['Stačí srovnání „přijato oproti nepřijato“ z tohoto počtu záznamů k rozhodnutí?', 'Kdy vydat úkol na změnu režimu?', 'Jak poznat radu, která je nepraktická, od rady, kterou pacient nechce?']
+  ['Jaká jsou praktická vstupní kritéria kohorty?', 'Které úkoly patří do katalogu?', 'Kdo řeší neúspěšné zaučení?'],
+  ['Od kolika úplných záznamů je jídlo „známé“?', 'Které záznamy se do učení nepočítají?', 'Je vzestup 0–120 minut správná míra reakce?'],
+  ['Které páky jsou přípustné a kdy?', 'Je správné neznámý stav podání brát jako „po bolusu“?', 'Jak se ukazuje nejistota u podobného jídla?'],
+  ['Které stavy vypínají rady a kdo je obnovuje?', 'Jak odlišit technickou a klinickou pomoc?'],
+  ['Kdo řeší incident a nedoručenou změnu pravidla?', 'Má aplikace bez spojení rady vypnout, jak je navrženo?'],
+  ['Je srovnání „přijato vs. nepřijato“ z malého počtu záznamů dost na rozhodnutí?', 'Kdy vydat úkol na změnu režimu?', 'Jak poznat nepraktickou radu?']
 ];
 
 D.PRESCRIPTION = PRESCRIPTION;

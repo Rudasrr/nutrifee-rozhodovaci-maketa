@@ -14,7 +14,7 @@ var NF = global.NutriFee = global.NutriFee || {};
 /* Číslo verze uloženého stavu. Po každé změně struktury příběhu, pravidel nebo
    obrazovek se zvýší — jinak prohlížeč načte starý průběh a vypadá to, jako by
    se aktualizace neprojevila. Musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 7;
+NF.SCHEMA = 8;
 NF.STORAGE = 'nutrifee-rozhodovaci-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 
@@ -504,19 +504,11 @@ NF.LEVERS = {
   timing: { label: 'Odstup jídla od bolusu', carbs: false },
   walk: { label: 'Svižná procházka po jídle', carbs: false }
 };
-/* Jedna otázka na inzulin. Odpověď zároveň rozhoduje, které rady se smějí dát,
-   a zapíše se do záznamu — pacient se na totéž neptá dvakrát.
-   bolus = stav v okamžiku rady, record = co se uloží do záznamu. */
 NF.BOLUS = [
-  ['before', 'Ještě jsem si nepíchl', 'per-plan'],
-  ['after', 'Už jsem si píchl', 'per-plan'],
-  ['none', 'K tomuto jídlu si nepíchnu', 'none'],
-  ['unknown', 'Nevím', 'unknown']
+  ['before', 'Ještě ne'],
+  ['after', 'Už ano'],
+  ['unknown', 'Nevím']
 ];
-NF.bolusRecord = function (state) {
-  var row = NF.BOLUS.filter(function (b) { return b[0] === state; })[0];
-  return row ? row[2] : null;
-};
 /* Neznámý stav podání se chová jako „po bolusu“. */
 NF.effectiveBolus = function (state) { return state === 'before' ? 'before' : 'after'; };
 
@@ -741,9 +733,10 @@ NF.restoreData = function (S) {
 };
 NF.setOffline = function (S, on) {
   S.dataState.offline = !!on;
-  /* Bez připojení nelze potvrdit, že se změna pravidla dostala do zařízení. */
-  if (S.lastRetire) S.ruleDelivery = on ? 'unconfirmed' : 'confirmed';
-  if (!on) S.rulesSyncAt = S.clock;
+  if (!on) {
+    if (S.ruleDelivery === 'unconfirmed') S.ruleDelivery = 'confirmed';
+    S.rulesSyncAt = S.clock;
+  }
   return { ok: true };
 };
 

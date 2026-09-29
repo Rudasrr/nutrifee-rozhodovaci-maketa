@@ -41,15 +41,10 @@ NF.registerSlot('banner', function (S) {
     '</p>' +
     (route ? '<div class="garant-route"><p><strong>Průchod garanta · bod ' + (S.garantStep + 1) + ' z ' + D.garantRoute.length + ': ' + e(route.title) + '</strong><br>' +
       'Co podepisuješ: ' + e(route.sign) + '</p>' +
-      (function () {
-        var g = D.ruleGroups.filter(function (x) { return x.id === route.group; })[0];
-        if (!g) return '';
-        return '<p class="small">Skupina pravidel: <strong>' + e(g.title) + '</strong> · ' +
-          g.ids.map(function (id) {
-            var r = NF.ruleById(S, id);
-            return r ? NF.screens.ruleChip(S, NF.ruleKey(r)) : '';
-          }).join(' ') + '</p>';
-      })() +
+      (route.rules.length ? '<p class="small">' + route.rules.map(function (id) {
+        var r = NF.ruleById(S, id);
+        return r ? NF.screens.ruleChip(S, NF.ruleKey(r)) : '';
+      }).join(' ') + '</p>' : '') +
       '<div class="demo-steps">' +
       (S.garantStep > 0 ? btn('◀ Předchozí bod', 'garantGo', String(S.garantStep - 1), 'demo') : '') +
       (S.garantStep < D.garantRoute.length - 1 ? btn('Další bod ▶', 'garantGo', String(S.garantStep + 1), 'demo')
@@ -106,19 +101,11 @@ function presenterPanel(S) {
     }
   });
 
-  out += '<hr><h3>Mimo hlavní linku</h3><div class="buttonlist">' +
+  out += '<hr><h3>Odbočky mimo hlavní linku</h3><div class="buttonlist">' +
     btn('Rozhodovací list garanta', 'openAside', 'decisions', 'demo') +
-    btn('Výsledek demonstrace — pomohl kontext?', 'openAside', 'result', 'demo') +
     btn('Verze a stopa demonstrace', 'openAside', 'versions', 'demo') +
     '</div>' +
     '<p class="small muted">Nejsou součástí příběhu ani pacientského průchodu. Otevřou se v příslušné roli a do příběhu nezasáhnou.</p>';
-
-  out += '<h4>Stav zařízení pacienta</h4>' +
-    '<p class="small muted">Bez připojení aplikace rady vypíná. Změnu textu pravidla pacient uvidí až po připojení.</p>' +
-    '<div class="buttonlist">' +
-    '<button type="button" class="btn ' + (S.dataState && S.dataState.offline ? 'secondary' : 'selected') + '" data-action="setDeviceOnline" data-value="1">Připojené</button>' +
-    '<button type="button" class="btn ' + (S.dataState && S.dataState.offline ? 'selected' : 'secondary') + '" data-action="setDeviceOnline" data-value="0">Nepřipojené</button>' +
-    '</div>';
 
   out += '<h4>Okrajové situace</h4><div class="buttonlist">' +
     D.edgeCases.map(function (x) {
@@ -184,14 +171,8 @@ NF.demoActions.setBranch = function (v) {
 NF.demoActions.openAside = function (v) {
   var S = NF.getState();
   if (v === 'decisions') { S.role = 'garant'; S.page = 'decisions'; }
-  else if (v === 'result') { S.role = 'doctor'; S.page = 'result'; }
   else if (v === 'versions') { S.role = 'doctor'; S.page = 'versions'; }
   NF.closeDrawer();
-};
-NF.demoActions.setDeviceOnline = function (v) {
-  var S = NF.getState();
-  NF.setOffline(S, v === '0');
-  S.toast = v === '0' ? 'Zařízení pacienta je nepřipojené. Aplikace rady vypíná.' : 'Zařízení pacienta je připojené.';
 };
 NF.demoActions.shiftTime = function (v) {
   var S = NF.getState();

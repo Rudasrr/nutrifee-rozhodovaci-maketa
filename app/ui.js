@@ -87,8 +87,6 @@ function renderDrawer() {
       '<label class="field">Popis<textarea data-bind="edit.' + e(id) + '">' + e(ep ? ep.desc : '') + '</textarea></label>' +
       '<p class="small muted">Předchozí hodnota zůstane v historii epizody.</p>' +
       '<div class="actions">' + V.btn('Uložit opravu', 'saveCorrection', id, 'primary') + V.btn('Zrušit', 'closeDrawer', null, 'secondary') + '</div>';
-  } else if (drawer.indexOf('rule:') === 0) {
-    body = V.ruleDetail(S, drawer.slice(5));
   } else if (NF.slots.drawer) {
     body = NF.slots.drawer(S, drawer) || '';
     if (!body) { el.innerHTML = ''; drawer = null; return; }
@@ -197,15 +195,12 @@ var A = {
 
   /* ---- před jídlem ---- */
   startMeal: function () { S.meal = { portion: 'usual', decisions: {}, reasons: {} }; S.page = 'meal'; },
-  mealFood: function (v) { var m = mealState(); if (m.foodId !== v) { m.foodId = v; m.desc = null; m.decisions = {}; m.reasons = {}; } m.step = 1; },
+  mealFood: function (v) { var m = mealState(); if (m.foodId !== v) { m.foodId = v; m.desc = null; m.decisions = {}; m.reasons = {}; } },
   mealPortion: function (v) { var m = mealState(); m.portion = v; m.decisions = {}; m.reasons = {}; },
   mealBolus: function (v) {
-    var m = mealState();
-    m.bolus = v;
-    m.insulinReported = NF.bolusRecord(v);
-    m.decisions = {}; m.reasons = {};
+    var m = mealState(); m.bolus = v; m.decisions = {}; m.reasons = {};
+    if (v === 'after' && !m.insulinReported) m.insulinReported = 'per-plan';
   },
-  mealStep: function (v) { mealState().step = Number(v); },
   mealDecide: function (v) {
     var m = mealState(), p = String(v).split(':');
     m.decisions[p[0]] = p[1] === 'yes';
@@ -277,7 +272,6 @@ var A = {
     toast('Verze ' + v + ' je schválená. Nevydává tím žádný plán.');
   },
   openRetire: function (v) { S.retireOpen = v; },
-  openRule: function (v) { drawer = 'rule:' + v; },
   closeRetire: function () { S.retireOpen = null; },
   retireRule: function (v) {
     var reason = (S.form && S.form.retireReason) || '';
