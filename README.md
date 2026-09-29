@@ -69,14 +69,15 @@ Maketa je **jeden souvislý příběh**: modelový pacient od zařazení v ordin
 Nahoře jsou demonstrační přepínače rolí (Pacient / Lékař / Sestra / Garant), **Průvodce maketou**
 a **Panel prezentujícího**. V demo liště je krokování **◀ Předchozí / Další ▶ / Reset**.
 
-| Dějství | Co ukazuje |
-|---|---|
-| **1 — V ordinaci** | Lékař zařadí a vydá plán, sestra zaučí a předá zařízení, pacient plán převezme |
-| **2 — Doma: aplikace se učí** | Neznámé jídlo bez odhadu; po týdnu první známá jídla |
-| **3 — Rada před jídlem** | Otázka na inzulin; rada k porci jen před bolusem; rady bez sacharidů kdykoli; podobné jídlo bez čísla |
-| **4 — Když něco nesedí** | Nemoc nebo výpadek dat: rady se vypnou, záznamy z nemoci se nepočítají |
-| **5 — Správa pravidel** | Nejasný text rady, vyřazení pravidla, rada zmizí, ostatní platí, schválení opravené verze |
-| **6 — Kontrola a nový plán** | Report „přijato vs. nepřijato“, rozhodnutí z připravených důvodů, případně úkol na změnu režimu |
+Příběh má **16 kapitol v pěti dějstvích**.
+
+| Dějství | Kapitoly | Co ukazuje |
+|---|---|---|
+| **1 — V ordinaci** | 1–3 | Lékař zařadí pacienta a vydá plán, sestra zaučí a předá zařízení, pacient plán převezme |
+| **2 — Doma: aplikace se učí** | 4–5 | Neznámé jídlo bez odhadu; po týdnu první známá jídla |
+| **3 — Rada před jídlem** | 6–7 | Otázka na inzulin rozhodne, které rady se smějí dát; nové jídlo podobné známému dostane směr, ne číslo |
+| **4 — Když se něco pokazí** | 8–12 | Nemoc nebo chybějící data vypnou rady; nejasná rada se vyřadí, zmizí pacientovi a garant schválí opravenou verzi |
+| **5 — Kontrola a nový plán** | 13–16 | Report „přijato oproti nepřijato“, rozhodnutí z připravených důvodů, případně úkol na změnu režimu |
 
 **Kapitola ukazuje výchozí stav scény; její akci odehraje prezentující.** Skok na kapitolu přehraje
 příběh deterministicky od začátku, takže stav vždy odpovídá ručnímu průchodu.
@@ -85,22 +86,31 @@ příběh deterministicky od začátku, takže stav vždy odpovídá ručnímu p
 
 Přepínají se v panelu prezentujícího u příslušného dějství a načtou příběh znovu.
 
+Odboček je pět. Volby, které se odehrají uvnitř jedné obrazovky — příčina chybějících dat, stav
+připojení zařízení — se klikají přímo na obrazovce a nejsou to větve příběhu.
+
 | Odbočka | Volby |
 |---|---|
 | Zaučení u sestry | proběhlo · **nezdařilo se** — plán je vydaný, ale úkol se neaktivuje |
-| Stav inzulinu při druhé radě | už si píchl · **neví** — chová se jako po bolusu |
-| Co se stalo 20. října | nemoc · výrobce hodnoty ukazuje · nefunkční senzor · pacient neví |
-| Zařízení při změně pravidla | online · **offline** — doručení nepotvrzeno, rady vypnuté |
-| Jak pacient s radami naložil | většinou přijal · většinou nepřijal („nechci“) · většinou nepřijal („nemám to doma“ → rada je nepraktická) |
-| Podklad ke kontrole | běžný průběh · A bez zápisů · A bez senzorového souhrnu · B historická bezpečnostní událost · C aktuální problém během návštěvy |
+| Měl už pacient inzulin? | ještě ne · už si píchl · **neví** — posuzuje se jako po podání |
+| Co se stalo 20. října | nemoc · chybějící data ze senzoru (příčinu vybere pacient na obrazovce) |
+| Jak pacient s radami naložil | většinou je přijal · většinou nepřijal („nechci“) · většinou nepřijal („nemám to doma“ → rada je nepraktická) |
+| Podklad ke kontrole | běžný průběh · bez zápisů · bez zápisů i bez souhrnu ze senzoru · zpětně hlášená bezpečnostní událost · aktuální problém během návštěvy |
+
+V panelu prezentujícího jsou dál **stav zařízení pacienta** (připojené / nepřipojené — bez připojení
+aplikace rady vypíná) a **pět okrajových situací** (dovolená, ztráta motivace, hospitalizace nebo
+změna léčby jiným lékařem, ukončení účasti, odvolání souhlasu).
 
 ### Průchod na úrovni garanta
 
-V panelu prezentujícího **Začít průchod garanta**: cesta jen po schvalovacích bodech (katalog úkolů,
-vyhodnocení reakce, tři úrovně jistoty, rada k porci jen před bolusem, neznámý stav = po bolusu, rady
-bez sacharidů, kdy aplikace neradí, vyřazení pravidla, report, úkol na změnu režimu). U každého bodu
-demo lišta řekne, **co se tu podepisuje**, a ukáže dotčená pravidla s jejich stavem. Na konci vede
+V panelu prezentujícího **Začít průchod garanta**: cesta jen po schvalovacích bodech. U každého bodu
+demo lišta řekne, **co se tu podepisuje**, a ukáže skupinu pravidel s jejich stavem. Na konci vede
 na rozhodovací list.
+
+Katalog pravidel je uspořádaný do **tří skupin, které garant podepisuje**, místo dvanácti samostatných
+položek: *jak se počítá reakce na jídlo*, *jaké rady se smějí dát a kdy*, *kdy se zasahuje do režimu*.
+U každé skupiny je vysvětlené, co přesně se podepisuje a jak výpočet funguje; úplný popis
+jednotlivého pravidla se otevře odkazem **Podrobnosti**.
 
 ### Dvě vrstvy nápovědy
 

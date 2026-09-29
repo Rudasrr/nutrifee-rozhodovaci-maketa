@@ -91,3 +91,28 @@
 @media(max-width:560px){.outcome-grid{grid-template-columns:1fr}.food-grid{grid-template-columns:1fr}}
 .chart-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0}
 .chart-legend span{display:inline-flex;align-items:center;gap:6px}
+
+/* Katalog pravidel: co garant podepisuje, oddělené od tabulky řádků. */
+.sign-box{border-left:3px solid var(--green);padding:10px 0 10px 16px;margin:14px 0 18px}
+.sign-box p{margin:0 0 6px}.sign-box p:last-child{margin:0;color:var(--muted)}
+.clinic-page table td{vertical-align:top}
+.clinic-page table .btn.link{padding:0;font-size:14px}
+@media(max-width:700px){
+  .clinic-page thead{position:absolute;left:-9999px}
+  .clinic-page tbody tr{display:block;border-bottom:1px solid var(--line);padding:10px 0}
+  .clinic-page tbody td{display:block;border:0;padding:3px 0}
+}
+
+/* Otázka pacienta je kontext celého reportu, ne jeho poslední část. */
+.patient-question{border-left:3px solid var(--green);padding:8px 0 8px 16px;margin-top:12px;font-size:15px;max-width:70ch}
+
+/* Zápis jídla po krocích: krátká obrazovka místo dlouhého scrollování. */
+.meal-steps{display:flex;gap:6px;margin:14px 0 22px;flex-wrap:wrap}
+.meal-step{display:flex;align-items:center;gap:7px;border:0;background:none;padding:6px 0;margin-right:14px;
+  font-size:14px;color:var(--muted);min-height:40px}
+.meal-step span{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#e1e9df;font-weight:700;flex:none}
+.meal-step.here{color:var(--green2);font-weight:650}.meal-step.here span{background:var(--green);color:#fff}
+.meal-step.done span{background:var(--mint);color:var(--green2)}
+.meal-step:disabled{opacity:.55;cursor:default}
+.meal-recap{font-size:15px;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px}
+@media(max-width:480px){.meal-step{margin-right:8px;font-size:13px}}
