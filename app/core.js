@@ -11,7 +11,10 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* ---------- drobné pomůcky ---------- */
-NF.SCHEMA = 6;
+/* Číslo verze uloženého stavu. Po každé změně struktury příběhu, pravidel nebo
+   obrazovek se zvýší — jinak prohlížeč načte starý průběh a vypadá to, jako by
+   se aktualizace neprojevila. Musí souhlasit s ?v= v HTML. */
+NF.SCHEMA = 7;
 NF.STORAGE = 'nutrifee-rozhodovaci-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 

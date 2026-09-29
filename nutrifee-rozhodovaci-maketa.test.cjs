@@ -6,7 +6,8 @@ const path = require('node:path');
 const assert = require('node:assert/strict');
 
 const html = fs.readFileSync(path.join(__dirname, 'nutrifee-rozhodovaci-maketa.html'), 'utf8');
-const scripts = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1]);
+/* ?v= je jen proti cache prohlížeče; pro čtení souboru ho odstraníme. */
+const scripts = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1].split('?')[0]);
 assert.ok(scripts.length >= 8, 'HTML musí načítat jádro i demonstrační vrstvu');
 
 const CORE = scripts.filter(s => s.startsWith('app/'));
@@ -799,6 +800,15 @@ test('V publikovaných souborech nejsou skutečná jména osob ani institucí', 
     const src = fs.readFileSync(path.join(__dirname, f), 'utf8');
     assert.equal(bad.test(src), false, f);
   }
+});
+
+test('Verze v HTML souhlasí se schématem uloženého stavu', () => {
+  const v = html.match(/\?v=(\d+)/);
+  assert.ok(v, 'soubory musí mít ?v= proti cache prohlížeče');
+  const all = [...html.matchAll(/\?v=(\d+)/g)].map(m => m[1]);
+  assert.equal(new Set(all).size, 1, 'všechny soubory mají mít stejnou verzi');
+  assert.equal(Number(v[1]), NF.SCHEMA,
+    'po změně struktury se musí zvýšit NF.SCHEMA i ?v= v HTML, jinak prohlížeč ukáže starý průběh');
 });
 
 console.log('');
