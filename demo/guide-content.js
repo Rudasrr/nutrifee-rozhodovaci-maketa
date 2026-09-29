@@ -80,7 +80,7 @@ G.topics = {
     title: 'Zaučení jsou konkrétní úkony z předání',
     level: 'zasada',
     what: 'Sestra odškrtne pět úkonů, mimo jiné že pacient zvládl zapsat zkušební jídlo a ví, že se ho aplikace před radou zeptá, jestli si už píchl.',
-    why: 'Lékař rozhodne a vydá plán; edukaci a předání zařízení dělá sestra. Otázka na bolus je jediná věc mezi radou a hypoglykemií — pacient ji musí znát předem.',
+    why: 'Lékař rozhodne a vydá plán; edukaci a předání zařízení dělá sestra. Otázka „už sis píchl inzulin k jídlu?“ je jediná věc mezi radou a hypoglykemií — pacient ji musí znát předem.',
     risk: 'Úkol se aktivuje až po zaučení a ověření porozumění. Nezdařené zaučení nechá plán vydaný, ale úkol neaktivní.',
     decide: 'Kdo řeší neúspěšné zaučení a kolik času sestře zabere.'
   },
@@ -135,7 +135,7 @@ G.topics = {
     risk: 'Zpětný deník by radu přinesl pozdě — po podání inzulinu, kdy se porce měnit nesmí.'
   },
   'today-counts': {
-    title: '„Zpřesňuje se“ musí být vidět',
+    title: 'Že se aplikace učí, musí být vidět',
     level: 'zasada',
     what: 'Počet zapsaných jídel a počet jídel, která aplikace už zná.',
     why: 'Slib učení bez viditelného pokroku je jen slib. Počty ukazují, odkud aplikace bere jistotu.'
@@ -149,15 +149,15 @@ G.topics = {
   'foods-list': {
     title: 'U každého jídla je vidět, kolikrát ho pacient jedl',
     level: 'zasada',
-    what: 'Seznam jídel s počtem zápisů, počtem úplných záznamů, úrovní jistoty a u známých jídel obvyklým vzestupem a tím, co pomohlo.',
-    why: 'Pacient i lékař vidí, na čem aplikace stojí. Známé jídlo od tří úplných záznamů, do té doby se zpřesňuje.',
+    what: 'Seznam jídel s počtem zápisů, počtem zápisů se všemi údaji, úrovní jistoty a u známých jídel s obvyklým vzestupem glukózy a s tím, co pomohlo.',
+    why: 'Pacient i lékař vidí, z čeho aplikace vychází. Jídlo je známé od tří zápisů se všemi údaji; do té doby se o něm aplikace teprve učí.',
     risk: 'Záznamy bez údaje o inzulinu, s mezerou v datech nebo z doby nemoci jsou vidět, ale nepočítají se.',
-    decide: 'Zda jsou tři úplné záznamy správná hranice pro „známé jídlo“. Parametr pravidla R-REAKCE.'
+    decide: 'Zda jsou tři zápisy se všemi údaji správná hranice pro „známé jídlo“. Je to parametr pravidla R-REAKCE.'
   },
   'foods-learning': {
     title: 'Pruh učení',
     level: 'navrh',
-    what: 'Kolik úplných záznamů jídlo má z počtu potřebného k tomu, aby ho aplikace znala.',
+    what: 'Kolik zápisů se všemi údaji jídlo má z počtu, který aplikace potřebuje, aby ho znala.',
     why: 'Jednoduchý vizuální signál, že další zápis má smysl.'
   },
 
@@ -181,7 +181,7 @@ G.topics = {
   'meal-level': {
     title: 'Tři úrovně jistoty',
     level: 'zasada',
-    what: 'Známé jídlo: co se stalo minule a o kolik obvykle stoupne. Podobné jídlo: jen směr („stoupá víc“), bez čísla. Neznámé jídlo: žádný odhad, nabídne zapsat.',
+    what: 'Známé jídlo: co se stalo minule a o kolik glukóza obvykle stoupne. Podobné jídlo: jen směr („glukóza stoupá víc“), bez čísla. Neznámé jídlo: žádný odhad, jen nabídka jídlo zapsat.',
     why: 'Aplikace má říct tolik, kolik ví — a ne víc. Podobnost se počítá z vlastností porce, ne z názvu jídla.',
     risk: 'Číslo u podobného jídla by vypadalo jako předpověď bez opory. Proto ho neukazuje.',
     sim: 'Vzestup (nejvyšší hodnota do 120 minut minus výchozí) počítá jádro z modelových průběhů.',
@@ -192,7 +192,7 @@ G.topics = {
     level: 'zasada',
     what: '„Už sis k tomuto jídlu píchl inzulin?“ Ještě ne / Už ano / Nevím. Ptá se pokaždé, dřív než ukáže radu.',
     why: 'Rada měnící množství sacharidů je bezpečná jen před bolusem. Po podání už je dávka daná a porce se měnit nesmí.',
-    risk: 'Neznámý stav podání se chová jako „po bolusu“ — při „nevím“ se rada k porci nedá.'
+    risk: 'Když pacient neví, jestli si píchl, bere se to jako „po bolusu“ — při „nevím“ se rada k porci nedá.'
   },
   'meal-blocked': {
     title: 'Proč se rada k porci teď nedává',
@@ -204,7 +204,7 @@ G.topics = {
   'meal-advice': {
     title: 'Každá rada nese své pravidlo',
     level: 'zasada',
-    what: 'U každé rady je páka, text, jak jistá si aplikace je, a pravidlo s verzí a stavem. Pacient zvolí „zkusím to“ nebo „tentokrát ne“ a může připojit důvod.',
+    what: 'U každé rady je její druh, text, jak jistá si aplikace je, a pravidlo s verzí a stavem. Pacient zvolí „zkusím to“ nebo „tentokrát ne“ a může připojit důvod.',
     why: 'Každé doporučení pochází ze schváleného pravidla a na obrazovce je vidět které. Rozhodnutí pacienta je data: bez nich by report nevěděl, jestli rady fungují.',
     risk: 'Rady z neschválených pravidel (příloha, odstup, procházka) se k pacientovi nedostanou vůbec. Nejsou ani zašedlé.',
     decide: 'Které typy rad jsou přípustné a kdy.'
@@ -303,7 +303,7 @@ G.topics = {
   'onepage-1': {
     title: 'Bezpečnost a úplnost dat nahoře',
     level: 'zasada',
-    what: 'Události, které pacient nahlásil, a kolik záznamů je úplných.',
+    what: 'Události, které pacient nahlásil, a kolik zápisů má všechny údaje.',
     why: 'Lékař nejdřív potřebuje vědět, jestli se něco stalo a jak spolehlivá jsou čísla pod tím.'
   },
   'onepage-2': {
@@ -323,7 +323,7 @@ G.topics = {
   'onepage-4': {
     title: 'Reakce na jednotlivá jídla',
     level: 'zasada',
-    what: 'Tabulka: kolikrát zapsáno, kolikrát úplně, úroveň jistoty, obvyklý vzestup a co pomohlo. S pravidlem, ze kterého výpočet pochází.',
+    what: 'Tabulka: kolikrát zapsáno, kolikrát se všemi údaji, úroveň jistoty, o kolik glukóza obvykle stoupne a co pomohlo. S pravidlem, ze kterého výpočet pochází.',
     why: 'Lékař vidí, jak tělo reagovalo na jednotlivá jídla, a jak jisté to je.'
   },
   'onepage-5': {

@@ -34,69 +34,69 @@ function rules() {
   function R(o, base) { var r = {}; Object.keys(base || {}).forEach(function (k) { r[k] = base[k]; }); Object.keys(o).forEach(function (k) { r[k] = o[k]; }); return r; }
   return [
     R({ id: 'R-REAKCE', version: 'v1', kind: 'výpočet', title: 'Vyhodnocení reakce na jídlo',
-      purpose: 'Z vlastních záznamů pacienta spočítat, o kolik mu po jídle obvykle stoupne glukóza, a rozlišit známé a neznámé jídlo.',
-      inputs: ['záznam jídla a porce', 'pacientem uvedený inzulin a jeho čas', 'senzorový úsek 0–120 minut'],
+      purpose: 'Z pacientových vlastních záznamů spočítat, o kolik mu po jídle obvykle stoupne glukóza, a rozlišit jídla známá a neznámá.',
+      inputs: ['záznam jídla a porce', 'pacientem uvedený inzulin a jeho čas', 'data ze senzoru 0–120 minut po jídle'],
       params: { minKnown: 3, 'okno (min)': 120 },
-      limits: ['Počítá jen úplné záznamy mimo období nemoci.', 'Ukazuje pacientovu minulost, ne předpověď.', 'Nikdy nepočítá dávku inzulinu.'],
-      examples: { use: ['Kaše snězená potřetí s úplnými daty → známé jídlo.'], skip: ['Záznam s „nevím“ u inzulinu.', 'Záznam z doby oznámené nemoci.', 'Záznam s mezerou v senzorových datech.'] }
+      limits: ['Počítá jen záznamy se všemi údaji a mimo období nemoci.', 'Ukazuje pacientovu minulost, ne předpověď.', 'Nikdy nepočítá dávku inzulinu.'],
+      examples: { use: ['Kaše zapsaná potřetí se všemi údaji → známé jídlo.'], skip: ['Záznam s „nevím“ u inzulinu.', 'Záznam z doby oznámené nemoci.', 'Záznam s mezerou v senzorových datech.'] }
     }, approved),
     R({ id: 'R-PODOBNOST', version: 'v1', kind: 'výpočet', title: 'Podobnost jídel z vlastností',
-      purpose: 'U jídla, které pacient ještě nezná, najít známá jídla s podobnými vlastnostmi porce a říct jen směr, bez čísla.',
+      purpose: 'U jídla, které aplikace u pacienta ještě nezná, najít známá jídla s podobnými vlastnostmi porce a říct jen směr, bez čísla.',
       inputs: ['sacharidy, bílkovina, tuk a vláknina v porci (g)', 'forma jídla'],
       params: { maxDistance: 0.35 },
-      limits: ['Podobnost se nepočítá z názvu jídla.', 'Neuvádí číselný odhad vzestupu.', 'Když nic podobného není, nic neodhaduje.'],
+      limits: ['Podobnost se nepočítá z názvu jídla.', 'Neuvádí číselný odhad vzestupu glukózy.', 'Když nic podobného není, nic neodhaduje.'],
       examples: { use: ['Müsli s jogurtem se vlastnostmi podobá ovesné kaši.'], skip: ['Míchaná vejce — nic podobného mezi známými jídly.'] }
     }, approved),
     R({ id: 'R-PORCE', version: 'v1', kind: 'rada', lever: 'portion', title: 'Porce k obvyklému množství',
-      purpose: 'Při pevné dávce držet porci u obvyklého množství — oběma směry.',
+      purpose: 'Při pevné dávce inzulinu vracet porci k obvyklému množství, ať je větší, nebo menší.',
       inputs: ['pacientem zvolená porce', 'stav podání bolusu'],
-      limits: ['Jen před bolusem. Neznámý stav podání se chová jako po bolusu.', 'Nikdy neradí jíst méně než obvykle.'],
-      text: 'Dej si obvyklou porci. Tvoje dávka je nastavená na obvyklé množství.',
+      limits: ['Jen před bolusem. Když pacient neví, jestli si píchl, platí to jako po bolusu.', 'Nikdy neradí jíst méně než obvykle.'],
+      text: 'Dej si obvyklou porci. Tvoje dávka inzulinu je nastavená na obvyklé množství jídla.',
       examples: { use: ['Pacient si chystá větší porci a inzulin ještě nemá.'], skip: ['Inzulin už je podaný.', 'Pacient neví, jestli si píchl.'] }
     }, approved),
     R({ id: 'R-DOPLNEK', version: 'v1', kind: 'rada', lever: 'addon', title: 'Přidání bílkoviny, tuku nebo vlákniny',
-      purpose: 'Změnit podobu jídla bez změny množství sacharidů.',
+      purpose: 'Upravit složení jídla, aniž se změní množství sacharidů.',
       inputs: ['vybrané jídlo', 'dřívější záznamy s touto radou'],
       limits: ['Kdykoli — množství sacharidů nemění.', 'Nenabízí se během oznámené nemoci.'],
       text: 'Přidej k jídlu {addon}. Množství sacharidů se tím nemění.',
-      examples: { use: ['Kaše, po které pacientovi obvykle stoupne víc.'], skip: ['Oznámená nemoc.'] }
+      examples: { use: ['Kaše, po které pacientovi glukóza obvykle stoupne víc.'], skip: ['Oznámená nemoc.'] }
     }, approved),
     R({ id: 'R-PORADI', version: 'v1', kind: 'rada', lever: 'order', title: 'Pořadí jídla',
-      purpose: 'Změnit pořadí složek jídla bez změny množství sacharidů.',
+      purpose: 'Změnit pořadí, v jakém pacient jednotlivé části jídla sní, bez změny množství sacharidů.',
       inputs: ['vybrané jídlo'],
       limits: ['Kdykoli — množství sacharidů nemění.'],
       text: 'Sněz nejdřív {first}, potom zbytek jídla.',
       examples: { use: ['Snídaně se složkou s bílkovinou nebo zeleninou.'], skip: ['Jídlo z jediné složky.'] }
     }, approved),
     R({ id: 'R-PORADI', version: 'v2', kind: 'rada', lever: 'order', status: 'draft', examplesReviewed: false,
-      title: 'Pořadí jídla — návrh v2',
-      purpose: 'Upřesnit text tak, aby rada nemohla vést k vynechání přílohy.',
+      title: 'Pořadí jídla',
+      purpose: 'Nová verze: upřesnit text tak, aby rada nemohla vést k vynechání přílohy.',
       inputs: ['vybrané jídlo'],
       limits: ['Kdykoli — množství sacharidů nemění.', 'Nově výslovně: přílohu nevynechávat.'],
       text: 'Sněz nejdřív {first}, potom zbytek obvyklého jídla. Přílohu nevynechávej — množství sacharidů má zůstat stejné.',
       examples: { use: ['Snídaně se složkou s bílkovinou nebo zeleninou.'], skip: ['Jídlo z jediné složky.', 'Pacient hlásí, že přílohu vynechal.'] }
     }),
     R({ id: 'R-PRILOHA-FORMA', version: 'v1', kind: 'rada', lever: 'sideForm', status: 'draft', examplesReviewed: false,
-      title: 'Příloha ve stejném množství, jiné podobě',
-      purpose: 'Nabídnout výměnu přílohy za stejné množství sacharidů v jiné podobě.',
+      title: 'Jiná příloha se stejným množstvím sacharidů',
+      purpose: 'Nabídnout výměnu přílohy za jinou, která má stejné množství sacharidů.',
       inputs: ['katalog příloh se sacharidy v porci'],
-      limits: ['Návrh. Chybí ověřený zdroj potravinových dat.'],
+      limits: ['Zatím jen návrh. Chybí ověřený zdroj údajů o potravinách.'],
       text: 'Místo {side} zkus stejné množství {sideAlt}.',
-      examples: { use: ['Bílé pečivo → celozrnné ve stejném množství sacharidů.'], skip: ['Jídlo bez přílohy.'] }
+      examples: { use: ['Bílé pečivo → celozrnné se stejným množstvím sacharidů.'], skip: ['Jídlo bez přílohy.'] }
     }),
     R({ id: 'R-PRILOHA-MNOZSTVI', version: 'v1', kind: 'rada', lever: 'sideAmount', status: 'draft', examplesReviewed: false,
       title: 'Příloha s jiným množstvím sacharidů',
       purpose: 'Vrátit množství sacharidů k obvyklému výměnou přílohy.',
       inputs: ['katalog příloh', 'stav podání bolusu'],
-      limits: ['Návrh. Jen před bolusem.', 'Chybí ověřený zdroj potravinových dat.'],
+      limits: ['Zatím jen návrh. Jen před bolusem.', 'Chybí ověřený zdroj údajů o potravinách.'],
       text: 'K ověření garantem.',
       examples: { use: [], skip: ['Inzulin už je podaný.'] }
     }),
     R({ id: 'R-ODSTUP', version: 'v1', kind: 'rada', lever: 'timing', status: 'draft', examplesReviewed: false,
-      title: 'Odstup jídla od bolusu',
+      title: 'Odstup jídla od inzulinu',
       purpose: 'Doporučit, kdy začít jíst vzhledem k podání prandiálního inzulinu.',
       inputs: ['čas podání bolusu', 'dřívější záznamy'],
-      limits: ['Návrh bez hodnot. Hranice určí garant.'],
+      limits: ['Zatím jen návrh bez hodnot. Hranice určí garant.'],
       text: 'K ověření garantem.',
       examples: { use: [], skip: [] }
     }),
@@ -104,18 +104,18 @@ function rules() {
       title: 'Svižná procházka po jídle',
       purpose: 'Doporučit krátký pohyb po jídle.',
       inputs: ['čas jídla', 'čas podání bolusu'],
-      limits: ['Návrh bez hodnot. Hranice pohybu po bolusu určí garant.'],
+      limits: ['Zatím jen návrh bez hodnot. Jaký pohyb je po bolusu bezpečný, určí garant.'],
       text: 'K ověření garantem.',
       examples: { use: [], skip: [] }
     }),
     R({ id: 'R-ROZLOZENI', version: 'v1', kind: 'úkol', title: 'Rozložení sacharidů mezi dny',
-      purpose: 'Držet mezi dny konzistenci sacharidů, kterou pevná dávka předpokládá.',
+      purpose: 'Jíst každý den podobné množství sacharidů, jak pevná dávka inzulinu předpokládá.',
       inputs: ['záznamy jídel', 'katalog jídel'],
-      limits: ['Pozorovací úkol; rady se řídí ostatními pravidly.'],
+      limits: ['Pozorovací úkol; samotné rady se řídí ostatními pravidly.'],
       examples: { use: ['Pacient se ptá, proč mu dávka jednou sedí a jindy ne.'], skip: [] }
     }, approved),
     R({ id: 'R-REZIM', version: 'v1', kind: 'úkol', title: 'Úkol na změnu režimu',
-      purpose: 'Když pacient rady soustavně nepřijímá, zjednodušit cíl na obvyklou porci v obvyklém čase.',
+      purpose: 'Když pacient rady opakovaně nepřijímá, zjednodušit cíl na obvyklou porci v obvyklém čase.',
       inputs: ['report z kontroly'],
       limits: ['Vydává jen lékař na kontrole.'],
       examples: { use: ['Rady pacient většinou nechává být.'], skip: ['Rady fungují a pacient je přijímá.'] }
@@ -200,30 +200,30 @@ D.taskCatalog = [
   {
     id: 'T-SNIDANE', kind: 'advise', ruleId: 'R-REAKCE', meal: 'breakfast',
     title: 'Snídaně: aplikace se učí a radí',
-    question: 'Proč mi po snídani jednou stoupne víc a jindy míň, když mám pořád stejnou dávku?',
-    conditions: 'Před snídaní otevři aplikaci, vyber jídlo a porci a odpověz, jestli už máš inzulin. Po třech úplných zápisech stejného jídla ti řekne, co se po něm děje, a poradí.',
-    burden: 'Jeden zápis denně ke snídani, do minuty.'
+    question: 'Proč mi po snídani glukóza jednou stoupne víc a jindy méně, i když mám pořád stejnou dávku inzulinu?',
+    conditions: 'Před snídaní otevři aplikaci, vyber jídlo a porci a odpověz, jestli už máš píchnutý inzulin. Když stejné jídlo zapíšeš třikrát se všemi údaji, aplikace ti řekne, jak po něm glukóza obvykle stoupá, a poradí, co zkusit.',
+    burden: 'Zátěž pro pacienta: jeden zápis denně ke snídani, asi minuta.'
   },
   {
     id: 'T-ROZLOZENI', kind: 'advise', ruleId: 'R-ROZLOZENI', meal: 'breakfast',
-    title: 'Každý den podobně sacharidů ke snídani',
+    title: 'Každý den podobné množství sacharidů ke snídani',
     question: 'Jak mám jíst, aby mi pevná dávka seděla každý den?',
-    conditions: 'Zapisuj snídani a porci. Aplikace ukáže, jak se ti mezi dny liší množství sacharidů, a před jídlem poradí, jak se vrátit k obvyklému.',
-    burden: 'Jeden zápis denně ke snídani.'
+    conditions: 'Zapisuj snídani a porci. Aplikace ukáže, jak se ti množství sacharidů mezi dny liší, a před jídlem poradí, jak se vrátit k obvyklému.',
+    burden: 'Zátěž pro pacienta: jeden zápis denně ke snídani.'
   },
   {
     id: 'T-PROCHAZKA', kind: 'advise', ruleId: 'R-PROCHAZKA', meal: 'dinner',
     title: 'Procházka po večeři',
     question: 'Pomůže mi, když se po jídle projdu?',
-    conditions: 'Po večeři se svižně projdi podle rady aplikace.',
-    burden: 'Jeden zápis denně k večeři.'
+    conditions: 'Po večeři se svižně projdi, jak ti aplikace poradí.',
+    burden: 'Zátěž pro pacienta: jeden zápis denně k večeři.'
   },
   {
     id: 'T-REZIM', kind: 'advise', ruleId: 'R-REZIM', meal: 'breakfast',
     title: 'Změna režimu: snídaně v obvyklé porci a obvyklém čase',
-    question: 'Co mi pomůže, když se k radám často nedostanu?',
-    conditions: 'Jez snídani v obvyklém čase a v obvyklé porci. Aplikace dál radí jen tam, kde to jde bez přípravy navíc.',
-    burden: 'Jeden zápis denně ke snídani.'
+    question: 'Co mi pomůže, když rady často nestihnu nebo nemám po ruce, co radí?',
+    conditions: 'Snídej v obvyklém čase a v obvyklé porci. Aplikace dál radí, ale jen tam, kde to nevyžaduje nic navíc.',
+    burden: 'Zátěž pro pacienta: jeden zápis denně ke snídani.'
   }
 ];
 
@@ -244,7 +244,7 @@ D.compensations = [
 D.decisionReasons = [
   'Rady fungují, když je pacient přijme; pokračovat ve stejném úkolu.',
   'Pacient rady většinou nechává být; probrat a zadat úkol na změnu režimu.',
-  'Rada se ukázala jako nepraktická; pokračovat a sledovat jiné páky.',
+  'Rada se ukázala jako nepraktická; pokračovat a sledovat jiné druhy rad.',
   'Podkladů je zatím málo; pokračovat ve sběru.'
 ];
 D.resumeReasons = [
@@ -253,7 +253,7 @@ D.resumeReasons = [
   'Pravidlo je znovu ve schválené verzi; úkol může pokračovat.'
 ];
 D.retireReasons = [
-  'Text rady je nejasný — pacient ho může pochopit jako snížení sacharidů.',
+  'Text rady je nejasný: pacient ho může pochopit tak, že má sníst méně sacharidů.',
   'Rada se nabízí v situaci, na kterou pravidlo není určené.',
   'Nová odborná opora mění obsah pravidla.'
 ];
@@ -278,7 +278,7 @@ D.branches = {
   },
   bolus: {
     label: 'Stav inzulinu při druhé radě', from: 'afterBolus',
-    options: [{ id: 'after', label: 'Pacient už si píchl' }, { id: 'unknown', label: 'Pacient neví — chová se jako po bolusu' }]
+    options: [{ id: 'after', label: 'Pacient už si píchl' }, { id: 'unknown', label: 'Pacient neví — bere se to jako po bolusu' }]
   },
   disruption: {
     label: 'Co se stalo 20. října', from: 'disruption',
@@ -291,7 +291,7 @@ D.branches = {
   },
   offline: {
     label: 'Zařízení pacienta při změně pravidla', from: 'catalog',
-    options: [{ id: 'online', label: 'Online — změna doručena' }, { id: 'offline', label: 'Offline — doručení nepotvrzeno, rady vypnuté' }]
+    options: [{ id: 'online', label: 'Online — změna doručena' }, { id: 'offline', label: 'Offline — změna nedoručena, rady vypnuté' }]
   },
   response: {
     label: 'Jak pacient s radami naložil (listopad–prosinec)', from: 'preview',
@@ -514,7 +514,7 @@ var CH = [
       S.safetySyncAt = '2026-10-21T22:10:00';
       S.impulse = {
         id: 'IMP-1',
-        text: 'Při testu pacient pochopil radu R-PORADI v1 „sněz nejdřív jogurt“ jako náhradu přílohy a část kaše nedojedl. Při pevné dávce tím snížil sacharidy.',
+        text: 'Při testu pacient pochopil radu R-PORADI v1 „sněz nejdřív jogurt“ tak, že jogurt nahradí část kaše, a kaši nedojedl. Při pevné dávce inzulinu tím snědl méně sacharidů, než má.',
         note: 'Jde o hlášený problém formulace, ne automaticky o závažnou nežádoucí příhodu.',
         versions: ['R-PORADI v1'],
         at: '2026-10-22T08:30:00'
@@ -609,11 +609,11 @@ var CH = [
 
 D.acts = [
   { title: 'Dějství 1 — V ordinaci', note: 'Lékař zařadí a vydá plán, sestra zaučí a předá zařízení, pacient plán převezme. Nikdo nic nevypisuje.' },
-  { title: 'Dějství 2 — Doma: aplikace se učí', note: 'Neznámé jídlo bez odhadu, po týdnu první známá jídla. „Zpřesňuje se“ je vidět na počtech.' },
-  { title: 'Dějství 3 — Rada před jídlem', note: 'Otázka na inzulin, rada k porci jen před bolusem, rady bez sacharidů kdykoli, podobné jídlo bez čísla.' },
+  { title: 'Dějství 2 — Doma: aplikace se učí', note: 'K neznámému jídlu žádný odhad, po týdnu první známá jídla. Že se aplikace učí, je vidět na počtu zápisů.' },
+  { title: 'Dějství 3 — Rada před jídlem', note: 'Otázka na inzulin, rada k porci jen před bolusem, rady, které nemění sacharidy, kdykoli, a podobné jídlo bez čísla.' },
   { title: 'Dějství 4 — Když něco nesedí', note: 'Nemoc nebo výpadek dat: rady se vypnou, záznamy z nemoci se do učení nepočítají.' },
-  { title: 'Dějství 5 — Správa pravidel', note: 'Nejasný text rady, vyřazení pravidla, rada zmizí, ostatní platí, schválení opravené verze.' },
-  { title: 'Dějství 6 — Kontrola a nový plán', note: 'Report: jak plán probíhal a jestli rady fungovaly, když je pacient přijal. Rozhodnutí z připravených důvodů.' }
+  { title: 'Dějství 5 — Správa pravidel', note: 'Nejasný text rady, vyřazení pravidla: rada zmizí, ostatní platí, pak garant schválí opravenou verzi.' },
+  { title: 'Dějství 6 — Kontrola a nový plán', note: 'Report o tom, jak plán probíhal a jestli rady fungovaly, když je pacient přijal. Lékař rozhoduje z připravených důvodů.' }
 ];
 
 D.chapters = CH;
@@ -686,14 +686,14 @@ D.indexOf = function (id) {
    Cesta jen po schvalovacích bodech: „tohle bys musel podepsat“. */
 D.garantRoute = [
   { title: 'Katalog úkolů', sign: 'Které úkoly smí lékař vybrat. Úkol s neschváleným pravidlem je vidět, ale nejde přiřadit.', chapter: 'plan', rules: ['R-REAKCE', 'R-ROZLOZENI', 'R-REZIM', 'R-PROCHAZKA'] },
-  { title: 'Vyhodnocení reakce na jídlo', sign: 'Co je „vzestup“, od kolika úplných záznamů je jídlo známé a které záznamy se nepočítají.', chapter: 'learning', rules: ['R-REAKCE'] },
+  { title: 'Vyhodnocení reakce na jídlo', sign: 'Co je „vzestup glukózy“, od kolika zápisů se všemi údaji je jídlo známé a které zápisy se nepočítají.', chapter: 'learning', rules: ['R-REAKCE'] },
   { title: 'Neznámé jídlo bez odhadu', sign: 'Že aplikace u jídla bez podobných nic neodhaduje, jen nabídne zapsat.', chapter: 'firstMeal', rules: ['R-REAKCE'] },
   { title: 'Podobné jídlo bez čísla', sign: 'Z jakých vlastností se počítá podobnost a jaký je práh. Směr se říká, číslo ne.', chapter: 'similar', rules: ['R-PODOBNOST'] },
   { title: 'Rada k porci jen před bolusem', sign: 'Porce se řídí k obvyklé oběma směry. „Dej si menší porci“ se neříká nikdy.', chapter: 'advice', rules: ['R-PORCE'] },
-  { title: 'Neznámý stav podání = po bolusu', sign: 'Že při „nevím“ se rada měnící sacharidy nedá.', chapter: 'afterBolus', branch: { bolus: 'unknown' }, rules: ['R-PORCE'] },
-  { title: 'Rady, které nemění sacharidy', sign: 'Texty rad a kdy se nabízejí. Rady bez schválení (příloha, odstup, procházka) se k pacientovi nedostanou.', chapter: 'advice', rules: ['R-DOPLNEK', 'R-PORADI', 'R-PRILOHA-FORMA', 'R-ODSTUP', 'R-PROCHAZKA'] },
-  { title: 'Kdy aplikace neradí', sign: 'Nemoc, pozastavený úkol, ztráta spojení s pravidly.', chapter: 'disruption', rules: [] },
-  { title: 'Vyřazení a nová verze pravidla', sign: 'Kdo vyřazuje, jak rychle rada zmizí a co když zařízení není online.', chapter: 'catalog', branch: { offline: 'offline' }, rules: ['R-PORADI'] },
+  { title: 'Pacient neví, jestli si píchl = jako po bolusu', sign: 'Že při odpovědi „nevím“ se rada, která mění množství sacharidů, nedá.', chapter: 'afterBolus', branch: { bolus: 'unknown' }, rules: ['R-PORCE'] },
+  { title: 'Rady, které nemění množství sacharidů', sign: 'Texty rad a kdy se nabízejí. Rady bez schválení (příloha, odstup od inzulinu, procházka) se k pacientovi nedostanou.', chapter: 'advice', rules: ['R-DOPLNEK', 'R-PORADI', 'R-PRILOHA-FORMA', 'R-ODSTUP', 'R-PROCHAZKA'] },
+  { title: 'Kdy aplikace neradí', sign: 'Nemoc, pozastavený úkol, telefon bez připojení.', chapter: 'disruption', rules: [] },
+  { title: 'Vyřazení a nová verze pravidla', sign: 'Kdo pravidlo vyřazuje, jak rychle rada zmizí a co když telefon pacienta není připojený.', chapter: 'catalog', branch: { offline: 'offline' }, rules: ['R-PORADI'] },
   { title: 'Report „přijato vs. nepřijato“', sign: 'Co lékař vidí na kontrole a jak se liší „pacient radu nechce“ od „rada je nepraktická“.', chapter: 'onepage', branch: { response: 'impractical' }, rules: ['R-REAKCE'] },
   { title: 'Úkol na změnu režimu', sign: 'Kdy ho lékař vydá a že se tím nemění dávka.', chapter: 'decide', branch: { response: 'declines' }, rules: ['R-REZIM'] }
 ];
@@ -715,9 +715,9 @@ D.edgeCases = [
 /* ---------- rozhodovací list garanta ---------- */
 D.decisionList = [
   { key: 'odhad', title: 'Odhad reakce a jeho nejistota', q: 'Na čem stojí odhad reakce na jídlo a s jakou nejistotou se pacientovi ukazuje?',
-    proposal: 'Vzestup 0–120 minut z vlastních úplných záznamů; známé jídlo od 3 záznamů; podobné bez čísla; neznámé bez odhadu. Počet záznamů je vždy vidět.' },
-  { key: 'rady', title: 'Přípustné typy rad a kdy', q: 'Které páky smí aplikace nabízet a za jakých podmínek?',
-    proposal: 'Jen před bolusem: porce k obvyklé, příloha s jiným množstvím. Kdykoli: příloha jiné podoby, doplněk, pořadí, odstup, procházka. Neznámý stav podání = po bolusu. Při nemoci a bez spojení se neradí.' },
+    proposal: 'Vzestup glukózy 0–120 minut po jídle z pacientových záznamů se všemi údaji; známé jídlo od 3 záznamů; podobné bez čísla; neznámé bez odhadu. Počet záznamů je vždy vidět.' },
+  { key: 'rady', title: 'Přípustné typy rad a kdy', q: 'Které druhy rad smí aplikace nabízet a za jakých podmínek?',
+    proposal: 'Jen před bolusem: obvyklá porce, příloha s jiným množstvím sacharidů. Kdykoli: jiná příloha se stejným množstvím, doplněk, pořadí, odstup od inzulinu, procházka. Když pacient neví, jestli si píchl, platí to jako po bolusu. Při nemoci a bez připojení se neradí.' },
   { key: 'pohyb', title: 'Hranice pohybu po bolusu', q: 'Jaký pohyb po jídle a po podání prandiálního inzulinu je přípustné doporučit?',
     proposal: 'V maketě bez hodnot. Pravidlo R-PROCHAZKA je návrh a k pacientovi se nedostane.' },
   { key: 'porce', title: 'Co je obvyklá porce', q: 'Jak se obvyklá porce určí a kdo ji nastaví?',
@@ -735,8 +735,8 @@ D.decisionList = [
 /* ---------- otázky pro garanta podle dějství ---------- */
 D.garantQuestions = [
   ['Jaká jsou praktická vstupní kritéria kohorty?', 'Které úkoly patří do katalogu?', 'Kdo řeší neúspěšné zaučení?'],
-  ['Od kolika úplných záznamů je jídlo „známé“?', 'Které záznamy se do učení nepočítají?', 'Je vzestup 0–120 minut správná míra reakce?'],
-  ['Které páky jsou přípustné a kdy?', 'Je správné neznámý stav podání brát jako „po bolusu“?', 'Jak se ukazuje nejistota u podobného jídla?'],
+  ['Od kolika zápisů se všemi údaji je jídlo „známé“?', 'Které záznamy se do učení nepočítají?', 'Je vzestup 0–120 minut správná míra reakce?'],
+  ['Které druhy rad jsou přípustné a kdy?', 'Je správné brát „nevím, jestli jsem si píchl“ jako „po bolusu“?', 'Jak se ukazuje nejistota u podobného jídla?'],
   ['Které stavy vypínají rady a kdo je obnovuje?', 'Jak odlišit technickou a klinickou pomoc?'],
   ['Kdo řeší incident a nedoručenou změnu pravidla?', 'Má aplikace bez spojení rady vypnout, jak je navrženo?'],
   ['Je srovnání „přijato vs. nepřijato“ z malého počtu záznamů dost na rozhodnutí?', 'Kdy vydat úkol na změnu režimu?', 'Jak poznat nepraktickou radu?']

@@ -14,7 +14,7 @@ var NF = global.NutriFee = global.NutriFee || {};
 /* Číslo verze uloženého stavu. Po každé změně struktury příběhu, pravidel nebo
    obrazovek se zvýší — jinak prohlížeč načte starý průběh a vypadá to, jako by
    se aktualizace neprojevila. Musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 8;
+NF.SCHEMA = 9;
 NF.STORAGE = 'nutrifee-rozhodovaci-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 
@@ -144,7 +144,7 @@ NF.ruleById = function (S, id) {
 };
 NF.RULE_STATUS = {
   approved: 'schváleno garantem',
-  draft: 'návrh — čeká na schválení',
+  draft: 'návrh, čeká na schválení garantem',
   retired: 'vyřazeno z použití'
 };
 NF.approveRule = function (S, role, key) {
@@ -152,7 +152,7 @@ NF.approveRule = function (S, role, key) {
   var r = NF.ruleByKey(S, key);
   if (!r) return { ok: false, error: 'Pravidlo nenalezeno.' };
   if (r.status !== 'draft') return { ok: false, error: 'Schválit lze jen návrh.' };
-  if (!r.examplesReviewed) return { ok: false, error: 'Nejdřív projdi testovací příklady použití i nepoužití.' };
+  if (!r.examplesReviewed) return { ok: false, error: 'Nejdřív projdi testovací příklady: kdy se pravidlo použije a kdy ne.' };
   r.status = 'approved';
   r.approvedBy = S.garant.id;
   r.approvedAt = S.clock;
@@ -246,9 +246,9 @@ NF.assignTask = function (S, item, id) {
 NF.TRAINING = [
   ['app', 'Pacient si otevřel aplikaci a našel svůj úkol'],
   ['record', 'Pacient zvládl zapsat zkušební jídlo'],
-  ['bolus', 'Pacient ví, že se ho aplikace před radou zeptá, jestli si už píchl'],
+  ['bolus', 'Pacient ví, že se ho aplikace před každou radou zeptá, jestli si už píchl inzulin k jídlu'],
   ['safety', 'Pacient našel bezpečnostní a kontaktní plán'],
-  ['contacts', 'Pacient ví, kam volat při technickém problému a kam při zdravotním']
+  ['contacts', 'Pacient ví, kam se obrátit s technickým problémem a kam se zdravotním']
 ];
 NF.finishTraining = function (S, role, result, note) {
   if (role !== 'nurse') return { ok: false, error: 'Zaučení potvrzuje sestra.' };
@@ -281,7 +281,7 @@ NF.taskById = function (S, id) {
 /* Vydání plánu — smí jen role lékaře a jen s úplnými náležitostmi. */
 NF.issuePlan = function (S, role) {
   var d = S.draft;
-  if (role !== 'doctor') return { ok: false, error: 'Plán vydává lékař. V pacientské roli vydání není možné.' };
+  if (role !== 'doctor') return { ok: false, error: 'Plán vydává lékař. Pacient si ho vydat nemůže.' };
   if (!d) return { ok: false, error: 'Není připravený návrh plánu.' };
   var chybi = [];
   if (!S.enrollment || !S.enrollment.eligible) chybi.push('posouzení způsobilosti pro kohortu');
@@ -359,11 +359,11 @@ NF.resumeTask = function (S, role, reason) {
   var t = S.tasks.filter(function (x) { return x.state === 'paused'; })[0];
   if (!t) return { ok: false, error: 'Žádný pozastavený úkol.' };
   if (role !== 'doctor') return { ok: false, error: 'Obnovení úkolu potvrzuje lékař.' };
-  if (S.illness && S.illness.active) return { ok: false, error: 'Období nemoci je stále označené jako trvající. Nejdřív je ukončete.' };
+  if (S.illness && S.illness.active) return { ok: false, error: 'Nemoc je stále označená jako trvající. Nejdřív označte, že skončila.' };
   var p = NF.activePlan(S);
   if (!p || p.state !== 'issued') return { ok: false, error: 'Plán není v platném stavu.' };
   if (t.pauseReason === 'rule' && !NF.isRuleUsable(S, t.ruleId)) {
-    return { ok: false, error: 'Pravidlo úkolu není ve schválené verzi. Nejdřív musí garant schválit novou verzi.' };
+    return { ok: false, error: 'Pravidlo, na kterém úkol stojí, nemá schválenou verzi. Nejdřív ji musí schválit garant.' };
   }
   t.state = 'active';
   t.resumedAt = S.clock;
@@ -403,7 +403,7 @@ NF.episodeStatus = function (ep) {
   var pts = (ep.points || []).filter(function (p) { return p.mmol != null; });
   var hasStart = (ep.points || []).some(function (p) { return p.mmol != null && p.min === 0; });
   var hasEnd = (ep.points || []).some(function (p) { return p.mmol != null && p.min >= 120; });
-  if (pts.length < 4 || !hasStart || !hasEnd) missing.push('senzorová data po jídle');
+  if (pts.length < 4 || !hasStart || !hasEnd) missing.push('data ze senzoru po jídle');
   return { complete: missing.length === 0, missing: missing, points: pts.length };
 };
 /* Do učení vstupují jen úplné záznamy mimo období nemoci. */
@@ -455,7 +455,7 @@ NF.confidence = function (S, foodId) {
   var rule = NF.usableRule(S, 'R-REAKCE');
   var h = NF.foodHistory(S, foodId);
   if (!food) return { level: 'unknown', history: h, rules: [], why: 'Jídlo nemáme v seznamu.' };
-  if (!rule) return { level: 'none', history: h, rules: [], why: 'Pravidlo pro vyhodnocení reakce není schválené. Aplikace nic neodhaduje.' };
+  if (!rule) return { level: 'none', history: h, rules: [], why: 'Pravidlo pro vyhodnocení reakce na jídlo není schválené, proto nic neodhadujeme.' };
   var min = rule.params.minKnown;
   if (h.usable >= min) {
     return { level: 'known', history: h, rules: [NF.ruleKey(rule)], min: min };
@@ -496,12 +496,12 @@ NF.leverEffects = function (S, foodId) {
 /* ---------- páky ----------
    carbs: true = mění množství sacharidů → jen před bolusem. */
 NF.LEVERS = {
-  portion: { label: 'Porce k obvyklé', carbs: true },
+  portion: { label: 'Obvyklá porce', carbs: true },
   sideAmount: { label: 'Výměna přílohy za jiné množství sacharidů', carbs: true },
-  sideForm: { label: 'Výměna přílohy za stejné množství jiné podoby', carbs: false },
+  sideForm: { label: 'Výměna přílohy za jinou se stejným množstvím sacharidů', carbs: false },
   addon: { label: 'Přidání bílkoviny, tuku nebo vlákniny', carbs: false },
   order: { label: 'Pořadí jídla', carbs: false },
-  timing: { label: 'Odstup jídla od bolusu', carbs: false },
+  timing: { label: 'Odstup jídla od inzulinu', carbs: false },
   walk: { label: 'Svižná procházka po jídle', carbs: false }
 };
 NF.BOLUS = [
@@ -521,11 +521,11 @@ NF.adviceGate = function (S) {
   var p = NF.activePlan(S);
   var t = NF.activeTask(S);
   if (S.participation !== 'active') return { ok: false, why: 'Účast je ukončená.' };
-  if (!p || !p.understood) return { ok: false, why: 'Bez předaného a převzatého plánu aplikace neradí.' };
-  if (S.illness && S.illness.active) return { ok: false, why: 'Během oznámené nemoci aplikace k jídlu neradí. Řiď se bezpečnostním plánem.' };
-  if (!t) return { ok: false, why: 'Úkol je teď pozastavený, rady se nenabízejí.' };
-  if (t.kind !== 'advise') return { ok: false, why: 'Aktuální úkol rady k jídlu nezahrnuje.' };
-  if (S.dataState.offline) return { ok: false, why: 'Zařízení je bez spojení, takže nevíme, jestli pravidla pořád platí. Rady jsou do obnovení spojení vypnuté.' };
+  if (!p || !p.understood) return { ok: false, why: 'Dokud nemáš převzatý plán od lékaře, neradíme.' };
+  if (S.illness && S.illness.active) return { ok: false, why: 'Máš označenou nemoc, a tak k jídlu neradíme. Řiď se bezpečnostním plánem.' };
+  if (!t) return { ok: false, why: 'Úkol je teď pozastavený, a tak neradíme.' };
+  if (t.kind !== 'advise') return { ok: false, why: 'Tvůj úkol rady k jídlu nezahrnuje.' };
+  if (S.dataState.offline) return { ok: false, why: 'Telefon je bez připojení, takže nevíme, jestli naše pravidla pořád platí. Dokud se připojení neobnoví, neradíme.' };
   return { ok: true };
 };
 
@@ -559,27 +559,27 @@ NF.advise = function (S, foodId, portion, bolusState) {
   cands.forEach(function (l) {
     var meta = NF.LEVERS[l];
     var rule = NF.leverRule(S, l);
-    if (!rule) { res.blocked.push({ lever: l, reason: 'rule', why: 'Pravidlo pro tuhle páku nemá schválenou verzi.' }); return; }
+    if (!rule) { res.blocked.push({ lever: l, reason: 'rule', why: 'Pravidlo pro tuto radu nemá schválenou verzi.' }); return; }
     if (meta.carbs && res.effective !== 'before') {
       res.blocked.push({ lever: l, reason: 'bolus', ruleKey: NF.ruleKey(rule),
         why: bolusState === 'unknown'
-          ? 'Nevíme, jestli už máš inzulin. Proto se chováme, jako bys ho už měl, a radu, která mění množství sacharidů, nedáváme.'
-          : 'Inzulin už máš. Radu, která mění množství sacharidů, po podání nedáváme.' });
+          ? 'Nevíš, jestli už máš inzulin k jídlu píchnutý. Bereme to tedy, jako by píchnutý byl, a radu, která mění množství sacharidů, nedáváme.'
+          : 'Inzulin k jídlu už máš píchnutý. Po píchnutí nedáváme radu, která mění množství sacharidů.' });
       return;
     }
     var item = { lever: l, label: meta.label, ruleKey: NF.ruleKey(rule), ruleStatus: rule.status, carbs: meta.carbs };
     if (l === 'portion') {
       item.text = portion === 'smaller'
-        ? 'Dej si obvyklou porci. Tvoje dávka je nastavená na obvyklé množství — menší porce při stejné dávce může skončit nízkou glukózou.'
-        : 'Dej si obvyklou porci. Tvoje dávka je nastavená na obvyklé množství, větší porce ho přesahuje.';
+        ? 'Dej si obvyklou porci. Tvoje dávka inzulinu je nastavená na obvyklé množství jídla. Menší porce při stejné dávce může vést k nízké glukóze (cukru v krvi).'
+        : 'Dej si obvyklou porci. Tvoje dávka inzulinu je nastavená na obvyklé množství jídla a na větší porci nestačí.';
     } else {
       item.text = txt(rule, food);
     }
     var ef = effects.filter(function (x) { return x.lever === l; })[0];
     item.certainty = lv === 'known'
-      ? (ef ? 'Zkusil jsi to ' + ef.n + '×. Tehdy ti stouplo přibližně o ' + NF.mmol(ef.rise) + ' mmol/l, bez toho obvykle o ' + NF.mmol(ef.without) + ' mmol/l. Zpřesňuje se s každým záznamem.'
-        : (l === 'portion' ? 'Pravidlo drží porci u obvyklého množství, na které je nastavená dávka.' : 'U tohohle jídla jsi to ještě nezkoušel. Po zkoušce uvidíš, jestli to pomohlo.'))
-      : 'Obecná rada ze schváleného pravidla. Jak zabere u tebe, zatím nevíme.';
+      ? (ef ? 'Zkusil jsi to ' + ef.n + '×. Glukóza ti tehdy po jídle stoupla přibližně o ' + NF.mmol(ef.rise) + ' mmol/l, bez toho obvykle o ' + NF.mmol(ef.without) + ' mmol/l. S každým dalším zápisem to bude přesnější.'
+        : (l === 'portion' ? 'Obvyklá porce je množství, na které je nastavená tvoje dávka inzulinu.' : 'U tohoto jídla jsi to ještě nezkoušel. Až to zkusíš, uvidíš, jestli to pomohlo.'))
+      : 'Obecná rada ze schváleného pravidla. Jak zabere právě u tebe, zatím nevíme.';
     res.items.push(item);
   });
   return res;
@@ -588,7 +588,7 @@ NF.advise = function (S, foodId, portion, bolusState) {
 /* Uložení jídla i s tím, jak pacient s radami naložil. */
 NF.saveEpisode = function (S, data) {
   var t = NF.activeTask(S);
-  if (!t) return { ok: false, error: 'Zápis jídla patří k aktivnímu úkolu. Žádný teď aktivní není.' };
+  if (!t) return { ok: false, error: 'Jídlo se zapisuje k aktivnímu úkolu a žádný teď aktivní není.' };
   if (!data.foodId) return { ok: false, error: 'Vyber jídlo.' };
   var advice = (data.advice || []).map(function (a) {
     return { lever: a.lever, ruleKey: a.ruleKey, accepted: a.accepted === true ? true : a.accepted === false ? false : null, reason: a.reason || null };
@@ -713,7 +713,7 @@ NF.decideReview = function (S, role, decision) {
 /* ---------- nemoc, výpadek, offline ---------- */
 NF.reportIllness = function (S) {
   S.illness = { active: true, from: S.clock, reportedBy: 'pacient' };
-  NF.pauseTask(S, 'illness', 'Pacient sám oznámil nemoc. Nejde o zjištění aplikací.');
+  NF.pauseTask(S, 'illness', 'Nemoc oznámil sám pacient. Aplikace ji nezjistila.');
   NF.log(S, 'illness.reported', '');
   return { ok: true };
 };

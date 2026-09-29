@@ -85,7 +85,7 @@ function renderDrawer() {
     var ep = S.episodes.filter(function (x) { return x.id === id; })[0];
     body = '<h2>Oprava popisu záznamu ' + e(id) + '</h2>' +
       '<label class="field">Popis<textarea data-bind="edit.' + e(id) + '">' + e(ep ? ep.desc : '') + '</textarea></label>' +
-      '<p class="small muted">Předchozí hodnota zůstane v historii epizody.</p>' +
+      '<p class="small muted">Původní text zůstane v historii zápisu.</p>' +
       '<div class="actions">' + V.btn('Uložit opravu', 'saveCorrection', id, 'primary') + V.btn('Zrušit', 'closeDrawer', null, 'secondary') + '</div>';
   } else if (NF.slots.drawer) {
     body = NF.slots.drawer(S, drawer) || '';
@@ -164,7 +164,7 @@ var A = {
     var r = NF.confirmUnderstanding(S);
     if (!r.ok) return fail(r.error);
     S.page = 'today';
-    toast('Hotovo. Úkol je aktivní.');
+    toast('Hotovo. Úkol teď platí.');
   },
   issuePlan: function () {
     var r = NF.issuePlan(S, S.role);
@@ -177,7 +177,7 @@ var A = {
     if (S.role !== 'doctor') return fail('Plán vydává lékař.');
     var choice = (S.form && S.form.choice) || '';
     if (!choice) return fail('Nejdřív vyber rozhodnutí.');
-    if (choice === 'defer') return fail('Zvolil jsi „zatím nelze rozhodnout“. Nový plán se nevydává a stávající platí dál.');
+    if (choice === 'defer') return fail('Zvolili jste „zatím nelze rozhodnout“. Nový plán se nevydává a stávající platí dál.');
     if (!(S.form && S.form.reason)) return fail('Vyber důvod rozhodnutí z připravených.');
     var D = global.NutriFeeDemo;
     if (!D || !D.issueSecondPlan) return fail('Vydání dalšího plánu je součástí demonstrační vrstvy.');
@@ -212,7 +212,7 @@ var A = {
     var m = S.meal || {};
     if (!m.foodId) return fail('Vyber jídlo.');
     if (!m.insulinReported) return fail('Vyber, jak to bylo s inzulinem. Můžeš zvolit i „nevím“.');
-    if (m.insulinReported === 'per-plan' && !m.insulinTime) return fail('Doplň čas podání, nebo zvol „nevím“. Čas nedopočítáváme.');
+    if (m.insulinReported === 'per-plan' && !m.insulinTime) return fail('Doplň čas, kdy sis inzulin píchl, nebo zvol „nevím“. Čas sami nedoplňujeme.');
     var res = NF.advise(S, m.foodId, m.portion || 'usual', m.bolus || null);
     var advice = res.items.map(function (it) {
       var d = (m.decisions || {})[it.lever];
@@ -239,7 +239,7 @@ var A = {
     var r = NF.correctEpisode(S, v, val);
     if (!r.ok) return fail(r.error);
     drawer = null;
-    toast('Oprava uložená. Předchozí hodnota zůstává v historii.');
+    toast('Oprava je uložená. Původní text zůstává v historii.');
   },
 
   saveQuestion: function () {
@@ -250,13 +250,13 @@ var A = {
     toast('Otázka je uložená ke kontrole. Lékaři se neodeslala.');
   },
   unclear: function (v) { S.unclearBranch = v; },
-  reportIllness: function () { NF.reportIllness(S); toast('Období nemoci je označené. Úkol je pozastavený a rady se nenabízejí.'); },
-  endIllness: function () { var r = NF.endIllness(S); if (!r.ok) return fail(r.error); toast('Období nemoci je ukončené.'); },
+  reportIllness: function () { NF.reportIllness(S); toast('Nemoc je označená. Úkol je pozastavený a k jídlu neradíme.'); },
+  endIllness: function () { var r = NF.endIllness(S); if (!r.ok) return fail(r.error); toast('Nemoc je označená jako skončená.'); },
   setCause: function (v) { S.dataState.patientCause = v; },
   showContact: function () { S.contactShown = true; },
 
   setEvidence: function (v) { S.evidenceFood = v; },
-  interruptVisit: function () { S.visitInterrupted = true; toast('Kontrola je přerušená. Maketa přešla do bezpečnostního stavu.'); },
+  interruptVisit: function () { S.visitInterrupted = true; toast('Kontrola je přerušená. Zobrazuje se jen bezpečnostní postup.'); },
   resumeVisit: function () { S.visitInterrupted = false; },
   assessEvent: function (v) {
     var ev = (S.safetyEvents || []).filter(function (x) { return x.id === v; })[0];

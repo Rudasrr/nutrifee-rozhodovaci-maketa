@@ -75,10 +75,10 @@ function presenterPanel(S) {
 
   out += '<div class="next-step"><strong>Jeden příběh</strong>' +
     '<p>Modelový pacient 01 od zařazení v ordinaci po další kontrolu: aplikace se z jeho dat učí, před jídlem radí ' +
-    'a lékař na kontrole vidí, jestli rady fungovaly. Skok na kapitolu přehraje příběh od začátku, takže stav vždy odpovídá ručnímu průchodu.</p></div>';
+    'a lékař na kontrole vidí, jestli rady fungovaly. Skok na kapitolu přehraje příběh od začátku, takže stav je vždy stejný, jako kdybyste ukázku prošli ručně.</p></div>';
 
   out += '<h3>Průchod na úrovni garanta</h3>' +
-    '<p class="small muted">Jen schvalovací body — co by garant musel podepsat. ' + D.garantRoute.length + ' zastávek, u každé pravidla a jejich stav.</p>' +
+    '<p class="small muted">Jen místa, která by garant musel schválit. ' + D.garantRoute.length + ' zastávek; u každé jsou vidět pravidla a jejich stav.</p>' +
     '<div class="actions">' + btn('Začít průchod garanta', 'garantGo', '0', 'primary') + '</div>';
 
   D.acts.forEach(function (a, ai) {
@@ -115,7 +115,7 @@ function presenterPanel(S) {
     '<div class="actions">' + btn('Ukončení účasti', 'endParticipation', 'ended', 'demo') + '</div>';
 
   out += '<hr><h3>Modelový čas</h3>' +
-    '<p class="small muted">Čas příběhu je pevný, ne systémové „dnes“. Kapitoly jej nastavují samy; tohle je ruční posun navíc.</p>' +
+    '<p class="small muted">Čas příběhu je pevně daný, nezávisí na dnešním datu. Kapitoly ho nastavují samy; tady ho můžete posunout ručně.</p>' +
     '<div class="actions">' + btn('+ 1 den', 'shiftTime', '1', 'demo') + btn('+ 7 dní', 'shiftTime', '7', 'demo') + btn('+ 30 dní', 'shiftTime', '30', 'demo') + '</div>';
 
   var g = global.NutriFeeGuide;

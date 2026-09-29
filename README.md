@@ -67,7 +67,18 @@ je vidět, ale nepočítá se. U každého jídla je vidět, kolikrát ho pacien
 
 Maketa je **jeden souvislý příběh**: modelový pacient od zařazení v ordinaci po další kontrolu.
 Nahoře jsou demonstrační přepínače rolí (Pacient / Lékař / Sestra / Garant), **Průvodce maketou**
-a **Panel prezentujícího**. V demo liště je krokování **◀ Předchozí / Další ▶ / Reset**.
+a **Panel prezentujícího**. V demo liště je **◀ Předchozí / Další ▶ / Přeskočit kapitolu ⏭ / Reset**.
+
+### Průchod jen tlačítkem Další
+
+Celou maketu lze projít jen tlačítkem **Další ▶** (nebo šipkou vpravo). Každé stisknutí odehraje
+jeden krok za lékaře, sestru nebo pacienta: zvýrazní prvek, „klikne“ na něj nebo do pole postupně
+napíše text a výsledek podbarví. Panel vyprávění vpravo (na telefonu dole) u každého kroku říká,
+**co se děje, čeho si všimnout, proč je to navržené takhle a co z toho plyne**. Po posledním kroku
+kapitoly přejde Další na další kapitolu. Kroky volají tytéž akce, které by spustil člověk — jádro
+aplikace o průchodu nic neví. Obsah je v `demo/tour-content.js`, engine v `demo/tour.js`.
+Panel lze skrýt; průchod funguje i ve všech odbočkách. Kdo nastaví omezené animace, dostane kroky
+bez zdržení.
 
 | Dějství | Co ukazuje |
 |---|---|
@@ -120,7 +131,7 @@ demo/   demonstrační vrstva — katalog jídel, pravidel a úkolů, simulovan�
         Průvodce maketou, panel prezentujícího.
 ```
 
-Produkční sestavení vznikne vynecháním složky `demo/` a čtyř řádků `<script src="demo/...">`
+Produkční sestavení vznikne vynecháním složky `demo/` a řádků `<script src="demo/...">`
 v HTML. Obrazovky se nepřepisují. Jádro pak startuje v prázdném stavu bez pravidel — a bez
 schváleného pravidla nic nevyhodnocuje ani neradí. Hlídá to test „Produkční sestavení se obejde
 bez složky demo“.

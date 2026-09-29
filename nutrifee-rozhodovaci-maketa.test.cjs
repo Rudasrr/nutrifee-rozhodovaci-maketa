@@ -193,7 +193,7 @@ test('Úkoly jsou předdefinované; neschválené pravidlo nejde přiřadit', ()
   act('selectTask', 'T-PROCHAZKA');
   assert.match(S().error, /nemá schválenou verzi/);
   assert.equal(S().tasks[0].catalogId, 'T-SNIDANE');
-  assert.match(markup(), /čeká na schválení garantem, nelze přiřadit/);
+  assert.match(markup(), /čeká na schválení garantem, zatím nejde vybrat/);
 });
 
 /* ================= tři úrovně jistoty ================= */
@@ -203,7 +203,7 @@ test('Neznámé jídlo: žádný odhad, jen nabídka zapsat', () => {
   const c = NF.confidence(S(), 'kase');
   assert.equal(c.level, 'unknown');
   const m = markup();
-  assert.match(m, /Nic neodhaduju/);
+  assert.match(m, /Proto nic neodhadujeme/);
   const card = m.slice(m.indexOf('level-card'), m.indexOf('bolus-q'));
   assert.equal(/\d,\d mmol\/l/.test(card), false, 'u neznámého jídla nesmí být číslo');
   act('mealBolus', 'before');
@@ -218,7 +218,7 @@ test('Známé jídlo od tří úplných záznamů; neúplné se nepočítají', 
   assert.equal(NF.confidence(S(), 'kase').level, 'known');
   assert.equal(NF.confidence(S(), 'chleb').level, 'known');
   const m = markup();
-  assert.match(m, /Zapsáno 4×, s úplnými daty 3×/);
+  assert.match(m, /Zapsáno 4×, se všemi údaji 3×/);
   assert.match(m, /mmol\/l/);
   const r = NF.usableRule(S(), 'R-REAKCE');
   assert.equal(r.params.minKnown, 3, 'hranice je parametr schváleného pravidla');
@@ -231,7 +231,7 @@ test('Podobné jídlo: směr bez čísla, počítáno z vlastností, ne z názvu
   assert.equal(c.direction, 'more');
   assert.equal(c.like.join(), 'kase');
   const m = markup();
-  assert.match(m, /Vypadá jako jídla, po kterých ti to stoupá víc/);
+  assert.match(m, /Podobá se jídlům, po kterých ti glukóza stoupá víc/);
   const card = m.slice(m.indexOf('level-card'), m.indexOf('bolus-q'));
   assert.equal(/\d,\d mmol\/l/.test(card), false, 'u podobného jídla nesmí být číslo');
   /* stejný název, jiné vlastnosti → nepodobné; jiný název, stejné vlastnosti → podobné */
@@ -267,7 +267,7 @@ test('Po bolusu se rada měnící sacharidy nedá', () => {
   assert.equal(res.items.some(i => NF.LEVERS[i.lever].carbs), false);
   assert.ok(res.blocked.some(b => b.lever === 'portion' && b.reason === 'bolus'));
   assert.ok(res.items.some(i => i.lever === 'addon'), 'rada bez změny sacharidů zůstává');
-  assert.match(markup(), /Porce k obvyklé: teď neradím/);
+  assert.match(markup(), /Obvyklá porce: teď neradíme/);
 });
 
 test('Neznámý stav podání se chová jako po bolusu', () => {
@@ -278,7 +278,7 @@ test('Neznámý stav podání se chová jako po bolusu', () => {
   const res = NF.advise(S(), 'kase', 'bigger', 'unknown');
   assert.equal(res.effective, 'after');
   assert.equal(res.items.some(i => i.lever === 'portion'), false);
-  assert.match(markup(), /Nevíme, jestli už máš inzulin/);
+  assert.match(markup(), /Nevíš, jestli už máš inzulin k jídlu píchnutý/);
 });
 
 test('Bez odpovědi na otázku o inzulinu se rada neukáže', () => {
@@ -325,8 +325,8 @@ test('Každá rada ukazuje pravidlo, jeho verzi a stav', () => {
   const m = markup();
   const items = m.split('class="advice ').slice(1);
   assert.ok(items.length >= 3);
-  for (const it of items) assert.match(it, /Pravidlo R-[A-Z-]+ v\d · schváleno garantem/);
-  assert.match(m, /Pravidlo R-REAKCE v1 · schváleno garantem/, 'i výpočet reakce nese pravidlo');
+  for (const it of items) assert.match(it, /Pravidlo „[^“]+“ \(R-[A-Z-]+, verze \d\) · schváleno garantem/);
+  assert.match(m, /Pravidlo „Vyhodnocení reakce na jídlo“ \(R-REAKCE, verze 1\) · schváleno garantem/, 'i výpočet reakce nese pravidlo');
 });
 
 test('Přijetí a odmítnutí rady se uloží i s důvodem a aplikace se z nich učí', () => {
@@ -338,7 +338,7 @@ test('Přijetí a odmítnutí rady se uloží i s důvodem a aplikace se z nich 
   act('mealReason', 'order:nothome');
   act('mealInsulin', 'per-plan');
   act('saveMeal');
-  assert.match(S().error, /čas podání/);
+  assert.match(S().error, /Doplň čas/);
   bind('meal.insulinTime', '07:00');
   act('saveMeal');
   const ep = S().episodes[S().episodes.length - 1];
@@ -355,7 +355,7 @@ test('Co pomohlo, je vidět s počtem pokusů', () => {
   chapter('afterBolus');
   const it = NF.advise(S(), 'kase', 'bigger', 'after').items.find(i => i.lever === 'addon');
   assert.match(it.certainty, /Zkusil jsi to 1×/);
-  assert.match(it.certainty, /Zpřesňuje se/);
+  assert.match(it.certainty, /bude přesnější/);
 });
 
 /* ================= když něco nesedí ================= */
@@ -388,7 +388,7 @@ test('Obnova dat nezruší nemoc ani pauzu; obnovení potvrzuje lékař s důvod
 });
 
 test('Výpadek dat rozlišuje tři příčiny, žádnou neuhodne, mezera se nepočítá', () => {
-  for (const [b, re] of [['gap-vendor', /Chybí data jen nám/], ['gap-broken', /Náhradní postup/], ['gap-unknown', /Příčinu neurčujeme/]]) {
+  for (const [b, re] of [['gap-vendor', /Data chybí jen nám/], ['gap-broken', /Postupuj podle bezpečnostního a kontaktního plánu/], ['gap-unknown', /Příčinu nehádáme/]]) {
     boot();
     chapter('disruption');
     branch('disruption', b);
@@ -432,8 +432,8 @@ test('Pacient ví, proč radu nedostává, a že dávky se nemění', () => {
   act('role', 'patient'); act('page', 'today');
   const m = markup();
   assert.match(m, /Některé rady teď nedostaneš/);
-  assert.match(m, /R-PORADI v1 bylo vyřazeno/);
-  assert.match(m, /Tvoje dávky se tím nemění/);
+  assert.match(m, /R-PORADI v1 garant vyřadil/);
+  assert.match(m, /Tvoje dávky inzulinu se tím nemění/);
 });
 
 test('Neschválená v2 nic nedělá; po schválení se rada vrátí s novou verzí', () => {
@@ -453,7 +453,7 @@ test('Neschválená v2 nic nedělá; po schválení se rada vrátí s novou verz
 
 /* ================= kontrola ================= */
 test('Report drží pevné pořadí částí ve všech odbočkách', () => {
-  const order = ['Bezpečnostní události a úplnost dat', 'Plán a jak probíhal', 'Senzor: čas v rozmezí',
+  const order = ['Bezpečnostní události a úplnost dat', 'Plán a jak probíhal', 'Senzor: kolik času byla glukóza v rozmezí',
     'Reakce na jednotlivá jídla', 'Fungovaly rady, když je pacient přijal?', 'Hlavní otázka pacienta'];
   for (const v of ['base', 'A', 'A0', 'B']) {
     boot(); chapter('onepage'); branch('review', v);
@@ -472,9 +472,9 @@ test('Klíčové číslo: vzestup při přijaté radě oproti nepřijaté', () =
   assert.ok(o.accepted.rise < o.declined.rise, 'v modelu přijatá rada zmírní vzestup');
   assert.equal(o.signal, false);
   const m = markup();
-  assert.match(m, /Rada přijata/);
-  assert.match(m, /Rada nepřijata/);
-  assert.match(m, /Ukazuje směr, ne důkaz účinku/);
+  assert.match(m, /Když radu přijal/);
+  assert.match(m, /Když radu nepřijal/);
+  assert.match(m, /Ukazuje směr, nedokazuje účinek/);
   assert.equal(/nespolupracuje|selhal|adherence|neukázněn/i.test(m), false);
 });
 
@@ -498,7 +498,7 @@ test('Konzistence sacharidů mezi dny je v reportu', () => {
   chapter('onepage');
   const c = NF.carbConsistency(S(), 'P1');
   assert.ok(c.n > 20 && c.min <= c.median && c.median <= c.max);
-  assert.match(markup(), /Sacharidy ve snídani mezi dny/);
+  assert.match(markup(), /Sacharidy ve snídani se mezi dny pohybovaly/);
 });
 
 test('Prázdný deník: report bez vymyšlených nálezů, kontrolu lze dokončit', () => {
@@ -560,7 +560,7 @@ test('Úkol na změnu režimu je z katalogu a dávku nemění', () => {
 test('P2 nepřepíše historii P1 a učení pokračuje', () => {
   chapter('newplan');
   assert.equal(S().activePlanId, 'P2');
-  assert.match(markup(), /Dávky beze změny/);
+  assert.match(markup(), /Dávky inzulinu beze změny/);
   act('confirmUnderstanding');
   assert.equal(NF.activeTask(S()).id, 'T2');
   assert.equal(S().episodes.every(e => e.planId === 'P1'), true);
@@ -703,7 +703,7 @@ test('Texty průvodce se neobjeví v běžném výstupu; nápověda aplikace ano
     if (t.decide) assert.equal(m.includes(t.decide), false, 'otázka pro garanta unikla: ' + key);
   }
   assert.equal(/Závazná zásada|Návrh k posouzení|Otevřené rozhodnutí/.test(m), false);
-  assert.match(m, /Proč mi to radíš a jak moc si tím jsi jistá/, 'nápověda aplikace zůstává i v produkci');
+  assert.match(m, /Proč mi to radíte a jak moc si tím jste jisti/, 'nápověda aplikace zůstává i v produkci');
 });
 
 test('Průvodce má u každého tématu úroveň a pokrývá nové obrazovky', () => {
@@ -789,6 +789,90 @@ test('Verze v HTML souhlasí se schématem uloženého stavu', () => {
   assert.equal(all.length, CORE.length + DEMO.length + 3, 'každý skript a styl má mít ?v= proti cache prohlížeče');
   assert.equal(new Set(all).size, 1, 'všechny soubory mají mít stejnou verzi');
   assert.equal(Number(all[0]), NF.SCHEMA, 'po změně struktury se musí zvýšit NF.SCHEMA i ?v= v HTML');
+});
+
+/* ================= automatický průchod tlačítkem Další ================= */
+function selectorPresent(m, sel) {
+  const attrs = [...String(sel).matchAll(/\[([\w-]+)="([^"]*)"\]/g)].map(x => x[1] + '="' + x[2].replace(/&/g, '&amp;') + '"');
+  if (!attrs.length) return true;
+  return [...m.matchAll(/<[^>]+>/g)].some(tag => attrs.every(a => tag[0].includes(a)));
+}
+function tourAll(branches) {
+  if (branches) app.setState(D.play(0, branches));
+  const log = [];
+  for (let guard = 0; guard < 400; guard++) {
+    const s = S();
+    const B = s.branches;
+    const st = D.tour.stepsFor(D.chapters[s.chapterIndex].id, B);
+    const i = s.tourStep || 0;
+    if (s.chapterIndex >= D.tour.lastIndex() && i >= st.length) break;
+    if (i < st.length) {
+      const op = (st[i].do || [])[0];
+      if (op && op.sel) {
+        const sel = typeof op.sel === 'function' ? op.sel(B) : op.sel;
+        assert.ok(selectorPresent(markup(), sel), 'cíl kroku chybí: ' + D.chapters[s.chapterIndex].id + ' krok ' + (i + 1) + ' ' + sel);
+      }
+    }
+    act('tourNext');
+    assert.equal(S().error, '', D.chapters[s.chapterIndex].id + ' krok ' + (i + 1) + ': ' + S().error);
+    log.push(D.chapters[S().chapterIndex].id);
+  }
+  return log;
+}
+
+test('Celou maketu jde projít jen tlačítkem Další', () => {
+  const log = tourAll();
+  assert.equal(S().chapterIndex, D.chapters.length - 1, 'průchod dojde na poslední kapitolu');
+  for (const c of D.chapters) assert.ok(log.includes(c.id), 'průchod vynechal kapitolu ' + c.id);
+  assert.equal(S().plans.length, 2);
+  assert.match(markup(), /Konec ukázky/);
+});
+
+test('Průchod tlačítkem Další funguje ve všech odbočkách', () => {
+  const variants = [{ bolus: 'unknown' }, { disruption: 'gap-vendor' }, { disruption: 'gap-broken' }, { disruption: 'gap-unknown' },
+    { offline: 'offline' }, { response: 'declines' }, { response: 'impractical' }, { review: 'A' }, { review: 'A0' }, { review: 'B' }, { review: 'C' }];
+  for (const v of variants) {
+    boot();
+    const B = Object.assign({}, D.defaults, v);
+    tourAll(B);
+    assert.equal(S().chapterIndex, D.chapters.length - 1, JSON.stringify(v));
+  }
+  boot();
+  tourAll(Object.assign({}, D.defaults, { training: 'failed' }));
+  assert.equal(D.chapters[S().chapterIndex].id, 'training', 'bez zaučení průchod končí u sestry');
+  assert.equal(NF.activeTask(S()), null);
+  assert.match(markup(), /V této odbočce příběh končí/);
+});
+
+test('Každý krok průchodu vypráví, co se děje; každá kapitola má úvod', () => {
+  for (const c of D.chapters) {
+    const ch = D.tour.chapters[c.id];
+    assert.ok(ch && ch.intro && ch.intro.t && ch.intro.co, 'úvod chybí: ' + c.id);
+    assert.ok(ch.steps.length >= 1, 'kroky chybí: ' + c.id);
+    for (const s of ch.steps) {
+      assert.ok(s.t && s.co, 'vyprávění chybí: ' + c.id + ' / ' + s.t);
+      assert.ok(Array.isArray(s.do) && s.do.length, 'krok nic nedělá: ' + c.id + ' / ' + s.t);
+      for (const op of s.do) if (op.act) assert.ok(NF.actions[op.act] || NF.demoActions[op.act], 'neznámá akce ' + op.act);
+    }
+  }
+  chapter('advice');
+  const m = markup();
+  assert.match(m, /Co se děje/);
+  assert.match(m, /Proč/);
+  act('tourNext');
+  assert.match(markup(), /krok 1 z \d+/);
+  assert.match(markup(), /Co se děje/);
+});
+
+test('Průchod jen hraje za uživatele: jádro o něm nic neví', () => {
+  for (const f of CORE) assert.equal(/tour/i.test(fs.readFileSync(path.join(__dirname, f), 'utf8')), false, f);
+  chapter('advice');
+  const before = S().episodes.length;
+  for (let i = 0; i < 6; i++) act('tourNext');
+  const ep = S().episodes[S().episodes.length - 1];
+  assert.equal(S().episodes.length, before + 1, 'kroky zapsaly jídlo stejně jako pacient');
+  assert.equal(ep.lever, 'addon');
+  assert.equal(ep.portion, 'usual');
 });
 
 console.log('');
