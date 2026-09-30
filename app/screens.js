@@ -140,7 +140,7 @@ V.understand = function (S) {
 
 function dosesTable(p) {
   var d = p.doses;
-  return '<div>' + kv('Bazál · ' + d.basal.time, '<b>' + d.basal.units + ' j.</b>') + NF.MEALS.map(function (m) { return kv(NF.mealLabel(m[0], true), '<b>' + d[m[0]].units + ' j.</b>'); }).join('') + '</div>';
+  return '<div>' + NF.MEALS.map(function (m) { return kv(NF.mealLabel(m[0], true), '<b>' + d[m[0]].units + ' j.</b>'); }).join('') + '<div class="kv basal-kv"><span>🌙 Bazál na noc · ' + e(d.basal.time) + '</span><strong><b>' + d.basal.units + ' j.</b></strong></div></div>';
 }
 V.dosesTable = dosesTable;
 function instructionsList(S, p, compact) {

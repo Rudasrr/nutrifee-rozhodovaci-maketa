@@ -20,7 +20,7 @@ T.chapters = {
   doses: {
     intro: { t: 'Dávky voličem, návyky předvybrané, pokyny připravené', co: 'NutriFee předvyplnila startovní sadu návyků, stejnou pro všechny pacienty studie, a základní osobní pokyny. Lékař potvrzuje, škrtá nebo volí hodnoty.', proc: 'NutriFee navrhuje, lékař schvaluje. Nikdy naopak.' },
     steps: [
-      { do: [{ sel: '.dose-grid' }], t: 'Dávky inzulinu voličem', co: 'Bazál 18 j. ve 21:00, ke snídani 8, k obědu 10, k večeři 8 j. Lékař je nastaví tlačítky −/+.', vsimni: 'Aplikace dávky jen zobrazí pacientovi a připomene. Nikdy je nepočítá.', proc: 'Dávka je věc lékaře. Aplikace k ní sbírá kontext: byla podaná, včas, v předepsané výši?' },
+      { do: [{ sel: '.dose-grid' }], t: 'Dávky inzulinu voličem', co: 'Ke snídani 8, k obědu 10, k večeři 8 j. — a odděleně, tmavě, bazál 18 j. na noc ve 21:00. Lékař je nastaví tlačítky −/+.', vsimni: 'Aplikace dávky jen zobrazí pacientovi a připomene. Nikdy je nepočítá.', proc: 'Dávka je věc lékaře. Aplikace k ní sbírá kontext: byla podaná, včas, v předepsané výši?' },
       { do: [{ sel: '[data-bind="draft.medicationChecked"]', bind: 'draft.medicationChecked', val: true }], t: 'Ověření dávek s pacientem', co: 'Lékař potvrdil, že pacient bere jen inzulin.', quick: true },
       { do: [{ sel: '.habit-opt.on' }], t: 'Startovní sada návyků', co: 'Zapisuj hlavní jídla · obvyklá porce · potvrzuj inzulin · bazál večer. Předvybrané, se štítkem „startovní sada“.', vsimni: 'U každého návyku je věta „proč“ — tu uvidí i pacient.', proc: 'Stejný start pro všechny umožní porovnat pacienty napříč studií. Personalizace přijde z dat na první kontrole.' },
       { do: [{ sel: '.instr' }], t: 'Osobní pokyny s hodnotami', co: 'Nízká glukóza pod 3,9 · snědl jsem méně → změř za 60 min · nemoc → měř každé 3 h · kdy volat. Hodnoty lékař mění voličem.', vsimni: 'Pokyn „snědl jsem méně“ je důležitý: aplikace nikdy neřekne „sněz víc“, to je pokyn od lékaře.', proc: 'Aplikace radí k jídlu, ale co dělat při nízké glukóze, určuje lékař.' },
@@ -48,7 +48,7 @@ T.chapters = {
   handover: {
     intro: { t: 'Pacient přebírá plán na telefonu', co: 'Rámeček telefonu: karta „Co teď“, dávky, návyky s „proč“, pokyny lékaře.', vsimni: 'Pacient vždy ví, co má udělat — karta „Co teď“ je na každé obrazovce.' },
     steps: [
-      { do: [{ sel: '.patient .glass:nth-of-type(2)' }], t: 'Dávky inzulinu', co: 'Bazál 18 j. ve 21:00, snídaně 8, oběd 10, večeře 8 j.', proc: 'Pacient vidí lékařův předpis. Aplikace ho bude připomínat.' },
+      { do: [{ sel: '.patient .glass:nth-of-type(2)' }], t: 'Dávky inzulinu', co: 'Snídaně 8, oběd 10, večeře 8 j.; bazál 18 j. na noc odděleně dole.', proc: 'Pacient vidí lékařův předpis. Aplikace ho bude připomínat.' },
       { do: [{ sel: '[data-action="page"][data-value="understand"]', act: 'page', val: 'understand' }], t: 'Plán jsem převzal', co: 'Otevřela se jedna kontrolní otázka.' },
       { do: [{ sel: '[data-value="yes"]', act: 'answerCheck', val: 'yes' }], watch: '.hint.warn', t: 'Špatná odpověď nic nezkazí', co: '„Ano, hned“ — aplikace vysvětlí, že zápis není zpráva do ordinace. Tlačítko „Hotovo“ zůstává zamčené.', proc: 'Kdyby pacient čekal, že ho někdo sleduje, čekal by na pomoc, která nepřijde.' },
       { when: function (B) { return B.training !== 'failed'; }, do: [{ sel: '[data-value="no"]', act: 'answerCheck', val: 'no' }, { sel: '[data-action="confirmUnderstanding"]', act: 'confirmUnderstanding' }], t: 'Správně → plán platí', co: 'Pacient odchází z ordinace s aktivními návyky.', dusledek: 'Od zítřka otevírá aplikaci před snídaní.' },
