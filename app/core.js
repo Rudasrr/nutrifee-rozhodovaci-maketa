@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 13;
+NF.SCHEMA = 14;
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 var DAYS = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
@@ -163,22 +163,28 @@ NF.MEALS = [['breakfast', 'snídaně', 'Snídaně', 'snídani'], ['lunch', 'obě
 /* cap: true = s velkým písmenem, 'dat' = 3. pád („k snídani“) */
 NF.mealLabel = function (m, cap) { var x = NF.MEALS.filter(function (k) { return k[0] === m; })[0]; return x ? (cap === 'dat' ? x[3] : cap ? x[2] : x[1]) : m; };
 NF.DEFAULT_TARGETS = { low: 3.9, high: 10.0, fastingHigh: 7.2, tirGoal: 70 };
-/* Okna hlavních jídel (hodiny). Lékař je může v plánu změnit. */
-NF.DEFAULT_WINDOWS = { breakfast: [7, 9], lunch: [11.5, 13.5], dinner: [17.5, 19.5] };
-NF.windows = function (S) { var p = NF.activePlan(S); return (p && p.mealWindows) || NF.DEFAULT_WINDOWS; };
+/* Den má tři pojmenované sloty: snídaně, oběd, večeře. Žádná okna nastavovaná lékařem.
+   Čas se používá jen hrubě (denní doba), aby aplikace věděla, že prázdný slot už minul:
+   snídaně po 10:00, oběd po 15:30, večeře po 21:00. Pacient se může vždy opravit sám. */
+NF.DAYPART_END = { breakfast: 10, lunch: 15.5, dinner: 21 };
 NF.fmtHour = function (h) { var hh = Math.floor(h), mm = Math.round((h - hh) * 60); return hh + (mm ? ':' + (mm < 10 ? '0' : '') + mm : ''); };
-/* Stav jídla podle času: upcoming (před oknem), now (v okně a hodinu po), missed (po okně bez zápisu), done, skipped. */
+/* Stav slotu: done | skipped | missed (prázdný a denní doba minula) | now (prázdný, na řadě) | later (prázdný, přijde po jiném) */
 NF.mealState = function (S, meal) {
-  var w = NF.windows(S)[meal], d = NF.parse(S.clock), h = d.getHours() + d.getMinutes() / 60, day = NF.day(S.clock);
+  var d = NF.parse(S.clock), h = d.getHours() + d.getMinutes() / 60, day = NF.day(S.clock);
   var eaten = S.episodes.some(function (x) { return x.meal === meal && NF.day(x.at) === day; });
   var skipped = !!(S.skipped && S.skipped[day] && S.skipped[day][meal]);
-  var state = eaten ? 'done' : skipped ? 'skipped' : h < w[0] - 1 ? 'upcoming' : h <= w[1] + 1 ? 'now' : 'missed';
-  return { meal: meal, state: state, start: w[0], end: w[1], label: NF.fmtHour(w[0]) + '–' + NF.fmtHour(w[1]) };
+  var state = eaten ? 'done' : skipped ? 'skipped' : h >= NF.DAYPART_END[meal] ? 'missed' : 'now';
+  return { meal: meal, state: state };
 };
-/* Jídlo, na které se má Dnes ptát: nejdřív zmeškané, pak právě probíhající, pak příští. */
+NF.daySlots = function (S) { return NF.MEALS.map(function (m) { return NF.mealState(S, m[0]); }); };
+/* Slot, na který se Dnes ptá: nejdřív minulý prázdný (doptat se), pak první prázdný na řadě. */
 NF.focusMeal = function (S) {
-  var states = NF.MEALS.map(function (m) { return NF.mealState(S, m[0]); });
-  return states.filter(function (x) { return x.state === 'missed'; })[0] || states.filter(function (x) { return x.state === 'now'; })[0] || states.filter(function (x) { return x.state === 'upcoming'; })[0] || null;
+  var slots = NF.daySlots(S);
+  var missed = slots.filter(function (x) { return x.state === 'missed'; })[0];
+  if (missed) return missed;
+  var open = slots.filter(function (x) { return x.state === 'now'; });
+  if (!open.length) return null;
+  open[0].state = 'now'; return open[0];
 };
 NF.skipMeal = function (S, meal, insulin) {
   var day = NF.day(S.clock);
@@ -191,7 +197,7 @@ NF.skipMeal = function (S, meal, insulin) {
 NF.newDraft = function (S) {
   return {
     planId: 'P' + (S.plans.length + 1), version: 'v1',
-    doses: { basal: { units: 18, time: '21:00' }, breakfast: { units: 8 }, lunch: { units: 10 }, dinner: { units: 8 } }, mealWindows: NF.clone(NF.DEFAULT_WINDOWS),
+    doses: { basal: { units: 18, time: '21:00' }, breakfast: { units: 8 }, lunch: { units: 10 }, dinner: { units: 8 } },
     habits: [], instructions: [], targets: NF.clone(NF.DEFAULT_TARGETS),
     medicationChecked: false, instructionsChecked: false, validUntil: NF.addDays(S.clock, 92), decisions: []
   };
@@ -233,7 +239,7 @@ NF.issuePlan = function (S, catalog) {
   var d = S.draft, prev = NF.activePlan(S);
   var plan = {
     id: d.planId, version: d.version, author: S.doctor.id, issuedAt: S.clock, effectiveFrom: S.clock, validUntil: d.validUntil,
-    doses: NF.clone(d.doses), mealWindows: NF.clone(d.mealWindows || NF.DEFAULT_WINDOWS), instructions: NF.clone(d.instructions), targets: NF.clone(d.targets), habits: d.habits.slice(),
+    doses: NF.clone(d.doses), instructions: NF.clone(d.instructions), targets: NF.clone(d.targets), habits: d.habits.slice(),
     decisions: d.decisions || [], previousId: prev ? prev.id : null, handedOver: false, understood: false, state: 'issued'
   };
   if (prev) { prev.state = 'superseded'; prev.validUntil = S.clock; }

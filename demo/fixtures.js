@@ -365,7 +365,7 @@ D.indexOf = function (id) { for (var i = 0; i < CH.length; i++) if (CH[i].id ===
 
 /* Otázky pro garanta podle dějství (panel prezentujícího). */
 D.garantQuestions = [
-  ['Stačí čtyři podmínky zařazení?', 'Je startovní sada návyků správná pro všechny?', 'Jsou připravené věty pokynů úplné?'],
+  ['Stačí čtyři podmínky zařazení?', 'Je startovní sada návyků správná pro všechny?', 'Jsou připravené věty pokynů úplné?', 'Stačí hrubá denní doba (10:00 / 15:30 / 21:00) k rozlišení, že jídlo už minulo?'],
   ['Je vrchol 0–120 min správná míra reakce?', 'Stačí 3 zápisy pro „známé jídlo“?'],
   ['Je pravidlo „z větší porce zpět k obvyklé i po píchnutí“ bezpečné?', 'Jsou hrubé štítky dostatečné pro podobnost?'],
   ['Má aplikace při nemoci radit doplněk a pořadí?'],

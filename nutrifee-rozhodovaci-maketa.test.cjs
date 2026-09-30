@@ -263,14 +263,14 @@ test('Report pro pacienta: pochvala, dlaždice s vysvětlením, navržené otáz
   act('toggleQuestion', q); assert.equal(S().questions.some(x => x.text === q), false);
 });
 
-test('Čas a plán jídel: před oknem radí, po okně se doptá na minulost', () => {
+test('Tři sloty dne: prázdný na řadě radí, prázdný minulý se doptá; pacient se může opravit', () => {
   chapter('week');
   act('role', 'patient');
   S().clock = '2026-10-13T08:00:00'; act('page', 'today');
   assert.equal(NF.mealState(S(), 'breakfast').state, 'now');
   assert.match(markup(), /Chystám se jíst/); assert.equal(/Snídal jsi dnes/.test(markup()), false);
-  S().clock = '2026-10-13T05:30:00'; act('page', 'today');
-  assert.equal(NF.mealState(S(), 'breakfast').state, 'upcoming'); assert.match(markup(), /máš v plánu 7–9/);
+  assert.match(markup(), /Už jsem snídal/, 'pacient se může opravit i když denní doba netrefí');
+  assert.equal(NF.activePlan(S()).mealWindows, undefined, 'žádná okna od lékaře');
   S().clock = '2026-10-13T10:15:00'; act('page', 'today');
   assert.equal(NF.mealState(S(), 'breakfast').state, 'missed');
   assert.match(markup(), /Snídal jsi dnes\?/); assert.equal(/Chystám se jíst/.test(markup()), false, 'po okně se nenabízí dopředné flow');
@@ -286,7 +286,7 @@ test('Čas a plán jídel: před oknem radí, po okně se doptá na minulost', (
   assert.equal(ep.at, '2026-10-13T07:30:00'); assert.equal(ep.insulin.time, '07:15'); assert.equal(ep.retro, true);
   assert.equal(NF.mealState(S(), 'breakfast').state, 'done');
   /* vynechané jídlo s inzulinem → pokyn lékaře */
-  S().clock = '2026-10-13T15:00:00'; act('page', 'today');
+  S().clock = '2026-10-13T16:00:00'; act('page', 'today');
   assert.match(markup(), /Obědval jsi dnes/);
   act('mealSkipAsk', 'lunch'); assert.match(markup(), /Píchl sis k obědu inzulin/);
   act('mealSkip', 'lunch:as');
