@@ -290,7 +290,9 @@ details.more[open]>summary::before{content:"⌄ ";}
 .dose-group.basal .gk{color:#c9d6f2}
 .dose-group.basal .dose{background:#3a4b6b}
 .dose-group.basal .dose .k{color:#c9d6f2}
-.dose-group.basal .stepper{background:#fff}
+.dose-group.basal .stepper{background:#fff;color:var(--ink);border-color:#fff}
+.dose-group.basal .stepper button{color:var(--brand2)}
+.dose-group.basal .stepper .val small{color:var(--muted)}
 .dose-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
 .basal-kv{background:#2b3a55;color:#fff;border-radius:10px;padding:9px 10px;margin-top:6px;border:0}
 .basal-kv span{color:#c9d6f2}
