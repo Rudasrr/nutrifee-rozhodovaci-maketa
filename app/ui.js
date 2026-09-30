@@ -158,6 +158,10 @@ var A = {
   basalUnits: function (v) { S.basalUnits = Math.max(0, (S.basalUnits != null ? S.basalUnits : NF.activePlan(S).doses.basal.units) + Number(v)); },
   basalConfirm: function (v) { var r = NF.confirmBasal(S, v, v === 'other' ? S.basalUnits : v === 'none' ? null : undefined); if (!r.ok) return fail(r.error); S.basalOther = false; toast('Bazál je zapsaný.'); },
   startMeal: function (v) { S.meal = newMeal(v || V.mealNow(S)); S.page = 'meal'; S.error = ''; },
+  mealRetro: function (v) { S.meal = newMeal(v); S.meal.retro = true; S.meal.at = null; S.ask = null; S.page = 'meal'; S.error = ''; },
+  mealAt: function (v) { S.meal.at = Number(v); },
+  mealSkipAsk: function (v) { S.ask = S.ask && S.ask.meal === v ? null : { day: NF.day(S.clock), meal: v }; },
+  mealSkip: function (v) { var p = v.split(':'); var r = NF.skipMeal(S, p[0], p[1]); S.ask = null; toast(r.warn ? 'Zapsáno. Píchl sis inzulin bez jídla — podívej se na pokyn lékaře „snědl jsem méně“.' : 'Zapsáno, že jsi ' + NF.mealLabel(p[0]) + ' vynechal.'); },
   mealKind: function (v) { S.meal.meal = v; S.meal.units = NF.activePlan(S).doses[v].units; },
   mealBolus: function (v) { S.meal.bolus = v; S.meal.decisions = {}; S.meal.reasons = {}; },
   mealUnits: function (v) { S.meal.units = Math.max(0, S.meal.units + Number(v)); },
@@ -165,8 +169,10 @@ var A = {
   mealStep: function (v) {
     var m = S.meal, n = Number(v);
     if (n === 2 && !m.bolus) return fail('Vyber, jak to je s inzulinem.');
+    if (n === 2 && m.retro && m.at == null) return fail('Vyber, v kolik jsi jedl.');
     if (n === 3 && (!m.foodId || !m.portion)) return fail(!m.foodId ? 'Vyber jídlo.' : 'Vyber porci.');
     m.step = n; S.error = '';
+    if (n === 3 && m.retro) { var f2 = NF.foodById(S, m.foodId), ra = NF.adviseAfter(S, f2.id); NF.log(S, 'rada.zobrazena', f2.name + ' (zpětně)', { level: ra.conf.level, items: ra.items.map(function (i) { return { lever: i.lever, item: i.item }; }), retro: true }); return; }
     if (n === 3) { var f = NF.foodById(S, m.foodId), res = NF.advise(S, f.id, m.portion, m.bolus); NF.log(S, 'rada.zobrazena', f.name, { level: res.conf.level, items: res.items.map(function (i) { return { lever: i.lever, item: i.item }; }), blocked: res.blocked.map(function (b) { return { lever: b.lever, reason: b.reason }; }), bolus: m.bolus, portion: m.portion, gate: res.gate }); }
   },
   mealFood: function (v) { S.meal.foodId = v; S.meal.newFood = null; S.meal.decisions = {}; S.meal.reasons = {}; },
@@ -179,17 +185,19 @@ var A = {
   mealFinishOther: function () { S.meal.finishOther = !S.meal.finishOther; },
   mealFinish: function (v) {
     var m = S.meal, p = NF.activePlan(S), f = NF.foodById(S, m.foodId);
-    var res = NF.advise(S, f.id, m.portion, m.bolus);
+    var res = m.retro ? NF.adviseAfter(S, f.id) : NF.advise(S, f.id, m.portion, m.bolus);
     var advice = res.items.map(function (it) { var d = m.decisions[it.lever]; return { lever: it.lever, item: it.item, accepted: d === true ? true : d === false ? false : null, reason: m.reasons[it.lever] || null }; });
     var confirmed = v === 'as' ? 'as' : v === 'other' ? 'other' : v === 'none' ? 'none' : v === 'unknown' ? 'unknown' : 'as';
     var units = confirmed === 'as' ? p.doses[m.meal].units : confirmed === 'other' ? m.units : null;
-    var at = S.clock, time = confirmed === 'none' || confirmed === 'unknown' ? null : NF.fmtTime(NF.addMin(S.clock, Number(m.offset || 0)));
-    var draft = { meal: m.meal, foodId: f.id, portion: m.portion, bolusState: m.bolus, advice: advice, insulin: { confirmed: confirmed, units: units, time: time }, at: at };
+    var at = S.clock;
+    if (m.retro && m.at != null) { var hh = Math.floor(m.at), mm = Math.round((m.at % 1) * 60); at = NF.day(S.clock) + 'T' + (hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm + ':00'; }
+    var time = confirmed === 'none' || confirmed === 'unknown' ? null : NF.fmtTime(NF.addMin(at, Number(m.offset || 0)));
+    var draft = { meal: m.meal, foodId: f.id, portion: m.portion, bolusState: m.retro ? 'retro' : m.bolus, advice: advice, insulin: { confirmed: confirmed, units: units, time: time }, at: at, retro: !!m.retro };
     var src = NF.sensorSource ? NF.sensorSource(S, draft) : null;
     draft.points = src ? src.points : []; draft.importedAt = src ? src.importedAt : null;
     var r = NF.saveEpisode(S, draft); if (!r.ok) return fail(r.error);
     S.meal = null; S.page = 'today';
-    toast(f.name + ' je zapsané. Data ze senzoru dorazí za dvě hodiny.');
+    toast(m.retro ? f.name + ' je zapsané k ' + NF.fmtTime(at) + '. Data ze senzoru k tomu času máme.' : f.name + ' je zapsané. Data ze senzoru dorazí za dvě hodiny.');
   },
   foodsSeg: function (v) { S.foodsSeg = v; S.foodOpen = null; },
   foodOpen: function (v) { S.foodOpen = S.foodOpen === v ? null : v; },

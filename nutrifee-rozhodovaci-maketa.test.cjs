@@ -263,6 +263,36 @@ test('Report pro pacienta: pochvala, dlaždice s vysvětlením, navržené otáz
   act('toggleQuestion', q); assert.equal(S().questions.some(x => x.text === q), false);
 });
 
+test('Čas a plán jídel: před oknem radí, po okně se doptá na minulost', () => {
+  chapter('week');
+  act('role', 'patient');
+  S().clock = '2026-10-13T08:00:00'; act('page', 'today');
+  assert.equal(NF.mealState(S(), 'breakfast').state, 'now');
+  assert.match(markup(), /Chystám se jíst/); assert.equal(/Snídal jsi dnes/.test(markup()), false);
+  S().clock = '2026-10-13T05:30:00'; act('page', 'today');
+  assert.equal(NF.mealState(S(), 'breakfast').state, 'upcoming'); assert.match(markup(), /máš v plánu 7–9/);
+  S().clock = '2026-10-13T10:15:00'; act('page', 'today');
+  assert.equal(NF.mealState(S(), 'breakfast').state, 'missed');
+  assert.match(markup(), /Snídal jsi dnes\?/); assert.equal(/Chystám se jíst/.test(markup()), false, 'po okně se nenabízí dopředné flow');
+  act('mealRetro', 'breakfast');
+  assert.equal(S().meal.retro, true); assert.match(markup(), /Píchl sis k snídani inzulin/);
+  act('mealStep', '2'); assert.match(S().error, /inzulin/);
+  act('mealBolus', 'as'); act('mealAt', '7.5'); act('mealTime', '-15'); act('mealStep', '2');
+  assert.match(markup(), /Co jsi jedl/);
+  act('mealFood', food('Chléb se sýrem a zeleninou').id); act('mealPortion', 'usual'); act('mealStep', '3');
+  assert.match(markup(), /Co pomůže teď/); assert.ok(NF.adviseAfter(S(), food('Chléb se sýrem a zeleninou').id).items.some(i => i.lever === 'walk'));
+  act('mealDecide', 'walk:yes'); act('mealFinish', 'as');
+  const ep = S().episodes[S().episodes.length - 1];
+  assert.equal(ep.at, '2026-10-13T07:30:00'); assert.equal(ep.insulin.time, '07:15'); assert.equal(ep.retro, true);
+  assert.equal(NF.mealState(S(), 'breakfast').state, 'done');
+  /* vynechané jídlo s inzulinem → pokyn lékaře */
+  S().clock = '2026-10-13T15:00:00'; act('page', 'today');
+  assert.match(markup(), /Obědval jsi dnes/);
+  act('mealSkipAsk', 'lunch'); assert.match(markup(), /Píchl sis k obědu inzulin/);
+  act('mealSkip', 'lunch:as');
+  assert.equal(NF.mealState(S(), 'lunch').state, 'skipped'); assert.match(markup(), /snědl jsem méně/);
+});
+
 /* ---------- kontrola ---------- */
 test('Kontrola je vedené flow: souhrn → návrhy (jeden po druhém) → plán → předání', () => {
   chapter('reviewSummary'); act('startReview');

@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 12;
+NF.SCHEMA = 13;
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 var DAYS = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
@@ -159,14 +159,39 @@ NF.setEligibility = function (S, key, value) {
 };
 
 /* ---------- plán, dávky, návyky, pokyny ---------- */
-NF.MEALS = [['breakfast', 'snídaně', 'Snídaně'], ['lunch', 'oběd', 'Oběd'], ['dinner', 'večeře', 'Večeře']];
-NF.mealLabel = function (m, cap) { var x = NF.MEALS.filter(function (k) { return k[0] === m; })[0]; return x ? (cap ? x[2] : x[1]) : m; };
+NF.MEALS = [['breakfast', 'snídaně', 'Snídaně', 'snídani'], ['lunch', 'oběd', 'Oběd', 'obědu'], ['dinner', 'večeře', 'Večeře', 'večeři']];
+/* cap: true = s velkým písmenem, 'dat' = 3. pád („k snídani“) */
+NF.mealLabel = function (m, cap) { var x = NF.MEALS.filter(function (k) { return k[0] === m; })[0]; return x ? (cap === 'dat' ? x[3] : cap ? x[2] : x[1]) : m; };
 NF.DEFAULT_TARGETS = { low: 3.9, high: 10.0, fastingHigh: 7.2, tirGoal: 70 };
+/* Okna hlavních jídel (hodiny). Lékař je může v plánu změnit. */
+NF.DEFAULT_WINDOWS = { breakfast: [7, 9], lunch: [11.5, 13.5], dinner: [17.5, 19.5] };
+NF.windows = function (S) { var p = NF.activePlan(S); return (p && p.mealWindows) || NF.DEFAULT_WINDOWS; };
+NF.fmtHour = function (h) { var hh = Math.floor(h), mm = Math.round((h - hh) * 60); return hh + (mm ? ':' + (mm < 10 ? '0' : '') + mm : ''); };
+/* Stav jídla podle času: upcoming (před oknem), now (v okně a hodinu po), missed (po okně bez zápisu), done, skipped. */
+NF.mealState = function (S, meal) {
+  var w = NF.windows(S)[meal], d = NF.parse(S.clock), h = d.getHours() + d.getMinutes() / 60, day = NF.day(S.clock);
+  var eaten = S.episodes.some(function (x) { return x.meal === meal && NF.day(x.at) === day; });
+  var skipped = !!(S.skipped && S.skipped[day] && S.skipped[day][meal]);
+  var state = eaten ? 'done' : skipped ? 'skipped' : h < w[0] - 1 ? 'upcoming' : h <= w[1] + 1 ? 'now' : 'missed';
+  return { meal: meal, state: state, start: w[0], end: w[1], label: NF.fmtHour(w[0]) + '–' + NF.fmtHour(w[1]) };
+};
+/* Jídlo, na které se má Dnes ptát: nejdřív zmeškané, pak právě probíhající, pak příští. */
+NF.focusMeal = function (S) {
+  var states = NF.MEALS.map(function (m) { return NF.mealState(S, m[0]); });
+  return states.filter(function (x) { return x.state === 'missed'; })[0] || states.filter(function (x) { return x.state === 'now'; })[0] || states.filter(function (x) { return x.state === 'upcoming'; })[0] || null;
+};
+NF.skipMeal = function (S, meal, insulin) {
+  var day = NF.day(S.clock);
+  S.skipped = S.skipped || {}; S.skipped[day] = S.skipped[day] || {};
+  S.skipped[day][meal] = { at: S.clock, insulin: insulin || 'unknown' };
+  NF.log(S, 'jidlo.vynechano', meal + ' · inzulin ' + (insulin || 'nevím'), { meal: meal, insulin: insulin });
+  return { ok: true, warn: insulin === 'as' || insulin === 'other' };
+};
 
 NF.newDraft = function (S) {
   return {
     planId: 'P' + (S.plans.length + 1), version: 'v1',
-    doses: { basal: { units: 18, time: '21:00' }, breakfast: { units: 8 }, lunch: { units: 10 }, dinner: { units: 8 } },
+    doses: { basal: { units: 18, time: '21:00' }, breakfast: { units: 8 }, lunch: { units: 10 }, dinner: { units: 8 } }, mealWindows: NF.clone(NF.DEFAULT_WINDOWS),
     habits: [], instructions: [], targets: NF.clone(NF.DEFAULT_TARGETS),
     medicationChecked: false, instructionsChecked: false, validUntil: NF.addDays(S.clock, 92), decisions: []
   };
@@ -208,7 +233,7 @@ NF.issuePlan = function (S, catalog) {
   var d = S.draft, prev = NF.activePlan(S);
   var plan = {
     id: d.planId, version: d.version, author: S.doctor.id, issuedAt: S.clock, effectiveFrom: S.clock, validUntil: d.validUntil,
-    doses: NF.clone(d.doses), instructions: NF.clone(d.instructions), targets: NF.clone(d.targets), habits: d.habits.slice(),
+    doses: NF.clone(d.doses), mealWindows: NF.clone(d.mealWindows || NF.DEFAULT_WINDOWS), instructions: NF.clone(d.instructions), targets: NF.clone(d.targets), habits: d.habits.slice(),
     decisions: d.decisions || [], previousId: prev ? prev.id : null, handedOver: false, understood: false, state: 'issued'
   };
   if (prev) { prev.state = 'superseded'; prev.validUntil = S.clock; }
@@ -443,6 +468,16 @@ NF.advise = function (S, foodId, portion, bolusState) {
   return res;
 };
 
+/* Rada po jídle, které už je snědené: k jídlu se radit nedá, ale pohyb teď pomůže. */
+NF.adviseAfter = function (S, foodId) {
+  var res = { gate: NF.adviceGate(S), items: [], conf: NF.confidence(S, foodId) };
+  if (!res.gate.ok) return res;
+  var meta = NF.LEVERS.walk, it = NF.item(S, meta.item);
+  if (NF.usable(S, meta.item) && !(S.illness && S.illness.active)) {
+    res.items.push({ lever: 'walk', item: meta.item, label: meta.label, carbs: false, text: it.text, certainty: 'Jídlo už máš za sebou; pohyb do hodiny po jídle zmírní vzestup glukózy. Doplněk ani pořadí už teď nezměníš.' });
+  }
+  return res;
+};
 /* Uložení jídla se zápisem inzulinu i rozhodnutí o radách. */
 NF.saveEpisode = function (S, data) {
   var p = NF.activePlan(S);
@@ -454,7 +489,7 @@ NF.saveEpisode = function (S, data) {
   var ep = {
     id: data.id || NF.uid('E'), planId: p.id, meal: data.meal, foodId: data.foodId, at: data.at || S.clock, recordedAt: S.clock,
     portionPlanned: data.portion || 'usual', portion: portionTaken ? 'usual' : (data.portion || 'usual'),
-    bolusAtAdvice: data.bolusState || null,
+    bolusAtAdvice: data.bolusState || null, retro: !!data.retro,
     insulin: { prescribed: p.doses[data.meal] ? p.doses[data.meal].units : null, confirmed: data.insulin.confirmed, units: data.insulin.units != null ? data.insulin.units : null, time: data.insulin.time || null },
     doseKey: NF.doseKey(S, data.meal),
     advice: advice, context: S.illness && S.illness.active ? 'illness' : null,
@@ -582,11 +617,11 @@ NF.proposals = function (S, planId, catalog) {
     var excluded = all.length - eps.length;
     var lows = NF.periodEpisodes(S, planId).filter(function (e) { return e.meal === meal && e.at >= NF.addDays(S.clock, -days) && (e.points || []).some(function (x) { return x.mmol != null && x.mmol < t.low; }); }).length;
     if (eps.length && lows >= NF.param(S, 'D-PRAND', 'hypo', 2)) {
-      out.push({ id: 'PR-' + meal.toUpperCase(), kind: 'dose', dose: meal, cat: 'davka', priority: 1, title: 'Posoudit prandiální dávku k ' + NF.mealLabel(meal) + ' — hodnoty pod cílem',
+      out.push({ id: 'PR-' + meal.toUpperCase(), kind: 'dose', dose: meal, cat: 'davka', priority: 1, title: 'Posoudit prandiální dávku k ' + NF.mealLabel(meal, 'dat') + ' — hodnoty pod cílem',
         why: lows + '× za ' + days + ' dní klesla glukóza do 4 h po ' + NF.mealLabel(meal) + ' pod ' + NF.mmol(t.low) + ' mmol/l.',
         weak: excluded ? [excluded + ' zápisů vyřazeno (jiná porce, nepotvrzený inzulin, nemoc nebo chybějící data)'] : [],
         verify: ['Porce byla obvyklá (ne menší)', 'Dávka potvrzena podle plánu a včas', 'Pohyb po jídle'],
-        branches: [{ when: 'body 1–3 sedí', action: 'down', text: 'snížit dávku k ' + NF.mealLabel(meal) }, { when: 'bod 1 nesedí', action: 'keep', text: 'ponechat, řešit porce' }],
+        branches: [{ when: 'body 1–3 sedí', action: 'down', text: 'snížit dávku k ' + NF.mealLabel(meal, 'dat') }, { when: 'bod 1 nesedí', action: 'keep', text: 'ponechat, řešit porce' }],
         item: 'D-PRAND', postup: 'D-POSTUP' });
       return;
     }
@@ -595,18 +630,18 @@ NF.proposals = function (S, planId, catalog) {
     if (above.length / eps.length < share) return;
     var acceptedAdvice = eps.filter(function (e) { return (e.advice || []).some(function (a) { return a.accepted === true && a.lever !== 'portion'; }); });
     if (acceptedAdvice.length < NF.param(S, 'D-PRAND', 'radyPrve', 3)) {
-      out.push({ id: 'PR-' + meal.toUpperCase() + '-RADY', kind: 'habit', cat: 'plan', priority: 3, title: 'Nejdřív rady k ' + NF.mealLabel(meal) + ', dávku zatím neměnit',
+      out.push({ id: 'PR-' + meal.toUpperCase() + '-RADY', kind: 'habit', cat: 'plan', priority: 3, title: 'Nejdřív rady k ' + NF.mealLabel(meal, 'dat') + ', dávku zatím neměnit',
         why: above.length + ' z ' + eps.length + ' ' + NF.mealLabel(meal) + ' skončilo nad cílem, ale pacient rady k jídlu přijal jen ' + acceptedAdvice.length + '×. Podle schváleného postupu jde jídlo před dávkou.',
         weak: [], verify: ['Proč pacient rady nepřijímá (důvody v podkladech)', 'Zda má doplněk doma'],
         branches: [{ when: 'rady jsou proveditelné', action: 'keep', text: 'ponechat dávku, posílit návyk „doplněk“' }, { when: 'rady jsou nepraktické', action: 'swap', text: 'vyměnit radu za jinou' }],
         item: 'D-PRAND', postup: 'D-POSTUP' });
       return;
     }
-    out.push({ id: 'PR-' + meal.toUpperCase(), kind: 'dose', dose: meal, cat: 'davka', priority: 2, title: 'Posoudit prandiální dávku k ' + NF.mealLabel(meal) + ' — hodnoty nad cílem',
+    out.push({ id: 'PR-' + meal.toUpperCase(), kind: 'dose', dose: meal, cat: 'davka', priority: 2, title: 'Posoudit prandiální dávku k ' + NF.mealLabel(meal, 'dat') + ' — hodnoty nad cílem',
       why: above.length + ' z ' + eps.length + ' ' + NF.mealLabel(meal) + ' s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad ' + NF.mmol(t.high) + ' mmol/l, i když pacient ' + acceptedAdvice.length + '× přijal radu k jídlu.',
       weak: excluded ? [excluded + ' zápisů vyřazeno (jiná porce, nepotvrzený inzulin, nemoc nebo chybějící data)'] : [],
       verify: ['Potvrzení dávek a jejich čas sedí', 'Technika a místo aplikace v pořádku', 'Průběhy po jídle odpovídají', 'Mezi jídlem a měřením nejedl nic dalšího'],
-      branches: [{ when: 'všechny body sedí a hodnoty jsou nad cílem', action: 'up', text: 'zvýšit dávku k ' + NF.mealLabel(meal) }, { when: 'bod 1 nesedí', action: 'keep', text: 'ponechat, řešit podání' }, { when: 'bod 4 nesedí', action: 'keep', text: 'ponechat, řešit dojídání' }],
+      branches: [{ when: 'všechny body sedí a hodnoty jsou nad cílem', action: 'up', text: 'zvýšit dávku k ' + NF.mealLabel(meal, 'dat') }, { when: 'bod 1 nesedí', action: 'keep', text: 'ponechat, řešit podání' }, { when: 'bod 4 nesedí', action: 'keep', text: 'ponechat, řešit dojídání' }],
       item: 'D-PRAND', postup: 'D-POSTUP' });
   });
   /* --- návyky --- */

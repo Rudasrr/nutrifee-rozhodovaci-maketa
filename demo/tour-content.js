@@ -74,6 +74,16 @@ T.chapters = {
       { do: [{ sel: '[data-action="foodsSeg"][data-value="all"]', act: 'foodsSeg', val: 'all' }], t: 'Všechna jídla', co: 'Řízek s kaší už je známý (3×), svíčkovou a rýži teprve poznáváme — „Učím se: 1 ze 3“.', vsimni: 'Detail každého jídla je až po rozbalení, aby pacient nebyl zahlcený.' }
     ]
   },
+  lateMeal: {
+    intro: { t: 'Pacient otevřel aplikaci až v 10 hodin', co: '13. října. Snídaně byla v plánu 7–9 h a k ní není zápis. Aplikace se tedy neptá „co budeš jíst“, ale „snídal jsi?“.', vsimni: 'Podle času a plánu jídel pozná, zda jde o budoucnost (radit), nebo minulost (doptat se).', proc: 'Pacient nemá přemýšlet, co má udělat. Aplikace mu položí správnou otázku ve správný čas.' },
+    steps: [
+      { do: [{ sel: '.glass.soft' }], t: '„Snídal jsi dnes?“', co: 'Dvě velké volby: Ano, snídal jsem · Ne, vynechal jsem. Při „Ne“ se ještě zeptá, zda si píchl inzulin, a při ano ukáže pokyn lékaře „snědl jsem méně“.', proc: 'Zmeškané jídlo s podaným inzulinem je bezpečnostní situace; řešení je z pokynů lékaře, ne z aplikace.' },
+      { do: [{ sel: '[data-action="mealRetro"]', act: 'mealRetro', val: 'breakfast' }], t: 'Ano, snídal jsem → zpětný zápis', co: 'Krok 1: píchl sis inzulin? kolik? v kolik jsi snídal?', vsimni: 'Časy jsou chipy v okně snídaně (v 7, v 7:30, v 8…). Nic se nepíše.' },
+      { do: [{ sel: '[data-action="mealBolus"][data-value="as"]', act: 'mealBolus', val: 'as', quick: true }, { sel: '[data-action="mealAt"][data-value="7.5"]', act: 'mealAt', val: '7.5', quick: true }, { sel: '[data-action="mealTime"][data-value="-15"]', act: 'mealTime', val: '-15', quick: true }, { sel: '[data-action="mealStep"][data-value="2"]', act: 'mealStep', val: '2' }], t: '8 j. podle plánu, snídaně v 7:30, inzulin 15 min před', co: 'Odpovědi klepnutím; zápis dostane správný čas a data ze senzoru k tomu času.' },
+      { do: [{ sel: foodSel('Chléb se sýrem a zeleninou'), act: 'mealFood', val: foodId('Chléb se sýrem a zeleninou') }, { sel: '[data-action="mealPortion"][data-value="usual"]', act: 'mealPortion', val: 'usual', quick: true }, { sel: '[data-action="mealStep"][data-value="3"]', act: 'mealStep', val: '3' }], watch: '.advice', t: 'Co jsi jedl → co pomůže teď', co: 'K jídlu, které už je snědené, se radit nedá. Aplikace poradí to jediné, co teď pomůže: procházka do hodiny po jídle.', proc: 'Rada se řídí časem: před jídlem porce a složení, po jídle pohyb.' },
+      { do: [{ sel: '[data-action="mealDecide"][data-value="walk:yes"]', act: 'mealDecide', val: 'walk:yes', quick: true }, { sel: '[data-action="mealFinish"]', act: 'mealFinish', val: 'as' }], t: 'Jdu na to, uložit', co: 'Snídaně je zapsaná k 7:30 s potvrzeným inzulinem.', dusledek: 'Na Dnes už se aplikace na snídani neptá; další otázka přijde u oběda.' }
+    ]
+  },
   advice: {
     intro: { t: 'Před píchnutím: rada k porci', co: '14. října. Pacient má hlad a chystá si větší porci kaše. Inzulin si ještě nepíchl.', proc: 'Dávka je klíč vyrobený na obvyklou porci. Dokud není v těle, pacient ještě může porci upravit.' },
     steps: [

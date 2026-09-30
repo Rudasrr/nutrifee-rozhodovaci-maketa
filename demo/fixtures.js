@@ -270,6 +270,10 @@ var CH = [
       S.foodsSeg = 'known'; S.foodOpen = foodByName(S, 'Ovesná kaše s mlékem a banánem').id;
     } },
 
+  { id: 'lateMeal', act: 1, title: 'Pacient — otevřel aplikaci až v 10 h', role: 'patient', page: 'today', at: '2026-10-13T10:15:00',
+    setup: function (S) { basal(S, '2026-10-12'); },
+    apply: function (S) { ep(S, { id: 'E7c', food: 'Chléb se sýrem a zeleninou', at: '2026-10-13T07:30:00', bolus: 'retro', advice: [{ lever: 'walk', accepted: true }] }); S.meal = null; } },
+
   /* Dějství 3 — Rada před jídlem */
   { id: 'advice', act: 2, title: 'Pacient — před píchnutím: porce zpět k obvyklé a doplněk', role: 'patient', page: 'meal', at: '2026-10-14T07:00:00',
     setup: function (S) { freshMeal(S, 'breakfast', 'Ovesná kaše s mlékem a banánem', 'bigger', 'before'); },
