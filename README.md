@@ -1,176 +1,74 @@
-# NutriFee — rozhodovací maketa
+# NutriFee — interaktivní maketa
 
-Interaktivní maketa aplikace, která **vyhodnocuje reakci pacienta na jídlo, učí se z jeho dat
-a před jídlem doporučuje změnu** jídla, porce, pořadí nebo doplňku. Lékař na kontrole vidí report:
-jak plán probíhal, jak tělo reagovalo na jednotlivá jídla a **jestli rady fungovaly, když je pacient
-přijal**. Slouží klinickému garantovi jako podklad k rozhodnutí o studii.
+Maketa aplikace pro pacienty s diabetem 2. typu na inzulinu s **pevnými dávkami**. Aplikace se učí
+z pacientových zápisů, jak jeho tělo reaguje na jednotlivá jídla, před jídlem radí (obvyklá porce,
+doplněk, pořadí, pohyb), připomíná předepsaný inzulin a ptá se na podání. Lékař na kontrole dostane
+report se souhrnem a **návrhy na příští plán s důvodem a postupem ověření** — jen schvaluje, upravuje
+nebo odmítá.
 
-**Není klinický nástroj, není klinicky validovaná a neobsahuje žádná skutečná pacientská data.**
-V celé maketě zůstává viditelné označení „DEMO · syntetická data · není určeno pro léčbu“.
+**Není klinický nástroj, není validovaná, neobsahuje skutečná data.** Všude je označení
+„DEMO · syntetická data · není určeno pro léčbu“.
 
-## Kde to běží
+**https://rudasrr.github.io/nutrifee-rozhodovaci-maketa/** — statická stránka, bez backendu, nic se neodesílá.
 
-**https://rudasrr.github.io/nutrifee-rozhodovaci-maketa/** — veřejná URL, otevře se bez přihlášení.
-Zdroj: https://github.com/Rudasrr/nutrifee-rozhodovaci-maketa
+## Spuštění
 
-Stránka je statická, bez backendu a bez databáze. Nic se z prohlížeče neodesílá; průběh demonstrace
-zůstává jen v prohlížeči toho, kdo ji otevřel.
-
-## Spuštění lokálně
-
-Dvojklik na `nutrifee-rozhodovaci-maketa.html` v běžném prohlížeči. Nic se neinstaluje.
-
-Pokud prohlížeč z `file://` blokuje lokální úložiště (typicky Safari), maketa běží dál, jen se
-průchod neuloží mezi obnoveními stránky. Chceš-li průchod zachovat, spusť ji přes lokální server:
+Dvojklik na `nutrifee-rozhodovaci-maketa.html`. Pro uložení průchodu mezi obnoveními stránky:
 
 ```bash
-cd "maketa-rozhodovaci" && python3 -m http.server 8731
+cd maketa-rozhodovaci && python3 -m http.server 8731
 ```
 
-a otevři `http://127.0.0.1:8731/nutrifee-rozhodovaci-maketa.html`.
-
-Automatické kontroly:
+Testy:
 
 ```bash
-cd "maketa-rozhodovaci" && node nutrifee-rozhodovaci-maketa.test.cjs
+cd maketa-rozhodovaci && node nutrifee-rozhodovaci-maketa.test.cjs
 ```
 
-## Pro koho je a co neporuší
+## Zásady, které maketa hlídá
 
-Kohorta: dospělý s DM2, senzor CGM, **jen inzulin bez perorálních antidiabetik**, bazál 1× večer
-a prandiální inzulin ke třem hlavním jídlům, **pevné dávky od lékaře**.
+1. **Dávku určuje jen lékař.** Aplikace ji zobrazuje, připomíná a ptá se na podání. Nevymýšlí směr ani výši.
+   V reportu lékaři je jen návrhová karta „posoudit dávku“: proč vznikla, co ji oslabuje, co ověřit
+   (sedí / nesedí) a **větev lékařova schváleného postupu** (zvýšit / snížit / ponechat). Jednotky volí lékař voličem.
+2. **Cíl je konzistence jídla k pevné dávce, ne omezování.** Pacient nepočítá sacharidy.
+3. **Rada k množství jídla:** před píchnutím oběma směry k obvyklé; po píchnutí a při „nevím“ jen z větší
+   porce zpět k obvyklé; nikdy „sněz víc“.
+4. **Každý výpočet, rada, práh i text nese položku schvalovacího registru** se štítkem „✓“. V maketě je vše
+   schválené předem; lékař-garant může kdykoli schválit / upravit / zamítnout s komentářem, rozhodnutí platí
+   okamžitě a historie jen přibývá.
+5. **Lékař mezi kontrolami nic nedělá.** Nemoc ukončuje pacient, výpadek dat končí sám.
+6. **Nic se neodesílá, žádná generativní AI ve výpočtech.** Stopa s vstupy a výstupy je exportovatelná.
+7. **V ordinaci se nepíše** — výběr, zaškrtnutí, volič.
 
-1. **Aplikace nikdy nepočítá, nenavrhuje ani nemění dávku inzulinu.** Ohýbá jídlo, porci, pořadí a pohyb.
-2. **Cílem je konzistence sacharidů, ne jejich omezování.** Porce se řídí k obvyklé oběma směry;
-   „dej si menší porci“ aplikace neříká nikdy.
-3. **Rady měnící množství sacharidů jen před bolusem.** Před každou radou se aplikace ptá, jestli si
-   pacient už píchl. Neznámý stav podání se chová jako „po bolusu“.
-4. **Každý výpočet a rada pochází ze schváleného pravidla** a na obrazovce je vidět které, v jaké verzi
-   a v jakém stavu. Neschválené pravidlo se k pacientovi nedostane — není ani zašedlé.
-5. **Nic se neodesílá, nikdo pacienta průběžně nesleduje.**
-6. **V ordinaci se nic nevypisuje.** Kontext se zobrazuje, kompenzace se označí tlačítkem, úkol se
-   vybírá z katalogu, důvod rozhodnutí z připravených.
+## Průchod ukázkou
 
-## Tři úrovně jistoty
-
-| Úroveň | Kdy | Co aplikace řekne |
-|---|---|---|
-| **Známé jídlo** | aspoň 3 úplné záznamy (parametr pravidla R-REAKCE) | o kolik obvykle stoupne a co tehdy pomohlo |
-| **Podobné jídlo** | neznámé, ale podobné vlastnostmi (R-PODOBNOST) | „vypadá jako jídla, po kterých ti to stoupá víc“ — bez čísla |
-| **Neznámé jídlo** | nic podobného | žádný odhad, nabídne zapsat |
-
-Podobnost se počítá z **vlastností porce** (sacharidy, bílkovina, tuk, vláknina, forma), ne z názvu.
-Do učení vstupují jen úplné záznamy mimo nemoc; záznam s „nevím“ u inzulinu nebo s mezerou v datech
-je vidět, ale nepočítá se. U každého jídla je vidět, kolikrát ho pacient jedl.
-
-## Návod k demonstraci
-
-Maketa je **jeden souvislý příběh**: modelový pacient od zařazení v ordinaci po další kontrolu.
-Nahoře jsou demonstrační přepínače rolí (Pacient / Lékař / Sestra / Garant), **Průvodce maketou**
-a **Panel prezentujícího**. V demo liště je **◀ Předchozí / Další ▶ / Přeskočit kapitolu ⏭ / Reset**.
-
-### Průchod jen tlačítkem Další
-
-Celou maketu lze projít jen tlačítkem **Další ▶** (nebo šipkou vpravo). Každé stisknutí odehraje
-jeden krok za lékaře, sestru nebo pacienta: zvýrazní prvek, „klikne“ na něj nebo do pole postupně
-napíše text a výsledek podbarví. Panel vyprávění vpravo (na telefonu dole) u každého kroku říká,
-**co se děje, čeho si všimnout, proč je to navržené takhle a co z toho plyne**. Po posledním kroku
-kapitoly přejde Další na další kapitolu. Kroky volají tytéž akce, které by spustil člověk — jádro
-aplikace o průchodu nic neví. Obsah je v `demo/tour-content.js`, engine v `demo/tour.js`.
-Panel lze skrýt; průchod funguje i ve všech odbočkách. Kdo nastaví omezené animace, dostane kroky
-bez zdržení.
+Tlačítko **Další ▶** (nebo šipka vpravo) odehraje jeden krok za lékaře, sestru nebo pacienta a panel
+vyprávění řekne, co se děje, čeho si všimnout, proč a co z toho plyne. **Panel prezentujícího** nabízí
+kapitoly a odbočky (zaučení se nezdařilo · po píchnutí: větší / menší porce / nevím · jak pacient s radami
+naložil). Lékař a sestra jsou na desktopu, pacient v rámečku telefonu.
 
 | Dějství | Co ukazuje |
 |---|---|
-| **1 — V ordinaci** | Lékař zařadí a vydá plán, sestra zaučí a předá zařízení, pacient plán převezme |
-| **2 — Doma: aplikace se učí** | Neznámé jídlo bez odhadu; po týdnu první známá jídla |
-| **3 — Rada před jídlem** | Otázka na inzulin; rada k porci jen před bolusem; rady bez sacharidů kdykoli; podobné jídlo bez čísla |
-| **4 — Když něco nesedí** | Nemoc nebo výpadek dat: rady se vypnou, záznamy z nemoci se nepočítají |
-| **5 — Správa pravidel** | Nejasný text rady, vyřazení pravidla, rada zmizí, ostatní platí, schválení opravené verze |
-| **6 — Kontrola a nový plán** | Report „přijato vs. nepřijato“, rozhodnutí z připravených důvodů, případně úkol na změnu režimu |
+| 1 V ordinaci | Karta, čtyři podmínky, dávky voličem, startovní sada návyků, osobní pokyny; sestra zaučí s náhledem telefonu |
+| 2 Doma | Tři kroky před jídlem (inzulin první); po týdnu známá jídla s rozmezím na stupnici a „X z N v cíli“ |
+| 3 Rada | Před píchnutím porce zpět k obvyklé; po píchnutí jen z větší; vlastní jídlo třemi klepnutími |
+| 4 Nemoc | Pacient označí nemoc, aplikace pomáhá jinak (jen bezpečné rady, pokyny lékaře), ukončí ji pacient |
+| 5 Registr | Lékař-garant upraví text rady s komentářem; platí okamžitě, historie zůstává |
+| 6 Kontrola | Pacient: report před kontrolou. Lékař: souhrn → návrhy jeden po druhém → potvrzení → předání. Stopa |
 
-**Kapitola ukazuje výchozí stav scény; její akci odehraje prezentující.** Skok na kapitolu přehraje
-příběh deterministicky od začátku, takže stav vždy odpovídá ručnímu průchodu.
-
-### Odbočky
-
-Přepínají se v panelu prezentujícího u příslušného dějství a načtou příběh znovu.
-
-| Odbočka | Volby |
-|---|---|
-| Zaučení u sestry | proběhlo · **nezdařilo se** — plán je vydaný, ale úkol se neaktivuje |
-| Stav inzulinu při druhé radě | už si píchl · **neví** — chová se jako po bolusu |
-| Co se stalo 20. října | nemoc · výrobce hodnoty ukazuje · nefunkční senzor · pacient neví |
-| Zařízení při změně pravidla | online · **offline** — doručení nepotvrzeno, rady vypnuté |
-| Jak pacient s radami naložil | většinou přijal · většinou nepřijal („nechci“) · většinou nepřijal („nemám to doma“ → rada je nepraktická) |
-| Podklad ke kontrole | běžný průběh · A bez zápisů · A bez senzorového souhrnu · B historická bezpečnostní událost · C aktuální problém během návštěvy |
-
-### Průchod na úrovni garanta
-
-V panelu prezentujícího **Začít průchod garanta**: cesta jen po schvalovacích bodech (katalog úkolů,
-vyhodnocení reakce, tři úrovně jistoty, rada k porci jen před bolusem, neznámý stav = po bolusu, rady
-bez sacharidů, kdy aplikace neradí, vyřazení pravidla, report, úkol na změnu režimu). U každého bodu
-demo lišta řekne, **co se tu podepisuje**, a ukáže dotčená pravidla s jejich stavem. Na konci vede
-na rozhodovací list.
-
-### Dvě vrstvy nápovědy
-
-- **V aplikaci** (zůstává v produkci): „Proč mi to radíš a jak moc si tím jsi jistá?“ — odkud aplikace
-  ví, co nepočítá a proč se ptá na inzulin.
-- **Průvodce maketou** (jen pro prezentaci): po zapnutí se u prvků objeví značka `?` s vysvětlením,
-  proč je to navrženo takhle. Každé vysvětlení je označené jako **závazná zásada**, **návrh
-  k posouzení**, nebo **otevřené rozhodnutí**. Kde není opora, je uvedeno „k ověření“. Texty jsou pevné,
-  nevytváří je žádná živá generativní AI.
-
-## Oddělení od budoucí produkce
+## Kód
 
 ```
-app/    jádro — doména (jídla, úrovně jistoty, páky, rady, report), obrazovky, vykreslení.
-        Žádná modelová data, žádné texty průvodce.
-demo/   demonstrační vrstva — katalog jídel, pravidel a úkolů, simulovaný senzor, příběh,
-        Průvodce maketou, panel prezentujícího.
+app/    jádro — doména, obrazovky, morph-vykreslení. Vanilla JS, bez závislostí, běží z file://
+demo/   prezentační vrstva — registr a katalogy, ~200 jídel, simulovaný senzor, příběh, vyprávění
 ```
 
-Produkční sestavení vznikne vynecháním složky `demo/` a řádků `<script src="demo/...">`
-v HTML. Obrazovky se nepřepisují. Jádro pak startuje v prázdném stavu bez pravidel — a bez
-schváleného pravidla nic nevyhodnocuje ani neradí. Hlídá to test „Produkční sestavení se obejde
-bez složky demo“.
+Vynecháním složky `demo/` a jejích `<script>` řádků vznikne produkční sestavení bez přepisování
+obrazovek: jádro startuje prázdné a bez schválené položky registru nic nevyhodnocuje ani neradí.
+Po změně struktury zvyš `NF.SCHEMA` v `app/core.js` i `?v=` v HTML (test to hlídá).
 
-## Co je funkční a co simulované
+## Co je simulované
 
-**Funkční logika makety:** zařazení, katalog úkolů s blokací neschválených pravidel, zaučení sestrou
-jako podmínka aktivace; tři úrovně jistoty a podobnost z vlastností; vzestup po jídle z úplných
-záznamů; páky s bezpečnostním pravidlem bolusu; rady jen ze schválených pravidel s viditelnou verzí;
-přijetí a odmítnutí rady s důvodem; učení, co pomohlo; vypnutí rad při nemoci, pauze a bez spojení;
-vyřazení a schválení pravidla s okamžitým dopadem; report s konzistencí sacharidů a srovnáním
-„přijato vs. nepřijato“ včetně signálu k rozhovoru; rozhodnutí z připravených důvodů a úkol na změnu
-režimu; P2 se zachováním historie P1; průchod garanta; deterministický reset.
-
-**Simulované:** senzor a import dat (jednoduchý deterministický model v `demo/`), katalog jídel
-se syntetickými hodnotami, offline režim, kontaktní postup, schválení garantem, posun času,
-evidence incidentů. Nic se neodesílá.
-
-**Neimplementováno záměrně:** backend, přihlášení, integrace senzoru, jakýkoli výpočet dávky,
-studijní evidence.
-
-## Co musí rozhodnout garant
-
-Rozhodovací list je v roli **Garant → Rozhodovací list**; výchozí stav každé položky je
-„nerozhodnuto“. Poznámky lze exportovat jako textový soubor označený „Poznámky z demonstrace — nejde
-o formální klinické schválení“.
-
-1. **Odhad reakce** — na čem stojí a s jakou nejistotou se ukazuje.
-2. **Přípustné typy rad** — které páky a kdy.
-3. **Hranice pohybu po bolusu** — pravidlo procházky je v maketě jen návrh a k pacientovi se nedostane.
-4. **Obvyklá porce** — co to je a jak se určí.
-5. **Katalog úkolů** — co patří do první studie.
-6. **Zdroj a licence potravinových dat.**
-7. **Regulatorní zařazení** — aplikace, která odhaduje reakci na jídlo a doporučuje úpravu jídla,
-   dělá klinické tvrzení; podle MDR jde o jinou třídu rizika než pozorovací deník. K ověření.
-8. **Provoz** a 9. **Pilot** — kdo co řeší a co je úspěch.
-
-Režim dávkování potvrzují mezinárodní i české odborné standardy léčby DM2. **Že se z reakcí na jídlo
-dá odvozovat doporučení, nepotvrzuje žádný z nich** — to je k ověření. Obvyklá vědecká opora pro
-personalizovanou predikci (studie z roku 2015) se na tuto kohortu nepřenáší: šlo o lidi bez inzulinu,
-se sekvenací mikrobiomu a s predikcí plochy pod křivkou, ne průběhu. Plné citace jsou v projektové
-dokumentaci, která se nepublikuje.
+Senzor (deterministický model průběhu po jídle), seznam jídel (syntetický; skutečný zdroj a licenci
+vybere studie), souhrn ze senzoru, schválení registru, posun času. Prahy návrhů k dávce jsou návrh
+autora makety odvozený z běžných konsenzuálních cílů; ve studii je určí garant-lékař.

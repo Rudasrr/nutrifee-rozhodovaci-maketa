@@ -1,650 +1,190 @@
-/* Automatický průchod maketou — obsah. Součást demonstrační vrstvy.
-   U každé kapitoly: úvod scény a kroky, které tlačítko „Další“ postupně odehraje
-   za lékaře, sestru nebo pacienta. Každý krok má vyprávění:
-     co      — co se právě děje
-     vsimni  — čeho si má divák všimnout
-     proc    — proč je to navržené takhle
-     dusledek — co z toho plyne dál
-   Operace (do):
-     { sel, act, val }        klik na prvek a spuštění akce aplikace
-     { sel, bind, val, type } vyplnění pole (type: true = postupné psaní)
-     { sel }                  jen zvýraznění prvku
-     { fn }                   krok, který v aplikaci proběhne bez klepnutí uživatele
-   when(B) — krok platí jen pro danou odbočku příběhu. */
+/* Vyprávění k průchodu tlačítkem Další. U každé kapitoly úvod a kroky, které se odehrají za roli.
+   Krok: { do:[ {sel, act, val} | {sel, bind, val, type} | {sel} | {fn} ], watch, t, co, vsimni, proc, dusledek, when(B) } */
 (function (global) {
 'use strict';
-var NF = global.NutriFee;
-var D = global.NutriFeeDemo;
+var NF = global.NutriFee, D = global.NutriFeeDemo;
 var T = D.tour = {};
-
-var R = D.retireReasons, RS = D.resumeReasons;
-function resumeReason(B) { return B.disruption === 'illness' ? RS[0] : RS[1]; }
+function foodId(name) { return function (B, S) { var f = S.foods.filter(function (x) { return x.name === name; })[0]; return f ? f.id : ''; }; }
+function foodSel(name) { return function (B, S) { return '[data-action="mealFood"][data-value="' + foodId(name)(B, S) + '"]'; }; }
 
 T.chapters = {
-
-  /* ================= Dějství 1 — V ordinaci ================= */
   enroll: {
-    intro: {
-      t: 'Ordinace, 5. října. Lékař zařazuje pacienta',
-      co: 'Pacient s diabetem 2. typu sedí u lékaře. Dostal senzor glukózy a lékař zvažuje, jestli mu NutriFee pomůže.',
-      vsimni: 'Na obrazovce není jediné pole, do kterého by se psalo. Všechno, co lékař o pacientovi ví, je už na kartě.',
-      proc: 'Lékař nemá na kontrole čas psát texty. Kdyby zařazení znamenalo přepisovat údaje, aplikace by mu práci přidala.'
-    },
+    intro: { t: 'Ordinace, 5. října. Lékař zařazuje pacienta', co: 'Pacient s diabetem 2. typu na inzulinu s pevnými dávkami dostal senzor. Lékař zvažuje NutriFee.', vsimni: 'Vlevo nabídka lékaře na celou šířku monitoru. Nic se nepíše — karta pacienta se jen zobrazuje.', proc: 'Lékař nemá čas psát. Každé jeho kliknutí musí mít důsledek.' },
     steps: [
-      { do: [{ sel: '.plan-basics' }],
-        t: 'Lékař si prohlédne kartu pacienta',
-        co: 'Diagnóza, léčba, režim inzulinu, senzor a poslední HbA1c se načetly z karty.',
-        vsimni: 'Řádek „Jen inzulin — bez perorálních antidiabetik“ a „pevné dávky“.',
-        proc: 'Celý návrh stojí na tom, že dávka inzulinu k jídlu je pevná. Jen tehdy má smysl učit se z toho, jak glukóza reaguje na jídlo.' },
-      { do: [{ sel: '[data-action="setCompensation"][data-value="insufficient"]', act: 'setCompensation', val: 'insufficient' }],
-        t: 'Lékař označí kompenzaci jedním klepnutím',
-        co: 'Lékař zvolil „nedostatečná kompenzace“.',
-        vsimni: 'Je to jen jedno tlačítko, žádný text.',
-        proc: 'Lékař to o pacientovi ví dřív, než se posadí. Aplikace z toho nic nepočítá.',
-        dusledek: 'Označení se objeví v reportu na příští kontrole jako výchozí stav.' },
-      { do: [
-          { sel: '[data-action="eligibility"][data-value="adult"]', act: 'eligibility', val: 'adult' },
-          { sel: '[data-action="eligibility"][data-value="insulinOnly"]', act: 'eligibility', val: 'insulinOnly' },
-          { sel: '[data-action="eligibility"][data-value="regimen"]', act: 'eligibility', val: 'regimen' },
-          { sel: '[data-action="eligibility"][data-value="cgm"]', act: 'eligibility', val: 'cgm' }],
-        watch: '.eligibility + .hint',
-        t: 'Lékař potvrdí čtyři podmínky zařazení',
-        co: 'Dospělý s DM2, jen inzulin, pevné dávky ke třem jídlům, senzor. Lékař je postupně odškrtl.',
-        vsimni: 'Dokud nebyly odškrtnuté všechny čtyři, tlačítko „Pokračovat k plánu“ nešlo použít. Teď se objevilo zelené potvrzení.',
-        proc: 'Pacientovi, který má flexibilní dávky nebo tablety na diabetes, by rady postavené na pevné dávce nesedily.',
-        dusledek: 'Pacient patří do první skupiny studie a lékař může připravit plán.' },
-      { do: [{ sel: '.wizard-footer [data-action="wizardGo"][data-value="1"]', act: 'wizardGo', val: '1' }],
-        t: 'Lékař pokračuje k plánu',
-        co: 'Otevřel se druhý krok: výběr úkolu a vydání plánu.',
-        dusledek: 'V další kapitole lékař vybere úkol z katalogu.' }
+      { do: [{ sel: '.card:first-of-type' }], t: 'Karta pacienta', co: 'Diagnóza, léčba, režim, senzor, HbA1c 62 — načteno z karty.', vsimni: '„Jen inzulin, pevné dávky“ — na tom celý návrh stojí.', proc: 'Učit se z reakcí na jídlo má smysl jen tehdy, když se dávka mezi dny nemění.' },
+      { do: [{ sel: '[data-value="adult"]', act: 'eligibility', val: 'adult', quick: true }, { sel: '[data-value="insulinOnly"]', act: 'eligibility', val: 'insulinOnly', quick: true }, { sel: '[data-value="regimen"]', act: 'eligibility', val: 'regimen', quick: true }, { sel: '[data-value="cgm"]', act: 'eligibility', val: 'cgm', quick: true }], watch: '.hint.ok',
+        t: 'Čtyři podmínky zařazení', co: 'Lékař je postupně potvrdil. Dokud chyběla jediná, tlačítko „Pokračovat“ bylo zamčené.', vsimni: 'Zelené potvrzení nese štítek „✓ Podmínky zařazení“ — odkaz do schvalovacího registru.', proc: 'Aplikace nedovolí pokračovat s pacientem, pro kterého není určená.', dusledek: 'Spodní lišta říká, co je další krok.' },
+      { do: [{ sel: '.nextbar .btn.primary', act: 'wizardGo', val: '1' }], t: 'Další krok', co: 'Otevřel se krok 2: dávky, návyky a pokyny.' }
     ]
   },
-
-  plan: {
-    intro: {
-      t: 'Lékař vybírá úkol z katalogu',
-      co: 'Úkoly jsou připravené předem. Každý má hotovou otázku pacienta a odhad, kolik práce pacientovi dá.',
-      vsimni: 'U každého úkolu je uvedené pravidlo, na kterém stojí, a jestli ho garant schválil.',
-      proc: 'Ručně psané úkoly by nešlo porovnat napříč studií a nikdo by je neschválil.'
-    },
+  doses: {
+    intro: { t: 'Dávky voličem, návyky předvybrané, pokyny připravené', co: 'NutriFee předvyplnila startovní sadu návyků, stejnou pro všechny pacienty studie, a základní osobní pokyny. Lékař potvrzuje, škrtá nebo volí hodnoty.', proc: 'NutriFee navrhuje, lékař schvaluje. Nikdy naopak.' },
     steps: [
-      { do: [{ sel: '.module-option:disabled' }],
-        t: 'Jeden úkol vybrat nejde',
-        co: '„Procházka po večeři“ je v katalogu vidět, ale je zašedlá.',
-        vsimni: 'U úkolu stojí „návrh — čeká na schválení garantem“.',
-        proc: 'Garant zatím neurčil, jaký pohyb po píchnutí inzulinu je bezpečný. Neschválené pravidlo se k pacientovi nesmí dostat ani omylem — proto ho nejde ani vybrat.' },
-      { do: [{ sel: '.module-option.chosen', act: 'selectTask', val: 'T-SNIDANE' }],
-        watch: '.plan-proposal',
-        t: 'Lékař vybere „Snídaně: aplikace se učí a radí“',
-        co: 'Pod katalogem se ukázal vybraný úkol a co bude pacient dělat.',
-        vsimni: 'Otázka pacienta je součástí úkolu. Lékař ji nepíše.',
-        dusledek: 'Pacient bude před snídaní zapisovat jídlo a aplikace se z toho bude učit.' },
-      { do: [{ sel: '[data-bind="draft.medicationChecked"]', bind: 'draft.medicationChecked', val: true }],
-        t: 'Lékař potvrdí seznam léčby',
-        co: 'Odškrtl, že pacient bere jen inzulin a žádné tablety na diabetes.',
-        vsimni: 'Dávky inzulinu jsou na obrazovce jen jako text z karty.',
-        proc: 'NutriFee dávku nikdy nepočítá, nenavrhuje ani nemění. To je první neporušitelné pravidlo celé aplikace.' },
-      { do: [{ sel: '[data-bind="draft.safetyChecked"]', bind: 'draft.safetyChecked', val: true }],
-        watch: '.wizard-body .hint.success',
-        t: 'Lékař potvrdí, že předal bezpečnostní plán',
-        co: 'Poslední podmínka je splněná. Upozornění na chybějící náležitosti zmizelo.',
-        proc: 'Aplikace radí k jídlu. Co dělat při nízké glukóze, musí mít pacient od lékaře dřív, než dostane první radu.' },
-      { do: [{ sel: '[data-action="issuePlan"]', act: 'issuePlan' }],
-        t: 'Lékař vydá plán',
-        co: 'Plán P1 je vydaný a obrazovka se přepnula k sestře.',
-        vsimni: 'Lékař nic nezaučuje. Rozhodl a vydal plán — edukaci dělá sestra.',
-        dusledek: 'Úkol ale ještě neplatí. Začne platit až po zaučení a kontrolní otázce.' }
+      { do: [{ sel: '.dose-grid' }], t: 'Dávky inzulinu voličem', co: 'Bazál 18 j. ve 21:00, ke snídani 8, k obědu 10, k večeři 8 j. Lékař je nastaví tlačítky −/+.', vsimni: 'Aplikace dávky jen zobrazí pacientovi a připomene. Nikdy je nepočítá.', proc: 'Dávka je věc lékaře. Aplikace k ní sbírá kontext: byla podaná, včas, v předepsané výši?' },
+      { do: [{ sel: '[data-bind="draft.medicationChecked"]', bind: 'draft.medicationChecked', val: true }], t: 'Ověření dávek s pacientem', co: 'Lékař potvrdil, že pacient bere jen inzulin.', quick: true },
+      { do: [{ sel: '.habit-opt.on' }], t: 'Startovní sada návyků', co: 'Zapisuj hlavní jídla · obvyklá porce · potvrzuj inzulin · bazál večer. Předvybrané, se štítkem „startovní sada“.', vsimni: 'U každého návyku je věta „proč“ — tu uvidí i pacient.', proc: 'Stejný start pro všechny umožní porovnat pacienty napříč studií. Personalizace přijde z dat na první kontrole.' },
+      { do: [{ sel: '.instr' }], t: 'Osobní pokyny s hodnotami', co: 'Nízká glukóza pod 3,9 · snědl jsem méně → změř za 60 min · nemoc → měř každé 3 h · kdy volat. Hodnoty lékař mění voličem.', vsimni: 'Pokyn „snědl jsem méně“ je důležitý: aplikace nikdy neřekne „sněz víc“, to je pokyn od lékaře.', proc: 'Aplikace radí k jídlu, ale co dělat při nízké glukóze, určuje lékař.' },
+      { do: [{ sel: '[data-bind="draft.instructionsChecked"]', bind: 'draft.instructionsChecked', val: true }, { sel: '.nextbar .btn.primary', act: 'wizardGo', val: '2' }], t: 'Pokyny probrány → shrnutí', co: 'Vše je připravené, spodní lišta se odemkla a lékař pokračuje k vydání.' }
     ]
   },
-
+  issue: {
+    intro: { t: 'Vydání plánu', co: 'Shrnutí na jedné obrazovce: dávky, cíle, návyky, pokyny. Jedno tlačítko.', proc: 'Nevratný krok má potvrzení jednou větou, co se stane.' },
+    steps: [
+      { do: [{ sel: '.nextbar .btn.primary', act: 'issuePlan' }], t: 'Lékař vydá plán P1', co: 'Plán je vydaný a obrazovka se přepnula k sestře.', vsimni: 'Lékař nic nezaučuje. Rozhodl, vydal — a do kontroly už nic nedělá.', dusledek: 'Návyky pacientovi ještě neplatí. Začnou po zaučení a jedné otázce.' }
+    ]
+  },
   training: {
-    intro: {
-      t: 'Sestra zaučuje pacienta a předává zařízení',
-      co: 'Sestra vidí, jaký plán lékař vydal, a s pacientem projde konkrétní úkony.',
-      vsimni: 'Seznam nejsou otázky „rozumíte tomu?“, ale věci, které pacient opravdu udělal.',
-      proc: 'Zaučení, které se dá odškrtnout bez obsahu, by nic nezaručilo.'
-    },
+    intro: { t: 'Sestra zaučuje a vidí, co vidí pacient', co: 'Vlevo body zaučení — tři pevné a další podle návyků v plánu. Vpravo živý náhled pacientova telefonu.', proc: 'Zaučení bez pohledu na telefon by bylo jen odškrtávání.' },
     steps: [
-      { do: [{ sel: '.next-step' }],
-        t: 'Senzor je jen simulovaný',
-        co: 'Obrazovka říká přímo, že připojení senzoru je v ukázce jen naznačené.',
-        proc: 'Maketa nesmí vzbudit dojem, že propojení se senzorem existuje.' },
-      { do: [
-          { sel: '[data-action="trainingStep"][data-value="app"]', act: 'trainingStep', val: 'app' },
-          { sel: '[data-action="trainingStep"][data-value="record"]', act: 'trainingStep', val: 'record' },
-          { sel: '[data-action="trainingStep"][data-value="bolus"]', act: 'trainingStep', val: 'bolus' },
-          { sel: '[data-action="trainingStep"][data-value="safety"]', act: 'trainingStep', val: 'safety' },
-          { sel: '[data-action="trainingStep"][data-value="contacts"]', act: 'trainingStep', val: 'contacts' }],
-        t: 'Sestra odškrtává, co pacient zvládl',
-        co: 'Pacient našel úkol, zapsal zkušební jídlo, našel bezpečnostní plán a ví, kam volat.',
-        vsimni: 'Třetí bod: pacient ví, že se ho aplikace před každou radou zeptá, jestli si už píchl inzulin k jídlu.',
-        proc: 'Ta otázka je jediné, co stojí mezi radou a nízkou glukózou. Pacient ji musí znát předem.' },
-      { when: function (B) { return B.training !== 'failed'; },
-        do: [{ sel: '[data-action="finishTraining"][data-value="done"]', act: 'finishTraining', val: 'done' }],
-        watch: '.card .hint.success',
-        t: 'Sestra potvrdí dokončené zaučení',
-        co: 'Zaučení je zaznamenané na sestru s časem.',
-        dusledek: 'Pacient teď převezme plán a odpoví na kontrolní otázku.' },
-      { when: function (B) { return B.training === 'failed'; },
-        do: [{ sel: '[data-action="finishTraining"][data-value="failed"]', act: 'finishTraining', val: 'failed' }],
-        watch: '.card .hint.warn',
-        t: 'Zaučení se nezdařilo',
-        co: 'Sestra zaznamenala, že si pacient ovládáním zatím není jistý.',
-        vsimni: 'Plán je vydaný, ale úkol pacientovi nezačne platit a pacient se nepočítá mezi zařazené.',
-        dusledek: 'V této odbočce příběh dál nepokračuje — pacienta čeká nové zaučení.' }
+      { do: [{ sel: '.phone-preview' }], t: 'Náhled telefonu', co: 'Sestra vidí obrazovku Dnes tak, jak ji má pacient před sebou.', vsimni: 'Klepnutí na bod zaučení přepne náhled na příslušnou obrazovku.' },
+      { do: [{ sel: '[data-value="app"]', act: 'trainingStep', val: 'app', quick: true }, { sel: '[data-value="safety"]', act: 'trainingStep', val: 'safety', quick: true }, { sel: '[data-value="t-zapis"]', act: 'trainingStep', val: 't-zapis', quick: true }], watch: '.phone-preview',
+        t: 'Pacient prochází aplikaci sám', co: 'Našel Dnes, Bezpečí a prošel tři kroky „Chystám se jíst“ — náhled se přepnul.', proc: 'Body jsou konkrétní úkony, které pacient udělal, ne otázky „rozumíte?“.' },
+      { do: [{ sel: '[data-value="t-porce"]', act: 'trainingStep', val: 't-porce', quick: true }, { sel: '[data-value="t-inzulin"]', act: 'trainingStep', val: 't-inzulin', quick: true }, { sel: '[data-value="t-bazal"]', act: 'trainingStep', val: 't-bazal', quick: true }, { sel: '[data-value="contacts"]', act: 'trainingStep', val: 'contacts', quick: true }],
+        t: 'Body podle návyků', co: 'Pacient ví, že se ho aplikace před každým jídlem zeptá na inzulin, kdy přijde rada k porci a jak potvrdit bazál.', vsimni: 'Tyhle body existují jen proto, že jsou v plánu příslušné návyky.', proc: 'Otázka na inzulin je jediná věc mezi radou a nízkou glukózou — pacient ji musí znát předem.' },
+      { when: function (B) { return B.training !== 'failed'; }, do: [{ sel: '[data-action="finishTraining"][data-value="done"]', act: 'finishTraining', val: 'done' }], watch: '.hint.ok', t: 'Zaučení dokončeno', co: 'Zaznamenáno na sestru s časem.', dusledek: 'Pacient teď převezme plán.' },
+      { when: function (B) { return B.training === 'failed'; }, do: [{ sel: '[data-action="finishTraining"][data-value="failed"]', act: 'finishTraining', val: 'failed' }], watch: '.hint.warn', t: 'Zaučení se nezdařilo', co: 'Plán je vydaný, návyky ale nezačnou platit.', dusledek: 'V této odbočce příběh končí.' }
     ]
   },
-
   handover: {
-    intro: {
-      t: 'Pacient přebírá plán',
-      co: 'Pacient poprvé vidí svůj plán v telefonu.',
-      vsimni: 'Horní proužek ukazuje, který plán platí a do kdy.'
-    },
+    intro: { t: 'Pacient přebírá plán na telefonu', co: 'Rámeček telefonu: karta „Co teď“, dávky, návyky s „proč“, pokyny lékaře.', vsimni: 'Pacient vždy ví, co má udělat — karta „Co teď“ je na každé obrazovce.' },
     steps: [
-      { do: [{ sel: '.plan-basics' }],
-        t: 'Kdo plán vydal a do kdy platí',
-        co: 'Pacient vidí lékaře, datum začátku a konec platnosti.',
-        proc: 'Rady se vážou k platnému plánu. Pacient má vždy vědět, z čeho aplikace vychází.' },
-      { do: [{ sel: '.card .hint' }],
-        t: 'Hranice služby',
-        co: 'NutriFee pacienta průběžně nesleduje, nic neposílá do ordinace a samo na nebezpečné hodnoty neupozorní.',
-        proc: 'Pacient nesmí čekat pomoc, která nepřijde. Upozornění dává aplikace výrobce senzoru.' },
-      { do: [{ sel: '[data-action="page"][data-value="understand"]', act: 'page', val: 'understand' }],
-        t: 'Pacient potvrdí převzetí',
-        co: 'Otevřela se kontrolní otázka.',
-        dusledek: 'Převzetí samo úkol nespustí. Nejdřív se ověří, že pacient rozumí hranicím služby.' }
+      { do: [{ sel: '.patient .glass:nth-of-type(2)' }], t: 'Dávky inzulinu', co: 'Bazál 18 j. ve 21:00, snídaně 8, oběd 10, večeře 8 j.', proc: 'Pacient vidí lékařův předpis. Aplikace ho bude připomínat.' },
+      { do: [{ sel: '[data-action="page"][data-value="understand"]', act: 'page', val: 'understand' }], t: 'Plán jsem převzal', co: 'Otevřela se jedna kontrolní otázka.' },
+      { do: [{ sel: '[data-value="yes"]', act: 'answerCheck', val: 'yes' }], watch: '.hint.warn', t: 'Špatná odpověď nic nezkazí', co: '„Ano, hned“ — aplikace vysvětlí, že zápis není zpráva do ordinace. Tlačítko „Hotovo“ zůstává zamčené.', proc: 'Kdyby pacient čekal, že ho někdo sleduje, čekal by na pomoc, která nepřijde.' },
+      { when: function (B) { return B.training !== 'failed'; }, do: [{ sel: '[data-value="no"]', act: 'answerCheck', val: 'no' }, { sel: '[data-action="confirmUnderstanding"]', act: 'confirmUnderstanding' }], t: 'Správně → plán platí', co: 'Pacient odchází z ordinace s aktivními návyky.', dusledek: 'Od zítřka otevírá aplikaci před snídaní.' },
+      { when: function (B) { return B.training === 'failed'; }, do: [{ sel: '[data-value="no"]', act: 'answerCheck', val: 'no' }], watch: '.hint.warn', t: 'Správně, ale bez zaučení to nejde', co: 'Tlačítko zůstává zamčené: zaučení u sestry nebylo dokončeno, návyky nezačnou platit.', proc: 'Aplikace nedovolí začít pacientovi, který ji neumí ovládat.', dusledek: 'V této odbočce příběh končí.' }
     ]
   },
-
-  understanding: {
-    intro: {
-      t: 'Jedna kontrolní otázka',
-      co: '„Znamená zápis v aplikaci, že ho lékař hned uvidí?“',
-      proc: 'Kdyby si pacient myslel, že ho někdo sleduje, mohl by čekat na reakci, která nepřijde.'
-    },
-    steps: [
-      { do: [{ sel: '[data-action="answerCheck"][data-value="yes"]', act: 'answerCheck', val: 'yes' }],
-        watch: '.card .hint',
-        t: 'Co se stane při špatné odpovědi',
-        co: 'Pacient odpověděl „Ano“. Aplikace mu vysvětlila, že zápis není zpráva do ordinace.',
-        vsimni: 'Nikdo pacienta nehodnotí. Může se vrátit a odpovědět znovu. Tlačítko „Hotovo“ zatím nejde použít.' },
-      { do: [
-          { sel: '[data-action="answerCheck"][data-value="reset"]', act: 'answerCheck', val: 'reset' },
-          { sel: '[data-action="answerCheck"][data-value="no"]', act: 'answerCheck', val: 'no' }],
-        watch: '.card .hint.success',
-        t: 'Pacient odpoví správně',
-        co: 'Odpověď „Ne“ je správná. Tlačítko „Hotovo“ je teď aktivní.',
-        vsimni: 'Pod otázkou jsou oddělené dvě cesty pomoci: technická podpora a zdravotní kontakt.' },
-      { do: [{ sel: '[data-action="confirmUnderstanding"]', act: 'confirmUnderstanding' }],
-        t: 'Úkol začíná platit',
-        co: 'Pacient odchází z ordinace s aktivním úkolem.',
-        dusledek: 'Od zítřka bude před snídaní otevírat aplikaci. Tím začíná dějství 2.' }
-    ]
-  },
-
-  /* ================= Dějství 2 — Doma: aplikace se učí ================= */
   firstMeal: {
-    intro: {
-      t: 'První snídaně doma',
-      co: '6. října ráno. Pacient se chystá snídat a otevře aplikaci.',
-      vsimni: 'U všech jídel stojí „Neznámé jídlo · zapsáno 0×“. Aplikace o pacientovi zatím nic neví.',
-      proc: 'Aplikace se učí jen z pacientových vlastních dat. Na začátku žádná nemá, a tak si nic nevymýšlí.'
-    },
+    intro: { t: 'První snídaně: tři kroky', co: '6. října ráno. Krok 1 je vždy inzulin, krok 2 jídlo a porce, krok 3 rada a zápis.', proc: 'Odpověď na inzulin rozhoduje, které rady jsou dovolené. Proto přichází dřív, než pacient něco vidí.' },
     steps: [
-      { do: [{ sel: '[data-action="mealFood"][data-value="kase"]', act: 'mealFood', val: 'kase' }],
-        watch: '.level-card',
-        t: 'Pacient vybere ovesnou kaši',
-        co: 'Aplikace ukáže, co o jídle ví: nic.',
-        vsimni: '„Proto nic neodhadujeme.“ Žádné číslo, žádný odhad vzestupu glukózy.',
-        proc: 'To je třetí úroveň jistoty — neznámé jídlo. Odhad bez dat by byl předpověď bez opory.' },
-      { do: [{ sel: '[data-action="mealBolus"][data-value="before"]', act: 'mealBolus', val: 'before' }],
-        t: 'Aplikace se ptá na inzulin',
-        co: 'Pacient odpověděl, že inzulin k jídlu si ještě nepíchl.',
-        vsimni: 'Radu nedostal — k neznámému jídlu v obvyklé porci aplikace nemá co říct.',
-        proc: 'Na inzulin se aplikace ptá před každou radou, i když pak žádnou nedá. Pacient si otázku zvykne brát jako součást každého jídla.' },
-      { do: [
-          { sel: '[data-action="mealInsulin"][data-value="per-plan"]', act: 'mealInsulin', val: 'per-plan' },
-          { sel: '[data-bind="meal.insulinTime"]', bind: 'meal.insulinTime', val: '07:05', type: true }],
-        t: 'Pacient zapíše inzulin a čas',
-        co: 'Zvolil „Podal jsem podle plánu“ a napsal čas 07:05.',
-        vsimni: 'Popis jídla je předvyplněný. Pacient ho může upravit, ale nemusí nic psát.',
-        proc: 'Bez údaje o inzulinu by se zápis nemohl započítat do učení.' },
-      { do: [{ sel: '[data-action="saveMeal"]', act: 'saveMeal' }],
-        t: 'Jídlo je uložené',
-        co: 'Aplikace uložila zápis a senzor k němu doplnil průběh glukózy.',
-        vsimni: 'V přehledu „Moje jídla“ je kaše zapsaná 1× a pruh učení je na třetině.',
-        dusledek: 'Po třech zápisech se všemi údaji bude aplikace kaši znát.' }
+      { do: [{ sel: '.insulin' }], t: 'Připomínka předepsané dávky', co: '„Lékař předepsal · 8 j. k snídani · my jen připomínáme.“', proc: 'Aplikace dávku nepočítá. Zobrazí ji a zeptá se, jestli byla podaná.' },
+      { do: [{ sel: '[data-action="mealBolus"][data-value="before"]', act: 'mealBolus', val: 'before' }, { sel: '[data-action="mealStep"][data-value="2"]', act: 'mealStep', val: '2' }], t: '„Ještě ne“ → krok 2', co: 'Pacient si ještě nepíchl. Přechází na výběr jídla.' },
+      { do: [{ sel: '[data-bind="meal.q"]', bind: 'meal.q', val: 'kaše', type: true, live: true }], watch: '.food-grid', t: 'Hledání napsáním pár písmen', co: 'Napíše „kaše“ a vidí jídla ze seznamu ~200 českých jídel.', vsimni: 'U každého jídla štítek úrovně: teď všude NEZNÁMÉ · zapsáno 0×.', proc: 'Žádná čísla, žádná makra. Jídlo se vybírá jménem.' },
+      { do: [{ sel: foodSel('Ovesná kaše s mlékem a banánem'), act: 'mealFood', val: foodId('Ovesná kaše s mlékem a banánem') }, { sel: '[data-action="mealPortion"][data-value="usual"]', act: 'mealPortion', val: 'usual' }, { sel: '[data-action="mealStep"][data-value="3"]', act: 'mealStep', val: '3' }],
+        t: 'Kaše, obvyklá porce → krok 3', co: 'Aplikace ukáže, co o kaši ví: nic.', vsimni: '„Nic neodhadujeme.“ Žádné číslo. Prstenec učení 0/3.', proc: 'Třetí úroveň jistoty — neznámé jídlo. Odhad bez dat by byl předpověď bez opory.' },
+      { do: [{ sel: '[data-action="mealFinish"][data-value="as"]', act: 'mealFinish', val: 'as' }], t: '„Píchl jsem si 8 j. a jdu jíst“', co: 'Zápis uložený i s potvrzením inzulinu. Data ze senzoru dorazí za dvě hodiny.', dusledek: 'Po třech takových zápisech bude aplikace kaši znát.' }
     ]
   },
-
-  learning: {
-    intro: {
-      t: 'O týden později: co už aplikace ví',
-      co: '12. října večer. Pacient za týden zapsal sedm snídaní — kaši a chléb se sýrem.',
-      vsimni: 'Obě jídla mají štítek „Známé jídlo“.',
-      proc: '„Aplikace se učí“ musí být vidět, ne jen slíbené. Proto je u každého jídla počet zápisů.'
-    },
+  week: {
+    intro: { t: 'Po týdnu: co už aplikace ví', co: 'Pacient zapsal sedm snídaní a šest obědů. Kaše i chléb se sýrem jsou ZNÁMÉ JÍDLO.', vsimni: 'Prstenec 3/3 s fajfkou, štítek reakce a rozmezí na stupnici zelená → červená.' },
     steps: [
-      { do: [{ sel: '.food-list li' }],
-        t: 'Kaše: zapsaná 4×, započítaná 3×',
-        co: 'U kaše aplikace ví, že po obvyklé porci glukóza stoupne přibližně o 4,7 mmol/l.',
-        vsimni: 'Zápisů jsou čtyři, ale započítané jen tři.',
-        proc: 'Jeden zápis nemá údaj o inzulinu — pacient zvolil „nevím“. Bez něj nejde říct, jestli vzestup způsobilo jídlo, nebo chybějící inzulin.' },
-      { do: [{ sel: '.food-list li:nth-child(2)' }],
-        t: 'Chléb se sýrem stoupá méně',
-        co: 'Po chlebu se sýrem glukóza stoupá přibližně o 2,5 mmol/l.',
-        vsimni: 'Obě jídla mají podobně sacharidů, a přesto reagují jinak.',
-        dusledek: 'Právě takové rozdíly aplikace využije k radám: u kaše bude mít co doporučit.' },
-      { do: [{ sel: '.tag.warn' }],
-        t: 'Nezapočítaný zápis zůstává vidět',
-        co: 'Zápis bez údaje o inzulinu má štítek „chybí údaj — nezapočítáno“.',
-        proc: 'Nic se nemaže a chybějící údaj se nepřepisuje na nulu. Pacient i lékař vidí, z čeho aplikace vychází.' }
+      { do: [{ sel: '.food .peak' }], t: 'Kam se po kaši glukóza dostane', co: 'Okno na stupnici: rozmezí vrcholů z započítaných zápisů, vpravo od čáry cíle. Vpravo nahoře „X z N v cíli“.', vsimni: 'Zápisů je 5, započítané 4 — jeden má u inzulinu „nevím“.', proc: 'Bez potvrzeného inzulinu nejde říct, jestli vzestup způsobilo jídlo, nebo chybějící dávka.' },
+      { do: [{ sel: '.food .tag.bad,.food .tag.warn' }], t: 'Silná reakce', co: 'Štítek říká, jak často po jídle pacient zůstane v cíli. Kaše: málokdy.', proc: 'Žádné známky, žádné „špatné jídlo“. Jen podíl zápisů v cíli, vztažený k pacientovým vlastním jídlům.' },
+      { do: [{ sel: '[data-action="foodsSeg"][data-value="all"]', act: 'foodsSeg', val: 'all' }], t: 'Všechna jídla', co: 'Řízek s kaší už je známý (3×), svíčkovou a rýži teprve poznáváme — „Učím se: 1 ze 3“.', vsimni: 'Detail každého jídla je až po rozbalení, aby pacient nebyl zahlcený.' }
     ]
   },
-
-  /* ================= Dějství 3 — Rada před jídlem ================= */
   advice: {
-    intro: {
-      t: 'Rada před inzulinem',
-      co: '14. října. Pacient má hlad a chystá si větší porci kaše, než je obvyklé.',
-      vsimni: 'Kaše je teď „Známé jídlo“ a aplikace ukazuje graf posledních průběhů glukózy.',
-      proc: 'Tohle je první úroveň jistoty: známé jídlo. Aplikace říká, co se stalo minule — jako minulost, ne jako předpověď.'
-    },
+    intro: { t: 'Před píchnutím: rada k porci', co: '14. října. Pacient má hlad a chystá si větší porci kaše. Inzulin si ještě nepíchl.', proc: 'Dávka je klíč vyrobený na obvyklou porci. Dokud není v těle, pacient ještě může porci upravit.' },
     steps: [
-      { do: [{ sel: '.level-card' }],
-        t: 'Co aplikace o kaši ví',
-        co: 'Po obvyklé porci stoupne glukóza přibližně o 4,7 mmol/l. Pod tím je pravidlo, podle kterého se to počítá, i s verzí.',
-        proc: 'Každý výpočet musí pocházet ze schváleného pravidla a na obrazovce musí být vidět, ze kterého.' },
-      { do: [{ sel: '[data-action="mealBolus"][data-value="before"]', act: 'mealBolus', val: 'before' }],
-        watch: '.advice-list',
-        t: 'Pacient ještě nemá inzulin — objeví se rady',
-        co: 'Aplikace nabídla tři rady: obvyklou porci, doplněk k jídlu a pořadí jídla.',
-        vsimni: 'Rada k porci má žlutý štítek „mění množství sacharidů — jen před inzulinem“. U každé rady je její pravidlo a stav „schváleno garantem“.',
-        proc: 'Radu, která mění množství sacharidů, smí aplikace dát jen před píchnutím inzulinu k jídlu. Po píchnutí už je dávka daná.' },
-      { do: [{ sel: '[data-action="mealDecide"][data-value="portion:yes"]', act: 'mealDecide', val: 'portion:yes' }],
-        t: 'Pacient přijme obvyklou porci',
-        co: 'Rada „Dej si obvyklou porci“ se podbarvila zeleně.',
-        vsimni: 'Aplikace neradí jíst méně. Radí vrátit se k obvyklému množství.',
-        proc: 'Při pevné dávce je cílem stejné množství sacharidů každý den. „Dej si menší porci“ by při stejné dávce mohlo vést k nízké glukóze.' },
-      { do: [{ sel: '[data-action="mealDecide"][data-value="addon:yes"]', act: 'mealDecide', val: 'addon:yes' }],
-        t: 'Pacient přidá jogurt',
-        co: 'Přijal radu přidat bílý jogurt nebo ořechy.',
-        vsimni: '„U tohoto jídla jsi to ještě nezkoušel.“ Aplikace zatím neví, jestli to u něj zabere.',
-        dusledek: 'Po tomhle zápisu už to vědět bude.' },
-      { do: [
-          { sel: '[data-action="mealDecide"][data-value="order:no"]', act: 'mealDecide', val: 'order:no' },
-          { sel: '[data-action="mealReason"][data-value="order:nothome"]', act: 'mealReason', val: 'order:nothome' }],
-        t: 'Třetí radu pacient nechá být',
-        co: 'U pořadí jídla zvolil „Tentokrát ne“ a jako důvod „Nemám to doma“.',
-        vsimni: 'Důvod není povinný. Je to jedno klepnutí.',
-        proc: 'Důvody odmítnutí pomohou lékaři poznat, jestli pacient radu nechce, nebo jestli je rada nepraktická.' },
-      { do: [
-          { sel: '[data-action="mealInsulin"][data-value="per-plan"]', act: 'mealInsulin', val: 'per-plan' },
-          { sel: '[data-bind="meal.insulinTime"]', bind: 'meal.insulinTime', val: '07:05', type: true },
-          { sel: '[data-action="saveMeal"]', act: 'saveMeal' }],
-        t: 'Pacient si píchne inzulin a uloží jídlo',
-        co: 'Zápis je uložený i s tím, které rady pacient přijal a kterou ne.',
-        vsimni: 'Porce se v zápisu změnila na obvyklou, protože pacient radu přijal.',
-        dusledek: 'Za dvě hodiny dorazí data ze senzoru a aplikace se dozví, jestli jogurt pomohl.' }
+      { do: [{ sel: '.advice' }], t: 'Rada „obvyklá porce“ se štítkem „mění množství jídla“', co: '„Dej si obvyklou porci. Tvoje dávka je nastavená na obvyklé množství — větší porce ho přesáhne.“', vsimni: 'Aplikace neradí jíst méně. Radí vrátit se k obvyklému.', proc: 'Při pevné dávce je cílem stejné množství jídla každý den.' },
+      { do: [{ sel: '[data-action="mealDecide"][data-value="portion:yes"]', act: 'mealDecide', val: 'portion:yes', quick: true }, { sel: '[data-action="mealDecide"][data-value="addon:yes"]', act: 'mealDecide', val: 'addon:yes', quick: true }], t: 'Pacient přijme porci i doplněk', co: 'Obě rady zezelenaly. U doplňku: „ještě jsi to nezkoušel — až to zkusíš, uvidíš, jestli pomohlo“.', vsimni: 'Každá rada nese štítek schválené položky registru.' },
+      { do: [{ sel: '[data-action="mealDecide"][data-value="order:no"]', act: 'mealDecide', val: 'order:no', quick: true }, { sel: '[data-action="mealReason"][data-value="order:nothome"]', act: 'mealReason', val: 'order:nothome', quick: true }], t: 'Třetí radu nechá být — s důvodem', co: '„Tentokrát ne“ a „Nemám to doma“. Jedno klepnutí navíc, nepovinné.', proc: 'Důvody odmítnutí řeknou lékaři, jestli pacient radu nechce, nebo je rada nepraktická.' },
+      { do: [{ sel: '[data-action="mealFinish"][data-value="as"]', act: 'mealFinish', val: 'as' }], t: 'Píchne si a jde jíst', co: 'Zápis je uložený s obvyklou porcí (radu přijal), doplňkem a odmítnutým pořadím.', dusledek: 'Za dvě hodiny se aplikace dozví, jestli jogurt pomohl.' }
     ]
   },
-
   afterBolus: {
-    intro: {
-      t: 'Rada po inzulinu',
-      co: '16. října. Pacient spěchal: nejdřív si píchl inzulin, pak otevřel aplikaci. Chystá si zase větší porci kaše.',
-      vsimni: 'Na otázku „Už sis píchl inzulin?“ je už odpovězeno.',
-      proc: 'Tohle je situace, kvůli které se aplikace na inzulin ptá. Rada k porci teď může být nebezpečná.'
-    },
+    intro: { t: 'Po píchnutí: co aplikace smí a nesmí', co: '16. října. Pacient si píchl dřív, než otevřel aplikaci. V panelu prezentujícího lze zvolit: větší porce, menší porce, nebo „nevím“.', proc: 'Inzulin už působí 3–5 hodin, ať sní cokoli. Radit k množství jídla je teď zásah do léčby — až na jednu výjimku.' },
     steps: [
-      { do: [{ sel: '.bolus-q' }],
-        t: 'Odpověď na otázku o inzulinu',
-        co: 'Pacient odpověděl „Už ano“ (nebo v odbočce „Nevím“).',
-        vsimni: 'Při „Nevím“ se aplikace chová, jako by inzulin už byl píchnutý.',
-        proc: 'Nejistota se řeší na stranu bezpečí. Kdo neví, jestli si píchl, nedostane radu, která mění množství sacharidů.' },
-      { do: [{ sel: '.hint.warn' }],
-        t: 'Rada k porci se nedává',
-        co: 'Místo rady k porci je vysvětlení, proč ji aplikace teď nedává.',
-        vsimni: 'Aplikace neradí ani „dej si méně“, ani „dej si obvyklou porci“. Odkazuje jen na bezpečnostní plán.',
-        proc: 'Po píchnutí je dávka daná. Jakákoli rada k množství sacharidů by už byla zásahem do léčby.' },
-      { do: [{ sel: '.advice-list' }],
-        t: 'Rady bez sacharidů zůstávají',
-        co: 'Doplněk k jídlu a pořadí jídla se nabízejí i po inzulinu.',
-        vsimni: 'U doplňku už je vidět zkušenost: „Zkusil jsi to 1×. Glukóza ti tehdy stoupla přibližně o 3,1 mmol/l, bez toho obvykle o 4,7 mmol/l.“',
-        proc: 'Tyhle rady nemění množství sacharidů, a tak jsou bezpečné kdykoli. A aplikace se z předchozího zápisu už naučila, že jogurt u kaše pomáhá.' },
-      { do: [
-          { sel: '[data-action="mealDecide"][data-value="addon:no"]', act: 'mealDecide', val: 'addon:no' },
-          { sel: '[data-action="mealReason"][data-value="addon:nothome"]', act: 'mealReason', val: 'addon:nothome' },
-          { sel: '[data-action="mealDecide"][data-value="order:no"]', act: 'mealDecide', val: 'order:no' }],
-        t: 'Dnes pacient nepřijme nic',
-        co: 'Jogurt nemá doma a pořadí dnes neřeší.',
-        proc: 'I odmítnutí je užitečný údaj. Na kontrole se ukáže, jak glukóza stoupala, když rady přijal, a když ne.' },
-      { when: function (B) { return B.bolus !== 'unknown'; },
-        do: [
-          { sel: '[data-bind="meal.insulinTime"]', bind: 'meal.insulinTime', val: '07:25', type: true },
-          { sel: '[data-action="saveMeal"]', act: 'saveMeal' }],
-        t: 'Pacient uloží jídlo',
-        co: 'Zápis je uložený i s odmítnutými radami.',
-        dusledek: 'Tenhle zápis se do učení započítá — údaj o inzulinu i data ze senzoru jsou kompletní.' },
-      { when: function (B) { return B.bolus === 'unknown'; },
-        do: [
-          { sel: '[data-action="mealInsulin"][data-value="unknown"]', act: 'mealInsulin', val: 'unknown' },
-          { sel: '[data-action="saveMeal"]', act: 'saveMeal' }],
-        t: 'Pacient uloží jídlo s „nevím“',
-        co: 'Zápis je uložený, ale bez údaje o inzulinu.',
-        dusledek: 'Do učení se nezapočítá. Zůstane ale vidět pacientovi i lékaři.' }
+      { when: function (B) { return B.bolus === 'bigger'; }, do: [{ sel: '.advice' }], t: 'Větší porce → zpět k obvyklé je dovolené', co: '„Dej si obvyklou porci. Inzulin, který už máš v těle, je nastavený na obvyklé množství.“', vsimni: 'Návrat z větší porce k obvyklé vrací jídlo k dávce, která už působí. To je bezpečný směr.', proc: 'Zásada 3 v dokumentu 15: po píchnutí jen z větší zpět k obvyklé.' },
+      { when: function (B) { return B.bolus === 'smaller'; }, do: [{ sel: '.hint.warn' }], t: 'Menší porce → žádná rada k množství', co: '„Radu ‚sněz víc‘ nedáváme nikdy. Sníš-li méně, řiď se pokynem lékaře ‚snědl jsem méně‘.“', proc: '„Sněz víc“ by učilo jíst podle inzulinu — přesně to, čemu se vyhýbáme. Co dělat, říká pokyn od lékaře, ne aplikace.' },
+      { when: function (B) { return B.bolus === 'unknown'; }, do: [{ sel: '.hint.warn' }], t: '„Nevím“ = jako po píchnutí', co: 'Nejistota se řeší na stranu bezpečí: rada k množství jídla se nedá.', proc: 'Kdo neví, jestli si píchl, nedostane radu, která mění množství sacharidů.' },
+      { do: [{ sel: '.advice .cert' }], t: 'Rady bez změny množství zůstávají', co: 'Doplněk k jídlu se nabízí dál — a už s pacientovou zkušeností: „Zkusil jsi to 1×: 1 z 1 v cíli“.', proc: 'Tyhle rady nemění množství sacharidů, a tak jsou bezpečné kdykoli.' },
+      { do: [{ sel: '[data-action="mealDecide"][data-value="addon:no"]', act: 'mealDecide', val: 'addon:no', quick: true }, { sel: '[data-action="mealReason"][data-value="addon:nothome"]', act: 'mealReason', val: 'addon:nothome', quick: true }, { sel: '[data-action="mealFinish"]', act: 'mealFinish', val: function (B) { return B.bolus === 'unknown' ? 'unknown' : 'as'; } }], t: 'Dnes bez doplňku, uložit', co: 'Jogurt nemá doma. Zápis je uložený i s odmítnutím.', dusledek: 'I odmítnutí je užitečný údaj pro report.' }
     ]
   },
-
-  similar: {
-    intro: {
-      t: 'Nové jídlo, podobné známému',
-      co: '19. října. Pacient si poprvé dává müsli s jogurtem a medem.',
-      vsimni: 'Müsli má štítek „Podobné jídlo“, i když ho pacient ještě nikdy nezapsal.',
-      proc: 'Tohle je druhá úroveň jistoty. Aplikace jídlo nezná, ale podobá se jinému, které zná.'
-    },
+  custom: {
+    intro: { t: 'Vlastní jídlo třemi klepnutími', co: '18. října, oběd u maminky. „Řízek s kaší od maminky“ v seznamu není.', proc: 'Pacient hotová a domácí jídla nezná složením, ale jménem a rutinou. Učíme se z opakování, ne z maker.' },
     steps: [
-      { do: [{ sel: '.level-card' }],
-        t: 'Směr ano, číslo ne',
-        co: '„Podobá se jídlům, po kterých ti glukóza stoupá víc. Nejvíc se podobá jídlu: ovesná kaše.“',
-        vsimni: 'Žádné číslo. Jen směr.',
-        proc: 'Podobnost se počítá z obsahu porce (sacharidy, bílkoviny, tuk, vláknina) a formy, ne z názvu. Číslo by u jídla, které pacient nikdy nejedl, vypadalo jako předpověď — a na tu aplikace nemá data.' },
-      { do: [{ sel: '[data-action="mealBolus"][data-value="before"]', act: 'mealBolus', val: 'before' }],
-        watch: '.advice-list',
-        t: 'Obecné rady ze schválených pravidel',
-        co: 'Aplikace nabídla doplněk a pořadí jídla.',
-        vsimni: '„Obecná rada ze schváleného pravidla. Jak zabere právě u tebe, zatím nevíme.“',
-        proc: 'U podobného jídla aplikace nemá vlastní zkušenost pacienta. Říká to otevřeně.' },
-      { do: [
-          { sel: '[data-action="mealDecide"][data-value="addon:yes"]', act: 'mealDecide', val: 'addon:yes' },
-          { sel: '[data-action="mealInsulin"][data-value="per-plan"]', act: 'mealInsulin', val: 'per-plan' },
-          { sel: '[data-bind="meal.insulinTime"]', bind: 'meal.insulinTime', val: '07:00', type: true },
-          { sel: '[data-action="saveMeal"]', act: 'saveMeal' }],
-        t: 'Pacient přidá jogurt a uloží jídlo',
-        co: 'Müsli je teď zapsané 1×.',
-        dusledek: 'Po třech zápisech se z „podobného“ stane „známé“ jídlo s vlastním číslem.' },
-      { do: [{ sel: '.food-list' }],
-        t: 'Přehled po dvou týdnech',
-        co: 'U kaše je teď i řádek „Co pomohlo“: doplněk, kolikrát ho pacient zkusil a o kolik glukóza stoupla.',
-        proc: 'Tohle je jádro celé aplikace: učí se z vlastních dat pacienta, co u něj funguje.' }
+      { do: [{ sel: '[data-action="mealTag"][data-value="side:brambory"]', act: 'mealTag', val: 'side:brambory', quick: true }, { sel: '[data-action="mealTag"][data-value="prep:smazene"]', act: 'mealTag', val: 'prep:smazene', quick: true }, { sel: '[data-action="mealTag"][data-value="size:velke"]', act: 'mealTag', val: 'size:velke', quick: true }], t: 'Příloha · příprava · velikost', co: 'Brambory / kaše, smažené, velké. Tři klepnutí, žádná čísla.', proc: 'Štítky slouží jen k „podobné jídlo“. Samotné učení běží z opakování stejného jídla.' },
+      { do: [{ sel: '[data-action="mealSaveFood"]', act: 'mealSaveFood' }, { sel: '[data-action="mealPortion"][data-value="usual"]', act: 'mealPortion', val: 'usual' }, { sel: '[data-action="mealStep"][data-value="3"]', act: 'mealStep', val: '3' }], watch: '.peak',
+        t: 'Uloženo → PODOBNÉ JÍDLO', co: 'Aplikace ho ještě nezná, ale zná řízek s kaší ze seznamu (stejné štítky). Ukáže široké rozmezí z podobných jídel, bez čísla „přesně“.', vsimni: 'Čárkované okno = odhad z podobných. S každým vlastním zápisem se zúží.', proc: 'Druhá úroveň jistoty. Číslo by u jídla, které pacient nikdy nejedl, vypadalo jako předpověď.' },
+      { do: [{ sel: '[data-action="mealDecide"][data-value="order:yes"]', act: 'mealDecide', val: 'order:yes', quick: true }, { sel: '[data-action="mealFinish"][data-value="as"]', act: 'mealFinish', val: 'as' }], t: 'Obecná rada, přijata, uložit', co: '„Obecná rada ze schváleného pravidla. Jak zabere právě u tebe, zatím nevíme.“', dusledek: 'Po třech zápisech se z podobného stane známé s vlastním rozmezím.' }
     ]
   },
-
-  /* ================= Dějství 4 — Když něco nesedí ================= */
-  unclear: {
-    intro: {
-      t: 'Něco nesedí',
-      co: '20. října. Senzor od půl deváté neposlal žádná data a pacientovi není dobře.',
-      vsimni: 'Pacient vybírá, čeho se jeho problém týká. Aplikace to netřídí sama podle čísel.',
-      proc: 'Každá cesta má jiného adresáta: otázka na kontrolu, problém teď, nebo nemoc.'
-    },
+  illness: {
+    intro: { t: 'Jsem nemocný', co: '20. října. Pacientovi není dobře. Na Dnes je přepínač „Jsem nemocný“ — viditelný, ne schovaný.', proc: 'Nemoc oznamuje člověk. Aplikace ji nehádá z čísel.' },
     steps: [
-      { do: [{ sel: '[data-action="unclear"][data-value="now"]', act: 'unclear', val: 'now' }],
-        watch: '.card .hint',
-        t: 'Problém právě teď',
-        co: 'Aplikace posílá pacienta do bezpečnostního a kontaktního plánu.',
-        proc: 'Aplikace sama nic neřeší a nikomu nic neposílá. Postup dodává lékař.' },
-      { do: [{ sel: '[data-action="page"][data-value="safety"]', act: 'page', val: 'safety' }],
-        t: 'Bezpečnostní plán',
-        co: 'Sekce pro nízkou glukózu, snědení menší porce, nemoc, vysoké hodnoty i akutní situaci.',
-        vsimni: 'Konkrétní hodnoty a postupy doplní garant. Aplikace sama žádné nepřidává.',
-        dusledek: 'Plán je dostupný vždy, i bez připojení k internetu.' }
+      { do: [{ sel: '.sick .toggle', act: 'illness', val: 'on' }], watch: '.glass.soft', t: 'Režim nemoci', co: 'Nahoře se objevily pokyny lékaře pro nemoc: inzulin nevysazuj, pij, měř každé 3 h, kdy volat.', vsimni: 'Aplikace pomáhá dál, jen jinak. Dávky platí, jak řekl lékař.', proc: 'Pacient nesmí zůstat bezradný. Klinický obsah je ale z pokynů lékaře, ne z aplikace.' }
     ]
   },
-
-  disruption: {
-    intro: {
-      t: 'Nemoc, nebo výpadek dat',
-      co: 'V hlavní lince pacient oznamuje nemoc. V panelu prezentujícího lze místo toho zvolit tři varianty výpadku dat.',
-      proc: 'Nemoc oznamuje člověk. Aplikace ji sama nepozná a nehádá ji z čísel.'
-    },
+  illnessMeal: {
+    intro: { t: 'Jídlo během nemoci', co: 'Pacient si chystá menší porci kaše, píchl si podle plánu.', proc: 'V nemoci tělo reaguje jinak; rady postavené na běžných dnech by neseděly.' },
     steps: [
-      { when: function (B) { return B.disruption === 'illness'; },
-        do: [{ sel: '[data-action="reportIllness"]', act: 'reportIllness' }],
-        watch: '.card .hint.warn',
-        t: 'Pacient oznámí nemoc',
-        co: 'Nemoc je označená od tohoto okamžiku. Úkol se pozastavil.',
-        vsimni: 'Aplikace přestala radit k jídlu.',
-        proc: 'Při nemoci se tělo chová jinak a rady postavené na běžných dnech by neseděly. Zápisy z doby nemoci se do učení nezapočítají.' },
-      { when: function (B) { return B.disruption !== 'illness'; },
-        do: [{ sel: '[data-action="page"][data-value="today"]', act: 'page', val: 'today' },
-          { sel: '[data-action="page"][data-value="datastate"]', act: 'page', val: 'datastate' }],
-        watch: '.card .hint',
-        t: 'Chybí data ze senzoru',
-        co: 'Pacient popsal, co vidí v aplikaci výrobce senzoru.',
-        vsimni: 'Aplikace nehádá příčinu a netvrdí, že je senzor rozbitý.',
-        proc: 'Zápis s mezerou v datech se do učení nezapočítá a mezera se nedopočítává.' },
-      { when: function (B) { return B.disruption !== 'illness'; },
-        do: [{ fn: function (S) { NF.pauseTask(S, 'data', 'Chybí nám data ze senzoru od ' + NF.fmtTime(S.dataState.lastValueAt) + '. Úkol je do ověření pozastavený.'); } }],
-        t: 'Úkol se pozastaví',
-        co: 'Dokud lékař neověří, že data zase chodí, úkol stojí a aplikace neradí.' },
-      { do: [{ sel: '[data-action="page"][data-value="today"]', act: 'page', val: 'today' }],
-        watch: '.card .hint.warn',
-        t: 'Co pacient vidí na obrazovce Dnes',
-        co: 'Proč je úkol pozastavený, co to neznamená a co bude dál.',
-        vsimni: '„Tvoje dávky inzulinu se nemění a inzulin nevysazuješ.“',
-        proc: 'Pozastavení úkolu nesmí vypadat jako pokyn k léčbě.' }
+      { do: [{ sel: '.hint.sand' }], t: 'Jen bezpečné rady', co: '„Jsi nemocný. Nabízíme jen rady, které nemění množství jídla.“ K menší porci žádná rada — jen odkaz na pokyn lékaře.', proc: 'Zápisy z nemoci se štítkují a do učení nevstupují; lékař je v reportu uvidí zvlášť.' },
+      { do: [{ sel: '[data-action="mealFinish"][data-value="as"]', act: 'mealFinish', val: 'as' }], t: 'Uložit', co: 'Zápis má štítek „z doby nemoci — nezapočítáno“.' }
     ]
   },
-
-  resume: {
-    intro: {
-      t: 'Lékař úkol znovu spustí',
-      co: '21. října. Pacient je zdravý a data ze senzoru zase chodí.',
-      vsimni: 'Úkol se sám neobnovil — ani uplynutím času, ani návratem dat.',
-      proc: 'Znovu spustit úkol je rozhodnutí lékaře.'
-    },
+  recovery: {
+    intro: { t: 'Už je mi lépe', co: '22. října. Aplikace se každý den ptá; pacient sám režim nemoci ukončí.', proc: 'Lékař mezi kontrolami nic neobnovuje. Nemoc ukončuje pacient.' },
     steps: [
-      { when: function (B) { return B.disruption === 'illness'; },
-        do: [{ sel: '[data-action="endIllness"]', act: 'endIllness' }],
-        t: 'Lékař označí konec nemoci',
-        co: 'Dokud byla nemoc označená jako trvající, obnovit úkol nešlo.' },
-      { do: [{ sel: function (B) { return '[data-value="resumeReason:' + resumeReason(B) + '"]'; }, act: 'formSet', val: function (B) { return 'resumeReason:' + resumeReason(B); } }],
-        t: 'Lékař vybere důvod',
-        co: 'Důvod obnovení je z připravených. Uvidí ho pacient.',
-        proc: 'Ani tady lékař nic nepíše.' },
-      { do: [{ sel: '[data-action="resumeTask"]', act: 'resumeTask' }],
-        t: 'Úkol znovu platí',
-        co: 'Úkol je obnovený a ve stopě ukázky je zaznamenané, kdo a proč ho obnovil.',
-        dusledek: 'Aplikace zase radí. Zápisy z doby nemoci zůstávají vidět, ale do učení se nepočítají.' }
+      { do: [{ sel: '[data-action="illnessCheck"][data-value="better"]', act: 'illnessCheck', val: 'better' }], t: '„Už je mi lépe“', co: 'Režim nemoci skončil. Rady zase platí naplno.', dusledek: 'V reportu lékař uvidí 3 dny nemoci jako oddělený pruh.' }
     ]
   },
-
-  /* ================= Dějství 5 — Správa pravidel ================= */
-  catalog: {
-    intro: {
-      t: 'Garant dostane podnět',
-      co: '22. října. Při testu pacient pochopil radu „sněz nejdřív jogurt“ tak, že jogurt nahradí část kaše — a kaši nedojedl.',
-      vsimni: 'Katalog je rozdělený na výpočty, rady a úkoly. Každé pravidlo má stav a verzi.',
-      proc: 'Při pevné dávce inzulinu pacient takhle snědl méně sacharidů, než měl. Nejasný text rady je bezpečnostní problém.'
-    },
+  registry: {
+    intro: { t: 'Lékař-garant: podnět a úprava pravidla', co: 'Při testu pacient pochopil radu „sněz nejdřív jogurt“ tak, že jogurt nahradí část kaše — a kaši nedojedl. Při pevné dávce snědl méně, než má.', vsimni: 'Schvalovací registr: vše, na čem aplikace stojí, v kategoriích, s filtrem a hledáním. V maketě je vše schválené předem.', proc: 'Nejasný text rady je bezpečnostní problém. Garant ho musí umět opravit hned — a historie musí zůstat.' },
     steps: [
-      { do: [{ sel: '.hint.warn' }],
-        t: 'Podnět k posouzení',
-        co: 'Hlášený problém se týká pravidla R-PORADI verze 1.',
-        vsimni: 'Podnět není automaticky závažná nežádoucí příhoda. Posoudí ho garant.' },
-      { do: [{ sel: '[data-action="openRetire"][data-value="R-PORADI|v1"]', act: 'openRetire', val: 'R-PORADI|v1' }],
-        t: 'Garant pravidlo vyřazuje',
-        co: 'Otevřel se výběr důvodu vyřazení.',
-        proc: 'Nejasnou radu je potřeba vypnout hned, ne až bude hotová oprava.' },
-      { do: [
-          { sel: '[data-value="retireReason:' + R[0] + '"]', act: 'formSet', val: 'retireReason:' + R[0] },
-          { sel: '[data-action="retireRule"]', act: 'retireRule', val: 'R-PORADI|v1' }],
-        watch: '.tablewrap',
-        t: 'Pravidlo je vyřazené',
-        co: 'Garant zvolil důvod a potvrdil vyřazení. Pod katalogem se ukázal dopad.',
-        vsimni: '„Rada Pořadí jídla se přestane nabízet. Úkol běží dál a ostatní rady platí.“ Předpis inzulinu se nemění.',
-        dusledek: 'Hned v další kapitole to uvidí pacient.' }
+      { do: [{ sel: '.reg-side .card' }], t: 'Položka R-PORADI', co: 'Co dělá, text pro pacienta, kde se používá, historie rozhodnutí.', vsimni: 'Tlačítka Schválit / Upravit / Zamítnout, komentář nepovinný. Rozhodnutí se uloží okamžitě.' },
+      { do: [{ sel: '[data-bind="form.regcomment_R-PORADI"]', bind: 'form.regcomment_R-PORADI', val: 'Upřesněn text: příloha se nevynechává.', type: true }, { fn: function (S) { var it = NF.item(S, 'R-PORADI'); it.text = 'Sněz nejdřív {first}, potom zbytek obvyklého jídla. Přílohu nevynechávej — množství sacharidů má zůstat stejné.'; it.version = 'v2'; } }, { sel: '[data-action="regDecide"][data-value="edited"],[data-action="regEdit"]', act: 'regDecide', val: 'edited' }],
+        watch: '.reg-side .hist', t: 'Upravit s komentářem', co: 'Text rady má novou verzi: „…zbytek obvyklého jídla. Přílohu nevynechávej.“ Stav „schváleno s úpravou“, v historii kdo, kdy, z čeho na co.', proc: 'Změna platí v aplikaci okamžitě. My vývojáři výsledek vidíme v exportu JSON.' }
     ]
   },
-
   impact: {
-    intro: {
-      t: 'Co vidí pacient',
-      co: 'O hodinu později otevře pacient aplikaci.',
-      proc: 'Vyřazené pravidlo nesmí vytvořit radu ani omylem. Zbytek aplikace ale funguje dál.'
-    },
+    intro: { t: 'Pacient vidí radu s novým textem', co: 'Další den v poledne, řízek s kaší — jídlo, které aplikace už zná.', proc: 'Zamítnutá položka by radu úplně odstranila; upravená ji jen změní.' },
     steps: [
-      { do: [{ sel: '.hint.warn' }],
-        t: 'Pacient ví, proč jednu radu nedostane',
-        co: '„Některé rady teď nedostaneš. Pořadí jídla — pravidlo garant vyřadil.“',
-        vsimni: 'V odbočce „offline“ místo toho aplikace oznámí, že bez připojení neradí vůbec.',
-        proc: 'Bez připojení aplikace neví, jestli garant mezitím pravidlo nevyřadil. Proto raději neradí.' },
-      { when: function (B) { return B.offline !== 'offline'; },
-        do: [
-          { sel: '[data-action="startMeal"]', act: 'startMeal' },
-          { sel: '[data-action="mealFood"][data-value="kase"]', act: 'mealFood', val: 'kase' },
-          { sel: '[data-action="mealBolus"][data-value="before"]', act: 'mealBolus', val: 'before' }],
-        watch: '.advice-list',
-        t: 'Rada o pořadí zmizela',
-        co: 'U kaše zůstala jen rada k doplňku.',
-        vsimni: 'Rada z vyřazeného pravidla není ani zašedlá. Prostě tam není.' }
+      { do: [{ sel: '.advice .text' }], t: 'Nový text rady', co: '„…potom zbytek obvyklého jídla. Přílohu nevynechávej.“', vsimni: 'Štítek položky je oranžový: „schváleno s úpravou“.' },
+      { do: [{ sel: '[data-action="mealDecide"][data-value="order:yes"]', act: 'mealDecide', val: 'order:yes', quick: true }, { sel: '[data-action="mealFinish"][data-value="as"]', act: 'mealFinish', val: 'as' }], t: 'Přijmout a uložit', co: 'Zápis uložený.', dusledek: 'Přeskočíme dva měsíce ke kontrole.' }
     ]
   },
-
-  fix: {
-    intro: {
-      t: 'Garant zaznamená incident a schválí opravu',
-      co: 'Verze 2 pravidla má upřesněný text: „…potom zbytek obvyklého jídla. Přílohu nevynechávej.“',
-      proc: 'Schválit novou verzi lze až po projití testovacích příkladů.'
-    },
-    steps: [
-      { do: [{ sel: '[data-action="createIncident"]', act: 'createIncident' }],
-        watch: '.rule-card',
-        t: 'Záznam incidentu',
-        co: 'Incident je zaznamenaný s dotčenou verzí pravidla, zdrojem a odpovědnou rolí.',
-        vsimni: 'Klinický dopad i technická náprava zatím nejsou posouzené.' },
-      { do: [{ fn: function (S) { var i = S.incidents[S.incidents.length - 1]; if (i) { NF.act('assessIncident', i.id + ':clinical'); NF.act('assessIncident', i.id + ':technical'); } } }],
-        t: 'Posouzení a náprava',
-        co: 'Garant zaznamenal posouzení klinického dopadu i technickou nápravu. Incident je uzavřený.',
-        vsimni: 'Zda se musí událost hlásit úřadům, maketa neurčuje.' },
-      { do: [
-          { sel: '[data-action="page"][data-value="catalog"]', act: 'page', val: 'catalog' },
-          { sel: '[data-bind="ruleExamples.R-PORADI|v2"]', bind: 'ruleExamples.R-PORADI|v2', val: true, open: true },
-          { sel: '[data-action="approveRule"][data-value="R-PORADI|v2"]', act: 'approveRule', val: 'R-PORADI|v2' }],
-        t: 'Garant schválí verzi 2',
-        co: 'Garant prošel testovací příklady a novou verzi schválil.',
-        vsimni: 'Schválením pravidla se nevydává žádný nový plán a nemění se inzulin.',
-        dusledek: 'Rada o pořadí se pacientovi vrací — už s novým textem.' }
-    ]
-  },
-
-  /* ================= Dějství 6 — Kontrola a nový plán ================= */
   preview: {
-    intro: {
-      t: 'Den před kontrolou',
-      co: '4. ledna. Uplynuly dva a půl měsíce. Pacient si prohlíží, co zítra uvidí lékař.',
-      proc: 'Na kontrole nemá být žádné překvapení a žádné hodnocení poslušnosti.'
-    },
+    intro: { t: 'Den před kontrolou', co: '4. ledna. Pacient si prohlíží, co zítra uvidí lékař — lidsky, s pochvalou a bez hodnocení poslušnosti.', vsimni: 'Čtyři dlaždice jsou rozklikávací; navržené otázky na lékaře stačí zaklepnout.' },
     steps: [
-      { do: [{ sel: '.review-facts' }],
-        t: 'Co pacient zkusil',
-        co: 'Počet zápisů, kolik rad pacient zkusil a kolik nechal být.',
-        vsimni: '„Neuvidí žádné hodnocení, jestli jsi poslechl.“' },
-      { do: [{ sel: '[data-bind="form.question"]' }],
-        t: 'Otázka na kontrolu',
-        co: 'Pacient si uložil otázku: „Je v pořádku, že si ke kaši dávám jogurt skoro pokaždé?“',
-        dusledek: 'Otázka bude lékaři na očích v reportu.' }
+      { do: [{ sel: '.tile[data-value="adv"]', act: 'previewTile', val: 'adv' }], watch: '.hint.sand', t: 'Rozklik dlaždice', co: 'Vysvětlení, co číslo znamená: medián vrcholu glukózy, když radu přijal vs. nepřijal.', proc: 'Pacient má rozumět tomu, co lékař uvidí.' },
+      { do: [{ sel: '[data-action="toggleQuestion"]', act: 'toggleQuestion', val: function (B, S) { var b = S.foods.filter(function (f) { return f.name.indexOf('kaše') >= 0; })[0]; return 'Mám pokračovat s tím, že si k ' + b.name.toLowerCase() + ' dávám doplněk k jídlu?'; } }], t: 'Navržená otázka na lékaře', co: 'Otázka z dat, jedno klepnutí. Vlastní otázku lze napsat jako druhou možnost.', dusledek: 'Lékař ji uvidí v reportu.' }
     ]
   },
-
-  onepage: {
-    intro: {
-      t: 'Kontrola: report pro lékaře',
-      co: '5. ledna. Lékař otevře report o tom, jak plán probíhal.',
-      vsimni: 'Report má šest částí v pevném pořadí, ať jsou data jakákoli.',
-      proc: 'Lékař má na kontrole pár minut. Musí najít to podstatné pokaždé na stejném místě.'
-    },
+  reviewSummary: {
+    intro: { t: 'Kontrola: krok 1 — souhrn', co: '5. ledna. Lékař klepne „Zahájit kontrolu“ a NutriFee sestaví report a návrhy. Nahoře čtyři kroky.', proc: 'Lékař má pár minut. Podstatné musí být pokaždé na stejném místě a bez čtení detailů.' },
     steps: [
-      { when: function (B) { return B.review === 'C'; },
-        do: [{ sel: '[data-action="resumeVisit"]', act: 'resumeVisit' }],
-        t: 'Aktuální problém během návštěvy',
-        co: 'V odbočce C měl pacient problém přímo v ordinaci. Aplikace ukázala jen bezpečnostní postup; teď se lékař vrací ke kontrole.' },
-      { do: [{ sel: '.onepage section:nth-of-type(1)' }],
-        t: '1. Bezpečnost a úplnost dat',
-        co: 'Nahlášené události a kolik zápisů se dá použít.',
-        proc: 'Lékař nejdřív potřebuje vědět, jestli se něco stalo a jak spolehlivá jsou čísla pod tím.' },
-      { do: [{ sel: '.onepage section:nth-of-type(2)' }],
-        t: '2. Jak plán probíhal',
-        co: 'Mezi jiným: v jakém rozmezí se mezi dny pohybovalo množství sacharidů ve snídani a kolikrát byla porce jiná než obvyklá.',
-        proc: 'To je přesně to, co po pacientovi s pevnou dávkou lékař chce: jíst každý den podobně.' },
-      { do: [{ sel: '.onepage section:nth-of-type(4)' }],
-        t: '4. Jak glukóza reagovala na jednotlivá jídla',
-        co: 'Kolikrát pacient které jídlo zapsal, o kolik po něm glukóza obvykle stoupla a co pomohlo.',
-        vsimni: 'U výpočtu je pravidlo, ze kterého pochází.' },
-      { do: [{ sel: '.onepage section:nth-of-type(5)' }],
-        t: '5. Fungovaly rady, když je pacient přijal?',
-        co: 'Dvě čísla vedle sebe: o kolik glukóza stoupla, když pacient radu přijal, a když ne.',
-        vsimni: 'Pod tím je nejčastější důvod odmítnutí. V odbočkách „většinou nepřijal“ se objeví signál k rozhovoru — a u důvodu „nemám to doma“ upozornění, že rada může být nepraktická.',
-        proc: 'Tohle je jediné číslo, které lékaři řekne, jestli rady fungují. Report neříká „pacient neposlechl“ — říká, co zkusil a jak to dopadlo.' },
-      { do: [{ sel: '[data-action="page"][data-value="decide"]', act: 'page', val: 'decide' }],
-        t: 'Lékař pokračuje k rozhodnutí',
-        co: 'Otevřela se obrazovka rozhodnutí.' }
+      { do: [{ sel: '[data-action="startReview"]', act: 'startReview' }], watch: '.tiles', t: 'Zahájit kontrolu', co: 'Dlaždice se semaforem: čas v cíli, obvyklá porce, inzulin podle plánu, rady fungovaly, mimo učení. Pod nimi věta „co se dělo“ ze šablony.', vsimni: 'Věta je z pravidla S-SOUHRN, ne z AI.' },
+      { do: [{ sel: '.tile[data-value="adv"]', act: 'reviewTile', val: 'adv' }], watch: '.card.soft', t: 'Rozklik dlaždice', co: 'Sloupce: přijato / nepřijato / bez odpovědi s mediánem vrcholu. Nejčastější důvod odmítnutí.', proc: 'Jediné číslo, které lékaři řekne, jestli rady fungují. Report neříká „neposlechl“.' },
+      { do: [{ sel: 'details.part:first-of-type summary' }], t: 'Podklady jen na vyžádání', co: 'Reakce na jednotlivá jídla, rady, dávky a potvrzení, senzor, pokyny, otázky pacienta — sbalené.', proc: 'Text až po rozbalení. Na první pohled jen to, co lékař potřebuje.' },
+      { do: [{ sel: '.nextbar .btn.primary', act: 'reviewStep', val: '2' }], t: 'K návrhům', co: 'Spodní lišta vede dál.' }
     ]
   },
-
-  decide: {
-    intro: {
-      t: 'Lékař rozhoduje',
-      co: 'Tři možnosti: pokračovat, vydat úkol na změnu režimu, nebo zatím nerozhodnout.',
-      vsimni: 'Rozhodnutí i důvod lékař jen vybírá.',
-      proc: 'Ručně psané důvody by nešlo porovnat napříč studií.'
-    },
+  reviewProposals: {
+    intro: { t: 'Krok 2 — návrhy s důvodem a postupem', co: 'NutriFee připravila návrhy. Jen jeden je otevřený, ostatní čekají. Každý má: proč vznikl, co ho oslabuje, 1 ověřte s pacientem, 2 váš schválený postup říká, 3 rozhodnutí.', proc: 'Lékař nepřemýšlí, co má udělat. Ověří body a postup mu řekne, která větev platí. Jednotky volí sám.' },
     steps: [
-      { do: [{ sel: '.choice-row .choice.chosen' }],
-        t: 'Rozhodnutí podle reportu',
-        co: 'Když pacient rady většinou přijímá a fungují, lékař pokračuje. Když je většinou nechává být, vydá úkol na změnu režimu.',
-        vsimni: 'Ani jedna možnost nemění dávku inzulinu.' },
-      { do: [{ sel: '.buttonlist .btn.selected' }],
-        t: 'Důvod z připravených',
-        co: 'Lékař vybral důvod, který odpovídá tomu, co viděl v reportu.' },
-      { do: [{ sel: '[data-action="issueP2"]', act: 'issueP2' }],
-        t: 'Lékař vydá plán P2',
-        co: 'Nový plán je vydaný a předaný pacientovi.',
-        vsimni: 'Plán P1 a všechny jeho zápisy zůstávají beze změny.',
-        dusledek: 'Co už aplikace o pacientových jídlech ví, přechází do nového plánu.' }
+      { do: [{ sel: '.prop.now .why' }], t: 'Proč návrh vznikl', co: 'Čísla z dat: kolik čistých snídaní bylo nad cílem i po přijatých radách. Co návrh oslabuje: vyřazené zápisy.', vsimni: 'Do návrhu vstupují jen „čistá“ jídla: obvyklá porce, dávka potvrzená podle plánu, mimo nemoc.', proc: 'Bez potvrzení dávky by signál ukazoval na dávku, přestože příčina je jinde.' },
+      { do: [0, 1, 2, 3].map(function (i) { return { sel: function (B, S) { return '[data-action="propVerify"][data-value="' + S.review.proposals[S.review.index].id + ':' + i + ':yes"]'; }, act: 'propVerify', val: function (B, S) { return S.review.proposals[S.review.index].id + ':' + i + ':yes'; }, quick: true }; }),
+        watch: '.prop.now .branch', t: 'Ověření řídí větev postupu', co: 'U každého bodu lékař označí „sedí“ nebo „nesedí“. Dokud některý chybí, postup čeká. Když vše sedí: „zvýšit“. Kdyby bod 1 neseděl: „ponechat, řešit podání“.', proc: 'Věta „zvýšit“ je z postupu D-POSTUP, který schválil lékař-garant. Aplikace ji nevymyslela.' },
+      { when: function (B) { return B.response === 'accepts'; }, do: [{ sel: '.prop.now .stepper button:last-child', act: 'propUnits', val: function (B, S) { return S.review.proposals[S.review.index].id + ':1'; }, quick: true }, { sel: '.prop.now .stepper button:last-child', act: 'propUnits', val: function (B, S) { return S.review.proposals[S.review.index].id + ':1'; }, quick: true }],
+        t: 'O kolik — volí lékař', co: 'Volič jednotek. Aplikace číslo nenavrhuje; dokud je stejné jako dnes, „Souhlasím“ je zamčené.' },
+      { do: [{ sel: '.prop.now .decide .btn.primary', act: 'propDecide', val: function (B, S) { return S.review.proposals[S.review.index].id + ':agree'; } }], t: 'Souhlasím', co: 'Rozhodnutí je zapsané do stopy. Otevřel se další návrh.', vsimni: 'Jiné rozhodnutí (ponechat, zamítnout s důvodem, komentář) je pod nenápadným odkazem.' },
+      { do: [{ fn: function (S) { var r = S.review; r.proposals.forEach(function (pr) { if (r.decisions[pr.id]) return; r.verify[pr.id] = {}; pr.verify.forEach(function (_, i) { r.verify[pr.id][i] = true; }); var br = NF.screens.proposalBranch(S, pr); var dec = { choice: br && (br.action === 'up' || br.action === 'down' || br.action === 'swap') ? 'agree' : 'keep', branch: br && br.action }; if (pr.kind === 'dose' && dec.choice === 'agree') { r.newDoses[pr.dose].units += br.action === 'up' ? 2 : -2; dec.units = r.newDoses[pr.dose].units; } NF.decideProposal(S, pr.id, dec); }); } }], watch: '.nextbar',
+        t: 'Zbývající návrhy', co: 'Zachovat návyk, který funguje; vyměnit radu, kterou pacient nemá doma; pokyny platí. Všechny rozhodnuté, spodní lišta se odemkla.' }
     ]
   },
-
+  reviewConfirm: {
+    intro: { t: 'Krok 3 — potvrzení plánu', co: 'Shrnutí rozhodnutí a nový plán: dávky se změnou zvýrazněnou, návyky, pokyny. Jedno tlačítko.', proc: 'Nevratný krok má shrnutí a jednu větu, co se stane.' },
+    steps: [
+      { do: [{ sel: '.nextbar .btn.primary', act: 'issueP2' }], t: 'Vydat plán P2', co: 'Plán je vydaný. Po změně dávky začne učení k radám u jídel znovu.', dusledek: 'Pacient uvidí, co se změnilo a proč.' }
+    ]
+  },
+  reviewHandover: {
+    intro: { t: 'Krok 4 — předání pacientovi', co: 'Vpravo náhled telefonu: pacient vidí změny a důvody lékaře. Kontrola končí.', proc: 'Lékař do příští kontroly nic nedělá.' },
+    steps: [{ do: [{ sel: '.phone-preview' }], t: 'Co pacient uvidí', co: 'Dávky se změnou, věta „Změna dávky = učíme se znovu“, rozbalovací „Proč lékař rozhodl takto“.' }]
+  },
   newplan: {
-    intro: {
-      t: 'Pacient převezme nový plán',
-      co: 'Pacient vidí, co se změnilo a proč.'
-    },
-    steps: [
-      { do: [{ sel: '.plan-changes' }],
-        t: 'Co se změnilo',
-        co: 'Dávky inzulinu beze změny. Úkol pokračuje, nebo je nový. A důvod, který lékař vybral.',
-        proc: 'Pacient má vědět, proč se plán změnil, ne jen že se změnil.' },
-      { do: [{ sel: '[data-action="confirmUnderstanding"]', act: 'confirmUnderstanding' }],
-        t: 'Nový plán platí',
-        co: 'Pacient potvrdil převzetí. Na obrazovce Dnes má nový úkol.',
-        dusledek: 'Smyčka se uzavřela: lékař vydal plán, pacient ho plnil, aplikace se učila a radila, lékař na kontrole viděl, jestli rady fungovaly.' }
-    ]
+    intro: { t: 'Pacient: nový plán', co: 'Co se změnilo, proč, a jedno tlačítko „Rozumím, pokračuji“.' },
+    steps: [{ do: [{ sel: '[data-action="confirmUnderstanding"]', act: 'confirmUnderstanding' }], t: 'Rozumím, pokračuji', co: 'Nový plán platí. Smyčka se uzavřela: lékař vydal plán, pacient ho plnil, aplikace se učila a radila, lékař viděl, jestli rady fungovaly, a NutriFee mu navrhla další krok.' }]
   },
-
-  result: {
-    intro: {
-      t: 'Hodnocení ukázky',
-      co: 'Poslední obrazovka patří hodnotiteli ukázky, ne pacientovi.',
-      vsimni: 'Nic není předvyplněné.',
-      proc: 'Jestli report pomohl, má posoudit garant, ne maketa.'
-    },
-    steps: [
-      { do: [{ sel: '.choice-row' }],
-        t: 'Konec příběhu',
-        co: 'Tím je příběh u konce. Odpověď na otázku vyberte sami.',
-        dusledek: 'V panelu prezentujícího můžete projít odbočky nebo průchod na úrovni garanta — jen po místech, která by garant musel schválit.' }
-    ]
+  trace: {
+    intro: { t: 'Verze a stopa: důkaz pro studii', co: 'Každý výpočet, rada, návrh a rozhodnutí se vstupy a výstupy. Export JSON.', proc: 'Doložení, že do výpočtů nezasahuje žádná generativní AI a všechno je dohledatelné.' },
+    steps: [{ do: [{ sel: 'table' }], t: 'Stopa', co: 'Řádky „rada.zobrazena“, „navrh.rozhodnut“, „registr.rozhodnuti“ — u každého tlačítko „data“ rozbalí přesné vstupy.', dusledek: 'Konec ukázky. Odbočky najdete v panelu prezentujícího.' }]
   }
 };
 
-/* Kroky platné pro danou odbočku. */
-T.stepsFor = function (id, B) {
-  var ch = T.chapters[id];
-  if (!ch) return [];
-  return ch.steps.filter(function (s) { return !s.when || s.when(B || D.defaults); });
-};
+T.stepsFor = function (id, B) { var ch = T.chapters[id]; if (!ch) return []; return ch.steps.filter(function (s) { return !s.when || s.when(B || D.defaults); }); };
 
 })(typeof window !== 'undefined' ? window : globalThis);
