@@ -60,3 +60,14 @@ body.pres-nurse .split{grid-template-columns:1fr 380px}
 
 @media (prefers-reduced-motion:reduce){.tour-focus,.tour-watch{animation:none}}
 @media print{.pres-bar,.tour-panel,.drawer{display:none!important}#main::before{content:"DEMO · syntetická data · není určeno pro léčbu";display:block;border:2px dashed #7a6a99;color:#7a6a99;border-radius:8px;padding:8px 12px;margin:0 0 18px;font-weight:700;font-size:13px}}
+
+/* blok „K potvrzení“ v panelu vyprávění */
+.garant{margin-top:12px;border-top:2px dashed #cbbfe3;padding-top:10px}
+.garant .gitem{border:1px solid var(--line);border-radius:12px;margin-top:6px;background:#faf8fd}
+.garant .gh{width:100%;display:flex;align-items:center;gap:8px;padding:8px 10px;border:0;background:transparent;text-align:left;font-weight:700;color:var(--ink);font-size:13.5px}
+.garant .gh .t{flex:1}
+.garant .gh .chev{color:#7a6a99}
+.garant .gb{padding:0 10px 10px}
+.garant .gb p{margin:4px 0}
+.garant .field{margin-top:6px}
+.pres-bar .btn.ok{background:var(--okbg);color:var(--oktx);border-color:#bfe0cb}

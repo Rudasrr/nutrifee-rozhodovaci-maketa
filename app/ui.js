@@ -268,6 +268,12 @@ var A = {
 
   /* registr */
   regFilter: function (v) { var p = v.split(':'); S.reg = S.reg || {}; S.reg[p[0]] = S.reg[p[0]] === p[1] ? null : p[1]; },
+  regComment: function () {
+    var id = S.reg && S.reg.open, r = id && NF.item(S, id); if (!r) return;
+    var c = (S.form && S.form['regcomment_' + id]) || ''; if (!c.trim()) return fail('Napište komentář.');
+    var res = NF.decideItem(S, id, r.status, c); if (!res.ok) return fail(res.error);
+    S.form['regcomment_' + id] = ''; toast('Komentář je v historii položky.');
+  },
   regOpen: function (v) { S.reg = S.reg || {}; S.reg.open = v; S.reg.editing = false; S.reg.params = null; },
   regEdit: function () { S.reg.editing = !S.reg.editing; },
   regParam: function (v) { var p = v.split(':'), it = NF.item(S, S.reg.open); if (!it || it.params[p[1]] == null) return; S.reg.params = S.reg.params || {}; var cur = S.reg.params[p[1]] != null ? S.reg.params[p[1]] : it.params[p[1]]; S.reg.params[p[1]] = Math.round((cur + Number(p[2])) * 100) / 100; },
@@ -275,6 +281,7 @@ var A = {
     var id = S.reg && S.reg.open; if (!id) return;
     var r = NF.decideItem(S, id, v, (S.form && S.form['regcomment_' + id]) || '', v === 'edited' ? (S.reg.params || null) : null);
     if (!r.ok) return fail(r.error);
+    if (S.form) S.form['regcomment_' + id] = '';
     S.reg.params = null; S.reg.editing = false;
     toast('Rozhodnutí je uložené a hned platí v aplikaci.');
   },

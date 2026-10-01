@@ -557,28 +557,57 @@ function selectorPresent(m, sel) {
   if (!attrs.length) return true;
   return sel.split(',').some(part => { const a = [...part.matchAll(/\[([\w-]+)="([^"]*)"\]/g)].map(x => x[1] + '="' + x[2] + '"'); return [...m.matchAll(/<[^>]+>/g)].some(tag => a.every(x => tag[0].includes(x))); });
 }
-function tourAll(branches) {
-  if (branches) app.setState(D.play(0, branches));
-  const seen = [];
-  for (let guard = 0; guard < 400; guard++) {
+function tourAll() {
+  const seen = [], scenes = [];
+  for (let guard = 0; guard < 600; guard++) {
     const s = S(), B = s.branches, st = D.tour.stepsFor(D.chapters[s.chapterIndex].id, B), i = s.tourStep || 0;
-    if (s.chapterIndex >= D.tour.lastIndex() && i >= st.length) break;
-    if (i < st.length) { const op = (st[i].do || [])[0]; if (op && op.sel) { const sel = typeof op.sel === 'function' ? op.sel(B, s) : op.sel; assert.ok(selectorPresent(markup(), sel), 'cíl kroku chybí: ' + D.chapters[s.chapterIndex].id + ' krok ' + (i + 1) + ' ' + sel); } }
+    if (s.sceneIndex >= D.tour.lastIndex() && i >= st.length) break;
+    if (i < st.length) { const op = (st[i].do || [])[0]; if (op && op.sel) { const sel = typeof op.sel === 'function' ? op.sel(B, s) : op.sel; assert.ok(selectorPresent(markup(), sel), 'cíl kroku chybí: scéna ' + (s.sceneIndex + 1) + ' ' + D.chapters[s.chapterIndex].id + ' krok ' + (i + 1) + ' ' + sel); } }
     act('tourNext');
     assert.equal(S().error, '', D.chapters[s.chapterIndex].id + ' krok ' + (i + 1) + ': ' + S().error);
-    seen.push(D.chapters[S().chapterIndex].id);
+    seen.push(D.chapters[S().chapterIndex].id); if (!scenes.includes(S().sceneIndex)) scenes.push(S().sceneIndex);
   }
-  return seen;
+  return { seen, scenes };
 }
-test('Celou maketu jde projít jen tlačítkem Další', () => {
-  const seen = tourAll();
-  for (const c of D.chapters) assert.ok(seen.includes(c.id), 'vynechána ' + c.id);
+test('Celou maketu včetně všech odboček jde projít jen tlačítkem Další', () => {
+  const r = tourAll();
+  for (const c of D.chapters) assert.ok(r.seen.includes(c.id), 'vynechána ' + c.id);
+  assert.equal(r.scenes.length, D.scenes.length, 'každá scéna navštívena');
   assert.equal(S().plans.length, 2);
+  /* každá volba každé odbočky má svou scénu v řadě */
+  for (const k of Object.keys(D.branches)) for (const o of D.branches[k].options) {
+    if (o.id === D.defaults[k]) continue;
+    assert.ok(D.scenes.some(sc => sc.B[k] === o.id), 'chybí scéna pro odbočku ' + k + ':' + o.id);
+  }
+  assert.ok(D.scenes.filter(sc => sc.detour).every(sc => sc.title && /^Odbočka/.test(sc.title)));
 });
-test('Průchod Další funguje ve všech odbočkách', () => {
-  for (const v of [{ bolus: 'smaller' }, { bolus: 'unknown' }, { response: 'declines' }, { response: 'impractical' }]) { boot(); tourAll(Object.assign({}, D.defaults, v)); assert.equal(S().chapterIndex, D.chapters.length - 1, JSON.stringify(v)); }
-  boot(); tourAll(Object.assign({}, D.defaults, { training: 'failed' }));
-  assert.equal(D.chapters[S().chapterIndex].id, 'handover');
+test('Krok zpět vrací přesně o jeden krok; na začátku scény o scénu; rozhodnutí garanta přežije skok mezi scénami', () => {
+  act('goScene', String(D.scenes.findIndex(sc => D.chapters[sc.ch].id === 'advice')));
+  act('tourNext'); act('tourNext'); assert.equal(S().tourStep, 2);
+  const snap = JSON.stringify(S().meal.decisions);
+  act('tourBack'); assert.equal(S().tourStep, 1);
+  act('tourNext'); assert.equal(S().tourStep, 2); assert.equal(JSON.stringify(S().meal.decisions), snap, 'po zpět a vpřed stejný stav');
+  act('tourBack'); act('tourBack'); assert.equal(S().tourStep, 0);
+  const here = S().sceneIndex; act('tourBack'); assert.equal(S().sceneIndex, here - 1, 'na začátku scény jde zpět o scénu');
+  /* garant rozhodne z panelu vyprávění (v roli pacienta) a rozhodnutí přežije přehrání jiné scény */
+  act('role', 'patient'); bind('form.gc_R-PROCHAZKA', 'Zkrátit na 10 minut.'); act('garantDecide', 'R-PROCHAZKA:rejected');
+  assert.equal(NF.item(S(), 'R-PROCHAZKA').status, 'rejected'); assert.ok(S().registry.history.some(h => h.item === 'R-PROCHAZKA' && h.by === 'garant' && /10 minut/.test(h.comment)));
+  act('goScene', '0'); assert.equal(NF.item(S(), 'R-PROCHAZKA').status, 'rejected', 'přežilo přehrání');
+  act('goScene', String(D.scenes.length - 1)); assert.equal(NF.item(S(), 'R-PROCHAZKA').status, 'rejected');
+  assert.equal(NF.advise(S(), food('Ovesná kaše s mlékem a banánem').id, 'usual', 'before').items.some(i => i.lever === 'walk'), false, 'zamítnutá rada se v příběhu nenabízí');
+  act('garantReset'); assert.equal(NF.item(S(), 'R-PROCHAZKA').status, 'approved');
+});
+test('Registr jako seznam ke schválení: souhrn v hlavičce, filtry stavů a rozhodnutí, fulltext i v komentářích, komentář bez změny stavu', () => {
+  act('goScene', '0'); act('role', 'doctor'); act('page', 'registry');
+  let sum = NF.registrySummary(S()); assert.equal(sum.remaining, sum.total); assert.equal(sum.touched, 0);
+  assert.match(markup(), /Zbývá/); assert.match(markup(), /Prošel/); assert.match(markup(), /schváleno předem/);
+  act('regOpen', 'R-SKORE'); bind('form.regcomment_R-SKORE', 'Hranice 80 % ověřit s diabetologem.'); act('regComment');
+  sum = NF.registrySummary(S()); assert.equal(sum.touched, 1); assert.equal(sum.commented, 1); assert.equal(sum.confirmed, 1); assert.equal(NF.item(S(), 'R-SKORE').status, 'approved');
+  act('regOpen', 'R-PORADI'); act('regDecide', 'approved'); sum = NF.registrySummary(S()); assert.equal(sum.confirmed, 2); assert.equal(sum.remaining, sum.total - 2);
+  act('regFilter', 'touch:todo'); assert.equal(/R-SKORE · /.test(markup()), false); act('regFilter', 'touch:todo');
+  act('regFilter', 'touch:commented'); assert.match(markup(), /R-SKORE · /); assert.equal(/R-PORADI · /.test(markup()), false); act('regFilter', 'touch:commented');
+  bind('reg.q', 'diabetologem'); act('noop'); assert.match(markup(), /R-SKORE · /); assert.equal(/R-PORADI · /.test(markup()), false, 'fulltext hledá i v komentářích');
+  assert.match(markup(), /potvrzeno/);
 });
 test('Každý krok vypráví a každá kapitola má úvod', () => {
   for (const c of D.chapters) {

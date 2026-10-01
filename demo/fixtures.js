@@ -379,6 +379,43 @@ D.play = function (index, branches) {
 };
 D.indexOf = function (id) { for (var i = 0; i < CH.length; i++) if (CH[i].id === id) return i; return -1; };
 
+/* ---------- scény: lineární řada pro tlačítko Další, odbočky vložené mezi hlavní linii ----------
+   Lékař-garant nemusí nic volit: Další projde všechny kapitoly i všechny varianty odboček. */
+function scene(id, B, title) { return { ch: D.indexOf(id), B: B || {}, title: title || null, detour: !!B }; }
+D.scenes = [
+  scene('enroll'), scene('doses'), scene('issue'), scene('training'), scene('handover'),
+  scene('training', { training: 'failed' }, 'Odbočka · zaučení se nezdařilo'),
+  scene('handover', { training: 'failed' }, 'Odbočka · bez zaučení plán nezačne platit'),
+  scene('firstMeal'), scene('week'), scene('lateMeal'), scene('advice'),
+  scene('afterBolus'),
+  scene('afterBolus', { bolus: 'smaller' }, 'Odbočka · po píchnutí chystá menší porci'),
+  scene('afterBolus', { bolus: 'unknown' }, 'Odbočka · neví, jestli si už píchl'),
+  scene('custom'), scene('illness'), scene('illnessMeal'), scene('recovery'), scene('registry'), scene('impact'),
+  scene('preview'), scene('reviewSummary'), scene('reviewProposals'), scene('reviewConfirm'), scene('reviewHandover'), scene('newplan'),
+  scene('reviewProposals', { response: 'declines' }, 'Odbočka · pacient rady většinou nepřijal: jiné návrhy'),
+  scene('reviewProposals', { response: 'impractical' }, 'Odbočka · „nemám to doma“: výměna rady'),
+  scene('newplan', { response: 'impractical' }, 'Odbočka · „nemám to doma“: co uvidí pacient'),
+  scene('trace')
+];
+D.playScene = function (i) {
+  var idx = Math.max(0, Math.min(D.scenes.length - 1, Number(i) || 0)), sc = D.scenes[idx];
+  var S = D.play(sc.ch, sc.B);
+  S.sceneIndex = idx; S.sceneTitle = sc.title || CH[sc.ch].title;
+  return S;
+};
+/* Nejbližší scéna ke kapitole a větvím (pro skoky z panelu prezentujícího). */
+D.sceneFor = function (chapterIndex, B) {
+  B = B || D.defaults;
+  var exact = -1, first = -1;
+  D.scenes.forEach(function (sc, i) {
+    if (sc.ch !== chapterIndex) return;
+    if (first < 0) first = i;
+    var all = Object.keys(sc.B).every(function (k) { return B[k] === sc.B[k]; }) && Object.keys(D.branches).every(function (k) { return sc.B[k] ? true : B[k] === D.defaults[k]; });
+    if (all && exact < 0) exact = i;
+  });
+  return exact >= 0 ? exact : first >= 0 ? first : 0;
+};
+
 /* Otázky pro garanta podle dějství (panel prezentujícího). */
 D.garantQuestions = [
   ['Stačí čtyři podmínky zařazení?', 'Je startovní sada návyků správná pro všechny?', 'Jsou připravené věty pokynů úplné?', 'Stačí hrubá denní doba (10:00 / 15:30 / 21:00) k rozlišení, že jídlo už minulo?'],

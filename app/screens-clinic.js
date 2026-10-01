@@ -274,15 +274,22 @@ function reviewHandover(S, p, r) {
 var ICONS = { kohorta: '👤', plan: '📋', vypocty: '∑', rady: '💡', skore: '◔', davka: '💉', pokyny: '🛡', zauceni: '🎓', jidla: '🍽', report: '📊', provoz: '⚙' };
 V.registry = function (S) {
   var f = S.reg || {}, q = (f.q || '').toLowerCase();
-  var items = S.registry.items.filter(function (r) { return (!f.cat || r.cat === f.cat) && (!f.status || r.status === f.status) && (!q || (r.title + ' ' + r.id + ' ' + r.summary).toLowerCase().indexOf(q) >= 0); });
+  var sum = NF.registrySummary(S);
+  var items = S.registry.items.filter(function (r) {
+    var t = NF.itemTouched(S, r.id), hist = S.registry.history.filter(function (h) { return h.item === r.id; });
+    var text = (r.title + ' ' + r.id + ' ' + r.summary + ' ' + (r.detail || '') + ' ' + (r.text || '') + ' ' + hist.map(function (h) { return h.comment; }).join(' ')).toLowerCase();
+    return (!f.cat || r.cat === f.cat) && (!f.status || r.status === f.status) && (!f.touch || (f.touch === 'done' ? t : f.touch === 'todo' ? !t : hist.some(function (h) { return h.comment; }))) && (!q || text.indexOf(q) >= 0);
+  });
   var counts = { approved: 0, edited: 0, rejected: 0 }; S.registry.items.forEach(function (r) { counts[r.status]++; });
   var open = f.open ? NF.item(S, f.open) : null;
-  var out = pagehead('Lékař-garant', 'Schvalovací registr', 'Vše, co aplikace počítá, radí a navrhuje, stojí na těchto ' + S.registry.items.length + ' položkách. V maketě jsou schválené předem. Rozhodnutí platí okamžitě a historie se uchovává.',
+  var sumTile = function (k, v, d, cls, key) { return '<button type="button" class="tile ' + cls + (f.touch === key ? ' open' : '') + '" data-action="regFilter" data-value="touch:' + key + '"><div class="k"><i></i>' + e(k) + '</div><div class="v">' + v + '</div><div class="d">' + e(d) + '</div></button>'; };
+  var out = pagehead('Lékař-garant', 'Schvalovací registr', 'Vše, co aplikace počítá, radí a navrhuje, stojí na těchto ' + S.registry.items.length + ' položkách. V maketě jsou schválené předem; garant je prochází, potvrzuje, upravuje nebo zamítá — tady i přímo z obrazovek. Rozhodnutí platí okamžitě a historie se uchovává.',
     '<div class="actions" style="margin:0">' + btn('Export JSON', 'exportRegistry', null, 'sm') + '</div>') +
-    '<div class="filters"><input data-bind="reg.q" placeholder="Hledat…" value="' + e(f.q || '') + '">' + NF.CATS.map(function (c) { return choice(e(c[1]), 'regFilter', 'cat:' + c[0], f.cat === c[0], 'sm'); }).join('') + '</div>' +
-    '<div class="filters">' + [['approved', 'schválené ' + counts.approved], ['edited', 'upravené ' + counts.edited], ['rejected', 'zamítnuté ' + counts.rejected]].map(function (x) { return choice(e(x[1]), 'regFilter', 'status:' + x[0], f.status === x[0], 'sm'); }).join('') + '</div>' +
+    '<div class="tiles" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">' + sumTile('Prošel', sum.touched + '<small>z ' + sum.total + '</small>', 'položek s rozhodnutím garanta', 'c-ok', 'done') + sumTile('Potvrdil', String(sum.confirmed), 'beze změny', 'c-ok', 'done') + sumTile('Upravil', String(sum.edited), 'parametry nebo text', 'c-warn', 'done') + sumTile('Zamítl', String(sum.rejected), 'aplikace položku nepoužívá', 'c-bad', 'done') + sumTile('Okomentoval', String(sum.commented), 'poznámka v historii', 'c-none', 'commented') + sumTile('Zbývá', String(sum.remaining), 'schváleno předem, bez rozhodnutí', sum.remaining ? 'c-warn' : 'c-ok', 'todo') + '</div>' +
+    '<div class="filters"><input data-bind="reg.q" placeholder="Hledat v názvu, popisu, textu i komentářích…" value="' + e(f.q || '') + '">' + NF.CATS.map(function (c) { return choice(e(c[1]), 'regFilter', 'cat:' + c[0], f.cat === c[0], 'sm'); }).join('') + '</div>' +
+    '<div class="filters">' + [['approved', 'schválené ' + counts.approved], ['edited', 'upravené ' + counts.edited], ['rejected', 'zamítnuté ' + counts.rejected]].map(function (x) { return choice(e(x[1]), 'regFilter', 'status:' + x[0], f.status === x[0], 'sm'); }).join('') + [['todo', 'zbývá potvrdit ' + sum.remaining], ['done', 'rozhodnuto ' + sum.touched], ['commented', 's komentářem ' + sum.commented]].map(function (x) { return choice(e(x[1]), 'regFilter', 'touch:' + x[0], f.touch === x[0], 'sm'); }).join('') + '</div>' +
     '<div class="reg"><div class="card flat" style="padding:0;overflow:hidden">' + (items.length ? items.map(function (r) {
-      return '<button type="button" class="reg-row ' + (open && open.id === r.id ? 'on' : '') + '" data-action="regOpen" data-value="' + r.id + '"><span class="ic">' + (ICONS[r.cat] || '•') + '</span><span><span class="t">' + e(r.title) + '</span><br><span class="s">' + e(r.id) + ' · ' + e(NF.catLabel(r.cat)) + ' · ' + e(r.summary) + '</span></span>' + tag(NF.STATUS[r.status], r.status === 'approved' ? 'ok' : r.status === 'edited' ? 'warn' : 'bad') + '<span class="s">' + e(NF.fmtShort(r.decidedAt)) + '</span></button>';
+      return '<button type="button" class="reg-row ' + (open && open.id === r.id ? 'on' : '') + '" data-action="regOpen" data-value="' + r.id + '"><span class="ic">' + (ICONS[r.cat] || '•') + '</span><span><span class="t">' + e(r.title) + '</span><br><span class="s">' + e(r.id) + ' · ' + e(NF.catLabel(r.cat)) + ' · ' + e(r.summary) + '</span></span>' + (NF.itemTouched(S, r.id) ? tag(r.status === 'approved' ? 'potvrzeno' : NF.STATUS[r.status], r.status === 'approved' ? 'ok' : r.status === 'edited' ? 'warn' : 'bad') : tag('schváleno předem', '')) + '<span class="s">' + e(NF.fmtShort(r.decidedAt)) + '</span></button>';
     }).join('') : '<p class="muted" style="padding:16px">Nic neodpovídá filtru.</p>') + '</div>' +
     '<div class="reg-side">' + (open ? itemPanel(S, open) : card('<p class="muted">Klepněte na položku. Uvidíte, co přesně dělá, jaké má parametry, a můžete ji schválit, upravit nebo zamítnout — s komentářem, nebo bez něj.</p>')) + '</div></div>';
   return out;
@@ -301,9 +308,9 @@ function itemPanel(S, r) {
     (r.usedBy ? '<p class="small muted" style="margin-top:8px">Používá se: ' + e(r.usedBy) + '</p>' : '') +
     '<div class="divider"></div><h3>Rozhodnutí garanta</h3>' +
     '<label class="field"><span>Komentář (nepovinný)</span><input data-bind="form.regcomment_' + r.id + '" value="' + e((S.form && S.form['regcomment_' + r.id]) || '') + '"></label>' +
-    '<div class="actions" style="margin-top:8px">' + btn('Schválit', 'regDecide', 'approved', r.status === 'approved' ? 'sm' : 'primary sm') +
+    '<div class="actions" style="margin-top:8px">' + btn(NF.itemTouched(S, r.id) && r.status === 'approved' ? 'Potvrdit znovu' : 'Potvrdit', 'regDecide', 'approved', r.status === 'approved' && !NF.itemTouched(S, r.id) ? 'primary sm' : 'sm') +
     (keys.length ? (editing ? btn('Uložit úpravu', 'regDecide', 'edited', 'primary sm') : btn('Upravit parametry', 'regEdit', null, 'sm')) : '') +
-    btn('Zamítnout', 'regDecide', 'rejected', 'danger sm') + '</div>' +
+    btn('Zamítnout', 'regDecide', 'rejected', 'danger sm') + btn('Jen komentář', 'regComment', null, 'sm quiet') + '</div>' +
     (r.status === 'rejected' ? hint('Položka je zamítnutá: aplikace ji přestala používat (rada zmizela, výpočet se neprovádí).', 'bad') : '') +
     '<details class="more" style="margin-top:12px"><summary>Historie rozhodnutí (' + hist.length + ')</summary><ul class="plain hist">' + (hist.length ? hist.map(function (h) { return '<li>' + e(NF.fmtDateTime(h.at)) + ' · ' + e(h.by) + ': ' + e(NF.STATUS[h.from.status] || h.from.status) + ' → <b>' + e(NF.STATUS[h.to.status]) + '</b>' + (JSON.stringify(h.from.params) !== JSON.stringify(h.to.params) ? ' · parametry ' + e(JSON.stringify(h.to.params)) : '') + (h.comment ? ' · „' + e(h.comment) + '“' : '') + '</li>'; }).join('') : '<li class="muted">Zatím beze změny od výchozího schválení.</li>') + '</ul></details>');
 }

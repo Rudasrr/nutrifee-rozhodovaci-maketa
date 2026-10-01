@@ -42,7 +42,7 @@ T.chapters = {
       { do: [{ sel: '[data-value="t-porce"]', act: 'trainingStep', val: 't-porce', quick: true }, { sel: '[data-value="t-inzulin"]', act: 'trainingStep', val: 't-inzulin', quick: true }, { sel: '[data-value="t-bazal"]', act: 'trainingStep', val: 't-bazal', quick: true }, { sel: '[data-value="contacts"]', act: 'trainingStep', val: 'contacts', quick: true }],
         t: 'Body podle návyků', co: 'Pacient ví, že se ho aplikace před každým jídlem zeptá na inzulin, kdy přijde rada k porci a jak potvrdit bazál.', vsimni: 'Tyhle body existují jen proto, že jsou v plánu příslušné návyky.', proc: 'Otázka na inzulin je jediná věc mezi radou a nízkou glukózou — pacient ji musí znát předem.' },
       { when: function (B) { return B.training !== 'failed'; }, do: [{ sel: '[data-action="finishTraining"][data-value="done"]', act: 'finishTraining', val: 'done' }], watch: '.hint.ok', t: 'Zaučení dokončeno', co: 'Zaznamenáno na sestru s časem.', dusledek: 'Pacient teď převezme plán.' },
-      { when: function (B) { return B.training === 'failed'; }, do: [{ sel: '[data-action="finishTraining"][data-value="failed"]', act: 'finishTraining', val: 'failed' }], watch: '.hint.warn', t: 'Zaučení se nezdařilo', co: 'Plán je vydaný, návyky ale nezačnou platit.', dusledek: 'V této odbočce příběh končí.' }
+      { when: function (B) { return B.training === 'failed'; }, do: [{ sel: '[data-action="finishTraining"][data-value="failed"]', act: 'finishTraining', val: 'failed' }], watch: '.hint.warn', t: 'Zaučení se nezdařilo', co: 'Plán je vydaný, návyky ale nezačnou platit.', dusledek: 'Další scéna ukáže, co v tu chvíli vidí pacient; pak se vracíme k hlavní linii.' }
     ]
   },
   handover: {
@@ -52,7 +52,7 @@ T.chapters = {
       { do: [{ sel: '[data-action="page"][data-value="understand"]', act: 'page', val: 'understand' }], t: 'Plán jsem převzal', co: 'Otevřela se jedna kontrolní otázka.' },
       { do: [{ sel: '[data-value="yes"]', act: 'answerCheck', val: 'yes' }], watch: '.hint.warn', t: 'Špatná odpověď nic nezkazí', co: '„Ano, hned“ — aplikace vysvětlí, že zápis není zpráva do ordinace. Tlačítko „Hotovo“ zůstává zamčené.', proc: 'Kdyby pacient čekal, že ho někdo sleduje, čekal by na pomoc, která nepřijde.' },
       { when: function (B) { return B.training !== 'failed'; }, do: [{ sel: '[data-value="no"]', act: 'answerCheck', val: 'no' }, { sel: '[data-action="confirmUnderstanding"]', act: 'confirmUnderstanding' }], t: 'Správně → plán platí', co: 'Pacient odchází z ordinace s aktivními návyky.', dusledek: 'Od zítřka otevírá aplikaci před snídaní.' },
-      { when: function (B) { return B.training === 'failed'; }, do: [{ sel: '[data-value="no"]', act: 'answerCheck', val: 'no' }], watch: '.hint.warn', t: 'Správně, ale bez zaučení to nejde', co: 'Tlačítko zůstává zamčené: zaučení u sestry nebylo dokončeno, návyky nezačnou platit.', proc: 'Aplikace nedovolí začít pacientovi, který ji neumí ovládat.', dusledek: 'V této odbočce příběh končí.' }
+      { when: function (B) { return B.training === 'failed'; }, do: [{ sel: '[data-value="no"]', act: 'answerCheck', val: 'no' }], watch: '.hint.warn', t: 'Správně, ale bez zaučení to nejde', co: 'Tlačítko zůstává zamčené: zaučení u sestry nebylo dokončeno, návyky nezačnou platit.', proc: 'Aplikace nedovolí začít pacientovi, který ji neumí ovládat.', dusledek: 'Odbočka končí; další scéna pokračuje hlavní linií, kde zaučení proběhlo.' }
     ]
   },
   firstMeal: {
@@ -198,7 +198,7 @@ T.chapters = {
   },
   trace: {
     intro: { t: 'Verze a stopa: důkaz pro studii', co: 'Každý výpočet, rada, návrh a rozhodnutí se vstupy a výstupy. Export JSON.', proc: 'Doložení, že do výpočtů nezasahuje žádná generativní AI a všechno je dohledatelné.' },
-    steps: [{ do: [{ sel: 'table' }], t: 'Stopa', co: 'Řádky „rada.zobrazena“, „navrh.rozhodnut“, „registr.rozhodnuti“ — u každého tlačítko „data“ rozbalí přesné vstupy.', dusledek: 'Konec ukázky. Odbočky najdete v panelu prezentujícího.' }]
+    steps: [{ do: [{ sel: 'table' }], t: 'Stopa', co: 'Řádky „rada.zobrazena“, „navrh.rozhodnut“, „registr.rozhodnuti“ — u každého tlačítko „data“ rozbalí přesné vstupy.', dusledek: 'Konec ukázky. Všechny odbočky jste prošli cestou; co zbývá potvrdit, je pod „Ke schválení“ v liště.' }]
   }
 };
 

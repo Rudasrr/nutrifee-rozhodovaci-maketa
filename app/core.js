@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 20;
+NF.SCHEMA = 21;
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 var DAYS = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
@@ -133,18 +133,42 @@ NF.param = function (S, id, key, fallback) {
   var r = NF.item(S, id);
   return r && r.params && r.params[key] != null ? r.params[key] : fallback;
 };
-NF.decideItem = function (S, id, status, comment, params) {
-  var r = NF.item(S, id);
+/* opts.garant: rozhodnutí lékaře-garanta mimo roli na obrazovce (panel vyprávění v prezentaci). Vrací i přenositelný záznam `decision`. */
+NF.decideItem = function (S, id, status, comment, params, opts) {
+  var r = NF.item(S, id), garant = !!(opts && opts.garant);
   if (!r) return { ok: false, error: 'Položka nenalezena.' };
-  if (S.role !== 'doctor') return { ok: false, error: 'Registr spravuje lékař-garant.' };
+  if (S.role !== 'doctor' && !garant) return { ok: false, error: 'Registr spravuje lékař-garant.' };
+  var by = garant ? 'garant' : S.doctor.id;
+  var d = { item: id, status: status, comment: comment || '', params: params ? NF.clone(params) : null, text: null, at: S.clock, by: by };
+  var h = NF.applyDecision(S, d);
+  return { ok: true, item: r, decision: d, history: h };
+};
+/* Aplikuje záznam rozhodnutí na stav (použije se i při přehrání scény, aby rozhodnutí garanta přežila). */
+NF.applyDecision = function (S, d) {
+  var r = NF.item(S, d.item); if (!r) return null;
   var from = { status: r.status, params: NF.clone(r.params || {}) };
-  r.status = status;
-  if (params) { Object.keys(params).forEach(function (k) { r.params[k] = params[k]; }); }
-  r.decidedAt = S.clock; r.decidedBy = S.doctor.id; r.comment = comment || '';
-  var h = { id: NF.uid('H'), at: S.clock, by: S.doctor.id, item: id, from: from, to: { status: status, params: NF.clone(r.params || {}) }, comment: comment || '' };
+  r.status = d.status;
+  if (d.params) { r.params = r.params || {}; Object.keys(d.params).forEach(function (k) { r.params[k] = d.params[k]; }); }
+  if (d.text) r.text = d.text;
+  r.decidedAt = d.at; r.decidedBy = d.by; r.comment = d.comment || ''; r.touched = true;
+  var h = { id: NF.uid('H'), at: d.at, by: d.by, item: d.item, from: from, to: { status: d.status, params: NF.clone(r.params || {}) }, comment: d.comment || '' };
   S.registry.history.push(h);
-  NF.log(S, 'registr.rozhodnuti', id + ' → ' + status, h);
-  return { ok: true, item: r };
+  NF.log(S, 'registr.rozhodnuti', d.item + ' → ' + d.status + (d.comment ? ' · „' + d.comment + '“' : ''), h);
+  return h;
+};
+/* Souhrn pro hlavičku registru: kolik garant prošel, potvrdil, upravil, zamítl, okomentoval, kolik zbývá. */
+NF.itemTouched = function (S, id) { return S.registry.history.some(function (h) { return h.item === id; }); };
+NF.registrySummary = function (S) {
+  var items = S.registry.items, hist = S.registry.history, out = { total: items.length, touched: 0, confirmed: 0, edited: 0, rejected: 0, commented: 0, remaining: 0 };
+  items.forEach(function (r) {
+    var t = hist.some(function (h) { return h.item === r.id; });
+    if (t) out.touched++; else out.remaining++;
+    if (t && r.status === 'approved') out.confirmed++;
+    if (r.status === 'edited') out.edited++;
+    if (r.status === 'rejected') out.rejected++;
+    if (hist.some(function (h) { return h.item === r.id && h.comment; })) out.commented++;
+  });
+  return out;
 };
 
 /* ---------- zařazení ---------- */
