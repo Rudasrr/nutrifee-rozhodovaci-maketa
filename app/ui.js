@@ -78,6 +78,7 @@ function renderDrawer() {
   if (!drawer) { el.innerHTML = ''; return; }
   var body = '';
   if (drawer.indexOf('item:') === 0) body = V.itemDetail ? V.itemDetail(S, drawer.slice(5)) : '';
+  else if (drawer === 'acute') body = V.acute ? V.acute(S) : '';
   else if (NF.slots.drawer) body = NF.slots.drawer(S, drawer) || '';
   if (!body) { el.innerHTML = ''; drawer = null; return; }
   el.innerHTML = '<div class="drawer"><section class="drawerpanel" role="dialog" aria-modal="true" aria-label="Podrobnosti">' +
@@ -226,6 +227,11 @@ var A = {
   },
   reviewTile: function (v) { S.review.tile = S.review.tile === v ? null : v; },
   propVerify: function (v) { var p = v.split(':'); S.review.verify[p[0]] = S.review.verify[p[0]] || {}; S.review.verify[p[0]][p[1]] = p[2] === 'yes'; },
+  propVerifyAll: function (v) { NF.verifyAll(S, v); },
+  propKeepAll: function () { if (S.role !== 'doctor') return fail('Rozhoduje lékař.'); NF.keepAll(S); },
+  propSingle: function (v) { S.review.single = S.review.single || {}; S.review.single[v] = true; },
+  propSwapTo: function (v) { var p = v.split(':'); S.review.swapTo = S.review.swapTo || {}; S.review.swapTo[p[0]] = p[1]; },
+  acuteOpen: function () { drawer = 'acute'; },
   propUnits: function (v) { var p = v.split(':'); var pr = S.review.proposals.filter(function (x) { return x.id === p[0]; })[0]; if (!pr || !pr.dose) return; S.review.newDoses[pr.dose].units = Math.max(0, S.review.newDoses[pr.dose].units + Number(p[1])); },
   propOther: function (v) { S.review.other = S.review.other === v ? null : v; },
   propDecide: function (v) {
@@ -233,7 +239,8 @@ var A = {
     var branch = V.proposalBranch ? V.proposalBranch(S, pr) : null;
     if (!branch || branch.action === 'wait') return fail('Nejdřív u každého bodu označte, zda sedí, nebo nesedí.');
     var dec = { choice: p[1], branch: branch && branch.action, comment: (S.form && S.form['comment_' + pr.id]) || '' };
-    if (p[1] === 'agree' && pr.kind === 'dose' && (branch.action === 'up' || branch.action === 'down') && S.review.newDoses[pr.dose].units === NF.activePlan(S).doses[pr.dose].units) return fail('Nastavte novou dávku voličem.');
+    if (branch.action === 'swap' && p[1] === 'agree') { var st = S.review.swapTo && S.review.swapTo[pr.id]; dec.swapTo = st === 'none' ? null : (st || NF.swapOptions(S, pr)[0] || null); }
+    if (p[1] === 'agree' && pr.kind === 'dose' && (branch.action === 'up' || branch.action === 'down' || branch.action === 'free') && S.review.newDoses[pr.dose].units === NF.activePlan(S).doses[pr.dose].units) return fail('Nastavte novou dávku voličem.');
     if (p[1] === 'agree' && pr.kind === 'dose') dec.units = S.review.newDoses[pr.dose].units;
     if (p[1] === 'reject' && !p[2]) return fail('Vyberte důvod zamítnutí.');
     if (p[2]) dec.reason = p[2];

@@ -204,6 +204,20 @@ function series(S, B) {
   S.sensorSummary = { period: '22. 12. 2026 – 4. 1. 2027', availability: 91, tir: B.response === 'accepts' ? 72 : 61, below: 2, veryLow: 0, above: B.response === 'accepts' ? 26 : 37 };
 }
 
+/* Rozhodne návrhy, které se rozhodují jednotlivě, podle větve postupu (v odbočce „nemám to doma“ ověření nesedí → výměna rady). */
+D.decideSingles = function (S, B) {
+  var r = S.review;
+  r.proposals.forEach(function (pr) {
+    if (r.decisions[pr.id] || !NF.proposalIsSingle(S, pr)) return;
+    NF.verifyAll(S, pr.id);
+    if (B.response === 'impractical' && pr.lever && (/^Vyměnit/.test(pr.title) || /-RADY$/.test(pr.id))) r.verify[pr.id][0] = false;
+    var br = NF.screens.proposalBranch(S, pr), dec = { choice: br && (br.action === 'up' || br.action === 'down' || br.action === 'swap') ? 'agree' : 'keep', branch: br && br.action };
+    if (pr.kind === 'dose' && dec.choice === 'agree') { r.newDoses[pr.dose].units += br.action === 'up' ? 2 : -2; dec.units = r.newDoses[pr.dose].units; }
+    if (br && br.action === 'swap') dec.swapTo = NF.swapOptions(S, pr)[0] || null;
+    NF.decideProposal(S, pr.id, dec);
+  });
+};
+
 /* ---------- odbočky ---------- */
 D.branches = {
   training: { label: 'Zaučení u sestry', from: 'training', options: [{ id: 'done', label: 'Zaučení proběhlo' }, { id: 'failed', label: 'Zaučení se nezdařilo — návyky nezačnou platit' }] },
@@ -322,14 +336,10 @@ var CH = [
     apply: function (S) { S.role = 'doctor'; NF.startReview(S, D.habitCatalog); } },
   { id: 'reviewProposals', act: 5, title: 'Lékař — krok 2: návrhy s důvodem a postupem', role: 'doctor', page: 'review', at: '2027-01-05T09:10:00',
     setup: function (S) { if (S.review) S.review.step = 2; },
-    apply: function (S) {
-      S.role = 'doctor'; var r = S.review;
-      r.proposals.forEach(function (pr) {
-        r.verify[pr.id] = {}; pr.verify.forEach(function (_, i) { r.verify[pr.id][i] = true; });
-        var br = NF.screens.proposalBranch(S, pr), dec = { choice: br && (br.action === 'up' || br.action === 'down' || br.action === 'swap') ? 'agree' : 'keep', branch: br && br.action };
-        if (pr.kind === 'dose' && dec.choice === 'agree') { r.newDoses[pr.dose].units += br.action === 'up' ? 2 : -2; dec.units = r.newDoses[pr.dose].units; }
-        NF.decideProposal(S, pr.id, dec);
-      });
+    apply: function (S, B) {
+      S.role = 'doctor';
+      D.decideSingles(S, B);
+      NF.keepAll(S);
     } },
   { id: 'reviewConfirm', act: 5, title: 'Lékař — krok 3: potvrzení a vydání plánu P2', role: 'doctor', page: 'review', at: '2027-01-05T09:25:00',
     setup: function (S) { if (S.review) S.review.step = 3; },

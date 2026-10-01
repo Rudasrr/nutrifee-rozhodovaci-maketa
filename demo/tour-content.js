@@ -171,13 +171,15 @@ T.chapters = {
     intro: { t: 'Krok 2 — návrhy s důvodem a postupem', co: 'NutriFee připravila návrhy. Jen jeden je otevřený, ostatní čekají. Každý má: proč vznikl, co ho oslabuje, 1 ověřte s pacientem, 2 váš schválený postup říká, 3 rozhodnutí.', proc: 'Lékař nepřemýšlí, co má udělat. Ověří body a postup mu řekne, která větev platí. Jednotky volí sám.' },
     steps: [
       { do: [{ sel: '.prop.now .why' }], t: 'Proč návrh vznikl', co: 'Čísla z dat: kolik čistých snídaní bylo nad cílem i po přijatých radách. Co návrh oslabuje: vyřazené zápisy.', vsimni: 'Do návrhu vstupují jen „čistá“ jídla: obvyklá porce, dávka potvrzená podle plánu, mimo nemoc.', proc: 'Bez potvrzení dávky by signál ukazoval na dávku, přestože příčina je jinde.' },
-      { do: [0, 1, 2, 3].map(function (i) { return { sel: function (B, S) { return '[data-action="propVerify"][data-value="' + S.review.proposals[S.review.index].id + ':' + i + ':yes"]'; }, act: 'propVerify', val: function (B, S) { return S.review.proposals[S.review.index].id + ':' + i + ':yes'; }, quick: true }; }),
-        watch: '.prop.now .branch', t: 'Ověření řídí větev postupu', co: 'U každého bodu lékař označí „sedí“ nebo „nesedí“. Dokud některý chybí, postup čeká. Když vše sedí: „zvýšit“. Kdyby bod 1 neseděl: „ponechat, řešit podání“.', proc: 'Věta „zvýšit“ je z postupu D-POSTUP, který schválil lékař-garant. Aplikace ji nevymyslela.' },
-      { when: function (B) { return B.response === 'accepts'; }, do: [{ sel: '.prop.now .stepper button:last-child', act: 'propUnits', val: function (B, S) { return S.review.proposals[S.review.index].id + ':1'; }, quick: true }, { sel: '.prop.now .stepper button:last-child', act: 'propUnits', val: function (B, S) { return S.review.proposals[S.review.index].id + ':1'; }, quick: true }],
+      { do: [{ sel: '[data-action="propVerifyAll"]', act: 'propVerifyAll', val: function (B, S) { var n = NF.nextProposal(S); return n ? n.id : ''; } }],
+        watch: '.prop.now .branch', t: 'Ověření řídí větev postupu', co: 'Lékař ověřil body s pacientem a klepl „Vše sedí“; kterýkoli bod může přepnout na „nesedí“. Dokud některý chybí, postup čeká. Když vše sedí: „zvýšit“. Kdyby bod 1 neseděl: „ponechat, řešit podání“.', vsimni: 'Body jsou tvrzení („dávky potvrzeny a čas sedí“), aby „sedí / nesedí“ dávalo smysl.', proc: 'Věta „zvýšit“ je z postupu D-POSTUP, který schválil lékař-garant. Aplikace ji nevymyslela. „Vše sedí“ je jen zkratka — trojstav zůstává.' },
+      { when: function (B) { return B.response === 'accepts'; }, do: [{ sel: '.prop.now .stepper button:last-child', act: 'propUnits', val: function (B, S) { return NF.nextProposal(S).id + ':1'; }, quick: true }, { sel: '.prop.now .stepper button:last-child', act: 'propUnits', val: function (B, S) { return NF.nextProposal(S).id + ':1'; }, quick: true }],
         t: 'O kolik — volí lékař', co: 'Volič jednotek. Aplikace číslo nenavrhuje; dokud je stejné jako dnes, „Souhlasím“ je zamčené.' },
-      { do: [{ sel: '.prop.now .decide .btn.primary', act: 'propDecide', val: function (B, S) { return S.review.proposals[S.review.index].id + ':agree'; } }], t: 'Souhlasím', co: 'Rozhodnutí je zapsané do stopy. Otevřel se další návrh.', vsimni: 'Jiné rozhodnutí (ponechat, zamítnout s důvodem, komentář) je pod nenápadným odkazem.' },
-      { do: [{ fn: function (S) { var r = S.review; r.proposals.forEach(function (pr) { if (r.decisions[pr.id]) return; r.verify[pr.id] = {}; pr.verify.forEach(function (_, i) { r.verify[pr.id][i] = true; }); var br = NF.screens.proposalBranch(S, pr); var dec = { choice: br && (br.action === 'up' || br.action === 'down' || br.action === 'swap') ? 'agree' : 'keep', branch: br && br.action }; if (pr.kind === 'dose' && dec.choice === 'agree') { r.newDoses[pr.dose].units += br.action === 'up' ? 2 : -2; dec.units = r.newDoses[pr.dose].units; } NF.decideProposal(S, pr.id, dec); }); } }], watch: '.nextbar',
-        t: 'Zbývající návrhy', co: 'Zachovat návyk, který funguje; vyměnit radu, kterou pacient nemá doma; pokyny platí. Všechny rozhodnuté, spodní lišta se odemkla.' }
+      { do: [{ sel: '.prop.now .decide .btn.primary', act: 'propDecide', val: function (B, S) { var n = NF.nextProposal(S); return n.id + ':' + (NF.screens.proposalBranch(S, n).action === 'keep' ? 'keep' : 'agree'); } }], t: 'Souhlasím', co: 'Rozhodnutí je zapsané do stopy. Otevřel se další návrh.', vsimni: 'Jiné rozhodnutí (ponechat, zamítnout s důvodem, komentář) je pod nenápadným odkazem.' },
+      { do: [{ fn: function (S) { D.decideSingles(S, S.branches || D.defaults); } }], watch: '.prop.group',
+        t: 'Zbývající návrhy', co: 'Lékař rozhodl i ostatní návrhy, kde se něco mění (rady k obědu před dávkou; v odbočce „nemám to doma“ výměnu rady za jinou — pacient pak doplněk už neuvidí).', proc: 'Návrh „vyměnit radu“ má skutečný účinek: plán nese vypnuté a nahrazené rady a jádro je podle toho nabízí.' },
+      { do: [{ sel: '[data-action="propKeepAll"]', act: 'propKeepAll' }], watch: '.nextbar',
+        t: 'Beze změny jedním klepnutím', co: 'Návrhy, které nic nemění (zachovat radu, pokyny platí), jsou jedna karta. Jedno potvrzení, každá položka se přesto zapíše do stopy zvlášť. Spodní lišta se odemkla.', proc: 'Lékař rozhoduje jen o tom, co se mění. Kontrola je tak zhruba 10 kliknutí místo 30.' }
     ]
   },
   reviewConfirm: {
@@ -188,7 +190,7 @@ T.chapters = {
   },
   reviewHandover: {
     intro: { t: 'Krok 4 — předání pacientovi', co: 'Vpravo náhled telefonu: pacient vidí změny a důvody lékaře. Kontrola končí.', proc: 'Lékař do příští kontroly nic nedělá.' },
-    steps: [{ do: [{ sel: '.phone-preview' }], t: 'Co pacient uvidí', co: 'Dávky se změnou, věta „Změna dávky = učíme se znovu“, rozbalovací „Proč lékař rozhodl takto“.' }]
+    steps: [{ do: [{ sel: '.phone-preview' }], t: 'Co pacient uvidí', co: 'Dávky se změnou, věta „Změna dávky = učíme se znovu“, případně „radu X ti už nenabízíme — lékař ji vypnul“, rozbalovací „Proč lékař rozhodl takto“.' }]
   },
   newplan: {
     intro: { t: 'Pacient: nový plán', co: 'Co se změnilo, proč, a jedno tlačítko „Rozumím, pokračuji“.' },

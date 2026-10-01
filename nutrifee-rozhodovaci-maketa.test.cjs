@@ -402,6 +402,40 @@ test('Odbočka „většinou nepřijal“ vede k jiným návrhům', () => {
   assert.match(S().review.proposals.map(p => p.id).join(' '), /PR-KEEP/);
 });
 
+test('Rady svázané s plánem: výměna rady má účinek; návrhy beze změny jedna karta; Vše sedí; Potvrdit plán ukazuje výsledek', () => {
+  chapter('reviewSummary'); branch('response', 'impractical'); act('role', 'doctor'); act('startReview'); act('reviewStep', '2');
+  const r = S().review;
+  assert.match(markup(), /Rozhodněte \d+ návrh/); assert.equal(/\d+ návrhy</.test(markup()), false, 'gramatika');
+  assert.match(markup(), /Beze změny \(\d+\)/); assert.equal((markup().match(/class="prop now"/g) || []).length, 1);
+  const pr = NF.nextProposal(S()); assert.ok(pr.lever, 'první návrh se týká rady');
+  act('propVerifyAll', pr.id); assert.ok(pr.verify.every((_, i) => r.verify[pr.id][i] === true));
+  act('propVerify', pr.id + ':0:no');
+  assert.equal(NF.screens.proposalBranch(S(), pr).action, 'swap', 'bod 1 nesedí → vyměnit');
+  const opts = NF.swapOptions(S(), pr); assert.ok(opts.length && !opts.includes(pr.lever));
+  act('propSwapTo', pr.id + ':' + opts[0]); act('propDecide', pr.id + ':agree');
+  assert.equal(r.decisions[pr.id].swapTo, opts[0]);
+  /* zbytek jednotlivě, pak beze změny jedním klepnutím */
+  D.decideSingles(S(), S().branches);
+  assert.equal(NF.reviewComplete(S()), false); act('propKeepAll'); assert.equal(NF.reviewComplete(S()), true);
+  assert.ok(r.proposals.filter(p => p.group).every(p => r.decisions[p.id].choice === 'keep'));
+  act('reviewStep', '3');
+  const d = NF.planFromReview(S());
+  assert.ok(d.advice.off.includes(pr.lever) && d.advice.prefer.length >= 1, 'vypnutá rada a náhrada v plánu');
+  assert.match(markup(), /vypnuto/); assert.match(markup(), /nabízet přednostně/);
+  act('issueP2'); assert.deepEqual(NF.activePlan(S()).advice, d.advice);
+  act('role', 'patient'); assert.match(markup(), /lékař ji vypnul/); act('confirmUnderstanding');
+  const k = food('Ovesná kaše s mlékem a banánem').id, items = NF.advise(S(), k, 'usual', 'before').items.map(i => i.lever);
+  assert.equal(items.includes(pr.lever), false, 'vypnutá rada se nenabízí'); assert.ok(items.includes(NF.activePlan(S()).advice.prefer[0]), 'náhradní rada se nabízí');
+  act('page', 'plan'); assert.match(markup(), /lékař vypnul/);
+});
+test('Akutní problém otevře pokyny a kontakty; návrh k dávce bez schváleného postupu nemá větve', () => {
+  chapter('reviewSummary'); act('startReview'); act('acuteOpen');
+  assert.match(elements.get('overlay').innerHTML, /Akutní problém pacienta/); act('closeDrawer');
+  NF.decideItem(S(), 'D-POSTUP', 'rejected', 'test');
+  const props = NF.proposals(S(), NF.activePlan(S()).id, D.habitCatalog).filter(p => p.kind === 'dose');
+  assert.ok(props.length && props.every(p => p.branches.length === 0 && /D-POSTUP/.test(p.weak.join())));
+});
+
 /* ---------- stopa ---------- */
 test('Stopa má vstupy a výstupy výpočtů a jde exportovat', () => {
   chapter('trace');

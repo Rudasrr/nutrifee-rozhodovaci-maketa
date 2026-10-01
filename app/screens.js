@@ -472,6 +472,7 @@ V.planScreen = function (S) {
     glass('<h2>Kdy a kolik inzulinu</h2>' + dosesTable(p) + '<p class="small muted">Určil lékař ' + e(NF.fmtShort(p.issuedAt)) + '. Připomínáme a ptáme se, jestli sis píchl. Nikdy nepočítáme ani neměníme.</p>') +
     glass('<h2>Tři jídla denně</h2>' + NF.MEALS.map(function (mm) { return kv(mm[2], '<b>' + p.doses[mm[0]].units + ' j.</b> inzulinu'); }).join('') + '<p class="small muted">Ke každému jídlu se ptáme na inzulin a co jsi jedl. Když zápis chybí, zeptáme se zpětně.</p>') +
     glass('<h2>Návyky</h2><ul class="plain">' + NF.activeHabits(S).map(function (h) { return '<li><b>' + e(h.title) + '</b><br><span class="small muted">' + e(h.why) + '</span></li>'; }).join('') + '</ul>') +
+    glass('<h2>Rady, které ti nabízíme</h2>' + adviceList(S, p) + '<p class="small muted">Nabízíme je před jídlem podle toho, jak na jídlo reaguješ. Odpovídat nemusíš.</p>') +
     glass('<h2>Cíle glukózy</h2>' + kv('V cíli', e(NF.mmol(p.targets.low)) + '–' + e(NF.mmol(p.targets.high)) + ' mmol/l') + kv('Ráno nalačno do', e(NF.mmol(p.targets.fastingHigh)) + ' mmol/l') + kv('Platnost plánu do', e(NF.fmtShort(p.validUntil)))) +
     (older.length ? glass('<details class="more"><summary>Starší plány (' + older.length + ')</summary><ul class="plain small">' + older.map(function (x) { return '<li><b>' + e(x.id) + '</b> · ' + e(NF.fmtShort(x.issuedAt)) + ' – ' + e(NF.fmtShort(x.validUntil)) + '<br><span class="muted">Zápisy z té doby zůstávají u něj.</span></li>'; }).join('') + '</ul></details>') : '');
 };
@@ -517,6 +518,14 @@ function previewDetail(S, s, key) {
     adv: 'Když jsi radu přijal, vrchol glukózy byl v mediánu ' + NF.mmol(s.advice.accepted.med) + ' mmol/l; když ne, ' + NF.mmol(s.advice.declined.med) + '. ' + (s.advice.topReason ? 'Nejčastější důvod, proč ne: „' + NF.reasonLabel(s.advice.topReason) + '“.' : '') }[key] || '';
 }
 
+function adviceList(S, p) {
+  var a = NF.planAdvice(S, p);
+  return '<ul class="plain">' + Object.keys(NF.LEVERS).filter(function (l) { return l !== 'portion' && NF.usable(S, NF.LEVERS[l].item); }).map(function (l) {
+    return '<li><b>' + e(NF.LEVERS[l].label) + '</b> ' + (a.off.indexOf(l) >= 0 ? tag('lékař vypnul', 'warn') : a.prefer.indexOf(l) >= 0 ? tag('lékař doporučil', 'info') : '') + '</li>';
+  }).join('') + '</ul>';
+}
+V.adviceList = adviceList;
+
 /* ---------- nový plán ---------- */
 V.newPlan = function (S) {
   var p = NF.activePlan(S), prev = p && p.previousId ? NF.planById(S, p.previousId) : null;
@@ -525,10 +534,13 @@ V.newPlan = function (S) {
   ['basal', 'breakfast', 'lunch', 'dinner'].forEach(function (k) { if (p.doses[k].units !== prev.doses[k].units) doseChanges.push((k === 'basal' ? 'bazál' : NF.mealLabel(k)) + ': ' + prev.doses[k].units + ' → <b>' + p.doses[k].units + ' j.</b>'); });
   var newH = S.habits.filter(function (h) { return h.planId === p.id; }), oldH = S.habits.filter(function (h) { return h.planId === prev.id; });
   var added = newH.filter(function (h) { return !oldH.some(function (o) { return o.catalogId === h.catalogId; }); }), removed = oldH.filter(function (h) { return !newH.some(function (o) { return o.catalogId === h.catalogId; }); });
+  var pa = NF.planAdvice(S, p), oa = NF.planAdvice(S, prev);
+  var advOff = pa.off.filter(function (l) { return oa.off.indexOf(l) < 0; }), advOn = pa.prefer.filter(function (l) { return oa.prefer.indexOf(l) < 0; });
+  var adviceChange = advOff.length || advOn.length ? '<p>' + (advOff.length ? 'Radu „' + e(advOff.map(function (l) { return NF.LEVERS[l].label; }).join('“, „')) + '“ ti už nenabízíme — lékař ji vypnul. ' : '') + (advOn.length ? 'Místo toho ti budeme nabízet „' + e(advOn.map(function (l) { return NF.LEVERS[l].label; }).join('“, „')) + '“.' : '') + ' Dávky se tím nemění.</p>' : '';
   return head(S, 'Nový plán · ' + p.id, 'Co se změnilo') +
     glass('<div class="now"><span class="ic">👉</span><div><b>Co teď</b>Projdi si změny a klepni na „Rozumím, pokračuji“. Od zítřka platí nový plán.</div></div>') +
     glass('<h2>Dávky inzulinu</h2>' + (doseChanges.length ? '<p>' + doseChanges.join('<br>') + '</p>' + hint('<b>Změna dávky = učíme se znovu.</b> Tvoje tělo bude na jídla reagovat jinak, proto u jídel s novou dávkou začínáme počítat od nuly. Staré zápisy zůstávají označené původní dávkou.', 'sand') : '<p>Beze změny.</p>') + dosesTable(p)) +
-    glass('<h2>Návyky</h2>' + (added.length ? '<p><b>Nové:</b> ' + e(added.map(function (h) { return h.title; }).join(', ')) + '</p>' : '') + (removed.length ? '<p><b>Končí:</b> ' + e(removed.map(function (h) { return h.title; }).join(', ')) + '</p>' : '') + (!added.length && !removed.length ? '<p>Pokračují beze změny.</p>' : '') +
+    glass('<h2>Návyky a rady</h2>' + (added.length ? '<p><b>Nové:</b> ' + e(added.map(function (h) { return h.title; }).join(', ')) + '</p>' : '') + (removed.length ? '<p><b>Končí:</b> ' + e(removed.map(function (h) { return h.title; }).join(', ')) + '</p>' : '') + adviceChange + (!added.length && !removed.length && !adviceChange ? '<p>Pokračují beze změny.</p>' : '') +
       (p.decisions && p.decisions.length ? '<details class="more"><summary>Proč lékař rozhodl takto</summary><ul class="plain small">' + p.decisions.map(function (d) { return '<li><b>' + e(d.title) + '</b> — ' + e(d.text) + '</li>'; }).join('') + '</ul></details>' : '')) +
     '<div class="actions">' + (p.understood ? btn('Přejít na Dnes', 'page', 'today', 'primary big') : btn('Rozumím, pokračuji', 'confirmUnderstanding', null, 'primary big')) + '</div>';
 };
