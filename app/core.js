@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 18;
+NF.SCHEMA = 19;
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 var DAYS = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
@@ -515,13 +515,19 @@ NF.advise = function (S, foodId, portion, bolusState, meal) {
   return res;
 };
 
-/* Rada po jídle, které už je snědené: k jídlu se radit nedá, ale pohyb teď pomůže. */
-NF.adviseAfter = function (S, foodId, meal) {
-  var res = { gate: NF.adviceGate(S), items: [], conf: NF.confidence(S, foodId, meal) };
+/* Čas zpětného zápisu: hodina dne (např. 7,5) → ISO dnešního dne. */
+NF.retroAt = function (S, h) { if (h == null) return S.clock; var hh = Math.floor(h), mm = Math.round((h % 1) * 60); return NF.day(S.clock) + 'T' + (hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm + ':00'; };
+NF.WALK_WINDOW_MIN = 180;
+/* Rada po jídle, které už je snědené: k jídlu se radit nedá, ale pohyb pomůže, dokud je glukóza po jídle zvýšená (do ~3 h);
+   do hodiny zmírní vzestup, později už jen sníží zvýšenou hodnotu. */
+NF.adviseAfter = function (S, foodId, meal, at) {
+  var res = { gate: NF.adviceGate(S), items: [], conf: NF.confidence(S, foodId, meal), late: false, minutes: at ? Math.round((NF.parse(S.clock) - NF.parse(at)) / 60000) : null };
   if (!res.gate.ok) return res;
+  if (res.minutes != null && res.minutes > NF.WALK_WINDOW_MIN) { res.late = true; return res; }
   var meta = NF.LEVERS.walk, it = NF.item(S, meta.item);
   if (NF.usable(S, meta.item) && !(S.illness && S.illness.active)) {
-    res.items.push({ lever: 'walk', item: meta.item, label: meta.label, carbs: false, text: it.text, certainty: 'Jídlo už máš za sebou; pohyb do hodiny po jídle zmírní vzestup glukózy. Doplněk ani pořadí už teď nezměníš.' });
+    var soon = res.minutes == null || res.minutes <= 60;
+    res.items.push({ lever: 'walk', item: meta.item, label: meta.label, carbs: false, text: it.text, certainty: soon ? 'Jídlo už máš za sebou; pohyb do hodiny po jídle zmírní vzestup glukózy. Doplněk ani pořadí už teď nezměníš.' : 'Od jídla uplynulo ' + res.minutes + ' min. Vzestup už nezměníš, ale glukóza po jídle bývá zvýšená ještě 2–3 hodiny a procházka ji sníží.' });
   }
   return res;
 };

@@ -255,7 +255,7 @@ test('Bazál: připomínka večer, potvrzení podle plánu nebo jinak', () => {
 test('Report pro pacienta: pochvala, dlaždice s vysvětlením, navržené otázky', () => {
   chapter('preview');
   const m = markup();
-  assert.match(m, /Vedeš si dobře/); assert.match(m, /Na co se zeptat lékaře/);
+  assert.match(m, /Díky za \d+ dní zapisování/); assert.match(m, /Na co se zeptat lékaře/);
   assert.equal(/poslechl“/.test(m) && /Neuvidí žádné hodnocení/.test(m), true);
   act('previewTile', 'adv'); assert.match(markup(), /medián/);
   const q = 'Jsou moje cíle glukózy pořád správné?';
@@ -505,6 +505,25 @@ test('Cíle glukózy voličem při zařazení i při kontrole; úprava pokynů p
   act('role', 'patient'); assert.match(markup(), /Pokyny a cíle/); act('confirmUnderstanding');
   act('role', 'doctor'); act('page', 'review'); assert.match(markup(), /Zahájit kontrolu/, 'po převzetí P2 lze začít další kontrolu');
   act('startReview'); assert.equal(S().review.planId, 'P2');
+});
+
+test('Druhý průchod: Co teď dává přednost jídlu před bazálem; připomínka inzulinu jen pro slot na řadě; pohyb jen do 90 min po jídle; bez přepínače jídla; bez falešných fajfek', () => {
+  chapter('week'); act('role', 'patient');
+  S().clock = '2026-10-13T19:30:00'; NF.skipMeal(S(), 'breakfast', 'none'); NF.skipMeal(S(), 'lunch', 'none'); act('page', 'today');
+  assert.match(markup(), /Na řadě je večeře/); assert.equal(/<b>Čas na bazál<\/b>/.test(markup()), false, 'večeře před bazálem');
+  NF.skipMeal(S(), 'dinner', 'none'); S().clock = '2026-10-13T21:00:00'; act('page', 'today'); assert.match(markup(), /<b>Čas na bazál<\/b>/);
+  chapter('week'); act('role', 'patient');
+  S().clock = '2026-10-13T15:00:00'; act('page', 'today');
+  assert.match(markup(), /Snídal jsi dnes/); assert.equal(/zeptáme se před jídlem/.test(markup()), false, 'připomínka inzulinu k minulému jídlu nemá smysl');
+  act('mealRetro', 'breakfast'); assert.equal(/data-action="mealKind"/.test(markup()), false, 'přepínač jídla zrušen (Z2)');
+  act('mealBolus', 'as'); act('mealAt', '7'); act('mealStep', '2'); act('mealFood', food('Chléb se sýrem a zeleninou').id); act('mealPortion', 'usual'); act('mealStep', '3');
+  assert.equal(NF.adviseAfter(S(), food('Chléb se sýrem a zeleninou').id, 'breakfast', NF.retroAt(S(), 7)).items.length, 0, 'po 8 hodinách už procházka nepomůže');
+  assert.match(markup(), /uplynuly víc než tři hodiny/); act('mealFinish', 'as');
+  S().clock = '2026-10-13T16:00:00'; assert.match(NF.adviseAfter(S(), food('Jablko').id, 'snack', '2026-10-13T14:00:00').items[0].certainty, /2–3 hodiny/, 'po 2 h ještě radí, ale po pravdě');
+  act('page', 'plan'); assert.equal((markup().match(/Tři jídla denně/g) || []).length, 0, 'duplicitní karta odstraněna');
+  chapter('preview'); assert.equal(/class="mark">✓<\/span><div>Zapisuj/.test(markup()), false, 'žádné falešné fajfky'); assert.match(markup(), /Díky za \d+ dní zapisování/);
+  /* bez zápisů report nepadá na „null %“ */
+  chapter('handover'); act('role', 'doctor'); act('startReview'); assert.equal(/null/.test(markup()), false); assert.match(markup(), /Zatím žádné zápisy/);
 });
 
 /* ---------- stopa ---------- */
