@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 16;
+NF.SCHEMA = 17;
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 var DAYS = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
@@ -81,7 +81,7 @@ NF.createState = function () {
     onboarding: { checkAnswer: null },
     draft: null,
     meal: null,
-    illness: null,
+    illness: null, illnessLog: [],
     review: null,
     questions: [],
     participation: 'active',
@@ -110,7 +110,7 @@ NF.save = function (S) {
    Nikdy nevolá síť ani generativní AI; vše je deterministické. */
 NF.log = function (S, what, detail, data) {
   S.events.push({ at: S.clock, who: S.role, what: what, detail: detail || '', data: data || null });
-  if (S.events.length > 600) S.events.shift();
+  if (S.events.length > 4000) S.events.shift();
 };
 NF.exportTrace = function (S) {
   return JSON.stringify({ exported: S.clock, schema: NF.SCHEMA, note: 'Deterministická stopa. Žádný krok nepoužívá generativní AI ani síť.',
@@ -247,7 +247,7 @@ NF.issuePlan = function (S, catalog) {
     decisions: d.decisions || [], previousId: prev ? prev.id : null, handedOver: false, understood: false, state: 'issued'
   };
   if (prev) { prev.state = 'superseded'; prev.validUntil = S.clock; }
-  S.plans.push(plan); S.activePlanId = plan.id;
+  S.plans.push(plan); S.activePlanId = plan.id; S.nextVisit = plan.validUntil;
   S.habits.forEach(function (h) { if (h.state === 'active') { h.state = 'done'; h.endedAt = S.clock; } });
   d.habits.forEach(function (cid) {
     var c = (catalog || []).filter(function (x) { return x.id === cid; })[0] || { id: cid, title: cid };
@@ -342,13 +342,21 @@ NF.complete = function (ep) {
 };
 NF.doseKey = function (S, meal) { var p = NF.activePlan(S); return p && p.doses[meal] ? meal + ':' + p.doses[meal].units : meal + ':?'; };
 /* Započítaný zápis: úplná data, inzulin potvrzen podle plánu, mimo nemoc, obvyklá porce, stejná dávka jako teď. */
+/* Včas = inzulin do ±tolerance (D-CISTA, 15 min) od času jídla. */
+NF.minutesOf = function (iso) { var d = NF.parse(iso); return d.getHours() * 60 + d.getMinutes(); };
+NF.onTime = function (S, ep) {
+  if (!ep.insulin || !ep.insulin.time) return false;
+  var tol = NF.param(S, 'D-CISTA', 'tolerance_min', 15), hm = String(ep.insulin.time).split(':');
+  return Math.abs((Number(hm[0]) * 60 + Number(hm[1])) - NF.minutesOf(ep.at)) <= tol;
+};
 NF.usableEp = function (S, ep) {
-  return NF.complete(ep) && ep.insulin && ep.insulin.confirmed === 'as' && ep.context !== 'illness' && ep.portion === 'usual' && ep.doseKey === NF.doseKey(S, ep.meal);
+  return NF.complete(ep) && ep.insulin && ep.insulin.confirmed === 'as' && NF.onTime(S, ep) && ep.context !== 'illness' && ep.portion === 'usual' && ep.doseKey === NF.doseKey(S, ep.meal);
 };
 NF.whyNotUsable = function (S, ep) {
   if (ep.context === 'illness') return 'z doby nemoci';
   if (!NF.complete(ep)) return 'chybí data ze senzoru';
   if (!ep.insulin || ep.insulin.confirmed !== 'as') return 'inzulin nepotvrzen podle plánu';
+  if (!NF.onTime(S, ep)) return 'inzulin mimo ±' + NF.param(S, 'D-CISTA', 'tolerance_min', 15) + ' min od jídla';
   if (ep.portion !== 'usual') return 'jiná než obvyklá porce';
   if (ep.doseKey !== NF.doseKey(S, ep.meal)) return 'při jiné dávce';
   return null;
@@ -357,9 +365,17 @@ NF.whyNotUsable = function (S, ep) {
 /* ---------- učení: reakce na jídlo ----------
    Pravidlo R-REAKCE: známé jídlo od minKnown započítaných zápisů; rozmezí = p10–p90 vrcholu 0–120 min;
    „v cíli“ = vrchol ≤ horní cíl. Pravidlo R-PODOBNOST: podobné = shoda štítků příloha + příprava. */
-NF.foodStats = function (S, foodId, filter) {
+/* Stejné jídlo u dvou jídel dne se slévá jen při stejné dávce; kontext = slot, ve kterém se o jídle rozhoduje (jinak nejčastější). */
+NF.dominantMeal = function (S, foodId) { var c = {}; S.episodes.forEach(function (e) { if (e.foodId === foodId) c[e.meal] = (c[e.meal] || 0) + 1; }); return Object.keys(c).sort(function (a, b) { return c[b] - c[a]; })[0] || null; };
+NF.sameDose = function (S, ep, meal) {
+  if (!meal || ep.meal === meal) return true;
+  var p = NF.activePlan(S), a = p && p.doses[ep.meal], b = p && p.doses[meal];
+  return a && b ? a.units === b.units : !a && !b;
+};
+NF.foodStats = function (S, foodId, filter, meal) {
+  meal = meal || NF.dominantMeal(S, foodId);
   var eps = S.episodes.filter(function (e) { return e.foodId === foodId && (!filter || filter(e)); });
-  var usable = eps.filter(function (e) { return NF.usableEp(S, e); });
+  var usable = eps.filter(function (e) { return NF.usableEp(S, e) && NF.sameDose(S, e, meal); });
   var peaks = usable.map(function (e) { return NF.peakOf(e.points); });
   var high = NF.targets(S).high;
   var inT = peaks.filter(function (p) { return p <= high; }).length;
@@ -367,24 +383,25 @@ NF.foodStats = function (S, foodId, filter) {
     med: NF.r1(NF.median(peaks)), inTarget: inT, list: eps, usable: usable };
 };
 NF.reactionLabel = function (S, st) {
-  if (!st.n) return null;
+  if (!st.n || !NF.usable(S, 'R-SKORE')) return null;
   var share = st.inTarget / st.n;
   var mild = NF.param(S, 'R-SKORE', 'mirna', 0.8), mid = NF.param(S, 'R-SKORE', 'stredni', 0.5);
   return share >= mild ? { key: 'mild', label: 'mírná reakce', cls: 'ok' } : share >= mid ? { key: 'mid', label: 'střední reakce', cls: 'warn' } : { key: 'strong', label: 'silná reakce', cls: 'bad' };
 };
-NF.confidence = function (S, foodId) {
+NF.confidence = function (S, foodId, meal) {
   var food = NF.foodById(S, foodId);
-  var st = NF.foodStats(S, foodId);
-  if (!food) return { level: 'unknown', st: st, items: [] };
-  if (!NF.usable(S, 'R-REAKCE')) return { level: 'none', st: st, items: [], why: 'Pravidlo pro vyhodnocení reakce je zamítnuté; nic nevyhodnocujeme.' };
+  meal = meal || NF.dominantMeal(S, foodId);
+  var st = NF.foodStats(S, foodId, null, meal);
+  if (!food) return { level: 'unknown', st: st, items: [], meal: meal };
+  if (!NF.usable(S, 'R-REAKCE')) return { level: 'none', st: st, items: [], meal: meal, why: 'Pravidlo pro vyhodnocení reakce je zamítnuté; nic nevyhodnocujeme.' };
   var min = NF.param(S, 'R-REAKCE', 'minKnown', 3);
-  var res = { st: st, min: min, items: ['R-REAKCE'], reaction: null };
+  var res = { st: st, min: min, items: ['R-REAKCE'], reaction: null, meal: meal };
   if (st.n >= min) { res.level = 'known'; res.reaction = NF.reactionLabel(S, st); return res; }
   if (NF.usable(S, 'R-PODOBNOST')) {
-    var like = NF.similarFoods(S, food).filter(function (f) { return NF.foodStats(S, f.id).n >= min; });
+    var like = NF.similarFoods(S, food).filter(function (f) { return NF.foodStats(S, f.id, null, meal).n >= min; });
     if (like.length) {
       var peaks = [];
-      like.forEach(function (f) { peaks = peaks.concat(NF.foodStats(S, f.id).peaks); });
+      like.forEach(function (f) { peaks = peaks.concat(NF.foodStats(S, f.id, null, meal).peaks); });
       var high = NF.targets(S).high;
       res.level = 'similar'; res.items.push('R-PODOBNOST'); res.like = like;
       res.pool = { n: peaks.length, lo: NF.r1(NF.quantile(peaks, 0.1)), hi: NF.r1(NF.quantile(peaks, 0.9)), inTarget: peaks.filter(function (p) { return p <= high; }).length };
@@ -396,17 +413,17 @@ NF.confidence = function (S, foodId) {
   return res;
 };
 /* Co pomohlo: zápisy s přijatou radou (páka) vs. bez ní. */
-NF.leverStats = function (S, foodId) {
+NF.leverStats = function (S, foodId, meal) {
   var out = [];
   Object.keys(NF.LEVERS).forEach(function (l) {
     if (l === 'portion') return;
-    var withL = NF.foodStats(S, foodId, function (e) { return (e.advice || []).some(function (a) { return a.lever === l && a.accepted === true; }); });
+    var withL = NF.foodStats(S, foodId, function (e) { return (e.advice || []).some(function (a) { return a.lever === l && a.accepted === true; }); }, meal);
     if (withL.n) out.push({ lever: l, st: withL });
   });
   return out.sort(function (a, b) { return (b.st.inTarget / b.st.n) - (a.st.inTarget / a.st.n); });
 };
-NF.baseStats = function (S, foodId) {
-  return NF.foodStats(S, foodId, function (e) { return !(e.advice || []).some(function (a) { return a.accepted === true && a.lever !== 'portion'; }); });
+NF.baseStats = function (S, foodId, meal) {
+  return NF.foodStats(S, foodId, function (e) { return !(e.advice || []).some(function (a) { return a.accepted === true && a.lever !== 'portion'; }); }, meal);
 };
 
 /* ---------- rady ----------
@@ -429,11 +446,11 @@ NF.adviceGate = function (S) {
 function fill(text, food) {
   return String(text || '').replace('{addon}', food.addon || 'bílkovinu (jogurt, sýr, vejce)').replace('{first}', food.first || 'zeleninu nebo maso');
 }
-NF.advise = function (S, foodId, portion, bolusState) {
+NF.advise = function (S, foodId, portion, bolusState, meal) {
   var food = NF.foodById(S, foodId);
-  var res = { gate: NF.adviceGate(S), conf: null, items: [], blocked: [], effective: bolusState ? NF.effectiveBolus(bolusState) : null, illness: !!(S.illness && S.illness.active) };
+  var res = { gate: NF.adviceGate(S), conf: null, items: [], blocked: [], gone: [], effective: bolusState ? NF.effectiveBolus(bolusState) : null, illness: !!(S.illness && S.illness.active) };
   if (!food) return res;
-  res.conf = NF.confidence(S, foodId);
+  res.conf = NF.confidence(S, foodId, meal); meal = res.conf.meal;
   if (!res.gate.ok || !bolusState) return res;
   var before = res.effective === 'before';
   /* porce */
@@ -460,29 +477,36 @@ NF.advise = function (S, foodId, portion, bolusState) {
   if (lv === 'known' || lv === 'similar') {
     var r = res.conf.reaction;
     if (r && r.key !== 'mild') { cands = ['addon', 'order', 'walk']; reason = true; }
-    else if (lv === 'known') { NF.leverStats(S, foodId).forEach(function (x) { if (cands.indexOf(x.lever) < 0) cands.push(x.lever); }); }
+    else if (lv === 'known') { NF.leverStats(S, foodId, meal).forEach(function (x) { if (cands.indexOf(x.lever) < 0) cands.push(x.lever); }); }
   }
   if (reason) (pa.prefer || []).forEach(function (l) { if (cands.indexOf(l) < 0) cands.push(l); });
   cands = cands.filter(function (l) { return (pa.off || []).indexOf(l) < 0; });
-  var base = lv === 'known' ? NF.baseStats(S, foodId) : null;
+  var base = lv === 'known' ? NF.baseStats(S, foodId, meal) : null;
   cands.forEach(function (l) {
     var meta = NF.LEVERS[l], it = NF.item(S, meta.item);
     if (!NF.usable(S, meta.item)) return; /* zamítnuté pravidlo → rada prostě není */
     if (res.illness && !meta.illnessSafe) return;
     var item = { lever: l, item: meta.item, label: meta.label, carbs: false, text: fill(it.text, food) };
-    var ls = lv === 'known' ? NF.leverStats(S, foodId).filter(function (x) { return x.lever === l; })[0] : null;
+    var ls = lv === 'known' ? NF.leverStats(S, foodId, meal).filter(function (x) { return x.lever === l; })[0] : null;
     if (ls) item.certainty = 'Zkusil jsi to ' + ls.st.n + '×: ' + ls.st.inTarget + ' z ' + ls.st.n + ' v cíli' + (base && base.n ? ' (bez toho ' + base.inTarget + ' z ' + base.n + ')' : '') + '.';
     else if (lv === 'known') item.certainty = 'U tohoto jídla jsi to ještě nezkoušel. Až to zkusíš, uvidíš, jestli pomohlo.';
     else item.certainty = 'Obecná rada ze schváleného pravidla. Jak zabere právě u tebe, zatím nevíme.';
     if (ls) item.with = ls.st;
     res.items.push(item);
   });
+  /* 15, odst. 13: zamítnutá rada, kterou pacient u tohoto jídla dřív přijímal, dostane jednu neutrální větu. */
+  var TZ = NF.texts(S, 'R-ZMIZELA');
+  if (TZ) Object.keys(NF.LEVERS).forEach(function (l) {
+    if (l === 'portion' || NF.usable(S, NF.LEVERS[l].item)) return;
+    var tried = S.episodes.some(function (e) { return e.foodId === foodId && (e.advice || []).some(function (a) { return a.lever === l && a.accepted === true; }); });
+    if (tried) res.gone.push({ lever: l, text: NF.fillText(TZ.text, { lever: NF.LEVERS[l].label }) });
+  });
   return res;
 };
 
 /* Rada po jídle, které už je snědené: k jídlu se radit nedá, ale pohyb teď pomůže. */
-NF.adviseAfter = function (S, foodId) {
-  var res = { gate: NF.adviceGate(S), items: [], conf: NF.confidence(S, foodId) };
+NF.adviseAfter = function (S, foodId, meal) {
+  var res = { gate: NF.adviceGate(S), items: [], conf: NF.confidence(S, foodId, meal) };
   if (!res.gate.ok) return res;
   var meta = NF.LEVERS.walk, it = NF.item(S, meta.item);
   if (NF.usable(S, meta.item) && !(S.illness && S.illness.active)) {
@@ -514,9 +538,9 @@ NF.saveEpisode = function (S, data) {
   NF.checkMilestones(S);
   return { ok: true, episode: ep };
 };
-NF.confirmBasal = function (S, confirmed, units, time) {
+NF.confirmBasal = function (S, confirmed, units, time, date) {
   var p = NF.activePlan(S); if (!p) return { ok: false, error: 'Není plán.' };
-  var rec = { at: S.clock, date: NF.day(S.clock), prescribed: p.doses.basal.units, confirmed: confirmed, units: units != null ? units : (confirmed === 'as' ? p.doses.basal.units : null), time: time || NF.fmtTime(S.clock) };
+  var rec = { at: S.clock, date: date || NF.day(S.clock), prescribed: p.doses.basal.units, confirmed: confirmed, units: units != null ? units : (confirmed === 'as' ? p.doses.basal.units : null), time: time || NF.fmtTime(S.clock) };
   if (rec.confirmed === 'other' && rec.units === rec.prescribed) rec.confirmed = 'as';
   S.basalLog = S.basalLog.filter(function (b) { return b.date !== rec.date; }).concat([rec]);
   NF.log(S, 'bazal.potvrzen', rec.confirmed + ' ' + (rec.units == null ? '' : rec.units + ' j.'), rec);
@@ -553,12 +577,12 @@ NF.lastResult = function (S) {
   if (peak == null) key = 'nodata';
   else if (acc.length) {
     key = peak <= high ? 'okAdvice' : 'highAdvice';
-    var base = NF.baseStats(S, food.id);
+    var base = NF.baseStats(S, food.id, ep.meal);
     if (key === 'okAdvice' && base.n >= 2 && base.lo != null) map.base = NF.fillText(T.baseNote, { lo: NF.mmol(base.lo), hi: NF.mmol(base.hi) });
   } else if (peak <= high) key = 'okPlain';
   else {
     key = 'highPlain';
-    var best = NF.leverStats(S, food.id).filter(function (x) { return x.st.n >= 2 && x.st.inTarget / x.st.n >= 0.5; })[0];
+    var best = NF.leverStats(S, food.id, ep.meal).filter(function (x) { return x.st.n >= 2 && x.st.inTarget / x.st.n >= 0.5; })[0];
     map.sugg = best ? NF.fillText(T.suggestData, { lever: NF.leverNoun(best.lever), k: best.st.inTarget, n: best.st.n }) : (T.suggestGeneric || '');
   }
   var text = NF.fillText(T[key], map) + (!usable && key !== 'nodata' && why ? NF.fillText(T.unusable, { why: why }) : '');
@@ -618,7 +642,7 @@ NF.settleFeedback = function (S) { var fb = fbState(S); fb.milestones.forEach(fu
 NF.pathStats = function (S) {
   var p = NF.activePlan(S); if (!p || !NF.usable(S, 'S-CESTA')) return null;
   var from = NF.day(p.effectiveFrom) + 'T00:00:00', to = NF.nextVisit(S);
-  var total = Math.max(1, NF.daysBetween(from, to)), gone = Math.max(0, Math.min(total, NF.daysBetween(from, S.clock)));
+  var total = Math.max(1, NF.daysBetween(from, to)), gone = Math.max(0, Math.min(total, Math.floor((NF.parse(S.clock) - NF.parse(from)) / 86400000)));
   var min = NF.param(S, 'R-REAKCE', 'minKnown', 3), eaten = {};
   S.episodes.forEach(function (e) { eaten[e.foodId] = (eaten[e.foodId] || 0) + 1; });
   var rep = Object.keys(eaten).filter(function (k) { return eaten[k] >= 2; });
@@ -663,7 +687,7 @@ NF.closeWeek = function (S, id) { fbState(S).weeksSeen[id] = S.clock; NF.log(S, 
 /* ---------- nemoc ---------- */
 NF.setIllness = function (S, on) {
   if (on) { S.illness = { active: true, from: S.clock, checkins: [] }; NF.log(S, 'nemoc.zacatek', ''); }
-  else if (S.illness) { S.illness.active = false; S.illness.to = S.clock; NF.log(S, 'nemoc.konec', ''); }
+  else if (S.illness && S.illness.active) { S.illness.active = false; S.illness.to = S.clock; S.illnessLog = (S.illnessLog || []).concat([{ from: S.illness.from, to: S.clock }]); NF.log(S, 'nemoc.konec', ''); }
   return { ok: true };
 };
 NF.illnessCheckin = function (S, better) {
@@ -672,10 +696,13 @@ NF.illnessCheckin = function (S, better) {
   if (better) NF.setIllness(S, false);
   return { ok: true };
 };
-NF.illnessDays = function (S, planId) {
-  if (!S.illness) return 0;
-  var to = S.illness.active ? S.clock : S.illness.to;
-  return Math.max(1, NF.daysBetween(S.illness.from, to));
+/* Dny nemoci = počet kalendářních dnů ve všech obdobích nemoci (včetně prvního i posledního). */
+NF.illnessDays = function (S) {
+  var periods = (S.illnessLog || []).slice();
+  if (S.illness && S.illness.active) periods.push({ from: S.illness.from, to: S.clock });
+  var days = {};
+  periods.forEach(function (p) { for (var d = NF.day(p.from); d <= NF.day(p.to); d = NF.day(NF.addDays(d + 'T12:00:00', 1))) days[d] = 1; });
+  return Object.keys(days).length;
 };
 
 /* ---------- souhrny pro report ---------- */
@@ -688,15 +715,18 @@ NF.summary = function (S, planId) {
   var other = eps.filter(function (e) { return e.insulin && e.insulin.confirmed === 'other'; }).length;
   var none = eps.filter(function (e) { return e.insulin && e.insulin.confirmed === 'none'; }).length;
   var unknown = eps.filter(function (e) { return !e.insulin || e.insulin.confirmed === 'unknown'; }).length;
-  var basalAs = S.basalLog.filter(function (b) { return b.confirmed === 'as'; }).length;
+  var pl = NF.planById(S, planId), since = pl ? NF.day(pl.issuedAt) : '0000';
+  var basalDays = pl ? Math.max(1, NF.daysBetween(since + 'T00:00:00', NF.day(S.clock) + 'T00:00:00')) : S.basalLog.length;
+  var basalAs = S.basalLog.filter(function (b) { return b.confirmed === 'as' && b.date >= since; }).length;
+  var onTime = eps.filter(function (e) { return e.insulin && e.insulin.confirmed === 'as' && NF.onTime(S, e); }).length;
   var ill = eps.filter(function (e) { return e.context === 'illness'; }).length;
   var incomplete = eps.filter(function (e) { return !NF.complete(e); }).length;
   var ss = S.sensorSummary, t = NF.targets(S);
   var tirState = !ss ? 'none' : (ss.tir >= t.tirGoal && ss.below < 4 ? 'ok' : (ss.tir >= 50 && ss.below < 4 && ss.veryLow < 1) ? 'warn' : 'bad');
   var adv = NF.adviceOutcome(S, planId);
   return { meals: meals, usual: usual, usualPct: NF.pct(usual, meals), asPlan: asPlan, asPct: NF.pct(asPlan, meals), other: other, none: none, unknown: unknown,
-    basalAs: basalAs, basalDays: S.basalLog.length, ill: ill, illDays: NF.illnessDays(S, planId), incomplete: incomplete, sensor: ss, tirState: tirState, advice: adv,
-    habitsDone: NF.activeHabits(S).length };
+    basalAs: basalAs, basalDays: basalDays, onTime: onTime, ill: ill, illDays: NF.illnessDays(S), incomplete: incomplete, sensor: ss, tirState: tirState, advice: adv,
+    hba1c: (S.patient && S.patient.hba1c) || null, habitsDone: NF.activeHabits(S).length };
 };
 NF.adviceOutcome = function (S, planId) {
   var eps = NF.periodEpisodes(S, planId).filter(function (e) { return (e.advice || []).some(function (a) { return a.lever !== 'portion'; }); });
@@ -760,7 +790,7 @@ NF.proposals = function (S, planId, catalog) {
     var minN = NF.param(S, 'D-PRAND', 'minJidel', 6), share = NF.param(S, 'D-PRAND', 'podil', 2 / 3);
     var all = NF.periodEpisodes(S, planId).filter(function (e) { return e.meal === meal && e.at >= NF.addDays(S.clock, -days); });
     var excluded = all.length - eps.length;
-    var lows = NF.periodEpisodes(S, planId).filter(function (e) { return e.meal === meal && e.at >= NF.addDays(S.clock, -days) && (e.points || []).some(function (x) { return x.mmol != null && x.mmol < t.low; }); }).length;
+    var lows = eps.filter(function (e) { return (e.points || []).some(function (x) { return x.mmol != null && x.mmol < t.low; }); }).length;
     if (eps.length && lows >= NF.param(S, 'D-PRAND', 'hypo', 2)) {
       out.push({ id: 'PR-' + meal.toUpperCase(), kind: 'dose', dose: meal, cat: 'davka', priority: 1, title: 'Posoudit prandiální dávku k ' + NF.mealLabel(meal, 'dat') + ' — hodnoty pod cílem',
         why: lows + '× za ' + days + ' dní klesla glukóza do 4 h po ' + NF.mealLabel(meal) + ' pod ' + NF.mmol(t.low) + ' mmol/l.',
@@ -885,7 +915,6 @@ NF.issueFromReview = function (S, catalog) {
   var res = NF.issuePlan(S, catalog); if (!res.ok) return res;
   NF.handover(S);
   r.planIssued = res.plan.id; r.step = 4;
-  S.nextVisit = NF.addDays(S.clock, 91);
   return { ok: true, plan: res.plan };
 };
 

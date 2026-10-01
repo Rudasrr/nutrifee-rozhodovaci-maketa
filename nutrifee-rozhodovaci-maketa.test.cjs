@@ -436,6 +436,42 @@ test('Akutní problém otevře pokyny a kontakty; návrh k dávce bez schválen�
   assert.ok(props.length && props.every(p => p.branches.length === 0 && /D-POSTUP/.test(p.weak.join())));
 });
 
+/* ---------- správnost výpočtů (balíček C) ---------- */
+test('Čistá data: inzulin včas (±15 min); jídlo ve dvou slotech s různou dávkou se neslévá; bazál z dnů plánu; nemoc po dnech; HbA1c', () => {
+  chapter('week');
+  const ep = S().episodes.find(e => e.id === 'E6'); assert.ok(NF.usableEp(S(), ep));
+  ep.insulin.time = '06:20'; assert.equal(NF.usableEp(S(), ep), false); assert.match(NF.whyNotUsable(S(), ep), /±15 min/);
+  chapter('preview'); const ch = food('Chléb se sýrem a zeleninou').id;
+  const all = NF.foodStats(S(), ch).n; assert.ok(all > 0);
+  NF.activePlan(S()).doses.dinner.units = 6;
+  assert.ok(NF.foodStats(S(), ch, null, 'breakfast').n < all, 'večeře s jinou dávkou k snídani nepatří');
+  assert.equal(NF.foodStats(S(), ch, null, 'dinner').n, 0, 'při změně dávky k večeři se učí znovu');
+  NF.activePlan(S()).doses.dinner.units = 8;
+  const s = NF.summary(S(), 'P1');
+  assert.ok(s.basalDays >= 90 && s.basalAs <= s.basalDays, 'jmenovatel bazálu = dny plánu'); assert.equal(s.illDays, 3, 'nemoc 20.–22. 10. = 3 dny');
+  assert.ok(s.hba1c && s.onTime <= s.asPlan);
+  chapter('reviewSummary'); act('startReview'); assert.match(markup(), /HbA1c/); act('reviewTile', 'ins'); assert.match(markup(), /včas/);
+  /* dvě období nemoci se sčítají */
+  chapter('recovery'); act('illnessCheck', 'better'); S().clock = '2026-11-01T08:00:00'; act('illness', 'on'); S().clock = '2026-11-02T08:00:00'; act('illness', 'off');
+  assert.equal(NF.illnessDays(S()), 5);
+});
+test('Zamítnuté položky přestanou působit: R-SKORE bez štítku, zamítnutá rada s neutrální větou; návyk „zapisuj“ po třech jídlech; bazál ze včerejška', () => {
+  chapter('afterBolus'); const k = food('Ovesná kaše s mlékem a banánem').id;
+  act('role', 'doctor'); NF.decideItem(S(), 'R-SKORE', 'rejected', 'test'); act('role', 'patient');
+  assert.equal(NF.confidence(S(), k).reaction, null);
+  act('page', 'foods'); act('foodsSeg', 'all'); act('foodOpen', k); assert.match(markup(), /nehodnotíme/);
+  act('role', 'doctor'); NF.decideItem(S(), 'R-DOPLNEK', 'rejected', 'test'); act('role', 'patient');
+  const res = NF.advise(S(), k, 'usual', 'before');
+  assert.ok(res.gone.some(g => g.lever === 'addon')); assert.match(res.gone[0].text, /nenabízíme/); assert.equal(/garant/i.test(res.gone[0].text), false);
+  act('startMeal', 'breakfast'); act('mealBolus', 'before'); act('mealStep', '2'); act('mealFood', k); act('mealPortion', 'usual'); act('mealStep', '3');
+  assert.match(markup(), /teď nenabízíme/);
+  chapter('week'); act('role', 'patient'); S().clock = '2026-10-12T19:00:00'; act('page', 'today');
+  assert.match(markup(), /2 \/ 3 jídla/); assert.equal(/class="mark "><\/span><\/span><div>Zapsat/.test(markup()), false);
+  S().clock = '2026-10-14T08:00:00'; act('page', 'today');
+  assert.match(markup(), /včera večer bazál/); act('basalYesterday', 'as');
+  assert.ok(S().basalLog.some(b => b.date === '2026-10-13' && b.confirmed === 'as')); assert.equal(/včera večer bazál/.test(markup()), false);
+});
+
 /* ---------- stopa ---------- */
 test('Stopa má vstupy a výstupy výpočtů a jde exportovat', () => {
   chapter('trace');

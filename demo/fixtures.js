@@ -40,6 +40,7 @@ function reg() {
       texts: { goal: 'Aby aplikace poznala tvoje běžná jídla a ty jsi věděl, co ti u nich pomáhá. Dávky řeší lékař — ty jen jíš jako obvykle a zapisuješ.', visit: 'Na kontrole lékař uvidí, jak reaguješ na svá jídla a co ti pomáhá, a rozhodne, jestli něco změnit. Ty nic počítat nemusíš.' }, usedBy: 'Dnes, Plán, převzetí plánu' }),
     A({ id: 'S-TYDEN', cat: 'report', title: 'Týdenní shrnutí „Tvůj týden“', summary: 'Každých 7 dní od vydání plánu: zapsáno · obvyklá porce · co pomohlo · případný milník · jedna nabídka na příští týden z vlastních dat. Jen u pacienta.', detail: 'Jediný pravidelný rytmus mezi kontrolami. Nabídka vychází z toho, co pacientovi u jiného jídla pomohlo.',
       texts: { head: 'Tvůj {week}. týden', meals: 'Zapsal jsi {meals} z 21 jídel, {usual} z nich v obvyklé porci.', helped: '{lever}: {k} z {n} v cíli, když jsi to zkusil.', milestone: 'Milník týdne:', suggest: 'Příští týden zkus u jídla {food} {lever} — jinde ti to vyšlo {k} z {n}.', thanks: 'Díky za týden zapisování — z toho se učíme nejvíc.' }, usedBy: 'Dnes' }),
+    A({ id: 'R-ZMIZELA', cat: 'rady', title: 'Věta o zmizelé radě', summary: 'Když garant radu zamítne a pacient ji dřív u jídla přijímal, dostane jednu neutrální větu. O garantovi se nemluví.', texts: { text: 'Radu „{lever}“ teď nenabízíme. Tvoje dávky se tím nemění.' }, usedBy: 'před jídlem' }),
     A({ id: 'S-SEMAFOR', cat: 'report', title: 'Semafor TIR', summary: 'Zelená TIR > 70 % a pod cílem < 4 %; žlutá TIR 50–70 %; červená TIR < 50 % nebo pod cílem ≥ 4 % nebo pod 3,0 ≥ 1 %.', params: { tir_zelena: 70, tir_zluta: 50, tbr_max: 4 }, usedBy: 'report' }),
     A({ id: 'P-NEMOC', cat: 'provoz', title: 'Režim nemoci', summary: 'Pacient označí nemoc sám; zápisy se štítkují a nepočítají; rady k množství jídla se nedávají; denní dotaz „už je ti lépe?“; ukončuje pacient.', usedBy: 'Dnes, rady, report' }),
     A({ id: 'P-LEKAR', cat: 'provoz', title: 'Lékař mezi kontrolami nic nedělá', summary: 'Všechny akce lékaře probíhají jen s pacientem v ordinaci. Nic se neodesílá, nikdo nesleduje.', usedBy: 'celá aplikace' })
@@ -231,7 +232,7 @@ function setup(S) {
   S.clock = '2026-10-05T09:00:00';
   S.registry = { items: reg(), history: [] };
   S.foods = foods();
-  S.nextVisit = '2027-01-05T09:00:00';
+  S.patient.hba1c = D.hba1c.slice();
 }
 function enrolled(S) { NF.ELIGIBILITY.forEach(function (c) { NF.setEligibility(S, c[0], true); }); }
 function draftReady(S) {

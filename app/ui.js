@@ -157,6 +157,7 @@ var A = {
   illnessCheck: function (v) { NF.illnessCheckin(S, v === 'better'); toast(v === 'better' ? 'Rádi to slyšíme. Rady zase platí naplno.' : 'Ozveme se zítra. Pokyny lékaře máš nahoře.'); },
   basalOther: function () { S.basalOther = !S.basalOther; S.basalUnits = S.basalUnits != null ? S.basalUnits : NF.activePlan(S).doses.basal.units; },
   basalUnits: function (v) { S.basalUnits = Math.max(0, (S.basalUnits != null ? S.basalUnits : NF.activePlan(S).doses.basal.units) + Number(v)); },
+  basalYesterday: function (v) { var p = NF.activePlan(S); var r = NF.confirmBasal(S, v, undefined, p.doses.basal.time, NF.day(NF.addDays(S.clock, -1))); if (!r.ok) return fail(r.error); toast('Díky za doplnění. Včerejší bazál je zapsaný.'); },
   basalConfirm: function (v) { var r = NF.confirmBasal(S, v, v === 'other' ? S.basalUnits : v === 'none' ? null : undefined); if (!r.ok) return fail(r.error); S.basalOther = false; toast('Bazál je zapsaný.'); },
   startMeal: function (v) { S.meal = newMeal(v || V.mealNow(S)); S.page = 'meal'; S.error = ''; },
   mealRetro: function (v) { S.meal = newMeal(v); S.meal.retro = true; S.meal.at = null; S.ask = null; S.page = 'meal'; S.error = ''; },
@@ -173,8 +174,8 @@ var A = {
     if (n === 2 && m.retro && m.at == null) return fail('Vyber, v kolik jsi jedl.');
     if (n === 3 && (!m.foodId || !m.portion)) return fail(!m.foodId ? 'Vyber jídlo.' : 'Vyber porci.');
     m.step = n; S.error = '';
-    if (n === 3 && m.retro) { var f2 = NF.foodById(S, m.foodId), ra = NF.adviseAfter(S, f2.id); NF.log(S, 'rada.zobrazena', f2.name + ' (zpětně)', { level: ra.conf.level, items: ra.items.map(function (i) { return { lever: i.lever, item: i.item }; }), retro: true }); return; }
-    if (n === 3) { var f = NF.foodById(S, m.foodId), res = NF.advise(S, f.id, m.portion, m.bolus); NF.log(S, 'rada.zobrazena', f.name, { level: res.conf.level, items: res.items.map(function (i) { return { lever: i.lever, item: i.item }; }), blocked: res.blocked.map(function (b) { return { lever: b.lever, reason: b.reason }; }), bolus: m.bolus, portion: m.portion, gate: res.gate }); }
+    if (n === 3 && m.retro) { var f2 = NF.foodById(S, m.foodId), ra = NF.adviseAfter(S, f2.id, m.meal); NF.log(S, 'rada.zobrazena', f2.name + ' (zpětně)', { level: ra.conf.level, items: ra.items.map(function (i) { return { lever: i.lever, item: i.item }; }), retro: true }); return; }
+    if (n === 3) { var f = NF.foodById(S, m.foodId), res = NF.advise(S, f.id, m.portion, m.bolus, m.meal); NF.log(S, 'rada.zobrazena', f.name, { level: res.conf.level, items: res.items.map(function (i) { return { lever: i.lever, item: i.item }; }), blocked: res.blocked.map(function (b) { return { lever: b.lever, reason: b.reason }; }), bolus: m.bolus, portion: m.portion, gate: res.gate }); }
   },
   mealFood: function (v) { S.meal.foodId = v; S.meal.newFood = null; S.meal.decisions = {}; S.meal.reasons = {}; },
   mealNewFood: function () { S.meal.newFood = S.meal.newFood || {}; },
@@ -186,7 +187,7 @@ var A = {
   mealFinishOther: function () { S.meal.finishOther = !S.meal.finishOther; },
   mealFinish: function (v) {
     var m = S.meal, p = NF.activePlan(S), f = NF.foodById(S, m.foodId);
-    var res = m.retro ? NF.adviseAfter(S, f.id) : NF.advise(S, f.id, m.portion, m.bolus);
+    var res = m.retro ? NF.adviseAfter(S, f.id, m.meal) : NF.advise(S, f.id, m.portion, m.bolus, m.meal);
     var advice = res.items.map(function (it) { var d = m.decisions[it.lever]; return { lever: it.lever, item: it.item, accepted: d === true ? true : d === false ? false : null, reason: m.reasons[it.lever] || null }; });
     var confirmed = v === 'as' ? 'as' : v === 'other' ? 'other' : v === 'none' ? 'none' : v === 'unknown' ? 'unknown' : 'as';
     var units = confirmed === 'as' ? p.doses[m.meal].units : confirmed === 'other' ? m.units : null;
