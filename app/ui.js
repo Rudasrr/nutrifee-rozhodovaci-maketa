@@ -197,8 +197,13 @@ var A = {
     draft.points = src ? src.points : []; draft.importedAt = src ? src.importedAt : null;
     var r = NF.saveEpisode(S, draft); if (!r.ok) return fail(r.error);
     S.meal = null; S.page = 'today';
-    toast(m.retro ? f.name + ' je zapsané k ' + NF.fmtTime(at) + '. Data ze senzoru k tomu času máme.' : f.name + ' je zapsané. Data ze senzoru dorazí za dvě hodiny.');
+    var th = NF.thanks(S, r.episode);
+    toast(th || (m.retro ? f.name + ' je zapsané k ' + NF.fmtTime(at) + '.' : f.name + ' je zapsané.'));
   },
+  resultSeen: function (v) { NF.markResultSeen(S, v); },
+  openFood: function (v) { S.page = 'foods'; S.foodsSeg = 'all'; S.foodOpen = v; },
+  milestoneClose: function (v) { NF.closeMilestone(S, v); },
+  weekClose: function (v) { NF.closeWeek(S, v); },
   foodsSeg: function (v) { S.foodsSeg = v; S.foodOpen = null; },
   foodOpen: function (v) { S.foodOpen = S.foodOpen === v ? null : v; },
   previewTile: function (v) { S.previewTile = S.previewTile === v ? null : v; },

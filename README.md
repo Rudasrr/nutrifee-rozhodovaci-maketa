@@ -39,6 +39,9 @@ cd maketa-rozhodovaci && node nutrifee-rozhodovaci-maketa.test.cjs
 5. **Lékař mezi kontrolami nic nedělá.** Nemoc ukončuje pacient, výpadek dat končí sám.
 6. **Nic se neodesílá, žádná generativní AI ve výpočtech.** Stopa s vstupy a výstupy je exportovatelná.
 7. **V ordinaci se nepíše** — výběr, zaškrtnutí, volič.
+8. **Pacient vidí výsledek, dostane poděkování a vidí cíl.** Po příchodu dat karta „Jak to dopadlo“, poděkování za čin
+   (ne za hodnotu glukózy), jednorázové milníky za snahu, karta „Cesta ke kontrole“ (dní do kontroly, známá jídla X z N),
+   týdenní shrnutí. Nic z toho nejde do reportu lékaře.
 
 ## Průchod ukázkou
 

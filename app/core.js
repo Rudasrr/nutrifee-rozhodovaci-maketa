@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 14;
+NF.SCHEMA = 15;
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 var DAYS = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
@@ -84,6 +84,7 @@ NF.createState = function () {
     review: null,
     questions: [],
     participation: 'active',
+    fb: { resultSeen: {}, milestones: [], weeksSeen: {} },
     events: [],
     wizardStep: 0,
     toast: '', error: ''
@@ -505,6 +506,7 @@ NF.saveEpisode = function (S, data) {
   ep.peak = NF.peakOf(ep.points); ep.at2h = NF.at2h(ep.points);
   S.episodes.push(ep);
   NF.log(S, 'jidlo.zapsano', ep.id + ' ' + ep.foodId, { meal: ep.meal, portion: ep.portion, insulin: ep.insulin, advice: ep.advice, context: ep.context, usable: NF.usableEp(S, ep), whyNot: NF.whyNotUsable(S, ep) });
+  NF.checkMilestones(S);
   return { ok: true, episode: ep };
 };
 NF.confirmBasal = function (S, confirmed, units, time) {
@@ -520,6 +522,138 @@ NF.correctEpisode = function (S, id, name) {
   ep.history = ep.history || []; ep.history.push({ at: S.clock, from: ep.note || '', to: name }); ep.note = name;
   NF.log(S, 'jidlo.opraveno', id); return { ok: true };
 };
+
+/* ---------- zpětná vazba pacientovi (15, odst. 7b) ----------
+   Chválíme snahu a návyk, ne hodnotu glukózy. Výsledek se říká věcně, poděkování patří k činu.
+   Všechny texty jsou položky registru (S-VYSLEDEK, R-DIKY, R-MILNIKY, S-CESTA, S-TYDEN);
+   bez schválené položky se nic neukáže. Nic z toho nejde do reportu lékaře. */
+NF.fillText = function (tpl, map) { return String(tpl || '').replace(/\{(\w+)\}/g, function (_, k) { return map && map[k] != null ? NF.esc(map[k]) : ''; }); };
+function fbState(S) { S.fb = S.fb || { resultSeen: {}, milestones: [], weeksSeen: {} }; return S.fb; }
+NF.texts = function (S, id) { var r = NF.item(S, id); return NF.usable(S, id) && r && r.texts ? r.texts : null; };
+NF.nextVisit = function (S) { var p = NF.activePlan(S); return S.nextVisit || (p && p.validUntil) || null; };
+NF.LEVER_WITH = { addon: 's doplňkem', order: 's pořadím jídla', walk: 's procházkou' };
+NF.leverNoun = function (l) { return { addon: 'doplněk k jídlu', order: 'jiné pořadí jídla', walk: 'procházku po jídle' }[l] || l; };
+
+/* Poslední dnešní zápis, ke kterému už dorazila data a pacient výsledek ještě neviděl. */
+NF.lastResult = function (S) {
+  var T = NF.texts(S, 'S-VYSLEDEK'); if (!T) return null;
+  var fb = fbState(S), day = NF.day(S.clock), high = NF.targets(S).high;
+  var eps = S.episodes.filter(function (e) { return NF.day(e.at) === day && e.importedAt && e.importedAt <= S.clock && !fb.resultSeen[e.id]; });
+  if (!eps.length) return null;
+  var ep = eps[eps.length - 1], food = NF.foodById(S, ep.foodId); if (!food) return null;
+  var acc = (ep.advice || []).filter(function (a) { return a.accepted === true && a.lever !== 'portion'; }).map(function (a) { return a.lever; });
+  var peak = NF.peakOf(ep.points), usable = NF.usableEp(S, ep), why = NF.whyNotUsable(S, ep);
+  var map = { food: food.name, peak: NF.mmol(peak), meal: NF.mealLabel(ep.meal, true), lever: acc.length ? NF.LEVER_WITH[acc[0]] : '', why: why || '', base: '', sugg: '' };
+  var key;
+  if (peak == null) key = 'nodata';
+  else if (acc.length) {
+    key = peak <= high ? 'okAdvice' : 'highAdvice';
+    var base = NF.baseStats(S, food.id);
+    if (key === 'okAdvice' && base.n >= 2 && base.lo != null) map.base = NF.fillText(T.baseNote, { lo: NF.mmol(base.lo), hi: NF.mmol(base.hi) });
+  } else if (peak <= high) key = 'okPlain';
+  else {
+    key = 'highPlain';
+    var best = NF.leverStats(S, food.id).filter(function (x) { return x.st.n >= 2 && x.st.inTarget / x.st.n >= 0.5; })[0];
+    map.sugg = best ? NF.fillText(T.suggestData, { lever: NF.leverNoun(best.lever), k: best.st.inTarget, n: best.st.n }) : (T.suggestGeneric || '');
+  }
+  var text = NF.fillText(T[key], map) + (!usable && key !== 'nodata' && why ? NF.fillText(T.unusable, { why: why }) : '');
+  return { ep: ep, food: food, key: key, text: text, usable: usable, why: why, peak: peak };
+};
+NF.markResultSeen = function (S, id) { fbState(S).resultSeen[id] = S.clock; NF.log(S, 'vysledek.zobrazen', id); };
+
+/* Poděkování po uložení: podle činu, ne podle hodnoty. */
+NF.thanks = function (S, ep) {
+  var T = NF.texts(S, 'R-DIKY'); if (!T) return null;
+  var f = NF.foodById(S, ep.foodId);
+  var acc = (ep.advice || []).some(function (a) { return a.accepted === true && a.lever !== 'portion'; });
+  var back = ep.portionPlanned === 'bigger' && ep.portion === 'usual';
+  var key = ep.retro ? 'retro' : back ? 'portion' : acc ? 'advice' : 'plain';
+  return NF.fillText(T[key], { food: f ? f.name : '' });
+};
+
+/* Milníky: jednorázové, za snahu a návyk. Žádný milník za hodnotu glukózy. */
+NF.checkMilestones = function (S) {
+  var T = NF.texts(S, 'R-MILNIKY'); if (!T) return [];
+  var fb = fbState(S), high = NF.targets(S).high, out = [];
+  function add(id, key, map) {
+    if (fb.milestones.some(function (m) { return m.id === id; })) return;
+    var m = { id: id, key: key, text: NF.fillText(T[key], map || {}), at: S.clock, seen: false };
+    fb.milestones.push(m); out.push(m); NF.log(S, 'milnik', id, { key: key, item: 'R-MILNIKY' });
+  }
+  var min = NF.param(S, 'R-REAKCE', 'minKnown', 3), eaten = {};
+  S.episodes.forEach(function (e) { eaten[e.foodId] = (eaten[e.foodId] || 0) + 1; });
+  var repeated = Object.keys(eaten).filter(function (k) { return eaten[k] >= 2; }), knownCount = 0;
+  repeated.forEach(function (fid) {
+    var f = NF.foodById(S, fid); if (!f) return;
+    var st = NF.foodStats(S, fid);
+    if (st.n >= min) { knownCount++; add('known:' + fid, 'known', { food: f.name, n: min }); }
+    var last = st.list.slice(-3);
+    if (last.length === 3) Object.keys(NF.LEVERS).forEach(function (l) {
+      if (l === 'portion') return;
+      var all = last.every(function (e) { return NF.usableEp(S, e) && (e.advice || []).some(function (a) { return a.lever === l && a.accepted === true; }) && NF.peakOf(e.points) <= high; });
+      if (all) add('habit:' + fid + ':' + l, 'habit', { food: f.name, lever: NF.LEVER_WITH[l] });
+    });
+  });
+  if (repeated.length >= 5 && knownCount === repeated.length) add('allknown', 'allknown', { n: repeated.length });
+  var days = {};
+  S.episodes.forEach(function (e) { var d = NF.day(e.at); days[d] = days[d] || {}; days[d][e.meal] = 1; });
+  var full = Object.keys(days).filter(function (d) { return days[d].breakfast && days[d].lunch && days[d].dinner; }).sort();
+  for (var i = 6; i < full.length; i++) if (NF.daysBetween(full[i - 6], full[i]) === 6) { add('week1', 'week1', {}); break; }
+  var recent = S.episodes.filter(function (e) { return e.context !== 'illness'; }).slice(-10);
+  if (recent.length === 10 && recent.every(function (e) { return e.portion === 'usual'; })) add('usual10', 'usual10', {});
+  if (S.episodes.filter(function (e) { return e.retro; }).length >= 5) add('retro5', 'retro5', {});
+  return out;
+};
+NF.pendingMilestone = function (S) { var un = fbState(S).milestones.filter(function (m) { return !m.seen; }); return un.length ? un[un.length - 1] : null; };
+/* Zavření zavře i starší neviděné: na Dnes je vždy nejvýš jedna karta (nejnovější), přehled je v Plánu. */
+NF.closeMilestone = function (S, id) { var ms = fbState(S).milestones, i = ms.map(function (m) { return m.id; }).indexOf(id); ms.forEach(function (m, j) { if (j <= i) m.seen = true; }); };
+NF.settleFeedback = function (S) { var fb = fbState(S); fb.milestones.forEach(function (m) { m.seen = true; }); S.episodes.forEach(function (e) { fb.resultSeen[e.id] = S.clock; }); var w = NF.weekSummary(S); while (w) { fb.weeksSeen[w.id] = S.clock; w = NF.weekSummary(S); } };
+
+/* Cesta ke kontrole: dny, známá jídla X z N, tento týden X z N. Čísla, ne hodnocení. */
+NF.pathStats = function (S) {
+  var p = NF.activePlan(S); if (!p || !NF.usable(S, 'S-CESTA')) return null;
+  var from = NF.day(p.effectiveFrom) + 'T00:00:00', to = NF.nextVisit(S);
+  var total = Math.max(1, NF.daysBetween(from, to)), gone = Math.max(0, Math.min(total, NF.daysBetween(from, S.clock)));
+  var min = NF.param(S, 'R-REAKCE', 'minKnown', 3), eaten = {};
+  S.episodes.forEach(function (e) { eaten[e.foodId] = (eaten[e.foodId] || 0) + 1; });
+  var rep = Object.keys(eaten).filter(function (k) { return eaten[k] >= 2; });
+  var known = rep.filter(function (k) { return NF.foodStats(S, k).n >= min; }).length;
+  var wk = Math.floor(gone / 7), wstart = NF.addDays(from, wk * 7), dayIn = Math.max(0, Math.min(6, NF.daysBetween(wstart, S.clock)));
+  var weps = S.episodes.filter(function (e) { return NF.day(e.at) >= NF.day(wstart) && NF.day(e.at) <= NF.day(S.clock); });
+  var conf = weps.filter(function (e) { return e.insulin && e.insulin.confirmed !== 'unknown'; }).length;
+  return { total: total, gone: gone, left: Math.max(0, total - gone), known: known, repeated: rep.length, week: wk + 1, weekMeals: weps.length, weekSlots: (dayIn + 1) * 3, weekConfirmed: conf, milestones: fbState(S).milestones.length, visit: to };
+};
+
+/* Týdenní shrnutí za poslední uzavřený týden od vydání plánu; ukáže se jednou. */
+NF.weekSummary = function (S) {
+  var p = NF.activePlan(S); if (!p || !NF.usable(S, 'S-TYDEN')) return null;
+  var from = NF.day(p.effectiveFrom) + 'T00:00:00';
+  var fb = fbState(S), gone = NF.daysBetween(from, S.clock), wk = Math.floor(gone / 7);
+  if (wk < 1) return null;
+  var id = p.id + ':' + wk; if (fb.weeksSeen[id]) return null;
+  var start = NF.addDays(from, (wk - 1) * 7), end = NF.addDays(from, wk * 7), high = NF.targets(S).high;
+  var eps = S.episodes.filter(function (e) { return e.at >= start && e.at < end; });
+  if (!eps.length) { fb.weeksSeen[id] = S.clock; return null; }
+  var usual = eps.filter(function (e) { return e.portion === 'usual'; }).length, lv = {};
+  eps.forEach(function (e) { (e.advice || []).forEach(function (a) {
+    if (a.lever === 'portion' || a.accepted !== true) return;
+    lv[a.lever] = lv[a.lever] || { n: 0, inT: 0 }; lv[a.lever].n++;
+    var pk = NF.peakOf(e.points); if (pk != null && pk <= high) lv[a.lever].inT++;
+  }); });
+  var best = Object.keys(lv).sort(function (a, b) { return (lv[b].inT / lv[b].n - lv[a].inT / lv[a].n) || (lv[b].n - lv[a].n); })[0];
+  var sugg = null;
+  if (best && lv[best].inT >= 2) {
+    var seen = {};
+    eps.forEach(function (e) {
+      if (seen[e.foodId] || sugg) return; seen[e.foodId] = 1;
+      var c = NF.confidence(S, e.foodId);
+      if (c.level === 'known' && c.reaction && c.reaction.key !== 'mild' && !NF.leverStats(S, e.foodId).some(function (x) { return x.lever === best; })) sugg = { food: NF.foodById(S, e.foodId).name, lever: best, k: lv[best].inT, n: lv[best].n };
+    });
+  }
+  return { id: id, week: wk, start: start, end: end, meals: eps.length, usual: usual, best: best ? { lever: best, k: lv[best].inT, n: lv[best].n } : null,
+    milestones: fb.milestones.filter(function (m) { return m.at >= start && m.at < end; }), suggest: sugg };
+};
+NF.closeWeek = function (S, id) { fbState(S).weeksSeen[id] = S.clock; NF.log(S, 'tyden.zobrazen', id); };
 
 /* ---------- nemoc ---------- */
 NF.setIllness = function (S, on) {

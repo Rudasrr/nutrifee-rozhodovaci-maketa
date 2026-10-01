@@ -329,3 +329,15 @@ details.more[open]>summary::before{content:"⌄ ";}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media print{.rail,.nextbar,.tabbar,.drawer,.toast{display:none!important}.app{display:block}}
+
+/* zpětná vazba pacientovi (15, odst. 7b) */
+.now strong{font-weight:800;color:var(--brand2)}
+.glass.result{border-color:#bfe0cb}
+.glass.milestone{background:linear-gradient(135deg,var(--sand),#fff6ea)}
+.glass.week{border-color:#cfdcf3}
+.path .bar{height:10px;border-radius:6px;background:#e4ebee;overflow:hidden;margin:8px 0 4px}
+.path .bar span{display:block;height:100%;background:var(--brand);border-radius:6px}
+.path .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.path .row3 div{text-align:center;background:#ffffff99;border-radius:12px;padding:8px 4px}
+.path .row3 b{display:block;font-size:19px;letter-spacing:-.02em}
+.path .row3 .tiny{display:block;line-height:1.25;margin-top:2px}

@@ -30,6 +30,16 @@ function reg() {
     A({ id: 'J-DATABAZE', cat: 'jidla', title: 'Seznam jídel', summary: 'Syntetický seznam ~200 běžných českých jídel a hotovek. Skutečný zdroj a licence se vyberou pro studii.', usedBy: 'před jídlem' }),
     A({ id: 'J-STITKY', cat: 'jidla', title: 'Hrubé štítky místo maker', summary: 'Příloha (6) · příprava (3) · velikost (3). Pacient klepne třikrát, žádná čísla.', detail: 'Pacient hotová jídla nezná složením, ale jménem a rutinou. Učíme se z opakování; štítky slouží jen k „podobné jídlo“.', usedBy: 'vlastní jídlo, podobnost' }),
     A({ id: 'S-SOUHRN', cat: 'report', title: 'Věta „co se dělo“', summary: 'Šablona z pravidel (porce, potvrzení inzulinu, rady, TIR). Žádná generativní AI.', usedBy: 'report' }),
+    A({ id: 'S-VYSLEDEK', cat: 'report', title: 'Karta „Jak to dopadlo“', summary: 'Po příchodu dat ze senzoru jedna karta na Dnes: vrchol věcně, poděkování za čin (zkusil radu, zapsal). Žádná pochvala za hodnotu glukózy.', detail: 'Uzavírá smyčku učení: pacient vidí výsledek toho, co udělal, ve chvíli, kdy je známý. Hodnota není jeho zásluha ani vina, proto se říká věcně; díky patří činu.',
+      texts: { okAdvice: '{meal} · {food} {lever}: vrchol <strong>{peak}</strong>, v cíli. {base}Díky, že jsi to zkusil — tohle u tebe funguje.', highAdvice: '{meal} · {food} {lever}: vrchol <strong>{peak}</strong>, nad cílem. I tak díky — každý zápis zpřesňuje, co ti pomáhá. Zkoušíme dál.', okPlain: '{meal} · {food}: vrchol <strong>{peak}</strong>, v cíli. Díky za zápis.', highPlain: '{meal} · {food}: vrchol <strong>{peak}</strong>, nad cílem. {sugg}', suggestData: 'Příště můžeš zkusit {lever} — u tebe to vyšlo {k} z {n} v cíli.', suggestGeneric: 'Příště můžeš zkusit doplněk k jídlu nebo jiné pořadí; nabídneme ti to před jídlem.', baseNote: 'Bez toho u tebe bývá {lo}–{hi}. ', unusable: ' Zápis máme, do učení ale nejde ({why}).', nodata: '{meal} · {food}: data ze senzoru k tomuto zápisu chybí. Zápis máme, do učení nejde.' }, usedBy: 'Dnes' }),
+    A({ id: 'R-DIKY', cat: 'rady', title: 'Poděkování po uložení', summary: 'Věta podle činu: přijal radu · vrátil se k obvyklé porci · doplnil zpětně · zapsal. Nikdy podle hodnoty glukózy.', detail: 'Pochvala za číslo by učila honit čísla a jíst méně, „abych byl v cíli“. Poděkování patří tomu, co pacient udělal.',
+      texts: { advice: 'Díky, že jsi to zkusil. Za dvě hodiny ti na Dnes ukážeme, jak to dopadlo.', portion: 'Vrátil ses k obvyklé porci — přesně na tu je tvoje dávka. Díky.', retro: 'Díky za doplnění. I zpětný zápis se počítá do učení.', plain: 'Zapsáno. Za dvě hodiny uvidíš, kam se glukóza dostala.' }, usedBy: 'po uložení jídla' }),
+    A({ id: 'R-MILNIKY', cat: 'rady', title: 'Milníky za snahu a návyk', summary: 'Jednorázové: jídlo poznáno · rada se stala návykem · týden bez mezery · obvyklá porce 10× po sobě · všechna častá jídla známe · zpětně doplněno 5×. Žádný milník za hodnotu glukózy. Nejde do reportu lékaře.', detail: 'Chválíme čin a vytrvalost, ne číslo. Milník se ukáže jednou jako karta na Dnes, přehled je v Plánu. Žádné body ani série s trestem.',
+      texts: { known: '<strong>{food}</strong> už známe ({n} zápisy se všemi údaji). Od teď ti k němu umíme poradit.', habit: '3× po sobě sis dal <strong>{food}</strong> {lever} a 3× jsi skončil v cíli. Tohle už není rada — to je tvůj návyk. Díky.', week1: '7 dní, 21 jídel, všechno zapsané. Díky — z tohohle se učíme nejvíc.', usual10: '10 jídel po sobě v obvyklé porci. Přesně na tu je nastavená tvoje dávka. Díky, že ji držíš.', allknown: 'Jídla, která jíš nejčastěji ({n}), už všechna známe. Teď už hlavně doplňujeme.', retro5: 'Už 5× jsi zápis doplnil zpětně místo toho, abys ho vynechal. Díky — i tak se učíme.' }, usedBy: 'Dnes, Plán' }),
+    A({ id: 'S-CESTA', cat: 'report', title: 'Cesta ke kontrole', summary: 'Pruh dní do kontroly · známá jídla X z N (jedených ≥ 2×) · tento týden X z N jídel zapsáno a inzulin potvrzen · věta, co se na kontrole stane. Čísla „X z N“, ne procenta jako hodnocení.', detail: 'Dlouhodobý cíl musí být vidět: aplikace se učí pacientova jídla a na kontrole z toho lékař rozhodne. Pacient nic nepočítá.',
+      texts: { goal: 'Aby aplikace poznala tvoje běžná jídla a ty jsi věděl, co ti u nich pomáhá. Dávky řeší lékař — ty jen jíš jako obvykle a zapisuješ.', visit: 'Na kontrole lékař uvidí, jak reaguješ na svá jídla a co ti pomáhá, a rozhodne, jestli něco změnit. Ty nic počítat nemusíš.' }, usedBy: 'Dnes, Plán, převzetí plánu' }),
+    A({ id: 'S-TYDEN', cat: 'report', title: 'Týdenní shrnutí „Tvůj týden“', summary: 'Každých 7 dní od vydání plánu: zapsáno · obvyklá porce · co pomohlo · případný milník · jedna nabídka na příští týden z vlastních dat. Jen u pacienta.', detail: 'Jediný pravidelný rytmus mezi kontrolami. Nabídka vychází z toho, co pacientovi u jiného jídla pomohlo.',
+      texts: { head: 'Tvůj {week}. týden', meals: 'Zapsal jsi {meals} z 21 jídel, {usual} z nich v obvyklé porci.', helped: '{lever}: {k} z {n} v cíli, když jsi to zkusil.', milestone: 'Milník týdne:', suggest: 'Příští týden zkus u jídla {food} {lever} — jinde ti to vyšlo {k} z {n}.', thanks: 'Díky za týden zapisování — z toho se učíme nejvíc.' }, usedBy: 'Dnes' }),
     A({ id: 'S-SEMAFOR', cat: 'report', title: 'Semafor TIR', summary: 'Zelená TIR > 70 % a pod cílem < 4 %; žlutá TIR 50–70 %; červená TIR < 50 % nebo pod cílem ≥ 4 % nebo pod 3,0 ≥ 1 %.', params: { tir_zelena: 70, tir_zluta: 50, tbr_max: 4 }, usedBy: 'report' }),
     A({ id: 'P-NEMOC', cat: 'provoz', title: 'Režim nemoci', summary: 'Pacient označí nemoc sám; zápisy se štítkují a nepočítají; rady k množství jídla se nedávají; denní dotaz „už je ti lépe?“; ukončuje pacient.', usedBy: 'Dnes, rady, report' }),
     A({ id: 'P-LEKAR', cat: 'provoz', title: 'Lékař mezi kontrolami nic nedělá', summary: 'Všechny akce lékaře probíhají jen s pacientem v ordinaci. Nic se neodesílá, nikdo nesleduje.', usedBy: 'celá aplikace' })
@@ -131,15 +141,6 @@ NF.sensorSource = function (S, draft) {
   var ctx = S.illness && S.illness.active ? 'illness' : draft.insulin.confirmed === 'none' ? 'nodose' : (draft.insulin.confirmed === 'other' && draft.insulin.units < (NF.activePlan(S).doses[draft.meal].units)) ? 'lowdose' : null;
   return { points: pts(curve(S, food, portionTaken ? 'usual' : draft.portion, taken && taken.lever, k, ctx), draft.at), importedAt: NF.addMin(draft.at, 130) };
 };
-NF.sensorNow = function (S) {
-  var last = S.episodes[S.episodes.length - 1];
-  var h = NF.parse(S.clock).getHours();
-  var v = last && NF.day(last.at) === NF.day(S.clock) && NF.parse(S.clock) - NF.parse(last.at) < 3 * 3600000 ? (last.peak || 8) - 1.2 : 6.8 + ((h * 7) % 5) * 0.2;
-  if (S.illness && S.illness.active) v += 2.1;
-  v = Math.round(v * 10) / 10;
-  var spark = 'M0 30 C40 28,60 20,100 22 S160 34,200 26 S280 14,340 18';
-  return { value: v, trend: v > 9 ? '↗ stoupá' : v < 5 ? '↘ klesá' : '→ stabilní', spark: spark };
-};
 
 /* ---------- pomocníci příběhu ---------- */
 function foodByName(S, name) { return S.foods.filter(function (f) { return f.name === name; })[0]; }
@@ -164,6 +165,7 @@ function ep(S, spec) {
   if (advice.length) NF.log(S, 'rada.zobrazena', f.name, { level: NF.confidence(S, f.id).level, items: advice.map(function (a) { return { lever: a.lever, item: a.item }; }), bolus: e.bolusAtAdvice, portion: e.portionPlanned });
   S.episodes.push(e);
   NF.log(S, 'jidlo.zapsano', e.id + ' ' + f.id, { meal: meal, portion: e.portion, insulin: e.insulin, advice: advice, context: e.context });
+  var saveClock = S.clock; S.clock = spec.at; NF.checkMilestones(S); S.clock = saveClock;
   return e;
 }
 function basal(S, date, confirmed, units) {
@@ -291,12 +293,13 @@ var CH = [
 
   /* Dějství 4 — Nemoc */
   { id: 'illness', act: 3, title: 'Pacient — jsem nemocný', role: 'patient', page: 'today', at: '2026-10-20T08:00:00',
-    setup: function (S) { for (var d = 19; d <= 20; d++) basal(S, '2026-10-' + d); },
+    setup: function (S) { for (var d = 19; d <= 20; d++) basal(S, '2026-10-' + d); NF.settleFeedback(S); },
     apply: function (S) { NF.setIllness(S, true); ep(S, { id: 'E11', food: 'Chléb se sýrem a zeleninou', at: '2026-10-20T08:30:00', context: 'illness', advice: [{ lever: 'addon', accepted: true }] }); } },
   { id: 'illnessMeal', act: 3, title: 'Pacient — jídlo během nemoci', role: 'patient', page: 'meal', at: '2026-10-21T08:00:00',
     setup: function (S) { freshMeal(S, 'breakfast', 'Ovesná kaše s mlékem a banánem', 'smaller', 'as'); },
     apply: function (S) { ep(S, { id: 'E12', food: 'Ovesná kaše s mlékem a banánem', at: '2026-10-21T08:05:00', portion: 'smaller', context: 'illness', advice: [{ lever: 'addon' }] }); basal(S, '2026-10-21'); S.meal = null; } },
   { id: 'recovery', act: 3, title: 'Pacient — už je mi lépe', role: 'patient', page: 'today', at: '2026-10-22T07:30:00',
+    setup: function (S) { NF.settleFeedback(S); },
     apply: function (S) { NF.illnessCheckin(S, true); basal(S, '2026-10-22'); } },
 
   /* Dějství 5 — Registr */
@@ -366,7 +369,7 @@ D.indexOf = function (id) { for (var i = 0; i < CH.length; i++) if (CH[i].id ===
 /* Otázky pro garanta podle dějství (panel prezentujícího). */
 D.garantQuestions = [
   ['Stačí čtyři podmínky zařazení?', 'Je startovní sada návyků správná pro všechny?', 'Jsou připravené věty pokynů úplné?', 'Stačí hrubá denní doba (10:00 / 15:30 / 21:00) k rozlišení, že jídlo už minulo?'],
-  ['Je vrchol 0–120 min správná míra reakce?', 'Stačí 3 zápisy pro „známé jídlo“?'],
+  ['Je vrchol 0–120 min správná míra reakce?', 'Stačí 3 zápisy pro „známé jídlo“?', 'Je správně, že pochvala je jen za snahu a návyk, nikdy za hodnotu glukózy?', 'Jsou milníky (jídlo poznáno, rada = návyk, týden bez mezery) ty správné?'],
   ['Je pravidlo „z větší porce zpět k obvyklé i po píchnutí“ bezpečné?', 'Jsou hrubé štítky dostatečné pro podobnost?'],
   ['Má aplikace při nemoci radit doplněk a pořadí?'],
   ['Kdo smí pravidla měnit mezi kontrolami a jak rychle to pacient uvidí?'],

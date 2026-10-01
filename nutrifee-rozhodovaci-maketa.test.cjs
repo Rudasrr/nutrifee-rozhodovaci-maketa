@@ -293,6 +293,50 @@ test('Tři sloty dne: prázdný na řadě radí, prázdný minulý se doptá; pa
   assert.equal(NF.mealState(S(), 'lunch').state, 'skipped'); assert.match(markup(), /snědl jsem méně/);
 });
 
+/* ---------- zpětná vazba (15, odst. 7b) ---------- */
+test('Zpětná vazba: po příchodu dat karta „Jak to dopadlo“ děkuje za čin; živá glukóza na Dnes není', () => {
+  chapter('lateMeal'); act('role', 'patient');
+  assert.equal(/Glukóza teď/.test(markup()), false, 'živá glukóza zrušena 1. 10. 2026');
+  assert.equal(/Jak to dopadlo/.test(markup()), false, 'bez dnešních dat karta není');
+  act('mealRetro', 'breakfast'); act('mealBolus', 'as'); act('mealAt', '7.5'); act('mealTime', '-15'); act('mealStep', '2');
+  act('mealFood', food('Chléb se sýrem a zeleninou').id); act('mealPortion', 'usual'); act('mealStep', '3'); act('mealDecide', 'walk:yes'); act('mealFinish', 'as');
+  const r = NF.lastResult(S());
+  assert.ok(r && r.key === 'okAdvice', r && r.key); assert.match(r.text, /Díky, že jsi to zkusil/); assert.match(r.text, /vrchol/);
+  assert.match(markup(), /Jak to dopadlo/);
+  act('resultSeen', r.ep.id); assert.equal(NF.lastResult(S()), null); assert.equal(/Jak to dopadlo/.test(markup()), false);
+  const T = NF.texts(S(), 'R-DIKY');
+  for (const k of Object.keys(T)) assert.equal(/mmol|v cíli|nad cíl/.test(T[k]), false, 'poděkování není za hodnotu: ' + k);
+  assert.equal(NF.thanks(S(), S().episodes[S().episodes.length - 1]), T.retro);
+});
+test('Milníky: jednou, za snahu a návyk, ne za hodnotu; Cesta ke kontrole počítá X z N', () => {
+  chapter('week');
+  const kase = food('Ovesná kaše s mlékem a banánem');
+  assert.equal(S().fb.milestones.filter(m => m.id === 'known:' + kase.id).length, 1);
+  NF.checkMilestones(S()); assert.equal(S().fb.milestones.filter(m => m.id === 'known:' + kase.id).length, 1, 'nejvýš jednou');
+  const T = NF.texts(S(), 'R-MILNIKY');
+  assert.ok(Object.keys(T).every(k => ['known', 'habit', 'week1', 'usual10', 'allknown', 'retro5'].includes(k)), 'žádný milník za hodnotu glukózy');
+  for (const k of Object.keys(T)) assert.equal(/mmol/.test(T[k]), false, k);
+  act('role', 'patient'); act('page', 'today');
+  const m = NF.pendingMilestone(S()); assert.ok(m); assert.match(markup(), /Milník<\/b>/);
+  act('milestoneClose', m.id); assert.equal(NF.pendingMilestone(S()), null, 'zavření zavře i starší; na Dnes je nejvýš jedna karta');
+  const ps = NF.pathStats(S()); assert.ok(ps.known <= ps.repeated && ps.left > 0);
+  const path = markup().match(/class="glass path"[\s\S]*?<\/section>/)[0];
+  assert.match(path, /Cesta ke kontrole/); assert.match(path, new RegExp(ps.known + ' z ' + ps.repeated)); assert.equal(/\d+ %/.test(path), false, 'čísla X z N, ne procenta');
+  assert.ok(S().events.some(x => x.what === 'milnik'), 'milník je ve stopě');
+});
+test('Týdenní shrnutí po 7 dnech jednou; vstup k reportu z Plánu a před kontrolou z Dnes', () => {
+  chapter('lateMeal'); act('role', 'patient');
+  act('milestoneClose', NF.pendingMilestone(S()).id);
+  const w = NF.weekSummary(S()); assert.ok(w && w.week === 1); assert.match(markup(), /Tvůj 1\. týden/); assert.match(markup(), /z 21 jídel/);
+  act('weekClose', w.id); assert.equal(NF.weekSummary(S()), null); assert.equal(/Tvůj 1\. týden/.test(markup()), false);
+  act('page', 'plan'); assert.match(markup(), /Co uvidí lékař/); assert.match(markup(), /Tvoje milníky/);
+  act('page', 'preview'); assert.match(markup(), /Na co se zeptat lékaře/);
+  act('page', 'today'); assert.equal(/jdeš na kontrolu/.test(markup()), false);
+  S().clock = '2027-01-02T09:00:00'; act('page', 'today'); assert.match(markup(), /jdeš na kontrolu/);
+  /* nic z toho nejde do reportu lékaře */
+  chapter('reviewSummary'); act('startReview'); assert.equal(/[Mm]ilník/.test(markup()), false);
+});
+
 /* ---------- kontrola ---------- */
 test('Kontrola je vedené flow: souhrn → návrhy (jeden po druhém) → plán → předání', () => {
   chapter('reviewSummary'); act('startReview');
@@ -425,6 +469,7 @@ test('Produkční sestavení bez demo/ startuje prázdné a bez registru nic ner
   assert.equal(ctx.NutriFeeDemo, undefined);
   assert.equal(S().registry.items.length, 0); assert.equal(S().foods.length, 0);
   assert.equal(NF.sensorSource, undefined);
+  assert.equal(NF.lastResult(S()), null); assert.equal(NF.pathStats(S()), null); assert.equal(NF.thanks(S(), { advice: [] }), null, 'bez položek registru žádná zpětná vazba');
   assert.equal(/DEMO · syntetická data · není určeno/.test(markup()), true, 'i produkce nese označení');
   assert.ok(markup().length > 200);
 });
