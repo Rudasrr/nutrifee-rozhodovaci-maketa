@@ -316,7 +316,7 @@ function timeChips(m) {
   var opts = [['0', 'právě teď'], ['-5', 'před 5 min'], ['-15', 'před 15 min'], ['-30', 'před 30 min']];
   return '<div class="timechips">' + opts.map(function (o) { return choice(o[1], 'mealTime', o[0], String(m.offset) === o[0]); }).join('') + '</div>';
 }
-function tolNote(S) { return '<p class="tiny muted" style="margin:6px 0 0">Do učení počítáme jídla, u kterých byl inzulin do ' + NF.param(S, 'D-CISTA', 'tolerance_min', 15) + ' minut od jídla. Zapiš to i tak — záznam zůstane.</p>'; }
+function tolNote(S) { var t = NF.tolerance(S); return '<p class="tiny muted" style="margin:6px 0 0">Do učení počítáme jídla s inzulinem nejvýš ' + t.before + ' minut před jídlem nebo ' + t.after + ' minut po něm. Zapiš to i tak — záznam zůstane.</p>'; }
 V.meal = function (S) {
   var m = S.meal, p = NF.activePlan(S);
   if (!m || !p) return glass('<h2>Teď nelze nic zapsat</h2>') + '<div class="actions">' + btn('Zpět', 'page', 'today', 'primary') + '</div>';
@@ -509,10 +509,10 @@ V.preview = function (S) {
   qs = qs.slice(0, 3); /* 15, odst. 11: tři navržené otázky */
   return head(S, 'Před kontrolou ' + (S.nextVisit ? NF.fmtShort(S.nextVisit) : ''), 'Co uvidí lékař') +
     glass('<div class="now"><span class="ic">👍</span><div><b>Díky za ' + NF.plural(Math.max(1, NF.daysBetween(p.issuedAt, S.clock)), 'den', 'dny', 'dní') + ' zapisování</b>' + praise + '<br><span class="small muted">Tohle uvidí lékař. Neuvidí žádné hodnocení, jestli jsi „poslechl“ — jen co jsi zkusil a jak to dopadlo.</span></div></div>', 'soft') +
-    glass('<h2>V číslech</h2><div class="tiles">' +
+    glass('<details class="more"><summary>Podrobnosti v číslech</summary><div class="tiles" style="margin-top:10px">' +
       tile('Jídla', s.meals, 'zapsáno' + (s.snacks ? ' · ' + s.snacks + ' svačin' : ''), 'c-ok', 'meals') + tile('Obvyklá porce', s.usualPct == null ? '—' : s.usualPct + ' %', 'jídel', s.usualPct == null ? 'c-none' : s.usualPct >= 80 ? 'c-ok' : 'c-warn', 'usual') +
       tile('Inzulin', s.asPct == null ? '—' : s.asPct + ' %', 'podle plánu', s.asPct == null ? 'c-none' : s.asPct >= 80 ? 'c-ok' : 'c-warn', 'ins') + tile('Rady', adv.accepted.n, 'zkusil · ' + adv.declined.n + ' ne', adv.works === 'yes' ? 'c-ok' : 'c-none', 'adv') + '</div>' +
-      (S.previewTile ? '<div class="hint sand">' + e(previewDetail(S, s, S.previewTile)) + '</div>' : '<p class="small muted">Klepni na dlaždici pro vysvětlení.</p>')) +
+      (S.previewTile ? '<div class="hint sand">' + e(previewDetail(S, s, S.previewTile)) + '</div>' : '<p class="small muted">Klepni na dlaždici pro vysvětlení.</p>') + '</details>') +
     glass('<h2>Tvoje návyky v tomto plánu</h2><ul class="plain">' + NF.activeHabits(S).map(function (h) { return '<li>' + e(h.title) + '</li>'; }).join('') + '</ul><p class="small muted">Jak se ti dařilo je v číslech výše; návyky si lékař s tebou projde na kontrole.</p>') +
     glass('<h2>Na co se zeptat lékaře</h2><p class="small muted">Klepni na otázku, kterou si chceš vzít na kontrolu.</p><div class="choice-row" style="flex-direction:column">' +
       qs.map(function (q) { return choice(e(q), 'toggleQuestion', q, S.questions.some(function (x) { return x.text === q; })); }).join('') + '</div>' +

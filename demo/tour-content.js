@@ -152,7 +152,7 @@ T.chapters = {
     ]
   },
   preview: {
-    intro: { t: 'Den před kontrolou', co: '4. ledna. Pacient si prohlíží, co zítra uvidí lékař — lidsky, s pochvalou a bez hodnocení poslušnosti.', vsimni: 'Čtyři dlaždice jsou rozklikávací; navržené otázky na lékaře stačí zaklepnout.' },
+    intro: { t: 'Den před kontrolou', co: '4. ledna. Pacient si prohlíží, co zítra uvidí lékař — poděkování za dny zapisování, co fungovalo, a otázky na lékaře k zaklepnutí.', vsimni: 'Čísla jsou sbalená pod „Podrobnosti v číslech“; obrazovka začíná tím podstatným. Navržené otázky stačí zaklepnout.' },
     steps: [
       { do: [{ sel: '.tile[data-value="adv"]', act: 'previewTile', val: 'adv' }], watch: '.hint.sand', t: 'Rozklik dlaždice', co: 'Vysvětlení, co číslo znamená: medián vrcholu glukózy, když radu přijal vs. nepřijal.', proc: 'Pacient má rozumět tomu, co lékař uvidí.' },
       { do: [{ sel: '[data-action="toggleQuestion"]', act: 'toggleQuestion', val: function (B, S) { var b = S.foods.filter(function (f) { return f.name.indexOf('kaše') >= 0; })[0]; return 'Mám pokračovat s tím, že si k ' + b.name.toLowerCase() + ' dávám doplněk k jídlu?'; } }], t: 'Navržená otázka na lékaře', co: 'Otázka z dat, jedno klepnutí. Vlastní otázku lze napsat jako druhou možnost.', dusledek: 'Lékař ji uvidí v reportu.' }

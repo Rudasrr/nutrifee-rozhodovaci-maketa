@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 19;
+NF.SCHEMA = 20;
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 var DAYS = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
@@ -350,12 +350,14 @@ NF.complete = function (ep) {
 };
 NF.doseKey = function (S, meal) { var p = NF.activePlan(S); return p && p.doses[meal] ? meal + ':' + p.doses[meal].units : meal + ':0'; };
 /* Započítaný zápis: úplná data, inzulin potvrzen podle plánu, mimo nemoc, obvyklá porce, stejná dávka jako teď. */
-/* Včas = inzulin do ±tolerance (D-CISTA, 15 min) od času jídla. */
+/* Včas = inzulin nejvýš `pred_min` před jídlem a nejvýš `po_min` po něm (D-CISTA; 30 / 15 min, rozhodnuto 1. 10. 2026). */
 NF.minutesOf = function (iso) { var d = NF.parse(iso); return d.getHours() * 60 + d.getMinutes(); };
+NF.tolerance = function (S) { return { before: NF.param(S, 'D-CISTA', 'pred_min', 30), after: NF.param(S, 'D-CISTA', 'po_min', 15) }; };
 NF.onTime = function (S, ep) {
   if (!ep.insulin || !ep.insulin.time) return false;
-  var tol = NF.param(S, 'D-CISTA', 'tolerance_min', 15), hm = String(ep.insulin.time).split(':');
-  return Math.abs((Number(hm[0]) * 60 + Number(hm[1])) - NF.minutesOf(ep.at)) <= tol;
+  var t = NF.tolerance(S), hm = String(ep.insulin.time).split(':');
+  var diff = (Number(hm[0]) * 60 + Number(hm[1])) - NF.minutesOf(ep.at); /* záporné = před jídlem */
+  return diff < 0 ? -diff <= t.before : diff <= t.after;
 };
 NF.usableEp = function (S, ep) {
   if (!NF.complete(ep) || ep.context === 'illness') return false;
@@ -367,7 +369,7 @@ NF.whyNotUsable = function (S, ep) {
   if (!NF.complete(ep)) return 'chybí data ze senzoru';
   if (NF.isSnack(ep.meal)) return null;
   if (!ep.insulin || ep.insulin.confirmed !== 'as') return 'inzulin nepotvrzen podle plánu';
-  if (!NF.onTime(S, ep)) return 'inzulin mimo ±' + NF.param(S, 'D-CISTA', 'tolerance_min', 15) + ' min od jídla';
+  if (!NF.onTime(S, ep)) return 'inzulin mimo čas (víc než ' + NF.tolerance(S).before + ' min před jídlem nebo ' + NF.tolerance(S).after + ' min po něm)';
   if (ep.portion !== 'usual') return 'jiná než obvyklá porce';
   if (ep.doseKey !== NF.doseKey(S, ep.meal)) return 'při jiné dávce';
   return null;
