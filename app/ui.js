@@ -102,7 +102,8 @@ function bind(key, value) {
 function catalog() { var D = global.NutriFeeDemo; return (D && D.habitCatalog) || []; }
 function newMeal(meal) {
   var p = NF.activePlan(S);
-  return { step: 1, meal: meal, bolus: null, units: p ? p.doses[meal].units : 0, offset: '0', q: '', foodId: null, portion: null, decisions: {}, reasons: {}, newFood: null };
+  var snack = NF.isSnack(meal);
+  return { step: snack ? 2 : 1, meal: meal, bolus: snack ? 'snack' : null, units: p && p.doses[meal] ? p.doses[meal].units : 0, offset: '0', q: '', foodId: null, portion: snack ? 'usual' : null, decisions: {}, reasons: {}, newFood: null };
 }
 var A = {
   noop: function () { },
@@ -119,6 +120,18 @@ var A = {
   eligibility: function (v) { NF.setEligibility(S, v, !S.enrollment.criteria[v]); },
   startDraft: function () { if (!S.draft) S.draft = NF.newDraft(S); },
   dose: function (v) { var p = v.split(':'); NF.setDose(S, p[0], Number(p[1])); },
+  target: function (v) { var p = v.split(':'); if (S.draft) NF.setTarget(S.draft.targets, p[0], Number(p[1])); },
+  revTarget: function (v) { var p = v.split(':'); if (S.review) NF.setTarget(S.review.newTargets, p[0], Number(p[1])); },
+  revInstrToggle: function (v) {
+    var D = global.NutriFeeDemo, c = ((D && D.instructionCatalog) || []).filter(function (x) { return x.id === v; })[0], r = S.review; if (!r) return;
+    var has = r.newInstructions.some(function (x) { return x.id === v; });
+    r.newInstructions = has ? r.newInstructions.filter(function (x) { return x.id !== v; }) : r.newInstructions.concat([{ id: v, value: c ? c.value : true }]);
+  },
+  revInstrValue: function (v) {
+    var p = v.split(':'), D = global.NutriFeeDemo, c = ((D && D.instructionCatalog) || []).filter(function (x) { return x.id === p[0]; })[0], r = S.review; if (!r) return;
+    var ex = r.newInstructions.filter(function (x) { return x.id === p[0]; })[0]; if (!ex || !c) return;
+    ex.value = Math.round((ex.value + Number(p[1]) * (c.step || 1)) * 10) / 10;
+  },
   toggleHabit: function (v) { NF.toggleHabit(S, v); },
   instrToggle: function (v) {
     var D = global.NutriFeeDemo, c = ((D && D.instructionCatalog) || []).filter(function (x) { return x.id === v; })[0];
@@ -189,11 +202,11 @@ var A = {
     var m = S.meal, p = NF.activePlan(S), f = NF.foodById(S, m.foodId);
     var res = m.retro ? NF.adviseAfter(S, f.id, m.meal) : NF.advise(S, f.id, m.portion, m.bolus, m.meal);
     var advice = res.items.map(function (it) { var d = m.decisions[it.lever]; return { lever: it.lever, item: it.item, accepted: d === true ? true : d === false ? false : null, reason: m.reasons[it.lever] || null }; });
-    var confirmed = v === 'as' ? 'as' : v === 'other' ? 'other' : v === 'none' ? 'none' : v === 'unknown' ? 'unknown' : 'as';
+    var confirmed = v === 'as' ? 'as' : v === 'other' ? 'other' : v === 'none' ? 'none' : v === 'unknown' ? 'unknown' : v === 'snack' ? 'snack' : 'as';
     var units = confirmed === 'as' ? p.doses[m.meal].units : confirmed === 'other' ? m.units : null;
     var at = S.clock;
     if (m.retro && m.at != null) { var hh = Math.floor(m.at), mm = Math.round((m.at % 1) * 60); at = NF.day(S.clock) + 'T' + (hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm + ':00'; }
-    var time = confirmed === 'none' || confirmed === 'unknown' ? null : NF.fmtTime(NF.addMin(at, Number(m.offset || 0)));
+    var time = confirmed === 'none' || confirmed === 'unknown' || confirmed === 'snack' ? null : NF.fmtTime(NF.addMin(at, Number(m.offset || 0)));
     var draft = { meal: m.meal, foodId: f.id, portion: m.portion, bolusState: m.retro ? 'retro' : m.bolus, advice: advice, insulin: { confirmed: confirmed, units: units, time: time }, at: at, retro: !!m.retro };
     var src = NF.sensorSource ? NF.sensorSource(S, draft) : null;
     draft.points = src ? src.points : []; draft.importedAt = src ? src.importedAt : null;

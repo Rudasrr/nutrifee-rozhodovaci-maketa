@@ -266,13 +266,14 @@ V.today = function (S) {
   } else if (basal && basalTime) {
     out += glass('<div class="insulin"><div class="ic">✅</div><div><b>Bazál potvrzen · ' + (basal.units != null ? basal.units + ' j.' : 'nepodán') + '</b><small>' + e(basal.time) + ' · ' + e(NF.INSULIN[basal.confirmed]) + '</small></div></div>');
   } else if (dose && !eaten) {
-    out += glass('<div class="insulin"><div class="ic">💉</div><div><b>Inzulin k ' + e(NF.mealLabel(meal)) + ' · ' + dose.units + ' j.</b><small>Předepsal lékař · zeptáme se před jídlem</small></div><span class="chip">brzy</span></div>');
+    out += glass('<div class="insulin"><div class="ic">💉</div><div><b>Inzulin k ' + e(NF.mealLabel(meal, 'dat')) + ' · ' + dose.units + ' j.</b><small>Předepsal lékař · zeptáme se před jídlem</small></div><span class="chip">brzy</span></div>');
   }
   if (fm && fm.state === 'missed') out += '';
   else if (!eaten) out += '<div class="actions" style="margin:4px 0 14px">' + btn('🍽 Chystám se jíst', 'startMeal', meal, 'primary big') + '</div>' +
     '<div class="actions" style="margin:-6px 0 14px;justify-content:center">' + btn('Už jsem ' + e(verb[meal]), 'mealRetro', meal, 'quiet') + btn('Vynechal jsem', 'mealSkipAsk', meal, 'quiet') + '</div>' +
     (ask && ask.meal === meal ? glass('<b>Píchl sis k ' + e(NF.mealLabel(meal, 'dat')) + ' inzulin?</b><div class="choice-row" style="margin-top:6px">' + choice('Ano, ' + dose.units + ' j.', 'mealSkip', meal + ':as', false) + choice('Ano, jinak', 'mealSkip', meal + ':other', false) + choice('Ne', 'mealSkip', meal + ':none', false) + '</div>') : '');
-  else out += '<div class="actions" style="margin:4px 0 14px">' + btn('Zapsat další jídlo', 'startMeal', mealNow(S), 'big') + '</div>';
+  else out += '<div class="actions" style="margin:4px 0 14px">' + btn('🍎 Svačina · bez inzulinu k jídlu', 'startMeal', 'snack', 'big') + '</div>';
+  if (!eaten) out += '<div class="actions" style="margin:-8px 0 14px;justify-content:center">' + btn('🍎 Zapsat svačinu', 'startMeal', 'snack', 'quiet') + '</div>';
 
   var habits = NF.activeHabits(S);
   if (habits.length) {
@@ -319,8 +320,9 @@ function timeChips(m) {
 V.meal = function (S) {
   var m = S.meal, p = NF.activePlan(S);
   if (!m || !p) return glass('<h2>Teď nelze nic zapsat</h2>') + '<div class="actions">' + btn('Zpět', 'page', 'today', 'primary') + '</div>';
-  var dose = p.doses[m.meal], out = '';
-  var steps = '<div class="msteps">' + [1, 2, 3].map(function (i) { return '<span class="' + (i <= m.step ? 'on' : '') + '"></span>'; }).join('') + '</div>';
+  var dose = p.doses[m.meal], out = '', snack = NF.isSnack(m.meal);
+  var steps = '<div class="msteps">' + (snack ? [2, 3] : [1, 2, 3]).map(function (i) { return '<span class="' + (i <= m.step ? 'on' : '') + '"></span>'; }).join('') + '</div>';
+  var stepLabel = function (n) { return snack ? 'Krok ' + (n - 1) + ' ze 2 · svačina' : 'Krok ' + n + ' ze 3 · ' + NF.mealLabel(m.meal); };
   if (m.step === 1 && m.retro) {
     var base = { breakfast: 6, lunch: 11, dinner: 17 }[m.meal];
     out += head(S, 'Krok 1 ze 3 · ' + NF.mealLabel(m.meal) + ' zpětně', 'Píchl sis k ' + NF.mealLabel(m.meal, 'dat') + ' inzulin?') + steps +
@@ -357,7 +359,8 @@ V.meal = function (S) {
     var results = m.q ? NF.searchFoods(S, m.q, m.meal) : [], recents = NF.recentFoods(S, m.meal);
     var chosen = m.foodId ? NF.foodById(S, m.foodId) : null;
     var list = (m.q ? results : recents);
-    out += head(S, 'Krok 2 ze 3 · ' + NF.mealLabel(m.meal), m.retro ? 'Co jsi jedl?' : 'Co budeš jíst?') + steps +
+    out += head(S, stepLabel(2), m.retro ? 'Co jsi jedl?' : snack ? 'Co si dáš k svačině?' : 'Co budeš jíst?') + steps +
+      (snack ? hint('<b>Svačina je bez inzulinu k jídlu.</b> Nepotvrzuješ dávku ani porci; jen zapiš, co jíš. Učíme se z ní zvlášť a lékař uvidí, kolik toho jíš mimo hlavní jídla.', 'sand') : '') +
       glass('<label class="field"><span>Napiš pár písmen</span><input data-bind="meal.q" value="' + e(m.q || '') + '" placeholder="např. řízek, kaše, guláš" autocomplete="off"></label>' +
         (list.length ? '<div class="small muted" style="margin:2px 0 6px">' + (m.q ? 'Nalezeno' : 'Naposledy') + '</div><div class="food-grid">' + list.map(function (f) {
           var c = NF.confidence(S, f.id, m.meal);
@@ -368,11 +371,11 @@ V.meal = function (S) {
         ['side', 'prep', 'size'].map(function (g) {
           return '<b style="display:block;margin:10px 0 6px">' + { side: 'Příloha', prep: 'Příprava', size: 'Velikost' }[g] + '</b><div class="choice-row">' + NF.TAGS[g].map(function (t) { return choice(t[1], 'mealTag', g + ':' + t[0], m.newFood[g] === t[0]); }).join('') + '</div>';
         }).join('') + '<div class="actions">' + btn('Uložit jídlo do seznamu', 'mealSaveFood', null, 'primary') + '</div>') : '');
-    if (chosen) {
+    if (chosen && !snack) {
       out += glass('<h2>' + (m.retro ? 'Jakou porci jsi snědl?' : 'Jakou porci si chystáš?') + '</h2><div class="choice-row">' + NF.PORTIONS.map(function (x) { return choice(x[1], 'mealPortion', x[0], m.portion === x[0]); }).join('') + '</div>' +
         '<p class="field-help">Obvyklá porce = tak, jak ' + e(chosen.name.toLowerCase()) + ' jíš obvykle. Na to lékař nastavil tvoji dávku.</p>');
     }
-    out += '<div class="actions">' + btn('Další: rada a zápis →', 'mealStep', '3', 'primary big', chosen && m.portion ? '' : ' disabled') + btn('← Zpět', 'mealStep', '1', 'quiet') + '</div>' +
+    out += '<div class="actions">' + btn('Další: rada a zápis →', 'mealStep', '3', 'primary big', chosen && m.portion ? '' : ' disabled') + (snack ? btn('← Zpět na Dnes', 'page', 'today', 'quiet') : btn('← Zpět', 'mealStep', '1', 'quiet')) + '</div>' +
       (!chosen ? '<p class="small muted" style="text-align:center">Vyber jídlo ze seznamu, nebo přidej vlastní.</p>' : !m.portion ? '<p class="small muted" style="text-align:center">Vyber porci.</p>' : '');
     return out;
   }
@@ -394,7 +397,7 @@ V.meal = function (S) {
   }
   var res = NF.advise(S, food.id, m.portion, m.bolus, m.meal);
   var conf = res.conf;
-  out += head(S, 'Krok 3 ze 3 · ' + NF.mealLabel(m.meal), food.name) + steps;
+  out += head(S, stepLabel(3), food.name) + steps;
   out += glass('<div style="display:flex;gap:12px;align-items:center">' + foodIcon(S, food, conf) + '<div><div class="badges">' + levelTag(conf.level) + reactionTag(conf.reaction) + '</div>' +
     '<div class="learn">' + (conf.level === 'known' ? 'Znáš ho · ' + conf.st.n + ' započítaných zápisů' : conf.level === 'similar' ? 'Zatím odhad z podobných jídel' : 'Zatím nic neodhadujeme — zapiš ho ' + (conf.min || 3) + '×') + '</div></div></div>' +
     (conf.level === 'unknown' ? '<p class="sum" style="margin-top:10px">Tohle jídlo u tebe ještě neznáme a nic podobného také ne. <b>Nic neodhadujeme.</b> Po ' + (conf.min || 3) + ' zápisech ti řekneme, kam se po něm glukóza dostane.</p>' : conf.level === 'none' ? '<p class="sum" style="margin-top:10px">' + e(conf.why) + '</p>' : '<div class="detail">' + peakBlock(S, food, conf) + '</div>'));
@@ -422,7 +425,7 @@ V.meal = function (S) {
     out += glass('<h2>Teď si píchni inzulin a jdi jíst</h2><p class="small muted">Lékař předepsal <b>' + dose.units + ' j.</b> k ' + e(NF.mealLabel(m.meal)) + '.</p>' +
       '<div class="choice-row" style="flex-direction:column">' + choice('Píchl jsem si ' + dose.units + ' j. a jdu jíst', 'mealFinish', 'as', false, 'big') + choice('Píchl jsem si jinak', 'mealFinishOther', null, !!m.finishOther, 'big') + '</div>' +
       (m.finishOther ? '<div class="actions"><div class="stepper">' + btn('−', 'mealUnits', '-1') + '<span class="val">' + m.units + ' j.</span>' + btn('+', 'mealUnits', '1') + '</div>' + btn('Uložit a jdu jíst', 'mealFinish', 'other', 'primary') + btn('Bez inzulinu', 'mealFinish', 'none', 'quiet') + '</div>' : ''));
-  } else out += '<div class="actions">' + btn('Uložit jídlo', 'mealFinish', m.bolus, 'primary big') + '</div>';
+  } else out += '<div class="actions">' + btn(snack ? 'Uložit svačinu' : 'Uložit jídlo', 'mealFinish', m.bolus, 'primary big') + '</div>';
   out += '<div class="actions" style="margin-top:6px">' + btn('← Zpět', 'mealStep', '2', 'quiet') + '</div>';
   return out;
 };
@@ -508,7 +511,7 @@ V.preview = function (S) {
   return head(S, 'Před kontrolou ' + (S.nextVisit ? NF.fmtShort(S.nextVisit) : ''), 'Co uvidí lékař') +
     glass('<div class="now"><span class="ic">👍</span><div><b>Vedeš si dobře</b>' + praise + '<br><span class="small muted">Tohle uvidí lékař. Neuvidí žádné hodnocení, jestli jsi „poslechl“ — jen co jsi zkusil a jak to dopadlo.</span></div></div>', 'soft') +
     glass('<h2>V číslech</h2><div class="tiles">' +
-      tile('Jídla', s.meals, 'zapsáno', 'c-ok', 'meals') + tile('Obvyklá porce', s.usualPct + ' %', 'jídel', s.usualPct >= 80 ? 'c-ok' : 'c-warn', 'usual') +
+      tile('Jídla', s.meals, 'zapsáno' + (s.snacks ? ' · ' + s.snacks + ' svačin' : ''), 'c-ok', 'meals') + tile('Obvyklá porce', s.usualPct + ' %', 'jídel', s.usualPct >= 80 ? 'c-ok' : 'c-warn', 'usual') +
       tile('Inzulin', s.asPct + ' %', 'podle plánu', s.asPct >= 80 ? 'c-ok' : 'c-warn', 'ins') + tile('Rady', adv.accepted.n, 'zkusil · ' + adv.declined.n + ' ne', adv.works === 'yes' ? 'c-ok' : 'c-none', 'adv') + '</div>' +
       (S.previewTile ? '<div class="hint sand">' + e(previewDetail(S, s, S.previewTile)) + '</div>' : '<p class="small muted">Klepni na dlaždici pro vysvětlení.</p>')) +
     glass('<h2>Návyky</h2>' + NF.activeHabits(S).map(function (h) { return '<div class="habit"><span class="mark">✓</span><div>' + e(h.title) + '</div></div>'; }).join('')) +
@@ -543,11 +546,12 @@ V.newPlan = function (S) {
   var added = newH.filter(function (h) { return !oldH.some(function (o) { return o.catalogId === h.catalogId; }); }), removed = oldH.filter(function (h) { return !newH.some(function (o) { return o.catalogId === h.catalogId; }); });
   var pa = NF.planAdvice(S, p), oa = NF.planAdvice(S, prev);
   var advOff = pa.off.filter(function (l) { return oa.off.indexOf(l) < 0; }), advOn = pa.prefer.filter(function (l) { return oa.prefer.indexOf(l) < 0; });
+  var instrChange = JSON.stringify(p.instructions) !== JSON.stringify(prev.instructions) || JSON.stringify(p.targets) !== JSON.stringify(prev.targets) ? '<p><b>Pokyny a cíle:</b> lékař je upravil — najdeš je v Bezpečí a v Plánu.</p>' : '';
   var adviceChange = advOff.length || advOn.length ? '<p>' + (advOff.length ? 'Radu „' + e(advOff.map(function (l) { return NF.LEVERS[l].label; }).join('“, „')) + '“ ti už nenabízíme — lékař ji vypnul. ' : '') + (advOn.length ? 'Místo toho ti budeme nabízet „' + e(advOn.map(function (l) { return NF.LEVERS[l].label; }).join('“, „')) + '“.' : '') + ' Dávky se tím nemění.</p>' : '';
   return head(S, 'Nový plán · ' + p.id, 'Co se změnilo') +
     glass('<div class="now"><span class="ic">👉</span><div><b>Co teď</b>Projdi si změny a klepni na „Rozumím, pokračuji“. Od teď platí nový plán.</div></div>') +
     glass('<h2>Dávky inzulinu</h2>' + (doseChanges.length ? '<p>' + doseChanges.join('<br>') + '</p>' + hint('<b>Změna dávky = učíme se znovu.</b> Tvoje tělo bude na jídla reagovat jinak, proto u jídel s novou dávkou začínáme počítat od nuly. Staré zápisy zůstávají označené původní dávkou.', 'sand') : '<p>Beze změny.</p>') + dosesTable(p)) +
-    glass('<h2>Návyky a rady</h2>' + (added.length ? '<p><b>Nové:</b> ' + e(added.map(function (h) { return h.title; }).join(', ')) + '</p>' : '') + (removed.length ? '<p><b>Končí:</b> ' + e(removed.map(function (h) { return h.title; }).join(', ')) + '</p>' : '') + adviceChange + (!added.length && !removed.length && !adviceChange ? '<p>Pokračují beze změny.</p>' : '') +
+    glass('<h2>Návyky a rady</h2>' + (added.length ? '<p><b>Nové:</b> ' + e(added.map(function (h) { return h.title; }).join(', ')) + '</p>' : '') + (removed.length ? '<p><b>Končí:</b> ' + e(removed.map(function (h) { return h.title; }).join(', ')) + '</p>' : '') + adviceChange + instrChange + (!added.length && !removed.length && !adviceChange && !instrChange ? '<p>Pokračují beze změny.</p>' : '') +
       (p.decisions && p.decisions.length ? '<details class="more"><summary>Proč lékař rozhodl takto</summary><ul class="plain small">' + p.decisions.map(function (d) { return '<li><b>' + e(d.title) + '</b> — ' + e(d.text) + '</li>'; }).join('') + '</ul></details>' : '')) +
     '<div class="actions">' + (p.understood ? btn('Přejít na Dnes', 'page', 'today', 'primary big') : btn('Rozumím, pokračuji', 'confirmUnderstanding', null, 'primary big')) + '</div>';
 };

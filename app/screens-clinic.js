@@ -75,6 +75,7 @@ V.enroll = function (S) {
         return '<div class="instr"><label class="check" style="padding:0"><input type="checkbox" data-action="instrToggle" data-value="' + c.id + '"' + (ex ? ' checked' : '') + '><span><b>' + e(c.title) + '</b><br><span class="small muted">' + (c.text || '').replace('{v}', '<b>' + (ex ? e(String(ex.value).replace('.', ',')) : e(String(c.value).replace('.', ','))) + (c.unit ? ' ' + e(c.unit) : '') + '</b>') + '</span></span></label>' +
           (ex && typeof c.value === 'number' ? '<div class="stepper">' + btn('−', 'instrValue', c.id + ':-1', '', ' aria-label="méně"') + '<span class="val">' + e(String(ex.value).replace('.', ',')) + '<small>' + e(c.unit || '') + '</small></span>' + btn('+', 'instrValue', c.id + ':1', '', ' aria-label="více"') + '</div>' : '<span></span>') + '</div>';
       }).join('') +
+      '<h3 style="margin-top:16px">Cíle glukózy</h3><p class="muted small">Výchozí hodnoty z registru; u pacienta je můžete upravit. Z nich vychází semafor v reportu a návrhy k dávce.</p>' + targetsGrid(d.targets, 'target') +
       '<label class="check" style="margin-top:12px"><input type="checkbox" data-bind="draft.instructionsChecked"' + (d.instructionsChecked ? ' checked' : '') + '><span>Pokyny jsem s pacientem probral.</span></label>');
     var bl = NF.planBlockers(S);
     out += nextbar('Další krok: vydání plánu', bl.length ? 'Chybí: ' + e(bl.join(', ')) + '.' : 'Vše je připravené.', btn('Pokračovat →', 'wizardGo', '2', 'primary', bl.length ? ' disabled' : ''));
@@ -89,6 +90,23 @@ V.enroll = function (S) {
   out += nextbar('Vydat plán ' + e(d.planId), 'Nevratný krok. Plán uvidí sestra a pacient.', btn('Vydat plán a předat sestře', 'issuePlan', null, 'primary'));
   return out;
 };
+
+/* Cíle glukózy voličem (15, odst. 4.6): rozmezí, ráno, cíl času v cíli. */
+function targetsGrid(t, action) {
+  var rows = [['low', 'Dolní cíl', 'mmol/l'], ['high', 'Horní cíl (po jídle)', 'mmol/l'], ['fastingHigh', 'Ráno nalačno do', 'mmol/l'], ['tirGoal', 'Čas v cíli alespoň', '%']];
+  return '<div class="dose-row">' + rows.map(function (r) {
+    return '<div class="dose"><div class="k">' + e(r[1]) + '</div><div class="stepper">' + btn('−', action, r[0] + ':-1', '', ' aria-label="méně"') + '<span class="val">' + e(String(t[r[0]]).replace('.', ',')) + '<small>' + e(r[2]) + '</small></span>' + btn('+', action, r[0] + ':1', '', ' aria-label="více"') + '</div></div>';
+  }).join('') + '</div>';
+}
+/* Úprava pokynů při kontrole: stejný katalog jako při zařazení, vázaný na r.newInstructions. */
+function reviewInstructions(S, r) {
+  var D = global.NutriFeeDemo, ic = (D && D.instructionCatalog) || [];
+  return '<div class="box" style="margin-top:10px"><div class="k">Pokyny pro příští období</div>' + ic.map(function (c) {
+    var ex = r.newInstructions.filter(function (x) { return x.id === c.id; })[0];
+    return '<div class="instr"><label class="check" style="padding:0"><input type="checkbox" data-action="revInstrToggle" data-value="' + c.id + '"' + (ex ? ' checked' : '') + '><span><b>' + e(c.title) + '</b></span></label>' +
+      (ex && typeof c.value === 'number' ? '<div class="stepper">' + btn('−', 'revInstrValue', c.id + ':-1', '', ' aria-label="méně"') + '<span class="val">' + e(String(ex.value).replace('.', ',')) + '<small>' + e(c.unit || '') + '</small></span>' + btn('+', 'revInstrValue', c.id + ':1', '', ' aria-label="více"') + '</div>' : '<span></span>') + '</div>';
+  }).join('') + '<div class="k" style="margin-top:10px">Cíle glukózy</div>' + targetsGrid(r.newTargets, 'revTarget') + '</div>';
+}
 
 /* --- kontrola: 4 kroky --- */
 function tileBtn(S, key, k, v, d, cls, open) {
@@ -105,7 +123,7 @@ function leadSentence(S, s) {
 V.review = function (S) {
   var p = NF.activePlan(S), r = S.review, D = global.NutriFeeDemo;
   if (!p) return pagehead('Kontrola', 'Pacient zatím nemá plán') + card('<p>Nejdřív ho zařaďte.</p><div class="actions">' + btn('Zařazení →', 'page', 'enroll', 'primary') + '</div>');
-  if (!r) {
+  if (!r || NF.reviewClosed(S)) {
     var eps = NF.periodEpisodes(S, p.id);
     return pagehead('Kontrola · ' + NF.fmtDate(S.clock), 'Modelový pacient 01 · plán ' + p.id, 'Období ' + e(NF.fmtShort(p.issuedAt)) + ' – ' + e(NF.fmtShort(S.clock)) + ' · ' + NF.daysBetween(p.issuedAt, S.clock) + ' dní · ' + eps.length + ' zápisů') +
       card('<h2>Report se sestaví jedním klepnutím</h2><p class="muted">NutriFee připraví souhrn a návrhy na příští plán. Vy jen procházíte čtyři kroky: souhrn → návrhy → potvrzení → předání.</p><div class="actions" style="margin:0">' + btn('Zahájit kontrolu →', 'startReview', null, 'primary') + '</div>');
@@ -217,6 +235,7 @@ function proposalBody(S, p, r, pr) {
     '<div class="grid2"><div class="box"><div class="k">1 · Ověřte s pacientem</div>' + (pr.verify.length > 1 ? '<div class="actions" style="margin:0 0 8px">' + btn('Vše sedí', 'propVerifyAll', pr.id, allYes ? 'sm' : 'sm primary') + '<span class="small muted">jednotlivé „nesedí“ přepněte níže</span></div>' : '') + pr.verify.map(function (t, i) { return '<div class="verify"><span>' + (i + 1) + '. ' + e(t) + '</span><span class="choice-row">' + choice('sedí', 'propVerify', pr.id + ':' + i + ':yes', v[i] === true, 'sm') + choice('nesedí', 'propVerify', pr.id + ':' + i + ':no', v[i] === false, 'sm') + '</span></div>'; }).join('') + '</div>' +
     '<div class="box"><div class="k">2 · Váš schválený postup říká</div><div class="branch">' + pr.branches.map(function (b) { var hi = br && !wait && b === br; return '<div class="' + (hi ? 'hi' : '') + '">' + tag(b.action === 'up' ? 'zvýšit' : b.action === 'down' ? 'snížit' : b.action === 'swap' ? 'vyměnit' : b.action === 'edit' ? 'upravit' : 'ponechat', b.action === 'up' || b.action === 'down' ? 'warn' : b.action === 'swap' ? 'info' : '') + '<span>' + e(b.when) + ' → ' + e(b.text) + '</span></div>'; }).join('') +
     (wait ? '<div class="hi">' + tag('čeká') + '<span>dokončete ověření vlevo — postup vám pak řekne, co dál</span></div>' : free ? '<div class="hi">' + tag('bez postupu', 'warn') + '<span>' + e(br.text) + '</span></div>' : '') +
+    (!wait && br.action === 'edit' ? reviewInstructions(S, r) : '') +
     (!wait && br.action === 'swap' && swapOpts.length ? '<div style="margin-top:10px"><div class="k">Místo ní nabízet</div><div class="choice-row">' + swapOpts.map(function (l) { return choice(e(NF.LEVERS[l].label), 'propSwapTo', pr.id + ':' + l, swapTo === l, 'sm'); }).join('') + choice('Jen vypnout', 'propSwapTo', pr.id + ':none', swapTo === null && r.swapTo && r.swapTo[pr.id] === 'none', 'sm') + '</div></div>' : '') + '</div>' +
     '<div class="small muted" style="margin-top:8px">' + (pr.postup ? appr(S, pr.postup) + ' ' : '') + appr(S, pr.item) + (pr.kind === 'dose' ? ' · o kolik, volíte vy' : '') + '</div></div></div>' +
     '<div class="decide"><span class="lbl">3 · Rozhodnutí</span>' +

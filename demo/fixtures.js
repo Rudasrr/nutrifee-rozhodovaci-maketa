@@ -152,14 +152,15 @@ function ep(S, spec) {
   var taken = advice.filter(function (a) { return a.accepted === true && a.lever !== 'portion'; })[0];
   var portionTaken = advice.some(function (a) { return a.lever === 'portion' && a.accepted === true; });
   var portion = portionTaken ? 'usual' : (spec.portion || 'usual');
-  var confirmed = spec.insulin || 'as', units = confirmed === 'as' ? p.doses[meal].units : confirmed === 'other' ? (spec.units || p.doses[meal].units - 2) : null;
+  var dose = p.doses[meal], snack = NF.isSnack(meal);
+  var confirmed = snack ? 'snack' : (spec.insulin || 'as'), units = snack ? null : confirmed === 'as' ? dose.units : confirmed === 'other' ? (spec.units || dose.units - 2) : null;
   var k = hash(spec.at + f.id);
-  var ctx = spec.context || (confirmed === 'none' ? 'nodose' : confirmed === 'other' && units < p.doses[meal].units ? 'lowdose' : null);
+  var ctx = spec.context || (confirmed === 'none' ? 'nodose' : confirmed === 'other' && units < dose.units ? 'lowdose' : null);
   var v = curve(S, f, portion, taken && taken.lever, k, ctx === 'illness' ? 'illness' : ctx);
   if (spec.gap) v = [v[0], v[1], null, null, null];
   if (spec.low) v = [5.2, 4.4, 3.6, 3.4, 4.1];
   var e = { id: spec.id || NF.uid('E'), planId: p.id, meal: meal, foodId: f.id, at: spec.at, recordedAt: spec.at, portionPlanned: spec.portion || 'usual', portion: portion, bolusAtAdvice: spec.bolus || 'as',
-    insulin: { prescribed: p.doses[meal].units, confirmed: confirmed, units: units, time: confirmed === 'none' || confirmed === 'unknown' ? null : NF.fmtTime(NF.addMin(spec.at, -(spec.offset || 5))) },
+    insulin: { prescribed: dose ? dose.units : null, confirmed: confirmed, units: units, time: confirmed === 'none' || confirmed === 'unknown' || snack ? null : NF.fmtTime(NF.addMin(spec.at, -(spec.offset || 5))) },
     doseKey: NF.doseKey(S, meal), advice: advice, context: spec.context || null, points: pts(v, spec.at), importedAt: NF.addMin(spec.at, 130) };
   e.peak = NF.peakOf(e.points); e.at2h = NF.at2h(e.points);
   if (S.episodes.some(function (x) { return x.id === e.id; })) return e;
@@ -283,6 +284,7 @@ var CH = [
         .forEach(function (x) { ep(S, { id: x[0], food: x[1], at: x[2], insulin: x[3] }); });
       [['E2b', 'Kuřecí maso na kari s rýží', '2026-10-07T12:30:00'], ['E3b', 'Svíčková na smetaně s knedlíkem', '2026-10-08T12:30:00'], ['E4b', 'Smažený řízek s bramborovou kaší', '2026-10-09T12:30:00'], ['E5b', 'Špagety boloňské', '2026-10-10T12:30:00'], ['E6b', 'Smažený řízek s bramborovou kaší', '2026-10-11T12:30:00'], ['E7b', 'Smažený řízek s bramborovou kaší', '2026-10-12T12:30:00']]
         .forEach(function (x) { ep(S, { id: x[0], food: x[1], meal: 'lunch', at: x[2] }); });
+      ep(S, { id: 'E4s', food: 'Jablko', meal: 'snack', at: '2026-10-09T15:30:00' }); ep(S, { id: 'E6s', food: 'Jablko', meal: 'snack', at: '2026-10-11T15:40:00' });
       for (var d = 7; d <= 12; d++) basal(S, '2026-10-' + (d < 10 ? '0' + d : d));
       S.foodsSeg = 'known'; S.foodOpen = foodByName(S, 'Ovesná kaše s mlékem a banánem').id;
     } },

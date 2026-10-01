@@ -472,6 +472,41 @@ test('Zamítnuté položky přestanou působit: R-SKORE bez štítku, zamítnut�
   assert.ok(S().basalLog.some(b => b.date === '2026-10-13' && b.confirmed === 'as')); assert.equal(/včera večer bazál/.test(markup()), false);
 });
 
+/* ---------- balíček D ---------- */
+test('Svačina: bez inzulinu a bez porce, mimo sloty a návrhy k dávce, učí se zvlášť; v reportu vidět', () => {
+  chapter('lateMeal'); act('role', 'patient'); S().clock = '2026-10-13T15:00:00'; act('page', 'today');
+  assert.match(markup(), /Zapsat svačinu|Svačina · bez inzulinu/);
+  act('startMeal', 'snack'); assert.equal(S().meal.step, 2); assert.match(markup(), /svačině/); assert.equal(/Jakou porci/.test(markup()), false);
+  bind('meal.q', 'jabl'); act('mealFood', food('Jablko').id); assert.equal(/Jakou porci/.test(markup()), false); act('mealStep', '3');
+  assert.equal(/mění množství jídla/.test(markup()), false, 'u svačiny žádná rada k porci');
+  act('mealFinish', 'snack');
+  const ep = S().episodes[S().episodes.length - 1];
+  assert.equal(ep.meal, 'snack'); assert.equal(ep.insulin.confirmed, 'snack'); assert.equal(ep.insulin.prescribed, null); assert.equal(ep.doseKey, 'snack:0');
+  assert.ok(NF.usableEp(S(), ep), 'svačina se učí (bez podmínky inzulinu)');
+  assert.equal(NF.mealState(S(), 'lunch').state, 'now', 'svačina nezaplní slot');
+  assert.equal(NF.foodStats(S(), food('Jablko').id).n >= 1, true);
+  const s = NF.summary(S(), 'P1'); assert.ok(s.snacks >= 1); assert.equal(s.meals, NF.periodEpisodes(S(), 'P1').filter(e => e.meal !== 'snack').length);
+  const props = NF.proposals(S(), 'P1', D.habitCatalog); assert.equal(props.some(p => /snack|svačin/i.test(p.id + p.title)), false);
+});
+test('Cíle glukózy voličem při zařazení i při kontrole; úprava pokynů při kontrole má účinek; po převzetí P2 lze zahájit další kontrolu', () => {
+  chapter('doses'); assert.match(markup(), /Cíle glukózy/);
+  act('target', 'high:1'); assert.equal(S().draft.targets.high, 10.5); act('target', 'high:-1'); assert.equal(S().draft.targets.high, 10);
+  act('target', 'low:-100'); assert.equal(S().draft.targets.low, 3.0, 'dolní mez voliče');
+  chapter('reviewProposals'); act('role', 'doctor');
+  const r = S().review, pk = r.proposals.find(p => p.id === 'PR-POKYNY');
+  act('propSingle', pk.id); D.decideSingles(S(), S().branches); act('propReopen', pk.id);
+  act('propVerify', pk.id + ':0:no'); assert.equal(NF.screens.proposalBranch(S(), pk).action, 'edit');
+  assert.match(markup(), /Pokyny pro příští období/);
+  act('revTarget', 'fastingHigh:-2'); act('revInstrToggle', 'I-VYSOKA');
+  act('propDecide', pk.id + ':agree'); assert.equal(r.decisions[pk.id].branch, 'edit');
+  act('propKeepAll'); act('reviewStep', '3'); act('issueP2');
+  const p2 = NF.activePlan(S());
+  assert.equal(p2.targets.fastingHigh, 7.0); assert.ok(p2.instructions.some(i => i.id === 'I-VYSOKA'));
+  act('role', 'patient'); assert.match(markup(), /Pokyny a cíle/); act('confirmUnderstanding');
+  act('role', 'doctor'); act('page', 'review'); assert.match(markup(), /Zahájit kontrolu/, 'po převzetí P2 lze začít další kontrolu');
+  act('startReview'); assert.equal(S().review.planId, 'P2');
+});
+
 /* ---------- stopa ---------- */
 test('Stopa má vstupy a výstupy výpočtů a jde exportovat', () => {
   chapter('trace');

@@ -23,7 +23,7 @@ T.chapters = {
       { do: [{ sel: '.dose-grid' }], t: 'Dávky inzulinu voličem', co: 'Ke snídani 8, k obědu 10, k večeři 8 j. — a odděleně, tmavě, bazál 18 j. na noc ve 21:00. Lékař je nastaví tlačítky −/+.', vsimni: 'Aplikace dávky jen zobrazí pacientovi a připomene. Nikdy je nepočítá.', proc: 'Dávka je věc lékaře. Aplikace k ní sbírá kontext: byla podaná, včas, v předepsané výši?' },
       { do: [{ sel: '[data-bind="draft.medicationChecked"]', bind: 'draft.medicationChecked', val: true }], t: 'Ověření dávek s pacientem', co: 'Lékař potvrdil, že pacient bere jen inzulin.', quick: true },
       { do: [{ sel: '.habit-opt.on' }], t: 'Startovní sada návyků', co: 'Zapisuj hlavní jídla · obvyklá porce · potvrzuj inzulin · bazál večer. Předvybrané, se štítkem „startovní sada“.', vsimni: 'U každého návyku je věta „proč“ — tu uvidí i pacient.', proc: 'Stejný start pro všechny umožní porovnat pacienty napříč studií. Personalizace přijde z dat na první kontrole.' },
-      { do: [{ sel: '.instr' }], t: 'Osobní pokyny s hodnotami', co: 'Nízká glukóza pod 3,9 · snědl jsem méně → změř za 60 min · nemoc → měř každé 3 h · kdy volat. Hodnoty lékař mění voličem.', vsimni: 'Pokyn „snědl jsem méně“ je důležitý: aplikace nikdy neřekne „sněz víc“, to je pokyn od lékaře.', proc: 'Aplikace radí k jídlu, ale co dělat při nízké glukóze, určuje lékař.' },
+      { do: [{ sel: '.instr' }], t: 'Osobní pokyny s hodnotami', co: 'Nízká glukóza pod 3,9 · snědl jsem méně → změř za 60 min · nemoc → měř každé 3 h · kdy volat. Hodnoty lékař mění voličem; pod pokyny jsou voličem i cíle glukózy (3,9–10,0, ráno do 7,2, čas v cíli 70 %).', vsimni: 'Pokyn „snědl jsem méně“ je důležitý: aplikace nikdy neřekne „sněz víc“, to je pokyn od lékaře.', proc: 'Aplikace radí k jídlu, ale co dělat při nízké glukóze, určuje lékař.' },
       { do: [{ sel: '[data-bind="draft.instructionsChecked"]', bind: 'draft.instructionsChecked', val: true }, { sel: '.nextbar .btn.primary', act: 'wizardGo', val: '2' }], t: 'Pokyny probrány → shrnutí', co: 'Vše je připravené, spodní lišta se odemkla a lékař pokračuje k vydání.' }
     ]
   },
@@ -71,7 +71,7 @@ T.chapters = {
     steps: [
       { do: [{ sel: '.food .peak' }], t: 'Kam se po kaši glukóza dostane', co: 'Okno na stupnici: rozmezí vrcholů z započítaných zápisů, vpravo od čáry cíle. Vpravo nahoře „X z N v cíli“.', vsimni: 'Zápisů je 5, započítané 4 — jeden má u inzulinu „nevím“.', proc: 'Bez potvrzeného inzulinu nejde říct, jestli vzestup způsobilo jídlo, nebo chybějící dávka.' },
       { do: [{ sel: '.food .tag.bad,.food .tag.warn' }], t: 'Silná reakce', co: 'Štítek říká, jak často po jídle pacient zůstane v cíli. Kaše: málokdy.', proc: 'Žádné známky, žádné „špatné jídlo“. Jen podíl zápisů v cíli, vztažený k pacientovým vlastním jídlům.' },
-      { do: [{ sel: '[data-action="foodsSeg"][data-value="all"]', act: 'foodsSeg', val: 'all' }], t: 'Všechna jídla', co: 'Řízek s kaší už je známý (3×), svíčkovou a rýži teprve poznáváme — „Učím se: 1 ze 3“.', vsimni: 'Detail každého jídla je až po rozbalení, aby pacient nebyl zahlcený.' }
+      { do: [{ sel: '[data-action="foodsSeg"][data-value="all"]', act: 'foodsSeg', val: 'all' }], t: 'Všechna jídla', co: 'Řízek s kaší už je známý (3×), svíčkovou a rýži teprve poznáváme — „Učím se: 1 ze 3“. Je tu i jablko ze svačiny: svačina se zapisuje bez inzulinu a učí se zvlášť.', vsimni: 'Detail každého jídla je až po rozbalení, aby pacient nebyl zahlcený.' }
     ]
   },
   lateMeal: {
