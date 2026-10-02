@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 21;
+NF.SCHEMA = 22;
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 var DAYS = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
@@ -334,8 +334,8 @@ NF.TAGS = {
 NF.tagLabel = function (group, key) { var x = NF.TAGS[group].filter(function (k) { return k[0] === key; })[0]; return x ? x[1] : key; };
 NF.foodById = function (S, id) { return S.foods.filter(function (f) { return f.id === id; })[0] || null; };
 NF.addFood = function (S, name, tags) {
-  if (!name || !name.trim()) return { ok: false, error: 'Napiš, co jsi jedl.' };
-  if (!tags || !tags.side || !tags.prep || !tags.size) return { ok: false, error: 'Klepni na přílohu, přípravu a velikost.' };
+  if (!name || !name.trim()) return { ok: false, error: 'Napište, co jste jedl.' };
+  if (!tags || !tags.side || !tags.prep || !tags.size) return { ok: false, error: 'Klepněte na přílohu, přípravu a velikost.' };
   var f = { id: NF.uid('F'), name: name.trim(), tags: tags, custom: true, addedAt: S.clock };
   S.foods.push(f);
   NF.log(S, 'jidlo.pridano', f.name, f);
@@ -465,7 +465,7 @@ NF.baseStats = function (S, foodId, meal) {
 
 /* ---------- rady ----------
    Zásada 3: před píchnutím porce k obvyklé oběma směry; po píchnutí a při „nevím“ jen z větší zpět k obvyklé;
-   nikdy „sněz víc“. Rady bez změny množství kdykoli (mimo nemoc jen ty bezpečné). */
+   nikdy „snězte víc“. Rady bez změny množství kdykoli (mimo nemoc jen ty bezpečné). */
 NF.LEVERS = {
   portion: { label: 'Obvyklá porce', item: 'R-PORCE', carbs: true },
   addon: { label: 'Doplněk k jídlu', item: 'R-DOPLNEK', carbs: false, illnessSafe: true },
@@ -476,7 +476,7 @@ NF.effectiveBolus = function (state) { return state === 'before' ? 'before' : 'a
 NF.adviceGate = function (S) {
   var p = NF.activePlan(S);
   if (S.participation !== 'active') return { ok: false, why: 'Účast je ukončená.' };
-  if (!p || !p.understood) return { ok: false, why: 'Dokud nemáš převzatý plán od lékaře, neradíme.' };
+  if (!p || !p.understood) return { ok: false, why: 'Dokud nemáte převzatý plán od lékaře, neradíme.' };
   if (!NF.usable(S, 'R-REAKCE')) return { ok: false, why: 'Vyhodnocení reakce je v registru zamítnuté; neradíme.' };
   return { ok: true };
 };
@@ -494,18 +494,18 @@ NF.advise = function (S, foodId, portion, bolusState, meal) {
   if (portion !== 'usual' && !NF.isSnack(meal)) {
     var it = NF.item(S, 'R-PORCE');
     if (!NF.usable(S, 'R-PORCE')) res.blocked.push({ lever: 'portion', reason: 'item', why: 'Pravidlo k porci je zamítnuté.' });
-    else if (res.illness) res.blocked.push({ lever: 'portion', reason: 'illness', why: 'Během nemoci k množství jídla neradíme; řiď se pokyny lékaře.' });
+    else if (res.illness) res.blocked.push({ lever: 'portion', reason: 'illness', why: 'Během nemoci k množství jídla neradíme; řiďte se pokyny lékaře.' });
     else if (before || portion === 'bigger') {
       res.items.push({ lever: 'portion', item: 'R-PORCE', label: NF.LEVERS.portion.label, carbs: true,
         text: portion === 'bigger'
-          ? (before ? 'Dej si obvyklou porci. Tvoje dávka inzulinu je nastavená na obvyklé množství — větší porce ho přesáhne.'
-                    : 'Dej si obvyklou porci. Inzulin, který už máš v těle, je nastavený na obvyklé množství; větší porce ho přesáhne.')
-          : 'Dej si obvyklou porci. Menší porce při stejné dávce inzulinu může vést k nízké glukóze.',
-        certainty: 'Obvyklá porce je množství, na které lékař nastavil tvoji dávku.' });
+          ? (before ? 'Dejte si obvyklou porci. Vaše dávka inzulinu je nastavená na obvyklé množství — větší porce ho přesáhne.'
+                    : 'Dejte si obvyklou porci. Inzulin, který už máte v těle, je nastavený na obvyklé množství; větší porce ho přesáhne.')
+          : 'Dejte si obvyklou porci. Menší porce při stejné dávce inzulinu může vést k nízké glukóze.',
+        certainty: 'Obvyklá porce je množství, na které lékař nastavil vaši dávku.' });
     } else {
       res.blocked.push({ lever: 'portion', reason: 'bolus', why: bolusState === 'unknown'
-        ? 'Nevíš, jestli už máš inzulin píchnutý — bereme to, jako by byl. Radu k množství jídla proto nedáváme. Sníš-li méně než obvykle, řiď se pokynem lékaře „snědl jsem méně“.'
-        : 'Inzulin už máš v těle. Radu „sněz víc“ nedáváme nikdy. Sníš-li méně než obvykle, řiď se pokynem lékaře „snědl jsem méně“.' });
+        ? 'Nevíte, jestli už máte inzulin píchnutý — bereme to, jako by byl. Radu k množství jídla proto nedáváme. Sníte-li méně než obvykle, řiďte se pokynem lékaře „snědl jsem méně“.'
+        : 'Inzulin už máte v těle. Radu „snězte víc“ nedáváme nikdy. Sníte-li méně než obvykle, řiďte se pokynem lékaře „snědl jsem méně“.' });
     }
   }
   /* rady bez změny množství */
@@ -525,9 +525,9 @@ NF.advise = function (S, foodId, portion, bolusState, meal) {
     if (res.illness && !meta.illnessSafe) return;
     var item = { lever: l, item: meta.item, label: meta.label, carbs: false, text: fill(it.text, food) };
     var ls = lv === 'known' ? NF.leverStats(S, foodId, meal).filter(function (x) { return x.lever === l; })[0] : null;
-    if (ls) item.certainty = 'Zkusil jsi to ' + ls.st.n + '×: ' + ls.st.inTarget + ' z ' + ls.st.n + ' v cíli' + (base && base.n ? ' (bez toho ' + base.inTarget + ' z ' + base.n + ')' : '') + '.';
-    else if (lv === 'known') item.certainty = 'U tohoto jídla jsi to ještě nezkoušel. Až to zkusíš, uvidíš, jestli pomohlo.';
-    else item.certainty = 'Obecná rada ze schváleného pravidla. Jak zabere právě u tebe, zatím nevíme.';
+    if (ls) item.certainty = 'Zkusil jste to ' + ls.st.n + '×: ' + ls.st.inTarget + ' z ' + ls.st.n + ' v cíli' + (base && base.n ? ' (bez toho ' + base.inTarget + ' z ' + base.n + ')' : '') + '.';
+    else if (lv === 'known') item.certainty = 'U tohoto jídla jste to ještě nezkoušel. Až to zkusíte, uvidíte, jestli pomohlo.';
+    else item.certainty = 'Obecná rada ze schváleného pravidla. Jak zabere právě u vás, zatím nevíme.';
     if (ls) item.with = ls.st;
     res.items.push(item);
   });
@@ -553,7 +553,7 @@ NF.adviseAfter = function (S, foodId, meal, at) {
   var meta = NF.LEVERS.walk, it = NF.item(S, meta.item);
   if (NF.usable(S, meta.item) && !(S.illness && S.illness.active)) {
     var soon = res.minutes == null || res.minutes <= 60;
-    res.items.push({ lever: 'walk', item: meta.item, label: meta.label, carbs: false, text: it.text, certainty: soon ? 'Jídlo už máš za sebou; pohyb do hodiny po jídle zmírní vzestup glukózy. Doplněk ani pořadí už teď nezměníš.' : 'Od jídla uplynulo ' + res.minutes + ' min. Vzestup už nezměníš, ale glukóza po jídle bývá zvýšená ještě 2–3 hodiny a procházka ji sníží.' });
+    res.items.push({ lever: 'walk', item: meta.item, label: meta.label, carbs: false, text: it.text, certainty: soon ? 'Jídlo už máte za sebou; pohyb do hodiny po jídle zmírní vzestup glukózy. Doplněk ani pořadí už teď nezměníte.' : 'Od jídla uplynulo ' + res.minutes + ' min. Vzestup už nezměníte, ale glukóza po jídle bývá zvýšená ještě 2–3 hodiny a procházka ji sníží.' });
   }
   return res;
 };
