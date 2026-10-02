@@ -176,14 +176,14 @@ var A = {
   mealRetro: function (v) { S.meal = newMeal(v); S.meal.retro = true; S.meal.at = null; S.ask = null; S.page = 'meal'; S.error = ''; },
   mealAt: function (v) { S.meal.at = Number(v); },
   mealSkipAsk: function (v) { S.ask = S.ask && S.ask.meal === v ? null : { day: NF.day(S.clock), meal: v }; },
-  mealSkip: function (v) { var p = v.split(':'); var r = NF.skipMeal(S, p[0], p[1]); S.ask = null; toast(r.warn ? 'Zapsáno. Píchl jste si inzulin bez jídla — podívejte se na pokyn lékaře „snědl jsem méně“.' : 'Zapsáno, že jste ' + NF.mealLabel(p[0]) + ' vynechal.'); },
+  mealSkip: function (v) { var p = v.split(':'); var r = NF.skipMeal(S, p[0], p[1]); S.ask = null; toast(r.warn ? 'Zapsáno. Inzulin bez jídla — podívejte se na pokyn lékaře „méně jídla než obvykle“.' : 'Zapsáno: dnes ' + NF.mealText(p[0], 'without') + '.'); },
   mealBolus: function (v) { S.meal.bolus = v; S.meal.decisions = {}; S.meal.reasons = {}; },
   mealUnits: function (v) { S.meal.units = Math.max(0, S.meal.units + Number(v)); },
   mealTime: function (v) { S.meal.offset = v; },
   mealStep: function (v) {
     var m = S.meal, n = Number(v);
     if (n === 2 && !m.bolus) return fail('Vyberte, jak to je s inzulinem.');
-    if (n === 2 && m.retro && m.at == null) return fail('Vyberte, v kolik jste jedl.');
+    if (n === 2 && m.retro && m.at == null) return fail('Vyberte čas jídla.');
     if (n === 3 && (!m.foodId || !m.portion)) return fail(!m.foodId ? 'Vyberte jídlo.' : 'Vyberte porci.');
     m.step = n; S.error = '';
     if (n === 3 && m.retro) { var f2 = NF.foodById(S, m.foodId), ra = NF.adviseAfter(S, f2.id, m.meal, NF.retroAt(S, m.at)); NF.log(S, 'rada.zobrazena', f2.name + ' (zpětně)', { level: ra.conf.level, items: ra.items.map(function (i) { return { lever: i.lever, item: i.item }; }), retro: true }); return; }

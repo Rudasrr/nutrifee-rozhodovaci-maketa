@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 22;
+NF.SCHEMA = 23;
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 var DAYS = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
@@ -189,6 +189,13 @@ NF.MEALS = [['breakfast', 'snídaně', 'Snídaně', 'snídani'], ['lunch', 'obě
 /* cap: true = s velkým písmenem, 'dat' = 3. pád („k snídani“) */
 /* Svačina (15, odst. 7a): čtvrtý a další zápis dne, bez inzulinu k jídlu; není slot. */
 NF.SNACK = ['snack', 'svačina', 'Svačina', 'svačině'];
+/* Věty bez rodu k jednotlivým jídlům dne (vykáme a nepředpokládáme rod). */
+NF.MEAL_TEXT = {
+  breakfast: { was: 'Byla dnes snídaně?', yes: 'Ano, byla', already: 'Snídaně už byla', without: 'bez snídaně', when: 'V kolik byla snídaně?' },
+  lunch: { was: 'Byl dnes oběd?', yes: 'Ano, byl', already: 'Oběd už byl', without: 'bez oběda', when: 'V kolik byl oběd?' },
+  dinner: { was: 'Byla dnes večeře?', yes: 'Ano, byla', already: 'Večeře už byla', without: 'bez večeře', when: 'V kolik byla večeře?' }
+};
+NF.mealText = function (m, key) { var t = NF.MEAL_TEXT[m]; return t ? t[key] : ''; };
 NF.mealLabel = function (m, cap) { var x = NF.MEALS.concat([NF.SNACK]).filter(function (k) { return k[0] === m; })[0]; return x ? (cap === 'dat' ? x[3] : cap ? x[2] : x[1]) : m; };
 NF.isSnack = function (m) { return m === 'snack'; };
 NF.DEFAULT_TARGETS = { low: 3.9, high: 10.0, fastingHigh: 7.2, tirGoal: 70 };
@@ -334,7 +341,7 @@ NF.TAGS = {
 NF.tagLabel = function (group, key) { var x = NF.TAGS[group].filter(function (k) { return k[0] === key; })[0]; return x ? x[1] : key; };
 NF.foodById = function (S, id) { return S.foods.filter(function (f) { return f.id === id; })[0] || null; };
 NF.addFood = function (S, name, tags) {
-  if (!name || !name.trim()) return { ok: false, error: 'Napište, co jste jedl.' };
+  if (!name || !name.trim()) return { ok: false, error: 'Napište, co bylo k jídlu.' };
   if (!tags || !tags.side || !tags.prep || !tags.size) return { ok: false, error: 'Klepněte na přílohu, přípravu a velikost.' };
   var f = { id: NF.uid('F'), name: name.trim(), tags: tags, custom: true, addedAt: S.clock };
   S.foods.push(f);
@@ -504,8 +511,8 @@ NF.advise = function (S, foodId, portion, bolusState, meal) {
         certainty: 'Obvyklá porce je množství, na které lékař nastavil vaši dávku.' });
     } else {
       res.blocked.push({ lever: 'portion', reason: 'bolus', why: bolusState === 'unknown'
-        ? 'Nevíte, jestli už máte inzulin píchnutý — bereme to, jako by byl. Radu k množství jídla proto nedáváme. Sníte-li méně než obvykle, řiďte se pokynem lékaře „snědl jsem méně“.'
-        : 'Inzulin už máte v těle. Radu „snězte víc“ nedáváme nikdy. Sníte-li méně než obvykle, řiďte se pokynem lékaře „snědl jsem méně“.' });
+        ? 'Nevíte, jestli už máte inzulin píchnutý — bereme to, jako by byl. Radu k množství jídla proto nedáváme. Sníte-li méně než obvykle, řiďte se pokynem lékaře „méně jídla než obvykle“.'
+        : 'Inzulin už máte v těle. Radu „snězte víc“ nedáváme nikdy. Sníte-li méně než obvykle, řiďte se pokynem lékaře „méně jídla než obvykle“.' });
     }
   }
   /* rady bez změny množství */
@@ -525,8 +532,8 @@ NF.advise = function (S, foodId, portion, bolusState, meal) {
     if (res.illness && !meta.illnessSafe) return;
     var item = { lever: l, item: meta.item, label: meta.label, carbs: false, text: fill(it.text, food) };
     var ls = lv === 'known' ? NF.leverStats(S, foodId, meal).filter(function (x) { return x.lever === l; })[0] : null;
-    if (ls) item.certainty = 'Zkusil jste to ' + ls.st.n + '×: ' + ls.st.inTarget + ' z ' + ls.st.n + ' v cíli' + (base && base.n ? ' (bez toho ' + base.inTarget + ' z ' + base.n + ')' : '') + '.';
-    else if (lv === 'known') item.certainty = 'U tohoto jídla jste to ještě nezkoušel. Až to zkusíte, uvidíte, jestli pomohlo.';
+    if (ls) item.certainty = 'Vyzkoušeno ' + ls.st.n + '×: ' + ls.st.inTarget + ' z ' + ls.st.n + ' v cíli' + (base && base.n ? ' (bez toho ' + base.inTarget + ' z ' + base.n + ')' : '') + '.';
+    else if (lv === 'known') item.certainty = 'U tohoto jídla zatím nevyzkoušeno. Po prvním pokusu uvidíte, jestli pomohlo.';
     else item.certainty = 'Obecná rada ze schváleného pravidla. Jak zabere právě u vás, zatím nevíme.';
     if (ls) item.with = ls.st;
     res.items.push(item);
@@ -796,7 +803,7 @@ NF.adviceOutcome = function (S, planId) {
   return { offered: eps.length, accepted: acc, declined: dec, noAnswer: noans, byLever: byLever, reasons: reasons, topReason: top,
     works: acc.c >= 3 && dec.c >= 3 && acc.med != null && dec.med != null ? (acc.med < dec.med - 0.5 ? 'yes' : acc.med > dec.med + 0.5 ? 'no' : 'same') : 'few' };
 };
-NF.DECLINE_REASONS = [['nothome', 'Nemám to doma'], ['taste', 'Nechutná mi to'], ['time', 'Nestihl jsem to'], ['nowant', 'Tentokrát nechci']];
+NF.DECLINE_REASONS = [['nothome', 'Nemám to doma'], ['taste', 'Nechutná mi to'], ['time', 'Nebyl čas'], ['nowant', 'Tentokrát nechci']];
 NF.reasonLabel = function (k) { var x = NF.DECLINE_REASONS.filter(function (r) { return r[0] === k; })[0]; return x ? x[1] : k; };
 
 /* ---------- návrhy lékaři ----------
@@ -885,7 +892,7 @@ NF.proposals = function (S, planId, catalog) {
     }
   });
   out.push({ id: 'PR-POKYNY', kind: 'instructions', cat: 'pokyny', priority: 6, group: 'keep', title: 'Osobní pokyny stále platí?',
-    why: 'Pokyny z ' + NF.fmtShort(p.issuedAt) + ': ' + (p.instructions || []).length + ' položek. Po změně dávky se mění i pokyn „snědl jsem méně“.',
+    why: 'Pokyny z ' + NF.fmtShort(p.issuedAt) + ': ' + (p.instructions || []).length + ' položek. Po změně dávky se mění i pokyn „méně jídla než obvykle“.',
     weak: [], verify: ['Kontakty, hranice hodnot i cíle glukózy odpovídají'], branches: [{ when: 'bod 1 sedí', action: 'keep', text: 'ponechat' }, { when: 'bod 1 nesedí', action: 'edit', text: 'upravit pokyny a cíle' }], item: 'R-POKYNY' });
   if (!NF.usable(S, 'D-POSTUP')) out.forEach(function (pr) { if (pr.postup) { pr.branches = []; pr.postup = null; pr.weak.push('postup posouzení dávky (D-POSTUP) není schválen — větev nelze ukázat, rozhodněte sami'); } });
   out.sort(function (a, b) { return a.priority - b.priority; });
