@@ -32,7 +32,7 @@ cd maketa-rozhodovaci && node nutrifee-rozhodovaci-maketa.test.cjs
    (sedí / nesedí) a **větev lékařova schváleného postupu** (zvýšit / snížit / ponechat). Jednotky volí lékař voličem.
 2. **Cíl je konzistence jídla k pevné dávce, ne omezování.** Pacient nepočítá sacharidy.
 3. **Rada k množství jídla:** před píchnutím oběma směry k obvyklé; po píchnutí a při „nevím“ jen z větší
-   porce zpět k obvyklé; nikdy „sněz víc“.
+   porce zpět k obvyklé; nikdy „snězte víc“.
 4. **Každý výpočet, rada, práh i text nese položku schvalovacího registru** se štítkem „✓“. V maketě je vše
    schválené předem; lékař-garant může kdykoli schválit / upravit / zamítnout s komentářem, rozhodnutí platí
    okamžitě a historie jen přibývá.
