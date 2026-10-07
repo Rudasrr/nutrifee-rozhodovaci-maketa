@@ -355,13 +355,13 @@ test('Tři sloty dne: prázdný na řadě radí, prázdný minulý se doptá; pa
 test('Zpětná vazba: po příchodu dat karta „Jak to dopadlo“ děkuje za čin; živá glukóza na Dnes není', () => {
   chapter('lateMeal'); act('role', 'patient');
   assert.equal(/Glukóza teď/.test(markup()), false, 'živá glukóza zrušena 1. 10. 2026');
-  assert.equal(/Jak to dopadlo/.test(markup()), false, 'bez dnešních dat karta není');
+  assert.equal(/<b>Jak to dopadlo<\/b>/.test(markup()), false, 'bez dnešních dat karta není');
   act('mealRetro', 'breakfast'); act('mealBolus', 'as'); act('mealAt', '7.5'); act('mealTime', '-15'); act('mealStep', '2');
   act('mealFood', food('Chléb se sýrem a zeleninou').id); act('mealPortion', 'usual'); act('mealStep', '3'); act('mealDecide', 'walk:yes'); act('mealFinish', 'as');
   const r = NF.lastResult(S());
   assert.ok(r && r.key === 'okAdvice', r && r.key); assert.match(r.text, /Díky za pokus/); assert.match(r.text, /nejvyšší hodnota/);
-  assert.match(markup(), /Jak to dopadlo/);
-  act('resultSeen', r.ep.id); assert.equal(NF.lastResult(S()), null); assert.equal(/Jak to dopadlo/.test(markup()), false);
+  assert.match(markup(), /<b>Jak to dopadlo<\/b>/);
+  act('resultSeen', r.ep.id); assert.equal(NF.lastResult(S()), null); assert.equal(/<b>Jak to dopadlo<\/b>/.test(markup()), false);
   const T = NF.texts(S(), 'R-DIKY');
   for (const k of Object.keys(T)) assert.equal(/mmol|v cíli|nad cíl/.test(T[k]), false, 'poděkování není za hodnotu: ' + k);
   assert.equal(NF.thanks(S(), S().episodes[S().episodes.length - 1]), T.retro);
@@ -607,7 +607,8 @@ test('Komentář garanta v panelu vyprávění nemění stav ani se nepočítá 
   bind('form.gc_R-DOPLNEK', 'Nepodepisuji — doplněk po píchnutí.'); act('garantComment', 'R-DOPLNEK');
   const after = NF.registrySummary(S());
   assert.equal(after.touched, before.touched); assert.equal(after.confirmed, before.confirmed); assert.equal(after.pending, before.pending + 1);
-  assert.equal(NF.item(S(), 'R-DOPLNEK').status, 'approved'); assert.match(markup(), /okomentováno · čeká/);
+  assert.equal(NF.item(S(), 'R-DOPLNEK').status, 'approved');
+  act('role', 'doctor'); act('page', 'registry'); assert.match(markup(), /okomentováno · čeká/); act('tourReturn');
   /* zamítnutí R-PROCHAZKA: u pacienta zmizí a v reportu se už nenavrhuje „Zachovat radu Procházka“ */
   act('garantDecide', 'R-PROCHAZKA:rejected');
   chapter('reviewProposals');
@@ -806,6 +807,45 @@ test('Registr R13: cíle glukózy z položky C-CILE s fallbackem; větve a ově�
   for (const it of S().registry.items) for (const key of Object.keys(it.params || {})) assert.ok(new RegExp("'" + it.id + "',\\s*'" + key + "'").test(src), it.id + '.' + key + ' se nikde nečte');
   for (const it of S().registry.items) for (const key of Object.keys(it.params || {})) assert.ok(it.labels && it.labels[key], it.id + '.' + key + ' nemá český název');
   act('role', 'doctor'); act('page', 'registry'); act('regOpen', 'D-PRAND'); assert.match(markup(), /nejméně čistých jídel/); assert.doesNotMatch(markup(), /<span>minJidel<\/span>/);
+});
+
+test('Průchod pro garanta (7. 10. 2026): každá položka má pětidílný popis a je nabídnuta právě v jedné scéně hlavní linie; mapa scén odpovídá příběhu', () => {
+  const items = S().registry.items;
+  for (const r of items) { assert.ok(r.guide, r.id + ' bez průvodce'); for (const k of ['proc', 'jak', 'kde', 'co', 'dopad']) assert.ok(r.guide[k] && r.guide[k].length > 30, r.id + '.' + k); }
+  const seen = {}; let decisionScenes = 0;
+  D.scenes.forEach((sc, i) => { const ids = D.decisionItems(i); if (ids.length) decisionScenes++; ids.forEach(id => { assert.equal(seen[id], undefined, id + ' nabídnuta dvakrát'); seen[id] = i; assert.equal(!!sc.appendix, false, id + ' v dodatku'); }); });
+  for (const r of items) assert.ok(seen[r.id] != null, r.id + ' nikde nenabídnuta');
+  assert.ok(decisionScenes >= 10);
+  /* mapa demo/scene-items.js = to, co se během scény skutečně objeví na obrazovce (přepočet stejný jako generátor) */
+  assert.equal(D.sceneItems.length, D.scenes.length);
+  for (let i = 0; i < D.scenes.length; i++) {
+    act('goScene', String(i)); act('closeDrawer');
+    const st = D.tour.stepsFor(D.chapters[S().chapterIndex].id, S().branches), ids = new Set(D.itemsOnScreen(S()));
+    for (let k = 0; k < st.length; k++) { act('tourNext'); D.itemsOnScreen(S()).forEach(x => ids.add(x)); }
+    assert.deepEqual([...ids].sort(), [...D.sceneItems[i].items].sort(), 'scéna ' + (i + 1) + ' — spusťte navrhy-designu/04-pohledy-2026-10-05/scene-items.cjs');
+  }
+});
+
+test('Průchod pro garanta: rozhodovací krok na konci scény s celým popisem, Další = později, rozhodnutí z kroku platí; řádek Dál a přehled dějství; mimo příběh', () => {
+  act('goScene', '0'); act('closeDrawer'); assert.match(markup(), /V tomto dějství/); assert.match(markup(), /schvalujete: /);
+  act('goScene', '2'); act('closeDrawer'); /* scéna 3: dávky, návyky a pokyny */
+  assert.match(markup(), /Na konci scény rozhodnete o:/); assert.match(markup(), /Dál: /);
+  const st = D.tour.stepsFor(D.chapters[S().chapterIndex].id, S().branches);
+  for (let k = 0; k < st.length; k++) act('tourNext');
+  assert.match(markup(), /Co schvalujete ▶/);
+  act('tourNext');
+  const m = markup(); assert.match(m, /Co jste viděli a co schvalujete/); assert.match(m, /Proč existuje/); assert.match(m, /Jak funguje/); assert.match(m, /Kde je použita/); assert.match(m, /Co schvalujete/); assert.match(m, /Co se stane při zamítnutí/);
+  const ids = D.decisionItems(2); assert.ok(ids.includes('R-NAVYKY') && ids.includes('R-POKYNY') && ids.includes('C-CILE'));
+  assert.match(m, /Rozhodnout později ▶/);
+  act('garantDecide', 'R-NAVYKY:approved'); assert.equal(NF.itemTouched(S(), 'R-NAVYKY'), true); assert.match(markup(), /potvrzeno/);
+  act('garantOpen', 'C-CILE'); assert.match(markup(), /dolní cíl \(mmol\/l\): <b>3,9/);
+  act('tourNext'); assert.equal(S().sceneIndex, 3, 'Další ze rozhodovacího kroku jde na další scénu bez rozhodnutí ostatních');
+  assert.equal(/K potvrzení na této obrazovce/.test(markup()), false, 'starý blok zmizel');
+  /* mimo příběh */
+  act('page', 'registry'); assert.match(markup(), /mimo příběh/); assert.match(markup(), /Zpět do příběhu/); assert.match(markup(), /Používá se:/);
+  act('regOpen', 'D-PRAND'); const r = markup(); assert.match(r, /Proč existuje/); assert.match(r, /V příběhu:/); assert.match(r, /okno nejméně \(dní\)/);
+  act('tourNext'); assert.equal(S().page, 'enroll', 'Další mimo příběh nejdřív vrátí do scény'); assert.equal(/mimo příběh/.test(markup()), false);
+  act('role', 'patient'); assert.match(markup(), /mimo příběh/); act('tourReturn'); assert.equal(S().role, 'doctor');
 });
 
 test('Stopa má vstupy a výstupy výpočtů a jde exportovat', () => {

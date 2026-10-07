@@ -301,24 +301,34 @@ V.registry = function (S) {
     '<div class="filters"><input data-bind="reg.q" placeholder="Hledat v názvu, popisu, textu i komentářích…" value="' + e(f.q || '') + '">' + NF.CATS.map(function (c) { return choice(e(c[1]), 'regFilter', 'cat:' + c[0], f.cat === c[0], 'sm'); }).join('') + '</div>' +
     '<div class="filters">' + [['approved', 'schválené ' + counts.approved], ['edited', 'upravené ' + counts.edited], ['rejected', 'zamítnuté ' + counts.rejected]].map(function (x) { return choice(e(x[1]), 'regFilter', 'status:' + x[0], f.status === x[0], 'sm'); }).join('') + [['todo', 'zbývá potvrdit ' + sum.remaining], ['done', 'rozhodnuto ' + sum.touched], ['pending', 'jen komentář ' + sum.pending], ['commented', 's komentářem ' + sum.commented]].map(function (x) { return choice(e(x[1]), 'regFilter', 'touch:' + x[0], f.touch === x[0], 'sm'); }).join('') + '</div>' +
     '<div class="reg"><div class="card flat" style="padding:0;overflow:hidden">' + (items.length ? items.map(function (r) {
-      return '<button type="button" class="reg-row ' + (open && open.id === r.id ? 'on' : '') + '" data-action="regOpen" data-value="' + r.id + '"><span class="ic" aria-hidden="true">' + (ICONS[r.cat] || '•') + '</span><span><span class="t">' + e(r.title) + '</span><br><span class="s">' + e(r.id) + ' · ' + e(NF.catLabel(r.cat)) + ' · ' + e(r.summary) + '</span></span>' + (NF.itemTouched(S, r.id) ? tag(r.status === 'approved' ? 'potvrzeno' : r.status === 'edited' ? 'potvrzeno s úpravou' : NF.STATUS[r.status], r.status === 'approved' ? 'ok' : r.status === 'edited' ? 'warn' : 'bad') : NF.itemCommented(S, r.id) ? tag('okomentováno · čeká', 'warn') : tag('schváleno předem · k potvrzení', '')) + '<span class="s">' + e(NF.fmtShort(r.decidedAt)) + '</span></button>';
+      return '<button type="button" class="reg-row ' + (open && open.id === r.id ? 'on' : '') + '" data-action="regOpen" data-value="' + r.id + '"><span class="ic" aria-hidden="true">' + (ICONS[r.cat] || '•') + '</span><span><span class="t">' + e(r.title) + '</span><br><span class="s">' + e(r.id) + ' · ' + e(NF.catLabel(r.cat)) + ' · ' + e(r.summary) + '</span>' + (r.usedBy ? '<br><span class="s"><b>Používá se:</b> ' + e(r.usedBy) + '</span>' : '') + '</span>' + (NF.itemTouched(S, r.id) ? tag(r.status === 'approved' ? 'potvrzeno' : r.status === 'edited' ? 'potvrzeno s úpravou' : NF.STATUS[r.status], r.status === 'approved' ? 'ok' : r.status === 'edited' ? 'warn' : 'bad') : NF.itemCommented(S, r.id) ? tag('okomentováno · čeká', 'warn') : tag('schváleno předem · k potvrzení', '')) + '<span class="s">' + e(NF.fmtShort(r.decidedAt)) + '</span></button>';
     }).join('') : '<p class="muted" style="padding:16px">Nic neodpovídá filtru.</p>') + '</div>' +
     '<div class="reg-side">' + (open ? itemPanel(S, open) : card('<p class="muted">Klepněte na položku. Uvidíte, co přesně dělá, jaké má parametry, a můžete ji schválit, upravit nebo zamítnout — s komentářem, nebo bez něj.</p>')) + '</div></div>';
   return out;
+};
+/* Pětidílný průvodce položkou pro garanta (7. 10. 2026): proč existuje · jak funguje · kde je použita · co schvalujete · co se stane při zamítnutí.
+   Stejná osnova v registru i v rozhodovacím kroku prezentace. Bez průvodce (produkce bez demo/) se ukáže souhrn a detail. */
+V.itemGuide = function (S, r, opts) {
+  var g = r.guide, params = r.params || {}, keys = Object.keys(params), o = opts || {};
+  var sec = function (h, body) { return body ? '<div class="gsec"><h4>' + h + '</h4>' + body + '</div>' : ''; };
+  var p = function (t) { return t ? '<p>' + e(t) + '</p>' : ''; };
+  var paramsHtml = keys.length ? '<ul class="plain small gparams">' + keys.map(function (k) { return '<li>' + e(paramLabel(r, k)) + ': <b>' + e(String(params[k]).replace('.', ',')) + '</b></li>'; }).join('') + '</ul>' : '';
+  var where = (r.usedBy ? '<p class="small">V aplikaci: ' + e(r.usedBy) + '.</p>' : '') + (NF.slots.itemWhere ? NF.slots.itemWhere(S, r.id) : '');
+  if (!g) return '<div class="guide">' + p(r.summary) + (r.detail ? '<p class="small muted">' + e(r.detail) + '</p>' : '') + itemTexts(r) + paramsHtml + (o.noPostup ? '' : itemPostup(S, r, false)) + sec('Kde je použita', where) + '</div>';
+  return '<div class="guide">' + sec('Proč existuje', p(g.proc)) + sec('Jak funguje', p(g.jak) + paramsHtml + itemTexts(r) + (o.noPostup ? '' : itemPostup(S, r, false))) + sec('Kde je použita', p(g.kde) + where) + sec('Co schvalujete', p(g.co)) + sec('Co se stane při zamítnutí', p(g.dopad)) + '</div>';
 };
 function itemPanel(S, r) {
   var f = S.reg || {}, editing = f.editing, params = r.params || {}, keys = Object.keys(params);
   var pend = f.params || {};
   var hist = S.registry.history.filter(function (h) { return h.item === r.id; }).slice().reverse();
   return card('<p class="eyebrow">' + e(NF.catLabel(r.cat)) + ' · ' + e(r.id) + '</p><h2>' + e(r.title) + '</h2>' + tag(NF.STATUS[r.status], r.status === 'approved' ? 'ok' : r.status === 'edited' ? 'warn' : 'bad') +
-    '<p style="margin-top:10px">' + e(r.summary) + '</p>' + (r.detail ? '<details class="more"><summary>Jak to přesně funguje</summary><p class="small" style="margin-top:6px">' + e(r.detail) + '</p></details>' : '') +
-    itemTexts(r) +
-    (keys.length ? '<div class="box" style="margin-top:10px"><div class="k">Parametry</div>' + keys.map(function (k) {
+    '<p class="small muted" style="margin:6px 0 0">' + e(r.summary) + '</p>' +
+    V.itemGuide(S, r, { noPostup: editing }) +
+    (editing && keys.length ? '<div class="box" style="margin-top:10px"><div class="k">Úprava parametrů</div>' + keys.map(function (k) {
       var val = pend[k] != null ? pend[k] : params[k], step = (r.steps && r.steps[k]) || (Number.isInteger(params[k]) ? 1 : 0.05);
-      return '<div class="instr"><span>' + e(paramLabel(r, k)) + '</span>' + (editing && typeof val === 'number' ? '<div class="stepper">' + btn('−', 'regParam', r.id + ':' + k + ':' + (-step), 'sm', ' aria-label="méně"') + '<span class="val">' + e(String(Math.round(val * 100) / 100).replace('.', ',')) + '</span>' + btn('+', 'regParam', r.id + ':' + k + ':' + step, 'sm', ' aria-label="více"') + '</div>' : '<b>' + e(String(val).replace('.', ',')) + '</b>') + '</div>';
+      return '<div class="instr"><span>' + e(paramLabel(r, k)) + '</span>' + (typeof val === 'number' ? '<div class="stepper">' + btn('−', 'regParam', r.id + ':' + k + ':' + (-step), 'sm', ' aria-label="méně"') + '<span class="val">' + e(String(Math.round(val * 100) / 100).replace('.', ',')) + '</span>' + btn('+', 'regParam', r.id + ':' + k + ':' + step, 'sm', ' aria-label="více"') + '</div>' : '<b>' + e(String(val).replace('.', ',')) + '</b>') + '</div>';
     }).join('') + '</div>' : '') +
-    itemPostup(S, r, editing) +
-    (r.usedBy ? '<p class="small muted" style="margin-top:8px">Používá se: ' + e(r.usedBy) + '</p>' : '') +
+    (editing ? itemPostup(S, r, true) : '') +
     '<div class="divider"></div><h3>Rozhodnutí garanta</h3>' +
     '<label class="field"><span>Komentář (nepovinný)</span><input data-bind="form.regcomment_' + r.id + '" value="' + e((S.form && S.form['regcomment_' + r.id]) || '') + '"></label>' +
     '<div class="actions" style="margin-top:8px">' + btn(NF.itemTouched(S, r.id) && r.status === 'approved' ? 'Potvrdit znovu' : 'Potvrdit', 'regDecide', 'approved', r.status === 'approved' && !NF.itemTouched(S, r.id) ? 'primary sm' : 'sm') +

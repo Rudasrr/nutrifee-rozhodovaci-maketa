@@ -10,7 +10,7 @@ D.hba1c = [62, 55];
 
 /* ---------- schvalovací registr ---------- */
 function reg() {
-  var A = function (o) { o.status = 'approved'; o.decidedAt = T0; o.decidedBy = 'DEMO-L01'; o.params = o.params || {}; return o; };
+  var A = function (o) { o.status = 'approved'; o.decidedAt = T0; o.decidedBy = 'DEMO-L01'; o.params = o.params || {}; o.guide = (D.guide && D.guide[o.id]) || null; return o; }; /* pětidílný průvodce položkou (demo/guide.js) */
   return [
     A({ id: 'K-KRITERIA', cat: 'kohorta', title: 'Podmínky zařazení', summary: 'Dospělý s DM2, jen inzulin, bazál + 3 prandiální pevné dávky, senzor CGM.', detail: 'Celý návrh stojí na pevné dávce inzulinu k jídlu. Pacient s flexibilním dávkováním nebo s tabletami na diabetes by dostával rady postavené na předpokladu, který u něj neplatí.', usedBy: 'zařazení' }),
     A({ id: 'C-CILE', cat: 'plan', title: 'Cíle glukózy', summary: 'Výchozí cíle pro každého pacienta: v cíli 3,9–10,0 mmol/l, ráno nalačno do 7,2, čas v cíli alespoň 70 %. Lékař je u pacienta může při zařazení i kontrole upravit.', detail: 'Z cílů vychází „v cíli / nad cílem“ u jídel, semafor v reportu i návrhy k dávce. Hodnoty jsou návrh autora makety; garant je mění tady, lékař u konkrétního pacienta v plánu.', params: { low: 3.9, high: 10.0, fastingHigh: 7.2, tirGoal: 70 }, labels: { low: 'dolní cíl (mmol/l)', high: 'horní cíl po jídle (mmol/l)', fastingHigh: 'ráno nalačno do (mmol/l)', tirGoal: 'čas v cíli alespoň (%)' }, steps: { low: 0.1, high: 0.5, fastingHigh: 0.1, tirGoal: 5 }, usedBy: 'zařazení, kontrola, karty jídel, report' }),

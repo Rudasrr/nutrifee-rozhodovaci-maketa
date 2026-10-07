@@ -137,7 +137,7 @@ function newMeal(meal) {
 }
 var A = {
   noop: function () { },
-  page: function (v) { if (S.role === 'nurse') return; S.page = v; S.error = ''; S.foodOpen = null; }, /* sestra má jen zaučení; náhled telefonu neovládá */
+  page: function (v) { if (S.role === 'nurse' || NF.PAGES.indexOf(v) < 0) return; S.page = v; S.error = ''; S.foodOpen = null; }, /* sestra má jen zaučení; náhled telefonu neovládá */
   role: function (v) {
     if (['patient', 'doctor', 'nurse'].indexOf(v) < 0) return;
     S.role = v; S.error = ''; S.meal = null; S.ask = null; /* rozpracovaný zápis nepatří jiné roli (P5) */
