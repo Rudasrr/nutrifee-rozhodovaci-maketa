@@ -98,3 +98,10 @@ body.pres-nurse .split{grid-template-columns:1fr 380px}
 .results .res-head .tag{flex:none}
 .results .res-comment{margin-top:4px;font-style:italic}
 @media (max-width:700px){.stats{grid-template-columns:1fr 1fr}}
+
+/* zamítnutá položka: oznámení na místě (jádro přes slot) a ve scéně (panel) */
+.off-notice{display:flex;gap:10px;align-items:flex-start;background:var(--badbg);color:var(--badtx);border:1px dashed #e3a79b;border-radius:12px;padding:10px 14px;margin:8px 0;font-size:14px;line-height:1.45;text-align:left}
+.off-notice .x{font-weight:900;font-size:18px;line-height:1.2}
+.off-notice .btn{display:inline-flex;margin-top:6px;min-height:32px}
+.off-notice.compact{font-size:13px;padding:8px 10px}
+.off-scene{margin:0 0 10px}

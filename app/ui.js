@@ -53,7 +53,8 @@ function content() {
 NF.render = function () {
   var doc = global.document, root = doc && doc.getElementById('app');
   if (!root) return;
-  var html = '<a class="skip" href="#main">Přeskočit na obsah</a>' + slot('banner') +
+  var banner = slot('banner'); NF.renderSeq = (NF.renderSeq || 0) + 1; /* obsah obrazovky: oznámení o zamítnuté položce se v jednom vykreslení neopakuje */
+  var html = '<a class="skip" href="#main">Přeskočit na obsah</a>' + banner +
     (NF.storageOK ? '' : '<div class="error" role="alert">Zařízení nemá místo pro uložení, nebo je ukládání zakázané. Zápisy se po zavření ztratí.</div>') +
     (NF.migrated ? '<div class="error" role="status" style="background:var(--sand,#faf6ef);color:inherit">Uložený stav byl ze starší verze (' + e(NF.migrated) + '); začínáme znovu. Záloha zůstala v zařízení.</div>' : '') +
     '<main id="main" class="role-' + e(S.role) + '">' +

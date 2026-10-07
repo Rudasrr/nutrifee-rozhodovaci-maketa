@@ -89,6 +89,9 @@ p{margin:0 0 10px}p:last-child{margin-bottom:0}
 .appr{display:inline-flex;align-items:center;gap:5px;font-size:13px;min-height:32px;font-weight:700;color:#2f4f7d;background:var(--infobg);border-radius:8px;padding:2px 8px;cursor:pointer;border:0}
 .appr.rej{color:var(--badtx);background:var(--badbg)}
 .appr.edit{color:var(--warntx);background:var(--warnbg)}
+.appr.pend{color:var(--muted);background:var(--line)}
+.appr .st{font-weight:600;opacity:.85}
+.off-mark{display:none}
 .demo-flag{display:inline-block;background:var(--demobg);color:var(--demo);border:1px dashed #cbbfe3;border-radius:8px;padding:2px 8px;font-size:13px;font-weight:700}
 
 /* ---------- dlaždice souhrnu ---------- */

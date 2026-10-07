@@ -9,7 +9,7 @@ function foodSel(name) { return function (B, S) { return '[data-action="mealFood
 
 T.chapters = {
   prolog: {
-    intro: { t: 'K čemu NutriFee je', co: 'Pacient s diabetem 2. typu a pevnými dávkami inzulinu má jíst ke své dávce pokaždé podobně. NutriFee se učí z jeho jídel, před jídlem radí a připomíná inzulin předepsaný lékařem. Lékař dostane na kontrole souhrn a návrhy a jen je schvaluje.', vsimni: 'Tři věty k odnesení: dávku určuje jen lékař · pacient drží obvyklou porci · lékař jen schvaluje. Blok „K potvrzení na této obrazovce“ ukazuje položky registru, které právě působí; potvrdíte je hned, nebo později přes „Ke schválení“ v liště.', proc: 'Aplikace dávku zobrazí, připomene a zeptá se na podání; směr ani výši nevymýšlí. Příběh jednoho pacienta od zařazení po první kontrolu trvá asi čtvrt hodiny, varianty jsou v dodatku na konci.' },
+    intro: { t: 'K čemu NutriFee je', co: 'Pacient s diabetem 2. typu a pevnými dávkami inzulinu má jíst ke své dávce pokaždé podobně. NutriFee se učí z jeho jídel, před jídlem radí a připomíná inzulin předepsaný lékařem. Lékař dostane na kontrole souhrn a návrhy a jen je schvaluje.', vsimni: 'Tři věty k odnesení: dávku určuje jen lékař · pacient drží obvyklou porci · lékař jen schvaluje. Štítek „◌ ke schválení“ u každého místa ukazuje položku registru, která tam působí; maketa se chová, jako by byla schválená. Na konci každé scény rozhodnete o položkách, které v ní působily — hned, nebo později přes „Ke schválení“ v liště. Zamítnutí příběh nezastaví: na místě uvidíte, že tahle část nefunguje.', proc: 'Aplikace dávku zobrazí, připomene a zeptá se na podání; směr ani výši nevymýšlí. Příběh jednoho pacienta od zařazení po první kontrolu trvá asi čtvrt hodiny, varianty jsou v dodatku na konci.' },
     steps: []
   },
   enroll: {
@@ -137,15 +137,15 @@ T.chapters = {
     ]
   },
   registry: {
-    intro: { t: 'Lékař-garant: podnět a úprava pravidla', co: 'Při testu pacient pochopil „snězte nejdřív jogurt“ tak, že jogurtem nahradil část kaše — a snědl méně, než má k pevné dávce.', vsimni: 'Registr: vše, na čem aplikace stojí, v kategoriích, s filtrem a hledáním. V maketě schválené předem.', proc: 'Nejasná rada je bezpečnostní problém. Garant ji opraví hned, historie zůstane.' },
+    intro: { t: 'Lékař-garant: podnět a úprava pravidla', co: 'Při testu pacient pochopil „snězte nejdřív jogurt“ tak, že jogurtem nahradil část kaše — a snědl méně, než má k pevné dávce.', vsimni: 'Registr: vše, na čem aplikace stojí, v kategoriích, s filtrem a hledáním. V maketě čekají na vaše schválení; maketa se zatím chová, jako by schválené byly.', proc: 'Nejasná rada je bezpečnostní problém. Garant ji opraví hned, historie zůstane.' },
     steps: [
-      { do: [{ sel: '.reg-side .card' }], t: 'Položka R-PORADI', co: 'Co dělá, text pro pacienta, kde se používá, historie rozhodnutí.', vsimni: 'Tlačítka Potvrdit / Upravit / Zamítnout / Jen komentář. Rozhodnutí se uloží okamžitě; komentář stav nemění.' },
+      { do: [{ sel: '.reg-side .card' }], t: 'Položka R-PORADI', co: 'Co dělá, text pro pacienta, kde se používá, historie rozhodnutí.', vsimni: 'Tlačítka Schválit / Upravit / Zamítnout / Jen komentář. Rozhodnutí se uloží okamžitě; komentář stav nemění.' },
       { do: [{ sel: '[data-bind="form.regcomment_R-PORADI"]', bind: 'form.regcomment_R-PORADI', val: 'Upřesněn text: příloha se nevynechává.', type: true }, { fn: function (S) { var it = NF.item(S, 'R-PORADI'); it.text = 'Snězte nejdřív {first}, potom zbytek obvyklého jídla. Přílohu nevynechávejte — množství sacharidů má zůstat stejné.'; it.version = 'v2'; } }, { sel: '[data-action="regDecide"][data-value="edited"],[data-action="regEdit"]', act: 'regDecide', val: 'edited' }],
         watch: '.reg-side .hist', t: 'Upravit s komentářem', co: 'Text rady má novou verzi: „…zbytek obvyklého jídla. Přílohu nevynechávejte.“ Stav „schváleno s úpravou“, v historii kdo, kdy, z čeho na co.', proc: 'Změna platí v aplikaci okamžitě; původní znění zůstává v historii.' }
     ]
   },
   impact: {
-    intro: { t: 'Pacient vidí radu s novým textem', co: 'Další den v poledne, řízek s kaší — jídlo, které aplikace už zná.', vsimni: 'Štítek položky u rady je oranžový: „schváleno s úpravou“.', proc: 'Zamítnutá položka by radu úplně odstranila; upravená ji jen změní.' },
+    intro: { t: 'Pacient vidí radu s novým textem', co: 'Další den v poledne, řízek s kaší — jídlo, které aplikace už zná.', vsimni: 'Štítek položky u rady je oranžový: „schváleno s úpravou“.', proc: 'Zamítnutá položka by radu odstranila a na jejím místě by stálo „Tahle část nefunguje“.' },
     steps: [
       { do: [{ sel: '.advice .text' }], t: 'Nový text rady', co: '„…potom zbytek obvyklého jídla. Přílohu nevynechávejte.“', vsimni: 'Štítek položky je oranžový: „schváleno s úpravou“.' },
       { do: [{ sel: '[data-action="mealDecide"][data-value="order:yes"]', act: 'mealDecide', val: 'order:yes', quick: true }, { sel: '[data-action="mealFinish"][data-value="as"]', act: 'mealFinish', val: 'as' }], t: 'Přijmout a uložit', co: 'Zápis uložený.', dusledek: 'Přeskočíme dva měsíce ke kontrole.' }

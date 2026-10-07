@@ -34,7 +34,7 @@ cd maketa-rozhodovaci && node nutrifee-rozhodovaci-maketa.test.cjs
 3. **Rada k množství jídla:** před píchnutím oběma směry k obvyklé; po píchnutí a při „nevím“ jen z větší
    porce zpět k obvyklé; nikdy „snězte víc“.
 4. **Každý výpočet, rada, práh i text nese položku schvalovacího registru** se štítkem „✓“. V maketě je vše
-   schválené předem; lékař-garant může kdykoli schválit / upravit / zamítnout s komentářem, rozhodnutí platí
+   ke schválení (maketa se chová, jako by byly schválené; zamítnutí ukáže na místě „tahle část nefunguje“); lékař-garant může kdykoli schválit / upravit / zamítnout s komentářem, rozhodnutí platí
    okamžitě a historie jen přibývá.
 5. **Lékař mezi kontrolami nic nedělá.** Nemoc ukončuje pacient, výpadek dat končí sám.
 6. **Žádná generativní AI ve výpočtech;** vše deterministické a dohledatelné ve stopě. Ostrý provoz ukládá data na zabezpečený server studie; maketa ukládá jen neformální rozhodnutí přihlášeného garanta; správce je vidí v maketě.

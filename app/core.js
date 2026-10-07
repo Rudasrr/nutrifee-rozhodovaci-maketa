@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 33;
+NF.SCHEMA = 34;
 NF.PAGES = ['today', 'foods', 'plan', 'safety', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
@@ -153,6 +153,10 @@ NF.CATS = [
 ];
 NF.catLabel = function (c) { var x = NF.CATS.filter(function (k) { return k[0] === c; })[0]; return x ? x[1] : c; };
 NF.STATUS = { approved: 'schváleno', edited: 'schváleno s úpravou', rejected: 'zamítnuto' };
+/* Stav položky pro garanta (7. 10. 2026 večer): dokud nerozhodl, je položka „ke schválení“ — maketa se přitom chová, jako by byla schválená. */
+NF.STATE = { pending: 'ke schválení', approved: 'schváleno', edited: 'schváleno s úpravou', rejected: 'zamítnuto' };
+NF.itemState = function (S, id) { var r = NF.item(S, id); if (!r) return null; if (r.status === 'rejected' || r.status === 'edited') return r.status; return NF.itemTouched(S, id) ? 'approved' : 'pending'; };
+NF.stateLabel = function (S, id) { return NF.STATE[NF.itemState(S, id)] || ''; };
 NF.item = function (S, id) { return S.registry.items.filter(function (r) { return r.id === id; })[0] || null; };
 NF.usable = function (S, id) { var r = NF.item(S, id); return !!r && r.status !== 'rejected'; };
 NF.param = function (S, id, key, fallback) {
@@ -200,11 +204,12 @@ NF.applyDecision = function (S, d, quiet) {
 NF.itemTouched = function (S, id) { return S.registry.history.some(function (h) { return h.item === id && h.kind !== 'comment'; }); };
 NF.itemCommented = function (S, id) { return S.registry.history.some(function (h) { return h.item === id && h.comment; }); };
 NF.registrySummary = function (S) {
-  var items = S.registry.items, out = { total: items.length, touched: 0, confirmed: 0, edited: 0, rejected: 0, commented: 0, pending: 0, remaining: 0 };
+  var items = S.registry.items, out = { total: items.length, touched: 0, confirmed: 0, approved: 0, edited: 0, rejected: 0, commented: 0, pending: 0, remaining: 0 };
   items.forEach(function (r) {
     var t = NF.itemTouched(S, r.id), c = NF.itemCommented(S, r.id);
     if (t) out.touched++; else out.remaining++;
     if (t && (r.status === 'approved' || r.status === 'edited')) out.confirmed++;
+    if (t && r.status === 'approved') out.approved++;
     if (r.status === 'edited') out.edited++;
     if (r.status === 'rejected') out.rejected++;
     if (c) out.commented++;

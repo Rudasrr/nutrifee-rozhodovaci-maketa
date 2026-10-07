@@ -19,14 +19,21 @@ function kv(k, v) { return '<div class="kv"><span>' + e(k) + '</span><strong>' +
 function tag(text, kind) { return '<span class="tag ' + (kind || '') + '">' + e(text) + '</span>'; }
 function glass(body, cls) { return '<section class="glass ' + (cls || '') + '">' + body + '</section>'; }
 function card(body, cls) { return '<section class="card ' + (cls || '') + '">' + body + '</section>'; }
-/* Štítek schválené položky registru. Klepnutí otevře vysvětlení. */
+/* Štítek položky registru u místa, kde působí: ◌ ke schválení · ✓ schváleno · ✎ s úpravou · ✕ zamítnuto. Klepnutí otevře vysvětlení.
+   U zamítnuté položky následuje oznámení „tahle část nefunguje“ (prezentační vrstva přes NF.slots.offNotice; produkce bez ní nic nepřidá). */
+var APPR = { pending: ['pend', '◌', 'ke schválení', 'Pravidlo ke schválení: '], approved: ['', '✓', '', 'Schválené pravidlo: '], edited: ['edit', '✎', 'upraveno', 'Schválené pravidlo s úpravou: '], rejected: ['rej', '✕', 'zamítnuto', 'Zamítnuté pravidlo: '] };
 function appr(S, id) {
   var r = NF.item(S, id);
   if (!r) return '';
-  var cls = r.status === 'rejected' ? 'rej' : r.status === 'edited' ? 'edit' : '';
-  return '<button type="button" class="appr ' + cls + '" data-action="openItem" data-value="' + e(id) + '" title="' + e(r.title) + '" aria-label="' + (r.status === 'rejected' ? 'Zamítnuté pravidlo: ' : 'Schválené pravidlo: ') + e(r.title) + '"><span aria-hidden="true">' + (r.status === 'rejected' ? '✕' : '✓') + '</span> ' + e(r.title) + '</button>';
+  var st = NF.itemState(S, id), m = APPR[st] || APPR.pending;
+  return '<button type="button" class="appr ' + m[0] + '" data-action="openItem" data-value="' + e(id) + '" title="' + e((m[2] || 'schváleno') + ' · ' + r.title) + '" aria-label="' + m[3] + e(r.title) + '"><span aria-hidden="true">' + m[1] + '</span> ' + e(r.title) + (m[2] ? ' <span class="st">· ' + m[2] + '</span>' : '') + '</button>' + (st === 'rejected' ? off(S, id) : '');
 }
-V.btn = btn; V.choice = choice; V.hint = hint; V.kv = kv; V.tag = tag; V.card = card; V.glass = glass; V.appr = appr;
+function off(S, id) { return NF.slots.offNotice ? NF.slots.offNotice(S, id) : ''; }
+/* Zamítnuté páky rad (a pravidlo mizení): oznámení tam, kde by rada byla. */
+function offLevers(S) {
+  return Object.keys(NF.LEVERS).filter(function (l) { return l !== 'portion' && !NF.usable(S, NF.LEVERS[l].item); }).map(function (l) { return off(S, NF.LEVERS[l].item); }).join('') + (NF.usable(S, 'R-ZMIZELA') ? '' : off(S, 'R-ZMIZELA'));
+}
+V.btn = btn; V.choice = choice; V.hint = hint; V.kv = kv; V.tag = tag; V.card = card; V.glass = glass; V.appr = appr; V.off = off; V.offLevers = offLevers;
 
 var LEVEL = { known: ['Známé jídlo', 'known'], similar: ['Podobné jídlo', 'similar'], unknown: ['Neznámé jídlo', 'unknown'], none: ['Bez vyhodnocení', 'unknown'] };
 function levelTag(level) { var l = LEVEL[level] || LEVEL.unknown; return tag(l[0], l[1]); }
@@ -173,7 +180,7 @@ function goalCard(S) {
   return glass('<h2>Cíl do kontroly</h2><p>' + T.goal + '</p>', 'soft');
 }
 function resultCard(S) {
-  var r = NF.lastResult(S); if (!r) return '';
+  var r = NF.lastResult(S); if (!r) return NF.usable(S, 'S-VYSLEDEK') ? '' : off(S, 'S-VYSLEDEK');
   var ic = r.key === 'okAdvice' || r.key === 'okPlain' ? '🌟' : r.key === 'nodata' ? '📡' : r.key === 'excluded' ? '📝' : '📊';
   return glass('<div class="now"><span class="ic" aria-hidden="true">' + ic + '</span><div><b>Jak to dopadlo</b>' + r.text + (r.key === 'excluded' && r.smaller ? '<br><span class="small">' + instructionText(S, 'I-MENE').replace(/^<br>/, '') + '</span>' : '') +
     '<div class="actions" style="margin-top:10px">' + btn('Rozumím', 'resultSeen', r.ep.id, 'sm') + btn('Zobrazit jídlo', 'openFood', r.food.id, 'quiet sm') + '</div></div></div>' +
@@ -193,13 +200,13 @@ function fixInsulinCard(S) {
       '<p class="small muted" style="margin:6px 0 0">Opravený zápis se učí dál, do návrhu k dávce pro lékaře už nejde.</p>' : '') + '</div></div>', 'soft');
 }
 function milestoneCard(S) {
-  var m = NF.pendingMilestone(S); if (!m) return '';
+  var m = NF.pendingMilestone(S); if (!m) return NF.usable(S, 'R-MILNIKY') ? '' : off(S, 'R-MILNIKY');
   return glass('<div class="now"><span class="ic" aria-hidden="true">🎉</span><div><b>Milník</b>' + m.text +
     '<div class="actions" style="margin-top:10px">' + btn('Zavřít', 'milestoneClose', m.id, 'sm') + '</div></div></div>' +
     '<div class="small" style="margin-top:6px">' + appr(S, 'R-MILNIKY') + '</div>', 'milestone');
 }
 function weekCard(S) {
-  var w = NF.weekSummary(S), T = NF.texts(S, 'S-TYDEN'); if (!w || !T) return '';
+  var w = NF.weekSummary(S), T = NF.texts(S, 'S-TYDEN'); if (!NF.usable(S, 'S-TYDEN')) return off(S, 'S-TYDEN'); if (!w || !T) return '';
   var lines = [NF.fillText(T.meals, { meals: w.meals, usual: w.usual })];
   if (w.best) lines.push(NF.fillText(T.helped, { lever: NF.LEVERS[w.best.lever].label, k: w.best.k, n: w.best.n }));
   if (w.milestones.length) lines.push(T.milestone ? NF.fillText(T.milestone, { n: w.milestones.length }) + ' ' + w.milestones[w.milestones.length - 1].text.replace(/<\/?strong>/g, '') : ''); /* text milníku je už escapovaný (P4) */
@@ -210,7 +217,7 @@ function weekCard(S) {
     '<div class="small" style="margin-top:6px">' + appr(S, 'S-TYDEN') + '</div>', 'week');
 }
 function pathCard(S, withPreview) {
-  var ps = NF.pathStats(S), T = NF.texts(S, 'S-CESTA'); if (!ps || !T) return '';
+  var ps = NF.pathStats(S), T = NF.texts(S, 'S-CESTA'); if (!NF.usable(S, 'S-CESTA')) return off(S, 'S-CESTA'); if (!ps || !T) return '';
   var pct = Math.round(ps.gone / ps.total * 100);
   return glass('<div style="display:flex;justify-content:space-between;font-weight:800"><span>Cesta ke kontrole</span><span class="muted" style="font-weight:600">' + e(NF.fmtShort(ps.visit)) + '</span></div>' +
     '<div class="bar" aria-hidden="true"><span style="width:' + pct + '%"></span></div>' +
@@ -420,6 +427,7 @@ V.meal = function (S) {
         return '<div class="advice ' + (d === true ? 'taken' : d === false ? 'declined' : '') + '"><div class="lever">' + e(it.label) + '</div><div class="text">' + e(it.text) + '</div><div class="cert">' + e(it.certainty) + '</div>' +
           '<div class="choice-row">' + choice('Zkusím to', 'mealDecide', it.lever + ':yes', d === true) + choice('Tentokrát ne', 'mealDecide', it.lever + ':no', d === false) + '</div><div style="margin-top:8px">' + appr(S, it.item) + '</div></div>';
       }).join('') : '') +
+      (NF.usable(S, 'R-REAKCE') ? '' : off(S, 'R-REAKCE')) + offLevers(S) +
       (ra.late ? hint('<b>Od jídla už uplynuly víc než tři hodiny.</b> Glukóza po něm už klesla, pohyb teď k tomuto jídlu nic nezmění. Zápis se i tak počítá.', 'sand') : '') +
       (m.bolus === 'none' || m.bolus === 'unknown' ? hint('<b>Inzulin k tomuto jídlu ' + (m.bolus === 'none' ? 'nebyl podán' : 'není potvrzený') + '.</b> Zápis uložíme, ale do učení ho nezapočítáme. Při nejistotě, co dělat, otevřete Bezpečí.', 'warn') : '') +
       '<div class="actions">' + btn('Uložit ' + NF.mealLabel(m.meal, 'acc'), 'mealFinish', m.bolus, 'primary big') + '</div><div class="actions" style="margin-top:6px">' + btn('← Zpět', 'mealStep', '2', 'quiet') + '</div>';
@@ -431,9 +439,9 @@ V.meal = function (S) {
   out += glass('<div style="display:flex;gap:12px;align-items:center">' + foodIcon(S, food, conf) + '<div><div class="badges">' + levelTag(conf.level) + reactionTag(conf.reaction) + '</div>' +
     '<div class="learn">' + (conf.level === 'known' ? 'Známe ho · ' + NF.plural(conf.st.n, 'započítaný zápis', 'započítané zápisy', 'započítaných zápisů') : conf.level === 'similar' ? 'Zatím odhad z podobných jídel' : 'Zatím nic neodhadujeme — zapište ho ' + (conf.min || 3) + '×') + '</div></div></div>' +
     (conf.level === 'unknown' ? '<p class="sum" style="margin-top:10px">Tohle jídlo u vás ještě neznáme a nic podobného také ne. <b>Nic neodhadujeme.</b> Po ' + (conf.min || 3) + ' zápisech vám řekneme, kam se po něm glukóza dostane.</p>' : conf.level === 'none' ? '<p class="sum" style="margin-top:10px">' + e(conf.why) + '</p>' : '<div class="detail">' + peakBlock(S, food, conf) + '</div>'));
-  if (!res.gate.ok) out += hint('<b>Teď neradíme.</b> ' + e(res.gate.why), 'warn');
+  if (!res.gate.ok) out += NF.usable(S, 'R-REAKCE') ? hint('<b>Teď neradíme.</b> ' + e(res.gate.why), 'warn') : off(S, 'R-REAKCE');
   else {
-    res.blocked.forEach(function (b) { out += hint('<b>' + e(NF.LEVERS[b.lever].label) + ': teď neradíme.</b> ' + e(b.why) + (b.reason === 'bolus' && m.portion === 'smaller' ? instructionText(S, 'I-MENE') : ''), 'warn'); });
+    res.blocked.forEach(function (b) { out += b.reason === 'item' ? off(S, NF.LEVERS[b.lever].item) : hint('<b>' + e(NF.LEVERS[b.lever].label) + ': teď neradíme.</b> ' + e(b.why) + (b.reason === 'bolus' && m.portion === 'smaller' ? instructionText(S, 'I-MENE') : ''), 'warn'); });
     res.gone.forEach(function (g) { out += hint(e(g.text) + ' ' + appr(S, 'R-ZMIZELA'), 'sand'); });
     if (res.illness) out += hint('<b>Při nemoci</b> k jídlu neradíme; platí pokyny lékaře (máte je nahoře na Dnes). Dávky platí, jak řekl lékař.', 'sand');
     if (res.items.length) {
@@ -447,6 +455,7 @@ V.meal = function (S) {
       }).join('');
     } else if (conf.level === 'known' && !res.blocked.length) out += glass('<p>K tomuto jídlu teď nemáme radu — reagujete na něj dobře. Jen ho zapište.</p>');
   }
+  if (res.gate.ok) out += offLevers(S);
   if (!snack) out += '<details class="more" style="margin:4px 4px 14px"><summary>Proč radíme právě toto a jak jsme si jistí</summary><div class="small muted" style="padding-top:6px">' +
     '<p><b>Odkud to víme:</b> jen z vašich vlastních zápisů a dat ze senzoru. Počítáme jen zápisy s potvrzeným inzulinem a daty ze senzoru. Nepočítáme zápis z doby nemoci, s jinou než obvyklou porcí nebo s jinou dávkou.</p>' +
     '<p><b>Proč se ptáme na inzulin:</b> dávka je jako klíč vyrobený na obvyklou porci. Dokud inzulin není v těle, můžete porci ještě upravit. Po píchnutí inzulin působí 3–5 hodin, ať sníte cokoli. Proto pak poradíme jen návrat z větší porce k obvyklé.</p>' +
@@ -487,6 +496,7 @@ function foodCard(S, f, open) {
   else if (c.level === 'known') sum = 'Zapsáno ' + st.eaten + '×. ' + (c.reaction.key === 'mild' ? 'Po něm zůstáváte <b>většinou v cíli</b>.' : c.reaction.key === 'mid' ? 'Po něm skončíte <b>zhruba z poloviny</b> v cíli a z poloviny nad ním.' : 'Po něm se <b>většinou dostanete nad cíl</b>.');
   else if (c.level === 'similar') sum = 'Zapsáno ' + st.eaten + '×, ještě ' + (c.min - st.n) + ' a budeme ho znát. Podobá se jídlům, po kterých ' + (c.reaction && c.reaction.key === 'mild' ? 'zůstáváte v cíli' : 'jdete nad cíl') + '.';
   else sum = 'Zapsáno ' + st.eaten + '×. Zatím nic neodhadujeme; po ' + (c.min || 3) + ' zápisech se všemi údaji budeme vědět víc.';
+  if (!NF.usable(S, 'R-SKORE')) sum += off(S, 'R-SKORE'); if (!NF.usable(S, 'R-PODOBNOST') && c.level !== 'known') sum += off(S, 'R-PODOBNOST');
   var detail = '';
   if (open) {
     var lev = c.level === 'known' ? NF.leverStats(S, f.id) : [];
@@ -517,7 +527,7 @@ V.planScreen = function (S) {
     glass('<h2>Kdy a kolik inzulinu</h2>' + dosesTable(p) + '<p class="small muted">Určil lékař ' + e(NF.fmtShort(p.issuedAt)) + '. U každého ze tří jídel se ptáme na inzulin a na jídlo. Když zápis chybí, zeptáme se zpětně. Dávky nikdy nepočítáme ani neměníme.</p>') +
     glass('<h2>Návyky</h2><ul class="plain">' + NF.activeHabits(S).map(function (h) { return '<li><b>' + e(h.title) + '</b><br><span class="small muted">' + e(h.why) + '</span></li>'; }).join('') + '</ul>') +
     glass('<h2>Rady, které vám nabízíme</h2>' + adviceList(S, p) + '<p class="small muted">Nabízíme je před jídlem podle toho, jak na jídlo reagujete. Odpovídat nemusíte.</p>') +
-    glass('<h2>Cíle glukózy</h2>' + kv('V cíli', e(NF.mmol(p.targets.low)) + '–' + e(NF.mmol(p.targets.high)) + ' mmol/l') + kv('Ráno nalačno do', e(NF.mmol(p.targets.fastingHigh)) + ' mmol/l') + kv('Platnost plánu do', e(NF.fmtShort(p.validUntil))) + '<div class="small" style="margin-top:6px">' + appr(S, 'C-CILE') + '</div>') +
+    glass('<h2>Cíle glukózy</h2>' + (NF.usable(S, 'C-CILE') ? '' : off(S, 'C-CILE')) + kv('V cíli', e(NF.mmol(p.targets.low)) + '–' + e(NF.mmol(p.targets.high)) + ' mmol/l') + kv('Ráno nalačno do', e(NF.mmol(p.targets.fastingHigh)) + ' mmol/l') + kv('Platnost plánu do', e(NF.fmtShort(p.validUntil))) + '<div class="small" style="margin-top:6px">' + appr(S, 'C-CILE') + '</div>') +
     (older.length ? glass('<details class="more"><summary>Starší plány (' + older.length + ')</summary><ul class="plain small">' + older.map(function (x) { return '<li><b>' + e(x.id) + '</b> · ' + e(NF.fmtShort(x.issuedAt)) + ' – ' + e(NF.fmtShort(x.validUntil)) + '<br><span class="muted">Zápisy z té doby zůstávají u něj.</span></li>'; }).join('') + '</ul></details>') : '');
 };
 V.safety = function (S) {
@@ -567,7 +577,7 @@ function adviceList(S, p) {
   var a = NF.planAdvice(S, p);
   return '<ul class="plain">' + Object.keys(NF.LEVERS).filter(function (l) { return l !== 'portion' && NF.usable(S, NF.LEVERS[l].item); }).map(function (l) {
     return '<li><b>' + e(NF.LEVERS[l].label) + '</b> ' + (a.off.indexOf(l) >= 0 ? tag('lékař vypnul', 'warn') : a.prefer.indexOf(l) >= 0 ? tag('lékař doporučil', 'info') : '') + '</li>';
-  }).join('') + '</ul>';
+  }).join('') + '</ul>' + offLevers(S);
 }
 V.adviceList = adviceList;
 
