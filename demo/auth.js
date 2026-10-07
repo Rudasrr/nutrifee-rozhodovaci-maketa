@@ -1,6 +1,7 @@
 /* Přihlášení k maketě (7. 10. 2026, prezentační vrstva). Supabase Auth, e-mail + heslo.
    Bez přihlášení se maketa nezobrazí — jen přihlašovací stránka. Role podle app_metadata.role účtu v Supabase:
-   „admin“ = správce (vidí výsledky všech, demo/results.js), cokoli jiného = garant (rozhoduje a komentuje, vidí jen své zápisy).
+   „admin“ = správce (vidí výsledky všech, demo/results.js), „garant“ = garant (rozhoduje a komentuje, vidí jen své zápisy).
+   Účet bez jedné z těchto rolí k maketě přístup nemá (projekt Supabase může mít i jiné uživatele) — po přihlášení je hned odhlášen s vysvětlením.
    Hesla ověřuje server Supabase; v kódu není nic tajného (veřejný klíč + pravidla RLS). Jádro app/ o přihlášení neví.
    Přihlášení drží localStorage (nutrifee-auth); token se obnovuje sám, po neúspěchu se uživatel odhlásí. */
 (function (global) {
@@ -10,9 +11,11 @@ var AKEY = 'nutrifee-auth';
 var form = { email: '', pass: '', error: '', info: '', busy: false, forceOffered: false };
 function cfg() { return D.syncConfig || {}; }
 function base() { return String(cfg().url || '').replace(/\/$/, '') + '/auth/v1/'; }
-function read() { try { var s = JSON.parse(global.localStorage && global.localStorage.getItem(AKEY) || 'null'); return s && s.access_token && s.user ? s : null; } catch (err) { return null; } }
+function readRaw() { try { var s = JSON.parse(global.localStorage && global.localStorage.getItem(AKEY) || 'null'); return s && s.access_token && s.user ? s : null; } catch (err) { return null; } }
+function read() { var s = readRaw(); return s && allowed(s) ? s : null; }
 function write(s) { try { if (s) global.localStorage.setItem(AKEY, JSON.stringify(s)); else global.localStorage.removeItem(AKEY); } catch (err) { } }
-function role(s) { s = s || read(); if (!s) return null; var m = s.user && s.user.app_metadata; return m && m.role === 'admin' ? 'admin' : 'garant'; }
+function role(s) { s = s || read(); if (!s) return null; var m = s.user && s.user.app_metadata, r = m && m.role; return r === 'admin' || r === 'garant' ? r : null; }
+function allowed(s) { return !!role(s); }
 function label(s) { return role(s) === 'admin' ? 'Správce' : 'Garant'; }
 function headers(token) { var h = { 'Content-Type': 'application/json', 'apikey': cfg().key }; if (token) h['Authorization'] = 'Bearer ' + token; return h; }
 function authPost(path, body, token) { return global.fetch(base() + path, { method: 'POST', mode: 'cors', headers: headers(token), body: JSON.stringify(body || {}) }); }
@@ -55,7 +58,12 @@ function login() {
   authPost('token?grant_type=password', { email: email, password: pass })
     .then(function (res) { return res.json().then(function (j) { if (!res.ok) throw new Error(j.error_description || j.msg || j.error || ('HTTP ' + res.status)); return j; }); })
     .then(function (j) {
-      var s = fromResponse(j); write(s); form.busy = false; form.pass = ''; form.email = '';
+      var s = fromResponse(j); form.busy = false; form.pass = '';
+      if (!allowed(s)) { /* účet existuje, ale nemá roli garant/admin → k maketě nepatří */
+        if (typeof global.fetch === 'function') { try { authPost('logout', null, s.access_token).catch(function () { }); } catch (err) { } }
+        form.error = 'Tento účet nemá k maketě přístup. Roli garanta nebo správce přiděluje autor makety.'; NF.render(); return;
+      }
+      write(s); form.email = '';
       var st = NF.getState(); st.toast = 'Přihlášení: ' + label(s) + (s.user.email ? ' · ' + s.user.email : '') + '.';
       NF.render();
       if (D.sync && D.sync.restore) D.sync.restore();
@@ -93,7 +101,7 @@ if (global.document && global.document.addEventListener) {
 NF.demoActions = NF.demoActions || {};
 NF.demoActions.authLogin = function () { login(); };
 NF.demoActions.authLogout = function () {
-  var s = read(); if (!s) return;
+  var s = readRaw(); if (!s) return;
   var pend = D.sync && D.sync.pending ? D.sync.pending() : 0;
   if (pend) {
     if (D.sync.retry) D.sync.retry(); form.forceOffered = true;

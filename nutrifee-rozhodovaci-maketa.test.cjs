@@ -160,6 +160,8 @@ test('Přihlášení (7. 10. 2026): bez přihlášení jen přihlašovací strá
   act('authLogout'); assert.ok(D.auth.session(), 's neuloženými se neodhlásí'); assert.match(markup(), /Ještě se ukládá/); assert.match(markup(), /Odhlásit a zahodit neuložené/);
   act('authLogoutForce'); assert.equal(D.auth.session(), null); assert.equal(D.sync.pending(), 0); assert.match(markup(), /Jste odhlášeni/); assert.match(markup(), /Přihlásit/);
   store.set('nutrifee-auth', sessionFor('garant')); NF.render(); assert.equal(D.garantLog().length, 0, 'deník po odhlášení prázdný'); assert.equal(NF.item(S(), 'R-PORADI').status, 'approved');
+  /* účet projektu bez role garant/admin k maketě nepatří */
+  store.set('nutrifee-auth', sessionFor('jiny')); NF.render(); assert.equal(D.auth.role(), null); assert.equal(D.auth.session(), null); assert.match(markup(), /Přihlásit/); assert.equal(/pres-bar/.test(markup()), false);
 });
 
 test('Pacientské texty jsou bez rodu (vykání, žádné příčestí „zkusil/zapsal“, žádné „nemocný“)', () => {
