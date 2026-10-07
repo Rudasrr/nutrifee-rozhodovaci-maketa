@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 31;
+NF.SCHEMA = 32;
 NF.PAGES = ['today', 'foods', 'plan', 'safety', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
@@ -138,8 +138,10 @@ NF.log = function (S, what, detail, data) {
   if (S.events.length > 1000) { var old = S.events[S.events.length - 1001]; if (old && old.data && !old.data.zkraceno) old.data = { zkraceno: true }; } /* stará data stopy se krátí, událost zůstává */
 };
 /* Háčky pro vrstvy nad jádrem (např. ukládání rozhodnutí garanta mimo zařízení). Jádro samo síť nevolá. */
-NF.hooks = { decision: [] };
+NF.hooks = { decision: [], muted: 0 };
 NF.onDecision = function (fn) { NF.hooks.decision.push(fn); };
+/* Během fn se háčky nevolají: rozhodnutí odehraná příběhem (přehrání kapitol, kroky prezentace) nejsou rozhodnutí garanta. */
+NF.muteHooks = function (fn) { NF.hooks.muted++; try { return fn(); } finally { NF.hooks.muted--; } };
 
 /* ---------- schvalovací registr ----------
    Položka: { id, version, cat, title, summary, detail, params, text, lever, kind, status, history }
@@ -169,15 +171,15 @@ NF.decideItem = function (S, id, status, comment, params, opts) {
   var h = NF.applyDecision(S, d);
   return { ok: true, item: r, decision: d, history: h };
 };
-/* Aplikuje záznam rozhodnutí na stav (použije se i při přehrání scény, aby rozhodnutí garanta přežila). */
-NF.applyDecision = function (S, d) {
+/* Aplikuje záznam rozhodnutí na stav (použije se i při přehrání scény, aby rozhodnutí garanta přežila; quiet = přehrání, háčky se nevolají). */
+NF.applyDecision = function (S, d, quiet) {
   var r = NF.item(S, d.item); if (!r) return null;
   var from = { status: r.status, params: NF.clone(r.params || {}) };
   if (d.kind === 'comment') {
     var hc = { id: NF.uid('H'), at: d.at, by: d.by, item: d.item, kind: 'comment', from: from, to: from, comment: d.comment || '' };
     S.registry.history.push(hc);
     NF.log(S, 'registr.komentar', d.item + ' · „' + d.comment + '“', hc);
-    NF.hooks.decision.forEach(function (fn) { try { fn(S, d, hc, r); } catch (err) { } });
+    if (!quiet && !NF.hooks.muted) NF.hooks.decision.forEach(function (fn) { try { fn(S, d, hc, r); } catch (err) { } });
     return hc;
   }
   /* Potvrzení položky, která už nese úpravu, úpravu zachová (stav zůstane „schváleno s úpravou“). */
@@ -191,7 +193,7 @@ NF.applyDecision = function (S, d) {
   if (d.off) h.to.off = NF.clone(d.off);
   S.registry.history.push(h);
   NF.log(S, 'registr.rozhodnuti', d.item + ' → ' + d.status + (d.comment ? ' · „' + d.comment + '“' : ''), h);
-  NF.hooks.decision.forEach(function (fn) { try { fn(S, d, h, r); } catch (err) { } });
+  if (!quiet && !NF.hooks.muted) NF.hooks.decision.forEach(function (fn) { try { fn(S, d, h, r); } catch (err) { } });
   return h;
 };
 /* Souhrn pro hlavičku registru: kolik garant prošel, potvrdil, upravil, zamítl, okomentoval, kolik zbývá. */

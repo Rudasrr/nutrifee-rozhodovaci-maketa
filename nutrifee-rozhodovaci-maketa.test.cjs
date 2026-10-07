@@ -13,13 +13,15 @@ const DEMO = scripts.filter(s => s.startsWith('demo/'));
 assert.ok(CORE.length >= 4 && DEMO.length >= 3, 'HTML musí načítat jádro i prezentační vrstvu');
 
 let ctx, app, NF, D, elements, store;
+/* Maketa se bez přihlášení nezobrazí (demo/auth.js); testy startují jako přihlášený garant. */
+const sessionFor = role => JSON.stringify({ access_token: 'test-token', refresh_token: 'test-refresh', expires_at: 4102444800000, user: { id: 'u-' + role, email: role + '@example.test', app_metadata: { role } } });
 function boot({ withDemo = true } = {}) {
-  elements = new Map(); store = new Map();
+  elements = new Map(); store = new Map(); store.set('nutrifee-auth', sessionFor('garant'));
   const el = id => { if (!elements.has(id)) elements.set(id, { innerHTML: '', focus() { }, querySelector() { return null; }, querySelectorAll() { return []; }, childNodes: [] }); return elements.get(id); };
   const sandbox = {
     console,
     document: { getElementById: el, addEventListener() { }, querySelectorAll() { return []; }, createElement() { return { click() { }, set innerHTML(v) { }, querySelectorAll() { return []; } }; }, activeElement: null, body: null },
-    localStorage: { getItem: k => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, v) },
+    localStorage: { getItem: k => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, v), removeItem: k => store.delete(k) },
     setTimeout() { return 1; }, Blob: class { }, URL: { createObjectURL() { return 'blob:x'; }, revokeObjectURL() { } }
   };
   sandbox.window = sandbox; sandbox.globalThis = sandbox;
@@ -115,16 +117,49 @@ test('Lékař mezi kontrolami nic nedělá', () => {
 
 test('Jádro bez sítě a bez generativní AI; síť volá jen demo/sync.js (rozhodnutí garanta do Supabase)', () => {
   for (const f of CORE) { const src = fs.readFileSync(path.join(__dirname, f), 'utf8'); assert.equal(/fetch\(|XMLHttpRequest|WebSocket|navigator\.sendBeacon/i.test(src), false, f); }
-  for (const f of [...CORE, ...DEMO]) { const src = fs.readFileSync(path.join(__dirname, f), 'utf8'); assert.equal(/openai|anthropic|claude|gpt/i.test(src), false, f); if (f !== 'demo/sync.js') assert.equal(/fetch\(/.test(src), false, f + ' volá síť mimo sync.js'); }
+  for (const f of [...CORE, ...DEMO]) { const src = fs.readFileSync(path.join(__dirname, f), 'utf8'); assert.equal(/openai|anthropic|claude|gpt/i.test(src), false, f); if (['demo/sync.js', 'demo/auth.js', 'demo/results.js'].indexOf(f) < 0) assert.equal(/fetch\(/.test(src), false, f + ' volá síť mimo sync/auth/results'); }
   assert.equal(/url\(|@import/.test(fs.readFileSync(path.join(__dirname, 'app/design.css'), 'utf8')), false);
   /* rozhodnutí garanta jde do fronty hned; bez nastaveného úložiště čeká a lišta to říká; export není */
   act('goScene', '19'); act('closeDrawer'); const before = D.sync.pending();
   act('garantDecide', 'R-PORADI:approved'); assert.equal(D.sync.pending(), before + 1);
   bind('form.gc_R-SKORE', 'poznámka'); act('garantComment', 'R-SKORE'); assert.equal(D.sync.pending(), before + 2);
-  const r = D.sync.row(JSON.parse(store.get('nutrifee-sync-queue')).slice(-1)[0]); assert.equal(r.kind, 'comment'); assert.equal(r.item, 'R-SKORE'); assert.equal(r.comment, 'poznámka'); assert.ok(r.client && r.at && r.schema === NF.SCHEMA);
+  const r = D.sync.row(JSON.parse(store.get('nutrifee-sync-queue')).slice(-1)[0]); assert.equal(r.kind, 'comment'); assert.equal(r.item, 'R-SKORE'); assert.equal(r.comment, 'poznámka'); assert.ok(r.client && r.at && r.schema === NF.SCHEMA); assert.equal(r.user_email, 'garant@example.test'); assert.equal(r.user_id, 'u-garant');
+  act('goScene', '5'); act('closeDrawer'); assert.equal(D.sync.pending(), before + 2, 'přehrání scény rozhodnutí znovu neodesílá');
   const st = D.sync.status(); assert.equal(st.configured, true, 'Supabase je nastaveno v demo/sync-config.js'); assert.match(D.syncConfig.url, /^https:\/\/[a-z]+\.supabase\.co$/); assert.match(D.syncConfig.key, /^sb_publishable_/); assert.equal(D.syncConfig.table, 'garant_rozhodnuti');
   assert.match(markup(), /neuloženo: \d+/, 'bez sítě (test) čekají rozhodnutí ve frontě'); assert.equal(/export/i.test(markup()), false);
   act('role', 'doctor'); act('page', 'registry'); assert.equal(/Exportovat/.test(markup()), false); assert.equal(/Exportovat/.test((act('page', 'trace'), markup())), false);
+  /* rozhodnutí odehraná příběhem (kapitola upraví R-PORADI) nejdou na server ani do deníku garanta */
+  const p0 = D.sync.pending(), g0 = D.garantLog().length; act('goChapter', String(D.indexOf('trace'))); act('closeDrawer');
+  assert.ok(S().registry.history.some(h => h.item === 'R-PORADI' && h.kind === 'decision'), 'příběh položku upravil'); assert.equal(D.sync.pending(), p0, 'příběh nic neposílá'); assert.equal(D.garantLog().length, g0, 'příběh nepíše do deníku');
+});
+
+test('Přihlášení (7. 10. 2026): bez přihlášení jen přihlašovací stránka; garant ukládá a vidí své, správce vidí výsledky; rozhodnutí z registru přežijí skok na scénu', () => {
+  store.delete('nutrifee-auth'); NF.render();
+  let m = markup(); assert.match(m, /Přihlásit/); assert.match(m, /DEMO · syntetická data · není určeno pro léčbu/); assert.match(m, /type="password"/);
+  assert.equal(/pres-bar|Další ▶|Zařazení a plán/.test(m), false, 'bez přihlášení není vidět maketa'); assert.equal(D.auth.role(), null);
+  act('authLogin'); assert.match(markup(), /Vyplňte e-mail i heslo/);
+  store.set('nutrifee-auth', sessionFor('garant')); NF.render(); m = markup();
+  assert.match(m, /Odhlásit · Garant/); assert.equal(/Výsledky garanta/.test(m), false, 'garant výsledky nevidí'); assert.equal(D.auth.role(), 'garant'); assert.match(m, /rozhodnutí uložena ✓/);
+  act('openResults'); assert.equal(plain(elements.get('overlay').innerHTML), '', 'garant výsledky neotevře');
+  /* rozhodnutí přímo v registru přežije skok na scénu a je v deníku garanta */
+  act('role', 'doctor'); act('page', 'registry'); act('regOpen', 'R-PORADI'); act('regDecide', 'rejected');
+  assert.equal(NF.item(S(), 'R-PORADI').status, 'rejected'); assert.equal(D.garantLog().length, 1); assert.ok(D.garantLog()[0].sid && D.garantLog()[0].rt, 'záznam má sid a rt');
+  act('goScene', '10'); act('closeDrawer'); assert.equal(NF.item(S(), 'R-PORADI').status, 'rejected', 'po přehrání scény platí dál'); assert.equal(D.garantLog().length, 1, 'přehrání deník nezdvojí');
+  /* načtení ze serveru: nové sid se přidá, známé ne */
+  const srv = { item: 'R-SKORE', kind: 'decision', status: 'approved', comment: 'ze serveru', params: null, text: null, off: null, at: S().clock, by: 'garant', sid: 'jiny:H1', rt: '2026-10-07T10:00:00.000Z' };
+  assert.equal(D.garantMerge([srv, D.garantLog()[0]]), 1); assert.equal(D.garantLog().length, 2); assert.equal(D.garantMerge([srv]), 0);
+  assert.ok(S().registry.history.some(h => h.item === 'R-SKORE' && h.comment === 'ze serveru'));
+  const row = D.sync.fromRow({ id: 'c:H9', kind: 'comment', item: 'C-CILE', status: 'approved', comment: 'k', model_at: '2026-10-05T09:00:00', at: '2026-10-07T11:00:00Z', decided_by: 'garant' });
+  assert.equal(row.sid, 'c:H9'); assert.equal(row.kind, 'comment'); assert.equal(row.at, '2026-10-05T09:00:00');
+  /* správce */
+  store.set('nutrifee-auth', sessionFor('admin')); NF.render(); m = markup();
+  assert.match(m, /Výsledky garanta/); assert.match(m, /Odhlásit · Správce/); assert.equal(D.auth.role(), 'admin');
+  act('openResults'); const ov = plain(elements.get('overlay').innerHTML); assert.match(ov, /<h2>Výsledky garanta<\/h2>/); assert.match(ov, /Zatím nic nenačteno|Načítám/);
+  act('closeDrawer');
+  /* odhlášení: s neuloženými čeká a nabídne zahození; s prázdnou frontou odhlásí a smaže deník */
+  act('authLogout'); assert.ok(D.auth.session(), 's neuloženými se neodhlásí'); assert.match(markup(), /Ještě se ukládá/); assert.match(markup(), /Odhlásit a zahodit neuložené/);
+  act('authLogoutForce'); assert.equal(D.auth.session(), null); assert.equal(D.sync.pending(), 0); assert.match(markup(), /Jste odhlášeni/); assert.match(markup(), /Přihlásit/);
+  store.set('nutrifee-auth', sessionFor('garant')); NF.render(); assert.equal(D.garantLog().length, 0, 'deník po odhlášení prázdný'); assert.equal(NF.item(S(), 'R-PORADI').status, 'approved');
 });
 
 test('Pacientské texty jsou bez rodu (vykání, žádné příčestí „zkusil/zapsal“, žádné „nemocný“)', () => {

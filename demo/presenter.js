@@ -26,8 +26,20 @@ var GKEY = 'nutrifee-garant', glog = [];
 try { glog = JSON.parse(global.localStorage && global.localStorage.getItem(GKEY) || '[]') || []; } catch (err) { glog = []; }
 function saveGlog() { try { global.localStorage && global.localStorage.setItem(GKEY, JSON.stringify(glog)); } catch (err) { } }
 /* Rozhodnutí garanta se uplatní hned po základních kulisách, dřív než kapitoly spočítají report a návrhy (6. 10. 2026). */
-function applyGarant(n) { glog.forEach(function (d) { NF.applyDecision(n, d); }); return n; }
+function applyGarant(n) { glog.forEach(function (d) { NF.applyDecision(n, d, true); }); return n; }
 D.beforePlay = applyGarant;
+/* Každé nové rozhodnutí i komentář — z panelu vyprávění i přímo z registru — jde do deníku garanta; přehrání scény (quiet) háček nevolá (oprava 7. 10. 2026: dřív se rozhodnutí z registru po skoku na scénu ztrácela). */
+NF.onDecision(function (S0, d) { glog.push(d); saveGlog(); });
+/* Zápisy ze serveru po přihlášení (demo/sync.js restore): přidá jen ty, které tu podle sid nejsou, seřadí podle skutečného času a přehraje scénu. */
+D.garantMerge = function (list) {
+  var have = {}; glog.forEach(function (d) { if (d.sid) have[d.sid] = 1; });
+  var add = (list || []).filter(function (d) { return d && d.sid && !have[d.sid] && NF.item(S(), d.item); });
+  if (!add.length) return 0;
+  glog = glog.concat(add).sort(function (a, b) { var x = String(a.rt || ''), y = String(b.rt || ''); return x < y ? -1 : x > y ? 1 : 0; });
+  saveGlog(); land(D.playScene(sceneIdx(S()))); S().toast = 'Načteno ' + add.length + ' dřívějších zápisů z vašeho přihlášení.'; NF.render(); return add.length;
+};
+/* Odhlášení: deník garanta zmizí z tohoto prohlížeče (na serveru zůstává) a příběh začne od začátku. */
+D.garantClear = function () { glog = []; saveGlog(); land(D.playScene(0)); };
 function land(n) { runId++; busy = false; var s = S(); n.notes = s.notes || ''; n.tourRole = n.role; n.tourPage = n.page; focusSel = null; watchSel = null; running = null; NF.migrated = null; NF.setState(n); try { global.scrollTo(0, 0); } catch (err) { } }
 /* Kde v příběhu právě jsme vs. kam uživatel sám odešel (registr, jiná záložka). */
 function markTour() { var s = S(); s.tourRole = s.role; s.tourPage = s.page; }
@@ -55,14 +67,14 @@ NF.demoActions.garantDecide = function (v) {
   var i = String(v).indexOf(':'), id = v.slice(0, i), status = v.slice(i + 1), s = S();
   var comment = (s.form && s.form['gc_' + id]) || '';
   var r = NF.decideItem(s, id, status, comment, null, { garant: true }); if (!r.ok) { s.error = r.error; return; }
-  glog.push(r.decision); saveGlog(); if (s.form) s.form['gc_' + id] = '';
+  if (s.form) s.form['gc_' + id] = '';
   s.toast = status === 'rejected' ? 'Zamítnuto. Aplikace položku přestala používat; zapsáno do historie.' : status === 'edited' ? 'Úprava uložena a hned platí.' : 'Potvrzeno garantem a zapsáno do historie.';
 };
 NF.demoActions.garantComment = function (id) {
   var s = S(), r = NF.item(s, id), comment = (s.form && s.form['gc_' + id]) || '';
   if (!r || !comment.trim()) { s.error = 'Napište komentář.'; return; }
   var res = NF.decideItem(s, id, r.status, comment, null, { garant: true, comment: true }); if (!res.ok) { s.error = res.error; return; }
-  glog.push(res.decision); saveGlog(); s.form['gc_' + id] = ''; s.toast = 'Komentář je v historii položky. Stav položky se nemění.';
+  s.form['gc_' + id] = ''; s.toast = 'Komentář je v historii položky. Stav položky se nemění.';
 };
 NF.demoActions.garantReset = function () { glog = []; saveGlog(); land(D.playScene(sceneIdx(S()))); S().toast = 'Rozhodnutí garanta byla smazána; vše je zase schváleno předem.'; };
 D.garantLog = function () { return glog.slice(); };
@@ -78,7 +90,10 @@ NF.registerSlot('banner', function (s) {
     btn('Další ▶', 'tourNext', null, 'primary') +
     (i < lastIndex() ? btn('Přeskočit scénu ⏭', 'storyStep', '1') : '') +
     btn(sum.remaining ? 'Ke schválení · zbývá ' + sum.remaining : 'Vše rozhodnuto', 'openAside', 'registry', sum.remaining ? '' : 'ok') + (NF.slots.syncBadge ? NF.slots.syncBadge(s) : '') +
-    btn('Panel prezentujícího', 'openPresenter') + btn('Vrátit na začátek', 'resetDemo') + '</div>' + panel(s);
+    (D.auth && D.auth.role() === 'admin' ? btn('Výsledky garanta', 'openResults') : '') +
+    btn('Panel prezentujícího', 'openPresenter') + btn('Vrátit na začátek', 'resetDemo') +
+    (D.auth && D.auth.session() ? btn('Odhlásit · ' + D.auth.label(), 'authLogout') + (D.auth.forceOffered() && D.sync && D.sync.pending() ? btn('Odhlásit a zahodit neuložené (' + D.sync.pending() + ')', 'authLogoutForce', null, 'danger') : '') : '') +
+    '</div>' + panel(s);
 });
 
 /* ---------- průchod tlačítkem Další ---------- */
@@ -95,9 +110,11 @@ function reveal(el) {
 function perform(op) {
   var s = S(), ch = chapter(s);
   if (ch && ch.role && s.role !== ch.role) { s.role = ch.role; } /* krok vyprávění jedná vždy za roli kapitoly */
-  if (op.fn) { op.fn(s); NF.save(s); NF.render(); return; }
-  if (op.bind) { NF.bindValue(op.bind, val(op.val)); NF.render(); return; }
-  if (op.act) NF.act(op.act, val(op.val));
+  NF.muteHooks(function () { /* kroky příběhu nejsou rozhodnutí garanta: neukládají se na server ani do jeho deníku */
+    if (op.fn) { op.fn(s); NF.save(s); NF.render(); return; }
+    if (op.bind) { NF.bindValue(op.bind, val(op.val)); NF.render(); return; }
+    if (op.act) NF.act(op.act, val(op.val));
+  });
 }
 /* Každý krok animace ověří, že běh stále platí (skok na scénu ho zruší); chyba krok ukončí a odemkne tlačítka (P1, 6. 10. 2026). */
 function runAnimated(step, done) {

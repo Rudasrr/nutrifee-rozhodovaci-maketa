@@ -80,3 +80,21 @@ body.pres-nurse .split{grid-template-columns:1fr 380px}
 /* stav ukládání rozhodnutí garanta */
 .sync-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:#fff}
 .sync-badge.ok{color:#2f7d4f;border-color:#bfe0cb}.sync-badge.warn{color:#8a5a00;border-color:#e3c48a;background:#fff7ea}
+
+/* přihlašovací stránka (demo/auth.js) a výsledky garanta (demo/results.js) */
+.gate{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg)}
+.gate-card{width:min(460px,100%);padding:28px 30px 24px}
+.gate-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:21px;letter-spacing:-.4px;margin:0 0 12px}
+.gate h1{font-size:26px;margin:14px 0 8px}
+.gate .field{display:block;margin:14px 0}
+.gate .field span{display:block;font-size:13px;font-weight:750;color:var(--muted);margin-bottom:5px}
+.gate input{width:100%;box-sizing:border-box;min-height:48px;font:inherit;font-size:16px;padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.gate input:focus{outline:3px solid #26303a;outline-offset:2px}
+.gate .error.soft{background:var(--sand,#faf6ef);color:inherit;border-color:#e6dccb}
+.stats{grid-template-columns:repeat(4,1fr);margin:12px 0 6px}
+.stats .stat b{display:block;font-size:22px;line-height:1.1;margin-bottom:2px}
+.results .res{padding:10px 0;border-top:1px solid var(--line)}
+.results .res-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.results .res-head .tag{flex:none}
+.results .res-comment{margin-top:4px;font-style:italic}
+@media (max-width:700px){.stats{grid-template-columns:1fr 1fr}}
