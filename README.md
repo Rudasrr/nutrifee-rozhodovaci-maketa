@@ -9,7 +9,7 @@ nebo odmítá.
 **Není klinický nástroj, není validovaná, neobsahuje skutečná data.** Všude je označení
 „DEMO · syntetická data · není určeno pro léčbu“.
 
-**https://rudasrr.github.io/nutrifee-rozhodovaci-maketa/** — statická stránka, bez backendu, nic se neodesílá.
+**https://rudasrr.github.io/nutrifee-rozhodovaci-maketa/** — statická stránka na GitHub Pages; ukládá jen neformální rozhodnutí garanta k maketě (viz `demo/sync.js`).
 
 ## Spuštění
 
@@ -37,7 +37,7 @@ cd maketa-rozhodovaci && node nutrifee-rozhodovaci-maketa.test.cjs
    schválené předem; lékař-garant může kdykoli schválit / upravit / zamítnout s komentářem, rozhodnutí platí
    okamžitě a historie jen přibývá.
 5. **Lékař mezi kontrolami nic nedělá.** Nemoc ukončuje pacient, výpadek dat končí sám.
-6. **Nic se neodesílá, žádná generativní AI ve výpočtech.** Stopa s vstupy a výstupy je exportovatelná.
+6. **Žádná generativní AI ve výpočtech;** vše deterministické a dohledatelné ve stopě. Ostrý provoz ukládá data na zabezpečený server studie; maketa ukládá jen neformální rozhodnutí garanta.
 7. **V ordinaci se nepíše** — výběr, zaškrtnutí, volič.
 8. **Pacient vidí výsledek, dostane poděkování a vidí cíl.** Po příchodu dat karta „Jak to dopadlo“, poděkování za čin
    (ne za hodnotu glukózy), jednorázové milníky za snahu, karta „Cesta ke kontrole“ (dní do kontroly, známá jídla X z N),

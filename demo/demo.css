@@ -77,3 +77,6 @@ body.pres-nurse .split{grid-template-columns:1fr 380px}
 
 /* Rozhodovací krok garanta, režim mimo příběh, přehled dějství (7. 10. 2026) */
 .tour-panel.tour-decide{border-color:#7a6a99}.garant.decide{border-top:0;padding-top:0;margin-top:6px}.garant.decide .gitem{background:#fff}.garant.decide .gb{padding:0 12px 12px}.garant.decide .guide h4{color:#5e4f80}.tour-away{background:#fff7ea;border-color:#e3c48a}.tour-act{margin:8px 0 0}.tour-act summary{font-size:13px;font-weight:700;color:#5e4f80}.tour-act ol{margin:6px 0 0;padding-left:18px}.tour-act li{margin:3px 0}
+/* stav ukládání rozhodnutí garanta */
+.sync-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:#fff}
+.sync-badge.ok{color:#2f7d4f;border-color:#bfe0cb}.sync-badge.warn{color:#8a5a00;border-color:#e3c48a;background:#fff7ea}

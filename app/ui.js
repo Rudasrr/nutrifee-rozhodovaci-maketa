@@ -346,18 +346,10 @@ var A = {
     S.reg.params = null; S.reg.off = null; S.reg.editing = false;
     toast('Rozhodnutí je uložené a hned platí v aplikaci.');
   },
-  exportTrace: function () { download('nutrifee-stopa.json', NF.exportTrace(S)); toast('Stopa je připravená ke stažení.'); },
-  exportRegistry: function () { download('nutrifee-registr.json', JSON.stringify(S.registry, null, 2)); toast('Registr je připravený ke stažení.'); },
   traceOpen: function (v) { S.traceOpen = S.traceOpen === v ? null : v; }
 };
 NF.actions = A;
 
-function download(name, text) {
-  try {
-    var blob = new global.Blob([text], { type: 'application/json;charset=utf-8' });
-    var a = global.document.createElement('a'); a.href = global.URL.createObjectURL(blob); a.download = name; a.click(); global.URL.revokeObjectURL(a.href);
-  } catch (err) { fail('Stažení není v tomto prostředí dostupné.'); }
-}
 function act(name, value) {
   var fn = A[name] || (NF.demoActions && NF.demoActions[name]);
   if (!fn) return;

@@ -202,7 +202,7 @@ T.chapters = {
   },
   trace: {
     intro: { t: 'Co jsme viděli a co potřebujeme od vás', co: 'Dávku určuje jen lékař. Pacient drží obvyklou porci, aplikace se učí z jeho jídel. Lékař na kontrole jen schvaluje; každé pravidlo je položka registru a stopa ji dokládá.', vsimni: 'Stopa: každý výpočet, rada, návrh a rozhodnutí se vstupy a výstupy, k exportu.', proc: 'Důkaz, že do výpočtů nezasahuje generativní AI a vše je dohledatelné.' },
-    steps: [{ do: [{ sel: 'table' }], t: 'Stopa a výzva', co: 'Řádky „rada.zobrazena“, „navrh.rozhodnut“, „registr.rozhodnuti“; tlačítko „data“ rozbalí přesné vstupy.', vsimni: 'Od vás potřebujeme: rozhodnout položky registru (potvrdit, upravit, zamítnout, okomentovat). Nic se neodesílá samo — až budete hotov, otevřete „Ke schválení“ v liště, klepněte na „Exportovat JSON“ a soubor pošlete zpět tomu, kdo vám odkaz poslal.', dusledek: 'Hlavní linie končí. Dál je dodatek: zaučení se nezdařilo, pacient rady nepřijal, „nemám to doma“.' }]
+    steps: [{ do: [{ sel: 'table' }], t: 'Stopa a výzva', co: 'Řádky „rada.zobrazena“, „navrh.rozhodnut“, „registr.rozhodnuti“; tlačítko „data“ rozbalí přesné vstupy.', vsimni: 'Od vás potřebujeme: rozhodnout položky registru (potvrdit, upravit, zamítnout, okomentovat). Rozhodnutí se ukládají průběžně, nic nemusíte posílat, a kdykoli je můžete změnit. Jsou neformální — pro ostrý provoz se vše podepisuje znovu.', dusledek: 'Hlavní linie končí. Dál je dodatek: zaučení se nezdařilo, pacient rady nepřijal, „nemám to doma“.' }]
   }
 };
 

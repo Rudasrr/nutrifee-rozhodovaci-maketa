@@ -113,13 +113,17 @@ test('Lékař mezi kontrolami nic nedělá', () => {
   assert.equal(/resumeTask/.test(src), false);
 });
 
-test('Nic se neodesílá, žádná AI, žádná síť', () => {
-  for (const f of [...CORE, ...DEMO]) {
-    const src = fs.readFileSync(path.join(__dirname, f), 'utf8');
-    assert.equal(/fetch\(|XMLHttpRequest|WebSocket|navigator\.sendBeacon|openai|anthropic|claude|gpt/i.test(src), false, f);
-  }
-  const bad = /zpráva odeslána|odesláno ordinaci|lékař upozorněn|sledujeme vás/i;
-  everyScreen((m, w) => assert.equal(bad.test(m), false, w));
+test('Jádro bez sítě a bez generativní AI; síť volá jen demo/sync.js (rozhodnutí garanta do Supabase)', () => {
+  for (const f of CORE) { const src = fs.readFileSync(path.join(__dirname, f), 'utf8'); assert.equal(/fetch\(|XMLHttpRequest|WebSocket|navigator\.sendBeacon/i.test(src), false, f); }
+  for (const f of [...CORE, ...DEMO]) { const src = fs.readFileSync(path.join(__dirname, f), 'utf8'); assert.equal(/openai|anthropic|claude|gpt/i.test(src), false, f); if (f !== 'demo/sync.js') assert.equal(/fetch\(/.test(src), false, f + ' volá síť mimo sync.js'); }
+  assert.equal(/url\(|@import/.test(fs.readFileSync(path.join(__dirname, 'app/design.css'), 'utf8')), false);
+  /* rozhodnutí garanta jde do fronty hned; bez nastaveného úložiště čeká a lišta to říká; export není */
+  act('goScene', '19'); act('closeDrawer'); const before = D.sync.pending();
+  act('garantDecide', 'R-PORADI:approved'); assert.equal(D.sync.pending(), before + 1);
+  bind('form.gc_R-SKORE', 'poznámka'); act('garantComment', 'R-SKORE'); assert.equal(D.sync.pending(), before + 2);
+  const r = D.sync.row(JSON.parse(store.get('nutrifee-sync-queue')).slice(-1)[0]); assert.equal(r.kind, 'comment'); assert.equal(r.item, 'R-SKORE'); assert.equal(r.comment, 'poznámka'); assert.ok(r.client && r.at && r.schema === NF.SCHEMA);
+  assert.match(markup(), /ukládání nenastaveno/); assert.equal(/export/i.test(markup()), false);
+  act('role', 'doctor'); act('page', 'registry'); assert.equal(/Exportovat/.test(markup()), false); assert.equal(/Exportovat/.test((act('page', 'trace'), markup())), false);
 });
 
 test('Pacientské texty jsou bez rodu (vykání, žádné příčestí „zkusil/zapsal“, žádné „nemocný“)', () => {
@@ -848,15 +852,14 @@ test('Průchod pro garanta: rozhodovací krok na konci scény s celým popisem, 
   act('role', 'patient'); assert.match(markup(), /mimo příběh/); act('tourReturn'); assert.equal(S().role, 'doctor');
 });
 
-test('Stopa má vstupy a výstupy výpočtů a jde exportovat', () => {
+test('Stopa má vstupy a výstupy výpočtů; bez exportu', () => {
   chapter('trace');
   const ev = S().events;
   assert.ok(ev.some(e => e.what === 'rada.zobrazena' && e.data && e.data.items));
   assert.ok(ev.some(e => e.what === 'kontrola.zahajena' && e.data.proposals));
   assert.ok(ev.some(e => e.what === 'registr.rozhodnuti'));
-  const json = JSON.parse(NF.exportTrace(S()));
-  assert.match(json.note, /generativní AI/);
-  assert.match(markup(), /Exportovat stopu/);
+  assert.match(markup(), /Verze a stopa/); assert.match(markup(), /bez generativní AI/);
+  assert.equal(/Export/.test(markup()), false, 'export zrušen 7. 10. 2026');
 });
 
 /* ---------- prezentace ---------- */

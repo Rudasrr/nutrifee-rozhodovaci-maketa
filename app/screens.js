@@ -129,7 +129,7 @@ V.takeover = function (S) {
     glass('<h2>Vaše dávky inzulinu</h2>' + dosesTable(p) + '<p class="small muted">Určil je lékař. My je jen připomínáme a ptáme se, jestli byl inzulin podaný. Nikdy je nepočítáme ani neměníme.</p>') +
     glass('<h2>Vaše návyky</h2><ul class="plain">' + habits.map(function (h) { return '<li><b>' + e(h.title) + '</b><br><span class="small muted">' + e(h.why) + '</span></li>'; }).join('') + '</ul>') +
     glass('<h2>Osobní pokyny od lékaře</h2><p class="small muted">Najdete je kdykoli v části Bezpečí. Platí i bez připojení.</p>' + instructionsList(S, p, true)) +
-    hint('<b>Co aplikace nedělá.</b> NutriFee vás průběžně nesleduje a nic neposílá do ordinace. Na nízkou či vysokou glukózu vás upozorňuje aplikace vašeho senzoru.', 'sand') +
+    hint('<b>Co aplikace nedělá.</b> NutriFee vás průběžně nesleduje a lékař zápisy nečte mezi kontrolami. Na nízkou či vysokou glukózu vás upozorňuje aplikace vašeho senzoru.', 'sand') +
     '<div class="actions">' + btn('Plán přebírám →', 'page', 'understand', 'primary big') + '</div>';
 };
 V.understand = function (S) {
@@ -313,7 +313,7 @@ V.today = function (S) {
       '<details class="more" style="margin-top:10px"><summary>Proč právě tyhle návyky</summary><ul class="plain small">' + habits.map(function (h) { return '<li><b>' + e(h.title) + '</b><br>' + e(h.why) + '</li>'; }).join('') + '</ul></details>');
   }
   out += pathCard(S, false);
-  out += hint('<b>Nic se neodesílá.</b> Zápisy zůstávají ve vašem telefonu; lékař je uvidí až s vámi na kontrole. Při potížích postupujte podle Bezpečí.', 'sand');
+  out += hint('<b>Zápisy nikdo průběžně nečte.</b> Lékař je uvidí až s vámi na kontrole. Při potížích postupujte podle Bezpečí.', 'sand');
   return out;
 };
 function habitDone(S, h, todayEps, basal) {
@@ -553,7 +553,7 @@ V.preview = function (S) {
     glass('<h2>Na co se zeptat lékaře</h2><p class="small muted">Klepněte na otázku, kterou si chcete vzít na kontrolu.</p><div class="choice-row" style="flex-direction:column">' +
       qs.map(function (q) { return choice(e(q), 'toggleQuestion', q, S.questions.some(function (x) { return x.text === q; })); }).join('') + '</div>' +
       '<details class="more" style="margin-top:10px"><summary>Chci se zeptat na něco jiného</summary><label class="field"><span>Vlastní otázka</span><textarea data-bind="form.question" placeholder="Napište vlastními slovy">' + e((S.form && S.form.question) || '') + '</textarea></label><div class="actions">' + btn('Uložit otázku', 'saveQuestion', null, 'primary') + '</div></details>') +
-    hint('<b>Nic se neodesílá.</b> Otázky a přehled uvidí lékař až s vámi v ordinaci.', 'sand');
+    hint('<b>Otázky a přehled uvidí lékař až s vámi v ordinaci.</b> Mezi kontrolami je nikdo nečte.', 'sand');
 };
 function tile(k, v, d, cls, key) { return '<button type="button" class="tile ' + cls + '" data-action="previewTile" data-value="' + key + '"><div class="k"><i></i>' + e(k) + '</div><div class="v">' + e(String(v)) + '</div><div class="d">' + e(d) + '</div></button>'; }
 function previewDetail(S, s, key) {

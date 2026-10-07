@@ -52,7 +52,7 @@ function reg() {
     A({ id: 'R-ZMIZELA', cat: 'rady', title: 'Věta o zmizelé radě', summary: 'Když garant radu zamítne a pacient ji dřív u jídla přijímal, dostane jednu neutrální větu. O garantovi se nemluví.', texts: { text: 'Radu „{lever}“ teď nenabízíme. Vaše dávky se tím nemění.' }, usedBy: 'před jídlem' }),
     A({ id: 'S-SEMAFOR', cat: 'report', title: 'Semafor TIR', summary: 'Zelená TIR > 70 % a pod cílem < 4 %; žlutá TIR 50–70 %; červená TIR < 50 % nebo pod cílem ≥ 4 % nebo pod 3,0 ≥ 1 %.', params: { tir_zelena: 70, tir_zluta: 50, tbr_max: 4, tbr3_max: 1 }, labels: { tir_zelena: 'zelená od času v cíli (%)', tir_zluta: 'žlutá od času v cíli (%)', tbr_max: 'pod dolním cílem nejvýš (%)', tbr3_max: 'pod 3,0 nejvýš (%)' }, usedBy: 'report' }),
     A({ id: 'P-NEMOC', cat: 'provoz', title: 'Režim nemoci', summary: 'Pacient označí nemoc sám; zápisy se štítkují a nepočítají; žádné rady k jídlu, jen pokyny lékaře; denní dotaz „už je vám lépe?“; ukončuje pacient. Po 3 dnech nemoci karta s pokynem lékaře k trvání nemoci; delší období nemoci jsou v reportu zvlášť.', params: { dny: 3 }, labels: { dny: 'karta s pokynem po (dnech nemoci)' }, usedBy: 'Dnes, rady, report' }),
-    A({ id: 'P-LEKAR', cat: 'provoz', title: 'Lékař mezi kontrolami nic nedělá', summary: 'Všechny akce lékaře probíhají jen s pacientem v ordinaci. Nic se neodesílá, nikdo nesleduje.', usedBy: 'celá aplikace' })
+    A({ id: 'P-LEKAR', cat: 'provoz', title: 'Lékař mezi kontrolami nic nedělá', summary: 'Všechny akce lékaře probíhají jen s pacientem v ordinaci. Mezi kontrolami pacienta nikdo nesleduje.', usedBy: 'celá aplikace' })
   ];
 }
 

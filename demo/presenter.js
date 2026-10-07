@@ -77,7 +77,7 @@ NF.registerSlot('banner', function (s) {
     btn('← Zpět', 'tourBack', null, '', (i === 0 && !(s.tourStep || 0) ? ' disabled' : '') + ' aria-label="Krok zpět"') +
     btn('Další ▶', 'tourNext', null, 'primary') +
     (i < lastIndex() ? btn('Přeskočit scénu ⏭', 'storyStep', '1') : '') +
-    btn(sum.remaining ? 'Ke schválení · zbývá ' + sum.remaining : 'Vše rozhodnuto · exportovat', 'openAside', 'registry', sum.remaining ? '' : 'ok') +
+    btn(sum.remaining ? 'Ke schválení · zbývá ' + sum.remaining : 'Vše rozhodnuto', 'openAside', 'registry', sum.remaining ? '' : 'ok') + (NF.slots.syncBadge ? NF.slots.syncBadge(s) : '') +
     btn('Panel prezentujícího', 'openPresenter') + btn('Vrátit na začátek', 'resetDemo') + '</div>' + panel(s);
 });
 
@@ -197,7 +197,7 @@ function decideBlock(s, ids) {
   var firstOpen = items.filter(function (r) { return !NF.itemTouched(s, r.id); })[0] || items[0];
   var open = s.gOpen && ids.indexOf(s.gOpen) >= 0 ? s.gOpen : (firstOpen ? firstOpen.id : null);
   var left = items.filter(function (r) { return !NF.itemTouched(s, r.id); }).length;
-  return '<div class="garant decide"><p class="small">' + (left ? 'U každé položky: proč existuje, jak funguje, kde ji uvidíte, co schvalujete a co se stane při zamítnutí. Rozhodnout můžete teď, nebo později přes „Ke schválení“ v liště.' : 'Všechny položky této scény jsou rozhodnuté.') + (idx === mainSceneOf('trace') ? ' <b>Až budete hotov se vším:</b> otevřete „Ke schválení“ v liště a klepněte na „Exportovat JSON“ — soubor s vašimi rozhodnutími a komentáři pošlete zpět. Aplikace nic neodesílá sama; rozhodnutí jsou uložená jen v tomto prohlížeči.' : '') + '</p>' +
+  return '<div class="garant decide"><p class="small">' + (left ? 'U každé položky: proč existuje, jak funguje, kde ji uvidíte, co schvalujete a co se stane při zamítnutí. Rozhodnout můžete teď, nebo později přes „Ke schválení“ v liště.' : 'Všechny položky této scény jsou rozhodnuté.') + (idx === mainSceneOf('trace') ? ' <b>Hotovo.</b> Rozhodnutí i komentáře se průběžně ukládají, nic nemusíte posílat; cokoli můžete později změnit přes „Ke schválení“ v liště.' : '') + '</p>' +
     items.map(function (r) { return gitem(s, r, open === r.id); }).join('') + '</div>';
 }
 /* Výhled: co garant v této scéně bude schvalovat (místo dřívějšího bloku na každém kroku). */
