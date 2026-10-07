@@ -384,7 +384,7 @@ D.play = function (index, branches) {
   if (branches) Object.keys(branches).forEach(function (k) { if (branches[k]) B[k] = branches[k]; });
   var S = NF.createState(); NF.resetUid(); S.branches = B; setup(S);
   if (D.beforePlay) D.beforePlay(S); /* rozhodnutí garanta platí dřív, než kapitoly spočítají report a návrhy */
-  var stop = B.training === 'failed' ? D.indexOf('handover') : idx;
+  var stop = B.training === 'failed' ? Math.min(idx, D.indexOf('handover')) : idx; /* bez zaučení příběh končí u převzetí; scéna sestry se ale přehraje jako sestra (7. 10. 2026) */
   for (var i = 0; i < stop; i++) { S.clock = CH[i].at; if (CH[i].setup) CH[i].setup(S, B); if (CH[i].apply) CH[i].apply(S, B); }
   var ch = CH[stop];
   S.clock = ch.at; if (ch.setup) ch.setup(S, B);

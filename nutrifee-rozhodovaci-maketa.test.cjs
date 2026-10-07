@@ -481,7 +481,7 @@ test('Rady svázané s plánem: výměna rady má účinek; návrhy beze změny 
   assert.ok(d.advice.off.includes(pr.lever) && d.advice.prefer.length >= 1, 'vypnutá rada a náhrada v plánu');
   assert.match(markup(), /vypnuto/); assert.match(markup(), /nabízet přednostně/);
   act('issueP2'); assert.deepEqual(NF.activePlan(S()).advice, d.advice);
-  act('role', 'patient'); assert.match(markup(), /lékař ji vypnul/); act('confirmUnderstanding');
+  act('role', 'patient'); assert.match(markup(), /lékař (ji|je) vypnul/); act('confirmUnderstanding');
   const k = food('Ovesná kaše s mlékem a banánem').id, items = NF.advise(S(), k, 'usual', 'before').items.map(i => i.lever);
   assert.equal(items.includes(pr.lever), false, 'vypnutá rada se nenabízí'); assert.ok(items.includes(NF.activePlan(S()).advice.prefer[0]), 'náhradní rada se nabízí');
   act('page', 'plan'); assert.match(markup(), /lékař vypnul/);
@@ -816,7 +816,7 @@ test('Stopa má vstupy a výstupy výpočtů a jde exportovat', () => {
   assert.ok(ev.some(e => e.what === 'registr.rozhodnuti'));
   const json = JSON.parse(NF.exportTrace(S()));
   assert.match(json.note, /generativní AI/);
-  assert.match(markup(), /Export stopy/);
+  assert.match(markup(), /Exportovat stopu/);
 });
 
 /* ---------- prezentace ---------- */

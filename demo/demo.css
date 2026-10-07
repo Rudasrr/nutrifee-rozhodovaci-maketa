@@ -71,3 +71,6 @@ body.pres-nurse .split{grid-template-columns:1fr 380px}
 .garant .gb p{margin:4px 0}
 .garant .field{margin-top:6px}
 .pres-bar .btn.ok{background:var(--okbg);color:var(--oktx);border-color:#bfe0cb}
+
+/* S otevřeným panelem vyprávění zbývá lékaři a sestře méně místa: do 1560 px jeden sloupec (7. 10. 2026). */
+@media (max-width:1560px){.tour-panel~main .grid2,.tour-panel~main .reg,.tour-panel~main .split{grid-template-columns:1fr}.tour-panel~main .reg-side{position:static}.tour-panel~main .phone-preview{position:static;max-width:440px;margin:0 auto}}

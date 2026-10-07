@@ -371,7 +371,7 @@ V.acute = function (S) {
 V.trace = function (S) {
   var ev = S.events.slice().reverse().slice(0, 80);
   return pagehead('Verze a stopa', 'Co aplikace udělala a proč', 'Každý výpočet, rada, návrh a rozhodnutí se vstupy a výstupy. Deterministické, bez sítě, bez generativní AI.',
-    '<div class="actions" style="margin:0">' + btn('Export stopy (JSON)', 'exportTrace', null, 'primary sm') + '</div>') +
+    '<div class="actions" style="margin:0">' + btn('Exportovat stopu (JSON)', 'exportTrace', null, 'primary sm') + '</div>') +
     card('<div class="grid2"><div><h3>Plány</h3><ul class="plain small">' + (S.plans.length ? S.plans.map(function (p) { return '<li><b>' + e(p.id) + '</b> ' + tag(p.state === 'issued' ? 'platí' : 'starší', p.state === 'issued' ? 'ok' : '') + ' · ' + e(NF.fmtShort(p.issuedAt)) + ' · S/O/V ' + p.doses.breakfast.units + '/' + p.doses.lunch.units + '/' + p.doses.dinner.units + ' j. · 🌙 bazál ' + p.doses.basal.units + ' j.</li>'; }).join('') : '<li class="muted">Žádný plán.</li>') + '</ul></div>' +
       '<div><h3>Návyky</h3><ul class="plain small">' + (S.habits.length ? S.habits.map(function (h) { return '<li>' + e(h.title) + ' ' + tag(h.state) + ' · ' + e(h.planId) + '</li>'; }).join('') : '<li class="muted">Žádné.</li>') + '</ul></div></div>') +
     card('<h3>Stopa (' + S.events.length + ' záznamů, posledních 80)</h3><div class="tablewrap"><table><thead><tr><th>Čas</th><th>Kdo</th><th>Událost</th><th>Podrobnost</th><th></th></tr></thead><tbody>' +
