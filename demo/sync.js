@@ -25,12 +25,25 @@ function row(x) {
   return { id: x.client + ':' + x.id, kind: x.kind, item: x.item, title: x.title, status: x.status, params: x.params, text: x.text, off: x.off, comment: x.comment, decided_by: x.by,
     model_at: x.modelAt, at: x.at, scene: x.scene, scene_title: x.sceneTitle, schema: x.schema, client: x.client, note: x.note };
 }
+function post(rows) {
+  var c = D.syncConfig;
+  return global.fetch(c.url.replace(/\/$/, '') + '/rest/v1/' + c.table, { method: 'POST', mode: 'cors', headers: { 'Content-Type': 'application/json', 'apikey': c.key, 'Authorization': 'Bearer ' + c.key, 'Prefer': 'return=minimal' }, body: JSON.stringify(rows.map(row)) });
+}
+/* 409 = řádek s tímto id už v tabulce je (opakované odeslání po výpadku) → považujeme za uložený. U dávky pošleme řádky jednotlivě. */
+function sendBatch(batch) {
+  return post(batch).then(function (res) {
+    if (res.ok) return;
+    if (res.status !== 409) throw new Error('HTTP ' + res.status);
+    if (batch.length === 1) return;
+    return batch.reduce(function (p, x) { return p.then(function () { return sendBatch([x]); }); }, Promise.resolve());
+  });
+}
 function flush() {
   if (sending || !queue.length || !configured() || typeof global.fetch !== 'function') { return; }
   sending = true;
-  var c = D.syncConfig, batch = queue.slice(0, 20);
-  global.fetch(c.url.replace(/\/$/, '') + '/rest/v1/' + c.table, { method: 'POST', mode: 'cors', headers: { 'Content-Type': 'application/json', 'apikey': c.key, 'Authorization': 'Bearer ' + c.key, 'Prefer': 'return=minimal' }, body: JSON.stringify(batch.map(row)) })
-    .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); queue = queue.slice(batch.length); lastOk = new Date().toISOString(); lastErr = null; save(); })
+  var batch = queue.slice(0, 20);
+  sendBatch(batch)
+    .then(function () { queue = queue.slice(batch.length); lastOk = new Date().toISOString(); lastErr = null; save(); })
     .catch(function (err) { lastErr = String(err && err.message || err); })
     .then(function () { sending = false; if (NF.render) NF.render(); if (queue.length && !lastErr) flush(); });
 }

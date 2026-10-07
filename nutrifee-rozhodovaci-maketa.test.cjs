@@ -122,7 +122,8 @@ test('Jádro bez sítě a bez generativní AI; síť volá jen demo/sync.js (roz
   act('garantDecide', 'R-PORADI:approved'); assert.equal(D.sync.pending(), before + 1);
   bind('form.gc_R-SKORE', 'poznámka'); act('garantComment', 'R-SKORE'); assert.equal(D.sync.pending(), before + 2);
   const r = D.sync.row(JSON.parse(store.get('nutrifee-sync-queue')).slice(-1)[0]); assert.equal(r.kind, 'comment'); assert.equal(r.item, 'R-SKORE'); assert.equal(r.comment, 'poznámka'); assert.ok(r.client && r.at && r.schema === NF.SCHEMA);
-  assert.match(markup(), /ukládání nenastaveno/); assert.equal(/export/i.test(markup()), false);
+  const st = D.sync.status(); assert.equal(st.configured, true, 'Supabase je nastaveno v demo/sync-config.js'); assert.match(D.syncConfig.url, /^https:\/\/[a-z]+\.supabase\.co$/); assert.match(D.syncConfig.key, /^sb_publishable_/); assert.equal(D.syncConfig.table, 'garant_rozhodnuti');
+  assert.match(markup(), /neuloženo: \d+/, 'bez sítě (test) čekají rozhodnutí ve frontě'); assert.equal(/export/i.test(markup()), false);
   act('role', 'doctor'); act('page', 'registry'); assert.equal(/Exportovat/.test(markup()), false); assert.equal(/Exportovat/.test((act('page', 'trace'), markup())), false);
 });
 
