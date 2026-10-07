@@ -46,9 +46,11 @@ cd maketa-rozhodovaci && node nutrifee-rozhodovaci-maketa.test.cjs
 ## Průchod ukázkou
 
 Tlačítko **Další ▶** (nebo šipka vpravo) odehraje jeden krok za lékaře, sestru nebo pacienta a panel
-vyprávění řekne, co se děje, čeho si všimnout, proč a co z toho plyne. **Panel prezentujícího** nabízí
-kapitoly a odbočky (zaučení se nezdařilo · po píchnutí: větší / menší porce / nevím · jak pacient s radami
-naložil). Lékař a sestra jsou na desktopu, pacient v rámečku telefonu.
+vyprávění řekne, co se děje, čeho si všimnout, proč a co z toho plyne. Ukázka začíná prologem (k čemu
+NutriFee je) a končí shrnutím s výzvou garantovi; varianty (zaučení se nezdařilo · jak pacient s radami
+naložil) jsou v dodatku za finále, případy „menší porce“ a „nevím“ po píchnutí jsou kroky jedné scény.
+**Panel prezentujícího** nabízí skok na scénu i volbu varianty. Lékař a sestra jsou na desktopu, pacient
+v rámečku telefonu.
 
 | Dějství | Co ukazuje |
 |---|---|
