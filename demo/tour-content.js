@@ -18,7 +18,7 @@ T.chapters = {
       { do: [{ sel: '.card:first-of-type' }], t: 'Karta pacienta', co: 'Diagnóza, léčba, režim, senzor, HbA1c 62 — načteno z karty.', vsimni: '„Jen inzulin, pevné dávky“ — na tom celý návrh stojí.', proc: 'Učit se z reakcí na jídlo má smysl jen tehdy, když se dávka mezi dny nemění.' },
       { do: [{ sel: '[data-value="adult"]', act: 'eligibility', val: 'adult', quick: true }, { sel: '[data-value="insulinOnly"]', act: 'eligibility', val: 'insulinOnly', quick: true }, { sel: '[data-value="regimen"]', act: 'eligibility', val: 'regimen', quick: true }, { sel: '[data-value="cgm"]', act: 'eligibility', val: 'cgm', quick: true }], watch: '.hint.ok',
         t: 'Čtyři podmínky zařazení', co: 'Lékař je postupně potvrdil. Dokud chyběla jediná, tlačítko „Pokračovat“ bylo zamčené.', vsimni: 'Zelené potvrzení nese štítek „✓ Podmínky zařazení“ — odkaz do schvalovacího registru.', proc: 'Aplikace nedovolí pokračovat s pacientem, pro kterého není určená.', dusledek: 'Spodní lišta říká, co je další krok.' },
-      { do: [{ sel: '.nextbar .btn.primary', act: 'wizardGo', val: '1' }], t: 'Další krok', co: 'Otevřel se krok 2: dávky, návyky a pokyny.' }
+      { do: [{ sel: '.nextbar .btn.primary', act: 'wizardGo', val: '1' }], t: 'Krok 2: dávky, návyky a pokyny', co: 'Otevřel se krok 2 zařazení. Lékař tu zadá dávky, projde návyky a pokyny.' }
     ]
   },
   doses: {
@@ -28,13 +28,13 @@ T.chapters = {
       { do: [{ sel: '[data-bind="draft.medicationChecked"]', bind: 'draft.medicationChecked', val: true }], t: 'Ověření dávek s pacientem', co: 'Lékař potvrdil, že pacient bere jen inzulin.', quick: true },
       { do: [{ sel: '.habit-opt.on' }], t: 'Startovní sada návyků', co: 'Zapisovat hlavní jídla · držet obvyklou porci · potvrzovat inzulin · bazál večer. Předvybrané, se štítkem „startovní sada“.', vsimni: 'U každého návyku je věta „proč“ — tu uvidí i pacient.', proc: 'Stejný start pro všechny umožní porovnat pacienty napříč studií. Personalizace přijde z dat na první kontrole.' },
       { do: [{ sel: '.instr' }], t: 'Osobní pokyny s hodnotami', co: 'Nízká glukóza pod 3,9 · méně jídla → změřte za 60 min · nemoc → měřte každé 3 h · kdy volat. Hodnoty i cíle glukózy (3,9–10,0, ráno do 7,2, čas v cíli 70 %) lékař mění voličem.', vsimni: '„Snězte víc“ nikdy neřekne aplikace; pokyn „méně jídla než obvykle“ je od lékaře.', proc: 'Při nízké glukóze rozhoduje pokyn lékaře, ne aplikace.' },
-      { do: [{ sel: '[data-bind="draft.instructionsChecked"]', bind: 'draft.instructionsChecked', val: true }, { sel: '.nextbar .btn.primary', act: 'wizardGo', val: '2' }], t: 'Pokyny probrány → shrnutí', co: 'Vše je připravené, spodní lišta se odemkla a lékař pokračuje k vydání.' }
+      { do: [{ sel: '[data-bind="draft.instructionsChecked"]', bind: 'draft.instructionsChecked', val: true }, { sel: '.nextbar .btn.primary', act: 'wizardGo', val: '2' }], t: 'Krok 3: shrnutí před vydáním', co: 'Vše je připravené, spodní lišta se odemkla a lékař pokračuje k vydání.' }
     ]
   },
   issue: {
     intro: { t: 'Vydání plánu', co: 'Shrnutí na jedné obrazovce: dávky, cíle, návyky, pokyny. Jedno tlačítko.', vsimni: 'U cílů glukózy i startovní sady je značka „✓“ položky registru.', proc: 'Nevratný krok má potvrzení jednou větou, co se stane.' },
     steps: [
-      { do: [{ sel: '.nextbar .btn.primary', act: 'issuePlan' }], t: 'Lékař vydá plán P1', co: 'Plán je vydaný a obrazovka se přepnula k sestře.', vsimni: 'Lékař nic nezaučuje. Rozhodl, vydal — a do kontroly už nic nedělá.', dusledek: 'Návyky pacientovi ještě neplatí. Začnou po zaučení a jedné otázce.' }
+      { do: [{ sel: '.nextbar .btn.primary', act: 'issuePlan' }], t: 'Plán P1 vydán, obrazovka sestry', co: 'Plán je vydaný a obrazovka se přepnula k sestře.', vsimni: 'Lékař nic nezaučuje. Rozhodl, vydal — a do kontroly už nic nedělá.', dusledek: 'Návyky pacientovi ještě neplatí. Začnou po zaučení a jedné otázce.' }
     ]
   },
   training: {
@@ -53,7 +53,7 @@ T.chapters = {
     intro: { t: 'Pacient přebírá plán na telefonu', co: 'Rámeček telefonu: karta „Co teď“, co chceme do kontroly, dávky, návyky s „proč“, pokyny lékaře.', vsimni: 'Karta „Co teď“ je na každé obrazovce: pacient vždy ví, co má udělat.', proc: 'Cíl je jíst ke své dávce pokaždé podobně. Aplikace se z jeho zápisů učí, jak tělo reaguje na jeho jídla; pacient nic nepočítá.' },
     steps: [
       { do: [{ sel: '.patient .glass:nth-of-type(2)' }], t: 'Dávky inzulinu', co: 'Snídaně 8, oběd 10, večeře 8 j.; bazál 18 j. na noc odděleně dole.', proc: 'Pacient vidí lékařův předpis. Aplikace ho bude připomínat.' },
-      { do: [{ sel: '[data-action="page"][data-value="understand"]', act: 'page', val: 'understand' }], t: 'Plán přebírám', co: 'Otevřela se jedna závěrečná otázka.' },
+      { do: [{ sel: '[data-action="page"][data-value="understand"]', act: 'page', val: 'understand' }], t: 'Závěrečná otázka', co: 'Po „Plán přebírám“ se otevřela jedna závěrečná otázka.' },
       { do: [{ sel: '[data-value="yes"]', act: 'answerCheck', val: 'yes' }], watch: '.hint.warn', t: 'Špatná odpověď nic nezkazí', co: '„Ano, hned“ — aplikace vysvětlí, že zápis není zpráva do ordinace. Tlačítko „Začít“ zůstává zamčené.', proc: 'Kdyby pacient čekal, že ho někdo sleduje, čekal by na pomoc, která nepřijde.' },
       { when: function (B) { return B.training !== 'failed'; }, do: [{ sel: '[data-value="no"]', act: 'answerCheck', val: 'no' }, { sel: '[data-action="confirmUnderstanding"]', act: 'confirmUnderstanding' }], t: 'Správně → plán platí', co: 'Pacient odchází z ordinace s aktivními návyky.', dusledek: 'Od zítřka otevírá aplikaci před snídaní.' },
       { when: function (B) { return B.training === 'failed'; }, do: [{ sel: '[data-value="no"]', act: 'answerCheck', val: 'no' }], watch: '.hint.warn', t: 'Správně, ale bez zaučení to nejde', co: 'Tlačítko zůstává zamčené: zaučení u sestry nebylo dokončeno, návyky nezačnou platit.', proc: 'Aplikace nedovolí začít pacientovi, který ji neumí ovládat.', dusledek: 'Dodatek pokračuje variantami kontroly: pacient rady většinou nepřijal a „nemám to doma“.' }
@@ -63,7 +63,7 @@ T.chapters = {
     intro: { t: 'První snídaně: tři kroky', co: '6. října ráno. Krok 1 je vždy inzulin, krok 2 jídlo a porce, krok 3 rada a zápis.', vsimni: 'Tlačítko „Další“ je zamčené, dokud pacient neodpoví; nic se nepíše, jen se volí.', proc: 'Odpověď na inzulin rozhoduje, které rady jsou dovolené. Proto přichází dřív, než pacient něco vidí.' },
     steps: [
       { do: [{ sel: '.insulin' }], t: 'Připomínka předepsané dávky', co: '„Lékař předepsal · 8 j. ke snídani · my jen připomínáme.“', proc: 'Aplikace dávku nepočítá. Zobrazí ji a zeptá se, jestli byla podaná.' },
-      { do: [{ sel: '[data-action="mealBolus"][data-value="before"]', act: 'mealBolus', val: 'before' }, { sel: '[data-action="mealStep"][data-value="2"]', act: 'mealStep', val: '2' }], t: '„Ještě ne“ → krok 2', co: 'Pacient si ještě nepíchl. Přechází na výběr jídla.' },
+      { do: [{ sel: '[data-action="mealBolus"][data-value="before"]', act: 'mealBolus', val: 'before' }, { sel: '[data-action="mealStep"][data-value="2"]', act: 'mealStep', val: '2' }], t: 'Krok 2: výběr jídla', co: 'Pacient odpověděl „Ještě ne“, inzulin si ještě nepíchl. Vybírá jídlo.' },
       { do: [{ sel: '[data-bind="meal.q"]', bind: 'meal.q', val: 'kaše', type: true, live: true }], watch: '.food-grid', t: 'Hledání napsáním pár písmen', co: 'Napíše „kaše“ a vidí jídla ze seznamu ~200 českých jídel.', vsimni: 'U každého jídla štítek úrovně: teď všude „Neznámé jídlo“ · zapsáno 0×.', proc: 'Žádná čísla, žádná makra. Jídlo se vybírá jménem.' },
       { do: [{ sel: foodSel('Ovesná kaše s mlékem a banánem'), act: 'mealFood', val: foodId('Ovesná kaše s mlékem a banánem') }, { sel: '[data-action="mealPortion"][data-value="usual"]', act: 'mealPortion', val: 'usual' }, { sel: '[data-action="mealStep"][data-value="3"]', act: 'mealStep', val: '3' }],
         t: 'Kaše, obvyklá porce → krok 3', co: 'Aplikace ukáže, co o kaši ví: nic.', vsimni: '„Nic neodhadujeme.“ Žádné číslo. Prstenec učení 0/3.', proc: 'Třetí úroveň jistoty — neznámé jídlo. Odhad bez dat by byl předpověď bez opory.' },
@@ -127,7 +127,7 @@ T.chapters = {
     intro: { t: 'Jídlo během nemoci', co: 'Pacient si chystá menší porci kaše, píchl si podle plánu.', vsimni: 'Žádná rada k jídlu, ani doplněk a pořadí; jen pokyn lékaře.', proc: 'V nemoci tělo reaguje jinak; rady postavené na běžných dnech by neseděly.' },
     steps: [
       { do: [{ sel: '.hint.sand' }], t: 'Jen bezpečné rady', co: '„Při nemoci nabízíme jen rady, které nemění množství jídla.“ K menší porci žádná rada — jen odkaz na pokyn lékaře.', proc: 'Zápisy z nemoci se štítkují a do učení nevstupují; lékař je v reportu uvidí zvlášť.' },
-      { do: [{ sel: '[data-action="mealFinish"][data-value="as"]', act: 'mealFinish', val: 'as' }], t: 'Uložit', co: 'Zápis má štítek „z doby nemoci — nezapočítáno“.' }
+      { do: [{ sel: '[data-action="mealFinish"][data-value="as"]', act: 'mealFinish', val: 'as' }], t: 'Zápis uložen se štítkem nemoci', co: 'Zápis má štítek „z doby nemoci — nezapočítáno“.' }
     ]
   },
   recovery: {
@@ -141,14 +141,14 @@ T.chapters = {
     steps: [
       { do: [{ sel: '.reg-side .card' }], t: 'Položka R-PORADI', co: 'Co dělá, text pro pacienta, kde se používá, historie rozhodnutí.', vsimni: 'Tlačítka Schválit / Upravit / Zamítnout / Jen komentář. Rozhodnutí se uloží okamžitě; komentář stav nemění.' },
       { do: [{ sel: '[data-bind="form.regcomment_R-PORADI"]', bind: 'form.regcomment_R-PORADI', val: 'Upřesněn text: příloha se nevynechává.', type: true }, { fn: function (S) { var it = NF.item(S, 'R-PORADI'); it.text = 'Snězte nejdřív {first}, potom zbytek obvyklého jídla. Přílohu nevynechávejte — množství sacharidů má zůstat stejné.'; it.version = 'v2'; } }, { sel: '[data-action="regDecide"][data-value="edited"],[data-action="regEdit"]', act: 'regDecide', val: 'edited' }],
-        watch: '.reg-side .hist', t: 'Upravit s komentářem', co: 'Text rady má novou verzi: „…zbytek obvyklého jídla. Přílohu nevynechávejte.“ Stav „schváleno s úpravou“, v historii kdo, kdy, z čeho na co.', proc: 'Změna platí v aplikaci okamžitě; původní znění zůstává v historii.' }
+        watch: '.reg-side .hist', t: 'Upraveno s komentářem', co: 'Text rady má novou verzi: „…zbytek obvyklého jídla. Přílohu nevynechávejte.“ Stav „schváleno s úpravou“, v historii kdo, kdy, z čeho na co.', proc: 'Změna platí v aplikaci okamžitě; původní znění zůstává v historii.' }
     ]
   },
   impact: {
     intro: { t: 'Pacient vidí radu s novým textem', co: 'Další den v poledne, řízek s kaší — jídlo, které aplikace už zná.', vsimni: 'Štítek položky u rady je oranžový: „schváleno s úpravou“.', proc: 'Zamítnutá položka by radu odstranila a na jejím místě by stálo „Tahle část nefunguje“.' },
     steps: [
       { do: [{ sel: '.advice .text' }], t: 'Nový text rady', co: '„…potom zbytek obvyklého jídla. Přílohu nevynechávejte.“', vsimni: 'Štítek položky je oranžový: „schváleno s úpravou“.' },
-      { do: [{ sel: '[data-action="mealDecide"][data-value="order:yes"]', act: 'mealDecide', val: 'order:yes', quick: true }, { sel: '[data-action="mealFinish"][data-value="as"]', act: 'mealFinish', val: 'as' }], t: 'Přijmout a uložit', co: 'Zápis uložený.', dusledek: 'Přeskočíme dva měsíce ke kontrole.' }
+      { do: [{ sel: '[data-action="mealDecide"][data-value="order:yes"]', act: 'mealDecide', val: 'order:yes', quick: true }, { sel: '[data-action="mealFinish"][data-value="as"]', act: 'mealFinish', val: 'as' }], t: 'Rada přijata, zápis uložen', co: 'Zápis je uložený.', dusledek: 'Přeskočíme dva měsíce ke kontrole.' }
     ]
   },
   preview: {
@@ -161,10 +161,10 @@ T.chapters = {
   reviewSummary: {
     intro: { t: 'Kontrola: krok 1 — souhrn', co: '5. ledna. Lékař klepne „Zahájit kontrolu“ a NutriFee sestaví report a návrhy. Nahoře čtyři kroky.', vsimni: 'Dlaždice mají barvu, znak i slovo; pod nimi značky položek, z nichž vycházejí.', proc: 'Lékař má pár minut. Podstatné musí být pokaždé na stejném místě a bez čtení detailů.' },
     steps: [
-      { do: [{ sel: '[data-action="startReview"]', act: 'startReview' }], watch: '.tiles', t: 'Zahájit kontrolu', co: 'Dlaždice se semaforem: čas v cíli, obvyklá porce, inzulin podle plánu, s radou bývalo níž, HbA1c s datem, mimo učení. Pod nimi věta „co se dělo“ ze šablony.', vsimni: 'Věta je z pravidla S-SOUHRN, ne z AI.' },
+      { do: [{ sel: '[data-action="startReview"]', act: 'startReview' }], watch: '.tiles', t: 'Kontrola zahájena: dlaždice souhrnu', co: 'Dlaždice se semaforem: čas v cíli, obvyklá porce, inzulin podle plánu, s radou bývalo níž, HbA1c s datem, mimo učení. Pod nimi věta „co se dělo“ ze šablony.', vsimni: 'Věta je z pravidla S-SOUHRN, ne z AI.' },
       { do: [{ sel: '.tile[data-value="adv"]', act: 'reviewTile', val: 'adv' }], watch: '.card.soft', t: 'Rozklik dlaždice', co: 'Sloupce: přijato / nepřijato / bez odpovědi s mediánem vrcholu. Nejčastější důvod odmítnutí.', proc: 'Neutrální srovnání: pacient si sám volí, kdy radu přijme, takže to není důkaz účinku. Report neříká „neposlechl“.' },
       { do: [{ sel: 'details.part:first-of-type summary' }], t: 'Podklady jen na vyžádání', co: 'Reakce na jednotlivá jídla, rady, dávky a potvrzení, senzor, pokyny, otázky pacienta — sbalené.', proc: 'Text až po rozbalení. Na první pohled jen to, co lékař potřebuje.' },
-      { do: [{ sel: '.nextbar .btn.primary', act: 'reviewStep', val: '2' }], t: 'K návrhům', co: 'Spodní lišta vede dál.' }
+      { do: [{ sel: '.nextbar .btn.primary', act: 'reviewStep', val: '2' }], t: 'Krok 2: návrhy otevřen', co: 'Spodní lišta vedla dál; na obrazovce je krok 2 kontroly.' }
     ]
   },
   reviewProposals: {
@@ -177,7 +177,7 @@ T.chapters = {
         watch: '.prop.now .branch', t: 'Ověření řídí větev postupu', co: 'Lékař klepl „Vše sedí“; kterýkoli bod lze přepnout na „nesedí“, a dokud některý chybí, postup čeká. Vše sedí → „zvýšit“; bod 1 nesedí → „ponechat, řešit podání“.', vsimni: 'Body jsou tvrzení („dávky potvrzeny a čas sedí“), aby „sedí / nesedí“ dávalo smysl.', proc: '„Zvýšit“ je z postupu schváleného garantem (D-POSTUP); aplikace krok v jednotkách neurčuje. „Vše sedí“ je jen zkratka tří stavů bodu.' },
       { when: function (B) { return B.response === 'accepts'; }, do: [{ sel: '.prop.now .stepper button:last-child', act: 'propUnits', val: function (B, S) { return NF.nextProposal(S).id + ':1'; }, quick: true }, { sel: '.prop.now .stepper button:last-child', act: 'propUnits', val: function (B, S) { return NF.nextProposal(S).id + ':1'; }, quick: true }],
         t: 'O kolik — volí lékař', co: 'Volič jednotek. Aplikace číslo nenavrhuje; dokud je stejné jako dnes, „Souhlasím“ je zamčené.' },
-      { do: [{ sel: '.prop.now .decide .btn.primary', act: 'propDecide', val: function (B, S) { var n = NF.nextProposal(S); return n.id + ':' + (NF.screens.proposalBranch(S, n).action === 'keep' ? 'keep' : 'agree'); } }], t: 'Souhlasím', co: 'Rozhodnutí je zapsané do stopy. Otevřel se další návrh.', vsimni: 'Jiné rozhodnutí (ponechat, zamítnout s důvodem, komentář) je pod nenápadným odkazem.' },
+      { do: [{ sel: '.prop.now .decide .btn.primary', act: 'propDecide', val: function (B, S) { var n = NF.nextProposal(S); return n.id + ':' + (NF.screens.proposalBranch(S, n).action === 'keep' ? 'keep' : 'agree'); } }], t: 'Souhlas zapsán, další návrh', co: 'Rozhodnutí je zapsané do stopy. Otevřel se další návrh.', vsimni: 'Jiné rozhodnutí (ponechat, zamítnout s důvodem, komentář) je pod nenápadným odkazem.' },
       { do: [{ fn: function (S) { D.decideSingles(S, S.branches || D.defaults); } }], watch: '.prop.group',
         t: 'Zbývající návrhy', co: 'Lékař rozhodl i ostatní návrhy, kde se něco mění (rady k obědu před dávkou).', proc: 'Návrh „vyměnit radu“ má skutečný účinek: plán nese vypnuté a nahrazené rady a jádro je podle toho nabízí.' },
       { do: [{ sel: '[data-action="propKeepAll"]', act: 'propKeepAll' }], watch: '.nextbar',
@@ -189,7 +189,7 @@ T.chapters = {
   reviewConfirm: {
     intro: { t: 'Krok 3 — potvrzení plánu', co: 'Shrnutí rozhodnutí a nový plán: dávky se změnou zvýrazněnou, návyky, pokyny. Jedno tlačítko.', vsimni: 'Změněná dávka je přeškrtnutá stará → nová; u rad stav „vypnuto“ nebo „nabízet přednostně“.', proc: 'Nevratný krok má shrnutí a jednu větu, co se stane.' },
     steps: [
-      { do: [{ sel: '.nextbar .btn.primary', act: 'issueP2' }], t: 'Vydat plán P2', co: 'Plán je vydaný. Po změně dávky začne učení k radám u jídel znovu.', dusledek: 'Pacient uvidí, co se změnilo a proč.' }
+      { do: [{ sel: '.nextbar .btn.primary', act: 'issueP2' }], t: 'Plán P2 vydán', co: 'Plán je vydaný. Po změně dávky začne učení k radám u jídel znovu.', dusledek: 'Pacient uvidí, co se změnilo a proč.' }
     ]
   },
   reviewHandover: {

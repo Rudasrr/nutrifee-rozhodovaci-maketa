@@ -258,6 +258,15 @@ function actOverview(s, idx) {
     var ids = D.decisionItems(o.i); return '<li>' + e(o.x.title || D.chapters[o.x.ch].title) + (ids.length ? ' <span class="muted">· schvalujete: ' + e(ids.map(function (id) { var r = NF.item(s, id); return r ? r.title : id; }).join(', ')) + '</span>' : '') + '</li>';
   }).join('') + '</ol></details>';
 }
+/* Co je právě vlevo na obrazovce — panel to říká vždy, aby vyprávění nikdy nebylo „pozadu“ (8. 10. 2026). */
+var PAGE_NOM = { registry: 'Schvalovací registr', trace: 'Verze a stopa', review: 'Kontrola', enroll: 'Zařazení a plán', training: 'Zaučení', today: 'Dnes', foods: 'Jídla', plan: 'Plán', safety: 'Bezpečí', preview: 'Přehled před kontrolou', meal: 'Zápis jídla', understand: 'Převzetí plánu', takeover: 'Převzetí plánu', newplan: 'Nový plán' };
+function whereNow(s) {
+  var role = { patient: 'Pacient', doctor: 'Lékař', nurse: 'Sestra' }[s.role] || s.role, page = PAGE_NOM[s.page] || s.page, sub = '';
+  if (s.page === 'enroll') sub = ', krok ' + ((s.wizardStep || 0) + 1) + ' ze 3';
+  else if (s.page === 'review' && s.review && s.review.step) sub = ', krok ' + s.review.step + ' ze 4';
+  else if (s.page === 'meal' && s.meal && s.meal.step) sub = ', krok ' + s.meal.step + ' ze 3';
+  return 'Na obrazovce: ' + role + ' · ' + page + sub;
+}
 function pageName(s) {
   var map = { registry: 'schvalovací registr', trace: 'verzi a stopu', review: 'kontrolu', enroll: 'zařazení a plán', training: 'zaučení', today: 'obrazovku Dnes', foods: 'jídla', plan: 'plán', safety: 'Bezpečí', preview: 'přehled před kontrolou', meal: 'zápis jídla' };
   return map[s.page] || ('obrazovku „' + s.page + '“');
@@ -281,7 +290,7 @@ function panel(s) {
   if (hidden) return '<div class="tour-panel tour-min">' + btn('Zobrazit vyprávění', 'tourToggle') + btn('←', 'tourBack', null, '', busy ? ' disabled' : '') + btn(e(label), 'tourNext', null, 'primary', busy || last ? ' disabled' : '') + '</div>';
   var body = shown.decide ? decideBlock(s, shown.decide) : '<dl class="tour-rows">' + rows(shown) + '</dl>' + (i === 0 ? actOverview(s, idx) : '') + decideHint(s, ids);
   return '<aside class="tour-panel' + (shown.decide ? ' tour-decide' : '') + '" aria-live="polite" aria-label="Vyprávění k ukázce"><p class="tour-kicker">' + (sc && sc.appendix ? 'Dodatek · ' : sc && sc.detour ? 'Odbočka · ' : '') + 'Scéna ' + (idx + 1) + ' z ' + D.scenes.length + ' · ' + (shown.decide ? 'rozhodnutí garanta' : running != null ? 'krok ' + (running + 1) + ' z ' + st.length : i === 0 ? 'úvod' : 'krok ' + i + ' z ' + st.length) + '</p>' +
-    '<h2>' + e(shown.t || sceneTitle(s)) + '</h2>' + body +
+    '<p class="tour-where">' + e(whereNow(s)) + '</p><h2>' + e(shown.t || sceneTitle(s)) + '</h2>' + body +
     (nextStep && !busy ? '<p class="tour-next">Dál: ' + e(nextStep.decide ? 'co jste viděli a co schvalujete' : nextStep.t) + '</p>' : '') +
     (upcoming ? '<p class="tour-next">' + (toAppendix ? 'Hlavní linie končí. Dál je dodatek s variantami: ' : 'Další scéna: ') + e(upcoming.title || D.chapters[upcoming.ch].title) + '</p>' : '') +
     (last ? '<p class="tour-next">Konec ukázky i dodatku.</p>' : '') +
@@ -308,7 +317,11 @@ function decorate() {
   if (doc.body) { doc.body.className = doc.body.className.replace(/\bpres-\w+/g, '').trim() + ' pres-' + S().role; }
 }
 var prevAfter = NF.slots.afterRender;
-NF.slots.afterRender = function (s) { if (prevAfter) prevAfter(s); decorate(); };
+function measureBar() {
+  try { var bar = doc && doc.querySelector && doc.querySelector('.pres-bar'); if (bar && doc.documentElement && doc.documentElement.style) doc.documentElement.style.setProperty('--barh', (bar.offsetHeight || 64) + 'px'); } catch (err) { }
+}
+NF.slots.afterRender = function (s) { if (prevAfter) prevAfter(s); decorate(); measureBar(); };
+if (global.addEventListener) global.addEventListener('resize', measureBar);
 
 /* ---------- panel prezentujícího ---------- */
 function branchPicker(s, key) {
