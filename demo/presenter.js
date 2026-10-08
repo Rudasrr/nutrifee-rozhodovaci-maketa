@@ -46,7 +46,7 @@ NF.demoActions.tourReturn = function () { var s = S(); if (s.tourRole) { s.role 
 /* ---------- rozhodovací kroky garanta (7. 10. 2026) ----------
    Každá scéna hlavní linie končí krokem „Co jste viděli a co schvalujete“ s položkami registru, které se v ní poprvé použily.
    Automaticky z demo/scene-items.js (štítky na obrazovce); položky bez štítku, nebo ty, které patří jinam, mapuje D.itemScene. Zbytek jde do finále. */
-D.itemScene = { 'R-NAVYKY': 'doses', 'R-POKYNY': 'doses', 'C-CILE': 'doses', 'Z-BODY': 'training', 'R-DIKY': 'firstMeal', 'S-TYDEN': 'lateMeal', 'J-DATABAZE': 'custom', 'J-STITKY': 'custom', 'R-PODOBNOST': 'custom', 'P-NEMOC': 'illness', 'R-ZMIZELA': 'impact', 'D-BAZAL': 'reviewProposals', 'P-LEKAR': 'issue' };
+D.itemScene = { 'K-KRITERIA': 'enroll', 'R-NAVYKY': 'doses', 'R-POKYNY': 'doses', 'C-CILE': 'doses', 'Z-BODY': 'training', 'R-DIKY': 'firstMeal', 'S-TYDEN': 'lateMeal', 'J-DATABAZE': 'custom', 'J-STITKY': 'custom', 'R-PODOBNOST': 'custom', 'P-NEMOC': 'illness', 'R-ZMIZELA': 'impact', 'D-BAZAL': 'reviewProposals', 'P-LEKAR': 'issue' };
 var decisionPlanCache = null;
 function mainSceneOf(chId) { for (var i = 0; i < D.scenes.length; i++) if (!D.scenes[i].appendix && D.chapters[D.scenes[i].ch].id === chId) return i; return -1; }
 function decisionPlan() {
@@ -340,9 +340,9 @@ function panel(s) {
   var label = busy ? 'Probíhá…' : nextStep ? (i === 0 ? 'Začít ▶' : 'Pokračovat ▶') : last ? 'Konec ukázky' : toAppendix ? 'Dodatek: varianty ▶' : 'Další scéna ▶';
   if (hidden) return '<div class="tour-panel tour-min">' + btn('Zobrazit vyprávění', 'tourToggle') + btn('←', 'tourBack', null, '', busy ? ' disabled' : '') + btn(e(label), 'tourNext', null, 'primary', busy || last || blockedBy ? ' disabled' : '') + '</div>';
   var body = '<dl class="tour-rows">' + rows(shown) + '</dl>' + (i === 0 ? actOverview(s, idx) + sceneIntroHint(s, ids) : '') + (finale ? summaryBlock(s) : approvalsBlock(s, idx, i, st));
-  return '<aside class="tour-panel' + (finale ? ' tour-decide' : '') + '" aria-live="polite" aria-label="Vyprávění k ukázce"><p class="tour-kicker">' + (sc && sc.appendix ? 'Dodatek · ' : sc && sc.detour ? 'Odbočka · ' : '') + 'Scéna ' + (idx + 1) + ' z ' + D.scenes.length + ' · ' + (finale ? 'souhrn rozhodnutí' : running != null ? 'krok ' + (running + 1) + ' z ' + st.length : i === 0 ? 'úvod' : 'krok ' + i + ' z ' + st.length) + '</p>' +
+  return '<aside class="tour-panel' + (finale ? ' tour-decide' : '') + '" aria-live="polite" aria-label="Ovládání ukázky"><div class="tour-head"><span>Ovládání ukázky</span><span class="tour-legend">fialové = ovládání · tyrkysové = budoucí aplikace</span></div><p class="tour-kicker">' + (sc && sc.appendix ? 'Dodatek · ' : sc && sc.detour ? 'Odbočka · ' : '') + 'Scéna ' + (idx + 1) + ' z ' + D.scenes.length + ' · ' + (finale ? 'souhrn rozhodnutí' : running != null ? 'krok ' + (running + 1) + ' z ' + st.length : i === 0 ? 'úvod' : 'krok ' + i + ' z ' + st.length) + '</p>' +
     '<p class="tour-where">' + e(whereNow(s)) + '</p><h2>' + e(shown.t || sceneTitle(s)) + '</h2>' + body +
-    '<p class="tour-hint">Ovládejte ukázku jen tlačítky v tomto panelu; obrazovku vlevo odehrává ukázka sama.</p>' +
+    '<p class="tour-hint">Ovládejte ukázku jen fialovými tlačítky v tomto panelu. Tyrkysová tlačítka vlevo jsou skutečná tlačítka budoucí aplikace — ukázka je klepe za vás.</p>' +
     (nextStep && !busy ? '<p class="tour-next">Dál: ' + e(nextStep.t) + '</p>' : '') +
     (upcoming ? '<p class="tour-next">' + (toAppendix ? 'Hlavní linie končí. Dál je dodatek s variantami: ' : 'Další scéna: ') + e(upcoming.title || D.chapters[upcoming.ch].title) + '</p>' : '') +
     (last ? '<p class="tour-next">Konec ukázky i dodatku.</p>' : '') +

@@ -275,7 +275,8 @@ function freshMeal(S, meal, food, portion, bolus) {
 /* ---------- kapitoly ----------
    setup = kulisy scény (platí při příchodu), apply = akce, která se ve scéně odehraje. */
 var CH = [
-  { id: 'prolog', act: 0, title: 'Prolog — k čemu NutriFee je', role: 'doctor', page: 'enroll', wizardStep: 0, at: '2026-10-05T09:00:00' }, /* R25: 30 s úvodu bez akce; obrazovka je karta pacienta */
+  { id: 'prolog', act: 0, title: 'Prolog — k čemu NutriFee je', role: 'doctor', page: 'enroll', wizardStep: 0, at: '2026-10-05T09:00:00',
+    setup: function (S) { S.draft = S.draft || NF.newDraft(S); } }, /* R25: 30 s úvodu bez akce; obrazovka je rovnou karta pacienta — mezikrok „Nový pacient“ zrušen 8. 10. 2026 */
   /* Dějství 1 — V ordinaci */
   { id: 'enroll', act: 0, title: 'Lékař — karta a podmínky zařazení', role: 'doctor', page: 'enroll', wizardStep: 0, at: '2026-10-05T09:00:00',
     setup: function (S) { S.draft = S.draft || NF.newDraft(S); }, apply: function (S) { enrolled(S); } },

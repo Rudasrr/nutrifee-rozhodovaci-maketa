@@ -936,7 +936,7 @@ test('Průchod pro garanta (7. 10. 2026): každá položka má pětidílný popi
 test('Průchod pro garanta (8. 10. 2026): schvalování hned v kroku, kdy položka působí, s celým popisem; Pokračovat nikdy neblokuje; řádek Dál a přehled dějství; souhrn na konci; mimo příběh', () => {
   act('goScene', '0'); act('closeDrawer'); assert.match(markup(), /V tomto dějství/); assert.match(markup(), /schvalujete: /);
   act('goScene', '2'); act('closeDrawer'); /* scéna 3: dávky, návyky a pokyny */
-  let m = markup(); assert.match(m, /V této scéně schvalujete: /); assert.match(m, /Dál: /); assert.match(m, /Ovládejte ukázku jen tlačítky v tomto panelu/);
+  let m = markup(); assert.match(m, /V této scéně schvalujete: /); assert.match(m, /Dál: /); assert.match(m, /Ovládejte ukázku jen fialovými tlačítky/);
   assert.equal(/Další krok ▶|Co schvalujete ▶|Rozhodnout později ▶/.test(m), false, 'jediné tlačítko pro pokračování');
   const st = D.tour.stepsFor(D.chapters[S().chapterIndex].id, S().branches);
   app.act('tourNext'); m = markup(); /* po prvním kroku se nabídnou položky, které jsou na obrazovce */
