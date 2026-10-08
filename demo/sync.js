@@ -66,7 +66,18 @@ function restore() {
     .then(function (rows) { return D.garantMerge((rows || []).map(fromRow)); })
     .catch(function (err) { try { NF.getState().toast = 'Dřívější rozhodnutí se nepodařilo načíst ze serveru (' + String(err && err.message || err) + ').'; NF.render(); } catch (e2) { } return 0; });
 }
+/* Událost mimo registr (průchod maketou, potvrzení souhrnu): stejný řádek tabulky, kind = 'progress' | 'summary'. */
+function event(kind, item, title, data) {
+  var u = user(); if (!u) return null; /* bez přihlášení se průchod nezaznamenává */
+  var sc = D.scenes && S0() && S0().sceneIndex != null ? D.scenes[S0().sceneIndex] : null;
+  var x = { id: 'E-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7), kind: kind, item: item, title: title, status: null, params: data || null, text: null, off: null, comment: '',
+    by: u ? (u.email || 'garant') : 'garant', modelAt: S0() ? S0().clock : null, at: new Date().toISOString(), scene: S0() && S0().sceneIndex != null ? S0().sceneIndex + 1 : null, sceneTitle: sc ? (sc.title || (D.chapters && D.chapters[sc.ch].title)) : null,
+    schema: NF.SCHEMA, client: client, note: D.syncLabel || '', uid: u ? u.id : null, email: u ? u.email : null };
+  queue.push(x); save(); flush(); return x;
+}
+function S0() { try { return NF.getState ? NF.getState() : null; } catch (err) { return null; } }
 D.sync = {
+  event: event,
   pending: function () { return queue.length; },
   status: function () { return { pending: queue.length, lastOk: lastOk, lastErr: lastErr, configured: configured(), client: client }; },
   row: row, fromRow: fromRow,

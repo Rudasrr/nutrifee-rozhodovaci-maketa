@@ -129,8 +129,9 @@ test('Jádro bez sítě a bez generativní AI; síť volá jen demo/sync.js (roz
   assert.match(markup(), /neuloženo: \d+/, 'bez sítě (test) čekají rozhodnutí ve frontě'); assert.equal(/export/i.test(markup()), false);
   act('role', 'doctor'); act('page', 'registry'); assert.equal(/Exportovat/.test(markup()), false); assert.equal(/Exportovat/.test((act('page', 'trace'), markup())), false);
   /* rozhodnutí odehraná příběhem (kapitola upraví R-PORADI) nejdou na server ani do deníku garanta */
-  const p0 = D.sync.pending(), g0 = D.garantLog().length; act('goChapter', String(D.indexOf('trace'))); act('closeDrawer');
-  assert.ok(S().registry.history.some(h => h.item === 'R-PORADI' && h.kind === 'decision'), 'příběh položku upravil'); assert.equal(D.sync.pending(), p0, 'příběh nic neposílá'); assert.equal(D.garantLog().length, g0, 'příběh nepíše do deníku');
+  const decs = () => JSON.parse(store.get('nutrifee-sync-queue') || '[]').filter(x => x.kind === 'decision' || x.kind === 'comment').length;
+  const p0 = decs(), g0 = D.garantLog().length; act('goChapter', String(D.indexOf('trace'))); act('closeDrawer');
+  assert.ok(S().registry.history.some(h => h.item === 'R-PORADI' && h.kind === 'decision'), 'příběh položku upravil'); assert.equal(decs(), p0, 'příběh neposílá žádné rozhodnutí'); assert.equal(D.garantLog().length, g0, 'příběh nepíše do deníku');
 });
 
 test('Přihlášení (7. 10. 2026): bez přihlášení jen přihlašovací stránka; garant ukládá a vidí své, správce vidí výsledky; rozhodnutí z registru přežijí skok na scénu', () => {
@@ -139,7 +140,7 @@ test('Přihlášení (7. 10. 2026): bez přihlášení jen přihlašovací strá
   assert.equal(/pres-bar|Další ▶|Zařazení a plán/.test(m), false, 'bez přihlášení není vidět maketa'); assert.equal(D.auth.role(), null);
   act('authLogin'); assert.match(markup(), /Vyplňte e-mail i heslo/);
   store.set('nutrifee-auth', sessionFor('garant')); NF.render(); m = markup();
-  assert.match(m, /Odhlásit · Garant/); assert.equal(/Výsledky garanta/.test(m), false, 'garant výsledky nevidí'); assert.equal(D.auth.role(), 'garant'); assert.match(m, /rozhodnutí uložena ✓/);
+  assert.match(m, /Odhlásit · Garant/); assert.equal(/Výsledky garanta/.test(m), false, 'garant výsledky nevidí'); assert.equal(D.auth.role(), 'garant'); assert.match(m, /rozhodnutí uložena ✓|neuloženo: \d+/);
   act('openResults'); assert.equal(plain(elements.get('overlay').innerHTML), '', 'garant výsledky neotevře');
   /* rozhodnutí přímo v registru přežije skok na scénu a je v deníku garanta */
   act('role', 'doctor'); act('page', 'registry'); act('regOpen', 'R-PORADI'); act('regDecide', 'rejected');
@@ -287,7 +288,7 @@ test('Startovní sada je při čistém zařazení předvyplněná; podmínky z k
 test('V ordinaci se nepíše (jen výběr, zaškrtnutí, volič)', () => {
   for (const id of ['enroll', 'doses', 'issue', 'training']) {
     chapter(id);
-    const m = markup();
+    const m = markup().replace(/<aside class="tour-panel[\s\S]*?<\/aside>/, '');
     assert.equal(/<textarea/.test(m), false, id);
     assert.equal(/<input(?![^>]*type="checkbox")/.test(m), false, id);
   }
@@ -910,21 +911,34 @@ test('Průchod pro garanta (7. 10. 2026): každá položka má pětidílný popi
   }
 });
 
-test('Průchod pro garanta: rozhodovací krok na konci scény s celým popisem, Další = později, rozhodnutí z kroku platí; řádek Dál a přehled dějství; mimo příběh', () => {
+test('Průchod pro garanta (8. 10. 2026): schvalování hned v kroku, kdy položka působí, s celým popisem; Pokračovat nikdy neblokuje; řádek Dál a přehled dějství; souhrn na konci; mimo příběh', () => {
   act('goScene', '0'); act('closeDrawer'); assert.match(markup(), /V tomto dějství/); assert.match(markup(), /schvalujete: /);
   act('goScene', '2'); act('closeDrawer'); /* scéna 3: dávky, návyky a pokyny */
-  assert.match(markup(), /Na konci scény rozhodnete o:/); assert.match(markup(), /Dál: /);
+  let m = markup(); assert.match(m, /V této scéně schvalujete: /); assert.match(m, /Dál: /); assert.match(m, /Ovládejte ukázku jen tlačítky v tomto panelu/);
+  assert.equal(/Další krok ▶|Co schvalujete ▶|Rozhodnout později ▶/.test(m), false, 'jediné tlačítko pro pokračování');
   const st = D.tour.stepsFor(D.chapters[S().chapterIndex].id, S().branches);
-  for (let k = 0; k < st.length; k++) act('tourNext');
-  assert.match(markup(), /Co schvalujete ▶/);
-  act('tourNext');
-  const m = markup(); assert.match(m, /Co jste viděli a co schvalujete/); assert.match(m, /Proč existuje/); assert.match(m, /Jak funguje/); assert.match(m, /Kde je použita/); assert.match(m, /Co schvalujete/); assert.match(m, /Co se stane při zamítnutí/);
+  act('tourNext'); act('tourNext'); act('tourNext'); m = markup(); /* po kroku „Startovní sada návyků“ je položka na obrazovce */
+  assert.match(m, /Ke schválení teď/); assert.match(m, /Pokračovat ▶/); assert.match(m, /Proč existuje/); assert.match(m, /Jak funguje/); assert.match(m, /Kde je použita/); assert.match(m, /Co schvalujete/); assert.match(m, /Co se stane při zamítnutí/);
+  assert.ok(D.itemsOnScreen(S()).includes('R-NAVYKY'), 'R-NAVYKY na obrazovce'); assert.match(m, /data-action="garantOpen" data-value="R-NAVYKY"/); act('garantOpen', 'R-NAVYKY'); assert.match(markup(), /data-action="garantDecide" data-value="R-NAVYKY:approved"/);
   const ids = D.decisionItems(2); assert.ok(ids.includes('R-NAVYKY') && ids.includes('R-POKYNY') && ids.includes('C-CILE'));
-  assert.match(m, /Rozhodnout později ▶/);
   act('garantDecide', 'R-NAVYKY:approved'); assert.equal(NF.itemTouched(S(), 'R-NAVYKY'), true); assert.match(markup(), /schváleno/); assert.equal(NF.itemState(S(), 'R-NAVYKY'), 'approved');
+  for (let k = 3; k < st.length; k++) act('tourNext');
+  m = markup(); assert.match(m, /Z této scény ještě ke schválení|Ke schválení teď/); assert.match(m, /Další scéna ▶/);
   act('garantOpen', 'C-CILE'); assert.match(markup(), /dolní cíl \(mmol\/l\): <b>3,9/);
-  act('tourNext'); assert.equal(S().sceneIndex, 3, 'Další ze rozhodovacího kroku jde na další scénu bez rozhodnutí ostatních');
+  act('tourNext'); assert.equal(S().sceneIndex, 3, 'Další scéna jde dál bez rozhodnutí ostatních');
   assert.equal(/K potvrzení na této obrazovce/.test(markup()), false, 'starý blok zmizel');
+  /* souhrn na konci hlavní linie: všechny položky, potvrzení, záznam pro správce */
+  const fin = D.scenes.findIndex(x => !x.appendix && D.chapters[x.ch].id === 'trace'); act('goScene', String(fin)); act('closeDrawer');
+  const stf = D.tour.stepsFor('trace', S().branches); for (let k = 0; k < stf.length; k++) act('tourNext');
+  m = markup(); assert.match(m, /Souhrn vašich rozhodnutí/); assert.match(m, /Potvrdit souhrn/); assert.equal((m.match(/class="gitem"/g) || []).length, 28, 'souhrn ukazuje všech 28 položek');
+  const before = D.sync.pending(); act('garantConfirmSummary'); assert.equal(D.sync.pending(), before + 1);
+  const q = JSON.parse(store.get('nutrifee-sync-queue')); const last = q[q.length - 1]; assert.equal(last.kind, 'summary'); assert.equal(last.item, 'SOUHRN'); assert.equal(last.params.total, 28); assert.ok(last.params.rejectedIds);
+  assert.match(markup(), /Souhrn potvrzen/); assert.ok(D.progress().done);
+  assert.ok(q.some(x => x.kind === 'progress' && x.item === 'PRUBEH' && x.params.scene === fin + 1), 'záznam, kam se garant dostal');
+  /* správce: panel výsledků ukáže průchod */
+  D.results.setRows(q.map(x => D.sync.row(x)).map(r => Object.assign({}, r, { user_email: 'garant@example.test' })));
+  const rp = plain(D.results.panel(S())); assert.match(rp, /Průchod maketou/); assert.match(rp, /nejdál: scéna/); assert.match(rp, /prošel celou maketu: ano — souhrn potvrzen/);
+  act('goScene', '3'); act('closeDrawer');
   /* mimo příběh */
   act('page', 'registry'); assert.match(markup(), /mimo příběh/); assert.match(markup(), /Zpět do příběhu/); assert.match(markup(), /Používá se:/);
   act('regOpen', 'D-PRAND'); const r = markup(); assert.match(r, /Proč existuje/); assert.match(r, /V příběhu:/); assert.match(r, /okno nejméně \(dní\)/);

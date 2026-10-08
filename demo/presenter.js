@@ -12,10 +12,7 @@ NF.demoActions = NF.demoActions || {};
 function S() { return NF.getState(); }
 function chapter(s) { return D.chapters[s.chapterIndex || 0]; }
 function branches() { return S().branches || D.defaults; }
-function steps() {
-  var s = S(), st = T.stepsFor(chapter(s).id, branches()), ids = D.decisionItems(sceneIdx(s));
-  return ids.length ? st.concat([{ decide: ids, t: 'Co jste viděli a co schvalujete', co: 'Položky registru, které v této scéně působily poprvé. Rozhodněte teď, nebo později v registru.' }]) : st;
-}
+function steps() { return T.stepsFor(chapter(S()).id, branches()); }
 function val(v) { return typeof v === 'function' ? v(branches(), S()) : v; }
 function sceneIdx(s) { return s.sceneIndex != null ? s.sceneIndex : D.sceneFor(s.chapterIndex || 0, s.branches); }
 function lastIndex() { return D.scenes.length - 1; }
@@ -39,8 +36,8 @@ D.garantMerge = function (list) {
   saveGlog(); land(D.playScene(sceneIdx(S()))); S().toast = 'Načteno ' + add.length + ' dřívějších zápisů z vašeho přihlášení.'; NF.render(); return add.length;
 };
 /* Odhlášení: deník garanta zmizí z tohoto prohlížeče (na serveru zůstává) a příběh začne od začátku. */
-D.garantClear = function () { glog = []; saveGlog(); land(D.playScene(0)); };
-function land(n) { runId++; busy = false; var s = S(); n.notes = s.notes || ''; n.tourRole = n.role; n.tourPage = n.page; focusSel = null; watchSel = null; running = null; NF.migrated = null; NF.setState(n); try { global.scrollTo(0, 0); } catch (err) { } }
+D.garantClear = function () { glog = []; saveGlog(); if (D.progressClear) D.progressClear(); land(D.playScene(0)); };
+function land(n) { runId++; busy = false; var s = S(); n.notes = s.notes || ''; n.tourRole = n.role; n.tourPage = n.page; focusSel = null; watchSel = null; running = null; NF.migrated = null; NF.setState(n); try { global.scrollTo(0, 0); } catch (err) { } try { if (n.sceneIndex != null) noteProgress(n.sceneIndex); } catch (err2) { } }
 /* Kde v příběhu právě jsme vs. kam uživatel sám odešel (registr, jiná záložka). */
 function markTour() { var s = S(); s.tourRole = s.role; s.tourPage = s.page; }
 function away(s) { return !!(s.tourRole && (s.role !== s.tourRole || s.page !== s.tourPage)); }
@@ -232,21 +229,61 @@ function gitem(s, r, isOpen) {
       '<label class="field"><span>Komentář (nepovinný)</span><input data-bind="form.gc_' + e(r.id) + '" value="' + e((s.form && s.form['gc_' + r.id]) || '') + '" placeholder="co změnit, proč, nebo jen poznámka"></label>' +
       '<div class="actions" style="margin-top:8px">' + btn('Schválit', 'garantDecide', r.id + ':approved', 'sm primary') + (editable ? btn('Upravit v registru', 'openAsideItem', r.id, 'sm') : '') + btn('Zamítnout', 'garantDecide', r.id + ':rejected', 'sm danger') + btn('Jen komentář', 'garantComment', r.id, 'sm quiet') + '</div></div>' : '') + '</div>';
 }
-function decideBlock(s, ids) {
-  var idx = sceneIdx(s);
-  var items = ids.map(function (id) { return NF.item(s, id); }).filter(Boolean);
-  var firstOpen = items.filter(function (r) { return !NF.itemTouched(s, r.id); })[0] || items[0];
-  var open = s.gOpen && ids.indexOf(s.gOpen) >= 0 ? s.gOpen : (firstOpen ? firstOpen.id : null);
-  var left = items.filter(function (r) { return !NF.itemTouched(s, r.id); }).length;
-  return '<div class="garant decide">' + sceneOff(s, ids) + '<p class="small">' + (left ? 'U každé položky: proč existuje, jak funguje, kde ji uvidíte, co schvalujete a co se stane při zamítnutí. Rozhodnout můžete teď, nebo později přes „Ke schválení“ v liště.' : 'Všechny položky této scény jsou rozhodnuté.') + (idx === mainSceneOf('trace') ? ' <b>Hotovo.</b> Rozhodnutí i komentáře se průběžně ukládají, nic nemusíte posílat; cokoli můžete později změnit přes „Ke schválení“ v liště.' : '') + '</p>' +
+/* Schvalování přímo v kroku (8. 10. 2026): položky scény, které právě působí na obrazovce, se nabídnou hned s celým průvodcem;
+   na posledním kroku scény i zbývající nerozhodnuté položky scény. Rozhodnutí nikdy nebrání pokračování. */
+function approvalsBlock(s, idx, i, st) {
+  var ids = D.decisionItems(idx); if (!ids.length) return '';
+  var onScreen = D.itemsOnScreen(s), lastStep = i >= st.length;
+  var now = ids.filter(function (id) { return onScreen.indexOf(id) >= 0; });
+  var rest = lastStep ? ids.filter(function (id) { return now.indexOf(id) < 0; }) : [];
+  var list = now.concat(rest), items = list.map(function (id) { return NF.item(s, id); }).filter(Boolean);
+  if (!items.length) return '';
+  var firstOpen = items.filter(function (r) { return !NF.itemTouched(s, r.id); })[0];
+  var open = s.gOpen && list.indexOf(s.gOpen) >= 0 ? s.gOpen : (firstOpen ? firstOpen.id : null);
+  var undecided = items.filter(function (r) { return !NF.itemTouched(s, r.id); }).length;
+  return '<div class="garant decide">' + sceneOff(s, list) + '<p class="small"><b>' + (now.length ? 'Ke schválení teď' : 'Z této scény ještě ke schválení') + (undecided ? ' (' + undecided + ')' : '') + '</b> · ' +
+    (undecided ? (now.length ? 'položky, které právě působí na obrazovce vlevo. ' : '') + 'U každé: proč existuje, jak funguje, kde ji uvidíte, co schvalujete a co se stane při zamítnutí. Rozhodnutí nebrání pokračování; rozhodnout i změnit můžete kdykoli, i v souhrnu na konci.' : 'vše rozhodnuto; změnit lze kdykoli.') + '</p>' +
     items.map(function (r) { return gitem(s, r, open === r.id); }).join('') + '</div>';
 }
-/* Výhled: co garant v této scéně bude schvalovat (místo dřívějšího bloku na každém kroku). */
-function decideHint(s, ids) {
+/* Úvod scény: co se v ní bude schvalovat. */
+function sceneIntroHint(s, ids) {
   if (!ids.length) return '';
   var titles = ids.map(function (id) { var r = NF.item(s, id); return r ? r.title : id; });
-  return sceneOff(s, ids) + '<p class="tour-next">Na konci scény rozhodnete o: ' + e(titles.join(' · ')) + '.</p>';
+  return sceneOff(s, ids) + '<p class="tour-next">V této scéně schvalujete: ' + e(titles.join(' · ')) + '.</p>';
 }
+/* ---------- průchod a souhrn (8. 10. 2026) ----------
+   Kam se garant dostal (nejvyšší scéna) a zda potvrdil závěrečný souhrn; obojí se ukládá i na server (správce to vidí ve Výsledcích). */
+var PKEY = 'nutrifee-progress', prog = { max: 0, done: null, doneAt: null };
+try { prog = JSON.parse(global.localStorage && global.localStorage.getItem(PKEY) || 'null') || prog; } catch (err) { }
+function saveProg() { try { global.localStorage && global.localStorage.setItem(PKEY, JSON.stringify(prog)); } catch (err) { } }
+function noteProgress(idx) {
+  if (idx <= (prog.max || 0) && prog.max !== 0) return;
+  if (idx === 0 && prog.max === 0 && prog.seen) return;
+  prog.max = Math.max(prog.max || 0, idx); prog.seen = true; saveProg();
+  var sc = D.scenes[idx];
+  if (D.sync && D.sync.event) D.sync.event('progress', 'PRUBEH', 'Průchod maketou', { scene: idx + 1, total: D.scenes.length, mainEnd: mainSceneOf('trace') + 1, title: sc ? (sc.title || D.chapters[sc.ch].title) : '', summaryConfirmed: !!prog.done });
+}
+D.progress = function () { return { max: prog.max || 0, done: prog.done || null, total: D.scenes.length, mainEnd: mainSceneOf('trace') + 1 }; };
+D.progressClear = function () { prog = { max: 0, done: null, doneAt: null }; saveProg(); };
+function summaryBlock(s) {
+  var items = s.registry.items, sum = NF.registrySummary(s);
+  var open = s.gOpen && items.some(function (r) { return r.id === s.gOpen; }) ? s.gOpen : null;
+  var changedSince = prog.done && s.registry.history.some(function (h) { return h.kind !== 'comment' && h.rt && h.rt > prog.done; });
+  var byCat = {}; items.forEach(function (r) { (byCat[r.cat] = byCat[r.cat] || []).push(r); });
+  return '<div class="garant decide summary"><p class="small"><b>Souhrn vašich rozhodnutí</b> · schváleno ' + sum.approved + ' · s úpravou ' + sum.edited + ' · zamítnuto ' + sum.rejected + ' · ke schválení ' + sum.remaining + ' z ' + sum.total + '. Zkontrolujte, případně změňte (rozbalením položky) a potvrďte. Vše je průběžně uložené; potvrzení souhrnu říká správci, že jste maketu prošli celou.</p>' +
+    (sum.remaining ? '<p class="small muted">Položky „ke schválení“ můžete nechat tak — i to je informace pro autora makety.</p>' : '') +
+    Object.keys(byCat).map(function (c) { return '<p class="small" style="margin:10px 0 2px"><b>' + e(NF.catLabel(c)) + '</b></p>' + byCat[c].map(function (r) { return gitem(s, r, open === r.id); }).join(''); }).join('') +
+    '<div class="actions" style="margin-top:12px">' + btn(prog.done ? 'Potvrdit souhrn znovu' : 'Potvrdit souhrn', 'garantConfirmSummary', null, 'primary') + '</div>' +
+    (prog.done ? '<p class="small ' + (changedSince ? '' : 'muted') + '">Souhrn potvrzen ' + e(prog.doneAt || '') + (changedSince ? ' — od té doby jste rozhodnutí změnili, potvrďte znovu.' : '.') + '</p>' : '') + '</div>';
+}
+NF.demoActions.garantConfirmSummary = function () {
+  var s = S(), sum = NF.registrySummary(s), now = new Date();
+  prog.done = now.toISOString(); prog.doneAt = NF.fmtShort(prog.done) + ' ' + NF.fmtTime(prog.done); prog.max = Math.max(prog.max || 0, sceneIdx(s)); saveProg();
+  var rej = s.registry.items.filter(function (r) { return r.status === 'rejected'; }).map(function (r) { return r.id; });
+  var pend = s.registry.items.filter(function (r) { return !NF.itemTouched(s, r.id); }).map(function (r) { return r.id; });
+  if (D.sync && D.sync.event) D.sync.event('summary', 'SOUHRN', 'Souhrn rozhodnutí potvrzen', { approved: sum.confirmed, edited: sum.edited, rejected: sum.rejected, pending: sum.remaining, total: sum.total, rejectedIds: rej, pendingIds: pend, scene: sceneIdx(s) + 1, total_scenes: D.scenes.length });
+  s.toast = 'Souhrn potvrzen a uložen. Rozhodnutí můžete i tak dál měnit.';
+};
 /* Přehled dějství na jeho první scéně: co uvidíte a co budete schvalovat. */
 function actOverview(s, idx) {
   var sc = D.scenes[idx]; if (!sc || sc.appendix) return '';
@@ -286,12 +323,14 @@ function panel(s) {
   var upcoming = i >= st.length && !last ? D.scenes[idx + 1] : null;
   var toAppendix = upcoming && upcoming.appendix && !(sc && sc.appendix);
   var nextStep = i < st.length ? st[i] : null, ids = D.decisionItems(idx), undecided = ids.filter(function (id) { return !NF.itemTouched(s, id); }).length;
-  var label = busy ? 'Probíhá…' : nextStep ? (nextStep.decide ? 'Co schvalujete ▶' : i === 0 ? 'Začít ▶' : 'Další krok ▶') : last ? 'Konec ukázky' : (shown.decide && undecided ? 'Rozhodnout později ▶' : toAppendix ? 'Dodatek: varianty ▶' : 'Další scéna ▶');
+  var finale = sc && !sc.appendix && ch.id === 'trace' && i >= st.length;
+  var label = busy ? 'Probíhá…' : nextStep ? (i === 0 ? 'Začít ▶' : 'Pokračovat ▶') : last ? 'Konec ukázky' : toAppendix ? 'Dodatek: varianty ▶' : 'Další scéna ▶';
   if (hidden) return '<div class="tour-panel tour-min">' + btn('Zobrazit vyprávění', 'tourToggle') + btn('←', 'tourBack', null, '', busy ? ' disabled' : '') + btn(e(label), 'tourNext', null, 'primary', busy || last ? ' disabled' : '') + '</div>';
-  var body = shown.decide ? decideBlock(s, shown.decide) : '<dl class="tour-rows">' + rows(shown) + '</dl>' + (i === 0 ? actOverview(s, idx) : '') + decideHint(s, ids);
-  return '<aside class="tour-panel' + (shown.decide ? ' tour-decide' : '') + '" aria-live="polite" aria-label="Vyprávění k ukázce"><p class="tour-kicker">' + (sc && sc.appendix ? 'Dodatek · ' : sc && sc.detour ? 'Odbočka · ' : '') + 'Scéna ' + (idx + 1) + ' z ' + D.scenes.length + ' · ' + (shown.decide ? 'rozhodnutí garanta' : running != null ? 'krok ' + (running + 1) + ' z ' + st.length : i === 0 ? 'úvod' : 'krok ' + i + ' z ' + st.length) + '</p>' +
+  var body = '<dl class="tour-rows">' + rows(shown) + '</dl>' + (i === 0 ? actOverview(s, idx) + sceneIntroHint(s, ids) : '') + (finale ? summaryBlock(s) : approvalsBlock(s, idx, i, st));
+  return '<aside class="tour-panel' + (finale ? ' tour-decide' : '') + '" aria-live="polite" aria-label="Vyprávění k ukázce"><p class="tour-kicker">' + (sc && sc.appendix ? 'Dodatek · ' : sc && sc.detour ? 'Odbočka · ' : '') + 'Scéna ' + (idx + 1) + ' z ' + D.scenes.length + ' · ' + (finale ? 'souhrn rozhodnutí' : running != null ? 'krok ' + (running + 1) + ' z ' + st.length : i === 0 ? 'úvod' : 'krok ' + i + ' z ' + st.length) + '</p>' +
     '<p class="tour-where">' + e(whereNow(s)) + '</p><h2>' + e(shown.t || sceneTitle(s)) + '</h2>' + body +
-    (nextStep && !busy ? '<p class="tour-next">Dál: ' + e(nextStep.decide ? 'co jste viděli a co schvalujete' : nextStep.t) + '</p>' : '') +
+    '<p class="tour-hint">Ovládejte ukázku jen tlačítky v tomto panelu; obrazovku vlevo odehrává ukázka sama.</p>' +
+    (nextStep && !busy ? '<p class="tour-next">Dál: ' + e(nextStep.t) + '</p>' : '') +
     (upcoming ? '<p class="tour-next">' + (toAppendix ? 'Hlavní linie končí. Dál je dodatek s variantami: ' : 'Další scéna: ') + e(upcoming.title || D.chapters[upcoming.ch].title) + '</p>' : '') +
     (last ? '<p class="tour-next">Konec ukázky i dodatku.</p>' : '') +
     '<div class="tour-actions">' + btn('← Zpět', 'tourBack', null, '', busy || (idx === 0 && i === 0) ? ' disabled' : '') + btn(e(label), 'tourNext', null, 'primary', busy || last ? ' disabled' : '') + (i > 0 && !busy ? btn('Scénu znovu', 'tourRestart') : '') + btn('Skrýt', 'tourToggle') + '</div>' +
