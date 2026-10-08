@@ -31,6 +31,8 @@ function boot({ withDemo = true } = {}) {
 }
 const S = () => app.getState();
 const act = (a, v) => app.act(a, v);
+/* Pokračování vyžaduje rozhodnutí nabídnutých položek (8. 10. 2026): testy je schválí a jdou dál. */
+const next = () => { const pn = D.pendingNow(S()); pn.ids.forEach(id => app.act('garantDecide', id + ':approved')); if (pn.summary) app.act('garantConfirmSummary'); app.act('tourNext'); };
 const bind = (k, v) => app.bind(k, v);
 /* Vykreslení vkládá nezlomitelné mezery (D11); testy porovnávají s obyčejnou mezerou. */
 const plain = s => String(s).replace(/\u00a0/g, ' ');
@@ -188,7 +190,7 @@ test('Stav položek (7. 10. 2026 večer): ke schválení místo „schváleno p�
   for (const id of ['R-REAKCE', 'D-PRAND', 'S-TYDEN', 'R-PORCE', 'Z-BODY']) act('garantDecide', id + ':rejected');
   let guard = 0;
   while (guard++ < 600) {
-    const before = S().sceneIndex + ':' + (S().tourStep || 0); act('tourNext'); act('closeDrawer');
+    const before = S().sceneIndex + ':' + (S().tourStep || 0); next(); act('closeDrawer');
     if (S().error) assert.equal(/Krok ukázky selhal/.test(S().error), false, 'scéna ' + (S().sceneIndex + 1) + ': ' + S().error);
     if (S().sceneIndex + ':' + (S().tourStep || 0) === before) break;
   }
@@ -199,12 +201,32 @@ test('Stav položek (7. 10. 2026 večer): ke schválení místo „schváleno p�
 test('Panel vyprávění (8. 10. 2026): říká, co je na obrazovce; žádný krok nemá titulek, který popisuje jen akci místo výsledku', () => {
   const generic = /^(Další krok|Uložit|Souhlasím|K návrhům|Zahájit kontrolu|Pokračovat|Přijmout a uložit|Vydat plán P2|Upravit s komentářem|Plán přebírám)$/;
   for (const ch of D.chapters) { const st = D.tour.stepsFor(ch.id, D.defaults); for (const x of st) { assert.ok(x.t && x.t.trim().length > 2, ch.id + ': krok bez titulku'); assert.equal(generic.test(x.t.trim()), false, ch.id + ': titulek „' + x.t + '“ popisuje akci, ne stav obrazovky'); } }
-  chapter('enroll'); act('tourNext'); act('tourNext'); act('tourNext');
+  chapter('enroll'); next(); next(); next();
   let m = markup(); assert.match(m, /Na obrazovce: Lékař · Zařazení a plán, krok 2 ze 3/); assert.match(m, /<h2>Krok 2: dávky, návyky a pokyny<\/h2>/); assert.equal(S().wizardStep, 1);
   act('role', 'patient'); m = markup(); assert.match(m, /Mimo příběh/);
-  chapter('reviewProposals'); act('tourNext'); m = markup(); assert.match(m, /Na obrazovce: Lékař · Kontrola, krok 2 ze 4/);
-  chapter('firstMeal'); for (let k = 0; k < 3; k++) act('tourNext'); m = markup(); assert.match(m, /Na obrazovce: Pacient · Zápis jídla, krok 2 ze 3/);
+  chapter('reviewProposals'); next(); m = markup(); assert.match(m, /Na obrazovce: Lékař · Kontrola, krok 2 ze 4/);
+  chapter('firstMeal'); for (let k = 0; k < 3; k++) next(); m = markup(); assert.match(m, /Na obrazovce: Pacient · Zápis jídla, krok 2 ze 3/);
   const css = fs.readFileSync(path.join(__dirname, 'demo/demo.css'), 'utf8'); assert.match(css, /--barh/, 'panel se posouvá podle skutečné výšky lišty');
+});
+
+test('Zámek průchodu (8. 10. 2026): bez rozhodnutí nabídnutých položek se nepokračuje; ve finále bez potvrzení souhrnu; jediné tlačítko; fokus zůstává do dalšího kroku; obrazovka v příběhu zamčená', () => {
+  act('goScene', '2'); act('closeDrawer'); assert.equal(D.pendingNow(S()).ids.length, 0, 'před Začít nic neblokuje'); app.act('tourNext'); app.act('tourNext'); app.act('tourNext');
+  let m = markup(); assert.match(m, /Ke schválení teď/); assert.equal(S().tourStep, 1, 'po prvním kroku se čeká na rozhodnutí'); const pn = D.pendingNow(S()); assert.ok(pn.ids.length >= 1, 'nabídnuté nerozhodnuté položky');
+  assert.match(m, /Nejdřív rozhodněte /); assert.match(m, /data-action="tourNext" disabled/);
+  const step = S().tourStep; app.act('tourNext'); assert.equal(S().tourStep, step, 'bez rozhodnutí se nejde dál'); assert.match(markup(), /Nejdřív rozhodněte/);
+  pn.ids.forEach(id => act('garantDecide', id + ':approved')); assert.equal(D.pendingNow(S()).ids.length, 0); assert.equal(/data-action="tourNext" disabled/.test(markup()), false);
+  app.act('tourNext'); assert.equal(S().tourStep, step + 1, 'po rozhodnutí se pokračuje');
+  /* jediné tlačítko pro pokračování: v liště není Další/Zpět/Přeskočit, v panelu není Scénu znovu */
+  m = markup(); const bar = m.slice(m.indexOf('<div class="pres-bar">'), m.indexOf('</div>', m.indexOf('<div class="pres-bar">')));
+  assert.equal(/tourNext|tourBack|storyStep/.test(bar), false, 'lišta bez navigačních tlačítek'); assert.equal((m.match(/data-action="tourNext"/g) || []).length, 1, 'právě jedno tlačítko Pokračovat'); assert.equal(/Scénu znovu/.test(m.slice(m.indexOf('<aside'))), false);
+  /* finále: souhrn musí být potvrzen */
+  const fin = D.scenes.findIndex(x => !x.appendix && D.chapters[x.ch].id === 'trace'); act('goScene', String(fin)); act('closeDrawer');
+  const stf = D.tour.stepsFor('trace', S().branches); for (let k = 0; k < stf.length; k++) next();
+  assert.equal(D.pendingNow(S()).summary, true); assert.match(markup(), /Nejdřív potvrďte souhrn/); app.act('tourNext'); assert.equal(S().sceneIndex, fin, 'bez potvrzení souhrnu se do dodatku nejde');
+  act('garantConfirmSummary'); assert.equal(D.pendingNow(S()).summary, false); app.act('tourNext'); assert.equal(S().sceneIndex, fin + 1, 'po potvrzení dál');
+  /* fokus: po kroku zůstává selektor posledního cíle */
+  const src = fs.readFileSync(path.join(__dirname, 'demo/presenter.js'), 'utf8'); assert.match(src, /focusSel = failed \? null : lastFocus\(step\)/); assert.match(src, /pres-locked/);
+  assert.match(fs.readFileSync(path.join(__dirname, 'demo/demo.css'), 'utf8'), /body\.pres-locked main\{pointer-events:none\}/);
 });
 
 test('Pacientské texty jsou bez rodu (vykání, žádné příčestí „zkusil/zapsal“, žádné „nemocný“)', () => {
@@ -745,11 +767,11 @@ test('Robustnost: akce bez stavu nepadají; Další po ručním zásahu pacienta
   for (const id of ['firstMeal', 'advice', 'afterBolus', 'custom', 'illnessMeal']) {
     chapter(id); act('role', 'patient');
     if (S().meal) act('mealFinish', S().meal.bolus === 'before' ? 'as' : (S().meal.bolus || 'as'));
-    for (let k = 0; k < 12; k++) act('tourNext');
+    for (let k = 0; k < 12; k++) next();
     assert.ok(!/undefined|NaN/.test(markup()), id);
   }
-  chapter('week'); act('role', 'patient'); act('startMeal', 'snack'); for (let k = 0; k < 8; k++) act('tourNext'); assert.ok(!/undefined|NaN/.test(markup()));
-  chapter('training'); act('role', 'nurse'); act('trainingStep', 'app'); for (let k = 0; k < 6; k++) act('tourNext'); assert.equal(S().training.result, 'done', 'ruční odškrtnutí nezasekne zaučení');
+  chapter('week'); act('role', 'patient'); act('startMeal', 'snack'); for (let k = 0; k < 8; k++) next(); assert.ok(!/undefined|NaN/.test(markup()));
+  chapter('training'); act('role', 'nurse'); act('trainingStep', 'app'); for (let k = 0; k < 6; k++) next(); assert.equal(S().training.result, 'done', 'ruční odškrtnutí nezasekne zaučení');
   NF.actions.noop = () => { throw new Error('zkouška'); }; act('noop'); assert.match(S().error, /nepovedlo/); assert.ok(S().events.some(e => e.what === 'chyba.akce')); delete NF.actions.noop; NF.actions.noop = function () { };
 });
 
@@ -906,7 +928,7 @@ test('Průchod pro garanta (7. 10. 2026): každá položka má pětidílný popi
   for (let i = 0; i < D.scenes.length; i++) {
     act('goScene', String(i)); act('closeDrawer');
     const st = D.tour.stepsFor(D.chapters[S().chapterIndex].id, S().branches), ids = new Set(D.itemsOnScreen(S()));
-    for (let k = 0; k < st.length; k++) { act('tourNext'); D.itemsOnScreen(S()).forEach(x => ids.add(x)); }
+    for (let k = 0; k < st.length; k++) { next(); D.itemsOnScreen(S()).forEach(x => ids.add(x)); }
     assert.deepEqual([...ids].sort(), [...D.sceneItems[i].items].sort(), 'scéna ' + (i + 1) + ' — spusťte navrhy-designu/04-pohledy-2026-10-05/scene-items.cjs');
   }
 });
@@ -917,19 +939,19 @@ test('Průchod pro garanta (8. 10. 2026): schvalování hned v kroku, kdy polož
   let m = markup(); assert.match(m, /V této scéně schvalujete: /); assert.match(m, /Dál: /); assert.match(m, /Ovládejte ukázku jen tlačítky v tomto panelu/);
   assert.equal(/Další krok ▶|Co schvalujete ▶|Rozhodnout později ▶/.test(m), false, 'jediné tlačítko pro pokračování');
   const st = D.tour.stepsFor(D.chapters[S().chapterIndex].id, S().branches);
-  act('tourNext'); act('tourNext'); act('tourNext'); m = markup(); /* po kroku „Startovní sada návyků“ je položka na obrazovce */
+  app.act('tourNext'); m = markup(); /* po prvním kroku se nabídnou položky, které jsou na obrazovce */
   assert.match(m, /Ke schválení teď/); assert.match(m, /Pokračovat ▶/); assert.match(m, /Proč existuje/); assert.match(m, /Jak funguje/); assert.match(m, /Kde je použita/); assert.match(m, /Co schvalujete/); assert.match(m, /Co se stane při zamítnutí/);
   assert.ok(D.itemsOnScreen(S()).includes('R-NAVYKY'), 'R-NAVYKY na obrazovce'); assert.match(m, /data-action="garantOpen" data-value="R-NAVYKY"/); act('garantOpen', 'R-NAVYKY'); assert.match(markup(), /data-action="garantDecide" data-value="R-NAVYKY:approved"/);
   const ids = D.decisionItems(2); assert.ok(ids.includes('R-NAVYKY') && ids.includes('R-POKYNY') && ids.includes('C-CILE'));
   act('garantDecide', 'R-NAVYKY:approved'); assert.equal(NF.itemTouched(S(), 'R-NAVYKY'), true); assert.match(markup(), /schváleno/); assert.equal(NF.itemState(S(), 'R-NAVYKY'), 'approved');
-  for (let k = 3; k < st.length; k++) act('tourNext');
+  for (let k = 1; k < st.length; k++) next();
   m = markup(); assert.match(m, /Z této scény ještě ke schválení|Ke schválení teď/); assert.match(m, /Další scéna ▶/);
   act('garantOpen', 'C-CILE'); assert.match(markup(), /dolní cíl \(mmol\/l\): <b>3,9/);
-  act('tourNext'); assert.equal(S().sceneIndex, 3, 'Další scéna jde dál bez rozhodnutí ostatních');
+  next(); assert.equal(S().sceneIndex, 3, 'Další scéna po rozhodnutí všech položek scény');
   assert.equal(/K potvrzení na této obrazovce/.test(markup()), false, 'starý blok zmizel');
   /* souhrn na konci hlavní linie: všechny položky, potvrzení, záznam pro správce */
   const fin = D.scenes.findIndex(x => !x.appendix && D.chapters[x.ch].id === 'trace'); act('goScene', String(fin)); act('closeDrawer');
-  const stf = D.tour.stepsFor('trace', S().branches); for (let k = 0; k < stf.length; k++) act('tourNext');
+  const stf = D.tour.stepsFor('trace', S().branches); for (let k = 0; k < stf.length; k++) next();
   m = markup(); assert.match(m, /Souhrn vašich rozhodnutí/); assert.match(m, /Potvrdit souhrn/); assert.equal((m.match(/class="gitem"/g) || []).length, 28, 'souhrn ukazuje všech 28 položek');
   const before = D.sync.pending(); act('garantConfirmSummary'); assert.equal(D.sync.pending(), before + 1);
   const q = JSON.parse(store.get('nutrifee-sync-queue')); const last = q[q.length - 1]; assert.equal(last.kind, 'summary'); assert.equal(last.item, 'SOUHRN'); assert.equal(last.params.total, 28); assert.ok(last.params.rejectedIds);
@@ -942,7 +964,7 @@ test('Průchod pro garanta (8. 10. 2026): schvalování hned v kroku, kdy polož
   /* mimo příběh */
   act('page', 'registry'); assert.match(markup(), /mimo příběh/); assert.match(markup(), /Zpět do příběhu/); assert.match(markup(), /Používá se:/);
   act('regOpen', 'D-PRAND'); const r = markup(); assert.match(r, /Proč existuje/); assert.match(r, /V příběhu:/); assert.match(r, /okno nejméně \(dní\)/);
-  act('tourNext'); assert.equal(S().page, 'enroll', 'Další mimo příběh nejdřív vrátí do scény'); assert.equal(/mimo příběh/.test(markup()), false);
+  next(); assert.equal(S().page, 'enroll', 'Další mimo příběh nejdřív vrátí do scény'); assert.equal(/mimo příběh/.test(markup()), false);
   act('role', 'patient'); assert.match(markup(), /mimo příběh/); act('tourReturn'); assert.equal(S().role, 'doctor');
 });
 
@@ -979,7 +1001,7 @@ function tourAll() {
     const s = S(), B = s.branches, st = D.tour.stepsFor(D.chapters[s.chapterIndex].id, B), i = s.tourStep || 0;
     if (s.sceneIndex >= D.tour.lastIndex() && i >= st.length) break;
     if (i < st.length) { const op = (st[i].do || [])[0]; if (op && op.sel) { const sel = typeof op.sel === 'function' ? op.sel(B, s) : op.sel; assert.ok(selectorPresent(markup(), sel), 'cíl kroku chybí: scéna ' + (s.sceneIndex + 1) + ' ' + D.chapters[s.chapterIndex].id + ' krok ' + (i + 1) + ' ' + sel); } }
-    act('tourNext');
+    next();
     assert.equal(S().error, '', D.chapters[s.chapterIndex].id + ' krok ' + (i + 1) + ': ' + S().error);
     seen.push(D.chapters[S().chapterIndex].id); if (!scenes.includes(S().sceneIndex)) scenes.push(S().sceneIndex);
   }
@@ -1001,10 +1023,10 @@ test('Celou maketu včetně všech odboček jde projít jen tlačítkem Další'
 });
 test('Krok zpět vrací přesně o jeden krok; na začátku scény o scénu; rozhodnutí garanta přežije skok mezi scénami', () => {
   act('goScene', String(D.scenes.findIndex(sc => D.chapters[sc.ch].id === 'advice')));
-  act('tourNext'); act('tourNext'); assert.equal(S().tourStep, 2);
+  next(); next(); assert.equal(S().tourStep, 2);
   const snap = JSON.stringify(S().meal.decisions);
   act('tourBack'); assert.equal(S().tourStep, 1);
-  act('tourNext'); assert.equal(S().tourStep, 2); assert.equal(JSON.stringify(S().meal.decisions), snap, 'po zpět a vpřed stejný stav');
+  next(); assert.equal(S().tourStep, 2); assert.equal(JSON.stringify(S().meal.decisions), snap, 'po zpět a vpřed stejný stav');
   act('tourBack'); act('tourBack'); assert.equal(S().tourStep, 0);
   const here = S().sceneIndex; act('tourBack'); assert.equal(S().sceneIndex, here - 1, 'na začátku scény jde zpět o scénu');
   /* garant rozhodne z panelu vyprávění (v roli pacienta) a rozhodnutí přežije přehrání jiné scény */

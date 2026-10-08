@@ -108,3 +108,8 @@ body.pres-nurse .split{grid-template-columns:1fr 380px}
 .off-notice .btn{display:inline-flex;margin-top:6px;min-height:32px}
 .off-notice.compact{font-size:13px;padding:8px 10px}
 .off-scene{margin:0 0 10px}
+
+/* v příběhu ovládá garant jen panel: obrazovka vlevo nereaguje na klepnutí (8. 10. 2026) */
+body.pres-locked main{pointer-events:none}
+body.pres-locked main .tour-focus{pointer-events:none}
+.tour-block{color:var(--badtx);font-weight:650}
