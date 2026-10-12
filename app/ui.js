@@ -46,6 +46,7 @@ function keepOpenDetails(root) {
 
 /* ---------- vykreslení ---------- */
 function content() {
+  if (NF.slots.pageOverride) { try { var o = NF.slots.pageOverride(S); if (o) return o; } catch (err) { } } /* vrstva nad jádrem může dodat vlastní stránku (úvod ukázky) */
   if (S.role === 'doctor') return V.doctor(S);
   if (S.role === 'nurse') return V.nurse(S);
   return V.patient(S);

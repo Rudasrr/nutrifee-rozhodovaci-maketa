@@ -2,7 +2,7 @@
 (function (global) { var D = global.NutriFeeDemo = global.NutriFeeDemo || {};
 D.sceneItems = [
  {
-  "title": "Prolog — k čemu NutriFee je", "items": []
+  "title": "Úvod — k čemu NutriFee je a jak ukázku ovládat", "items": []
  },
  {
   "title": "Lékař — karta a podmínky zařazení", "items": [

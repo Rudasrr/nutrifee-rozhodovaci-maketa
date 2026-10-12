@@ -79,10 +79,8 @@ D.garantLog = function () { return glog.slice(); };
 /* ---------- lišta ---------- */
 NF.registerSlot('banner', function (s) {
   var ch = chapter(s), a = D.acts[ch.act], i = sceneIdx(s), sum = NF.registrySummary(s);
-  var roles = [['patient', 'Pacient'], ['doctor', 'Lékař'], ['nurse', 'Sestra']];
   return '<div class="pres-bar"><span class="flag">DEMO · syntetická data · není určeno pro léčbu</span>' +
     '<span class="where">' + e(a.title) + ' · scéna ' + (i + 1) + ' z ' + D.scenes.length + ': <b>' + e(sceneTitle(s)) + '</b> · ' + e(NF.fmtShort(s.clock)) + ' ' + e(NF.fmtTime(s.clock)) + '</span>' +
-    '<span class="roles">' + roles.map(function (r) { return '<button type="button" class="' + (s.role === r[0] ? 'on' : '') + '" data-action="role" data-value="' + r[0] + '">' + r[1] + '</button>'; }).join('') + '</span>' +
     btn(sum.remaining ? 'Ke schválení · zbývá ' + sum.remaining : 'Vše rozhodnuto', 'openAside', 'registry', sum.remaining ? '' : 'ok') + (NF.slots.syncBadge ? NF.slots.syncBadge(s) : '') +
     (D.auth && D.auth.role() === 'admin' ? btn('Výsledky garanta', 'openResults') : '') +
     btn('Panel prezentujícího', 'openPresenter') + btn('Vrátit na začátek', 'resetDemo') +
@@ -146,6 +144,7 @@ function lastFocus(step) { var ops = (step.do || []).filter(function (o) { retur
 NF.demoActions.tourNext = function () {
   if (busy) return;
   if (away(S())) { NF.demoActions.tourReturn(); return; } /* mimo příběh: Další nejdřív vrátí do scény */
+  returnTo = null;
   var pn = pendingNow(S());
   if (pn.ids.length || pn.summary) { S().toast = pn.ids.length ? 'Nejdřív rozhodněte položky v panelu (' + pn.ids.length + '). Pak můžete pokračovat.' : 'Nejdřív potvrďte souhrn rozhodnutí v panelu.'; return; }
   var st = steps(), s = S(), i = s.tourStep || 0;
@@ -308,7 +307,7 @@ function actOverview(s, idx) {
   }).join('') + '</ol></details>';
 }
 /* Co je právě vlevo na obrazovce — panel to říká vždy, aby vyprávění nikdy nebylo „pozadu“ (8. 10. 2026). */
-var PAGE_NOM = { registry: 'Schvalovací registr', trace: 'Verze a stopa', review: 'Kontrola', enroll: 'Zařazení a plán', training: 'Zaučení', today: 'Dnes', foods: 'Jídla', plan: 'Plán', safety: 'Bezpečí', preview: 'Přehled před kontrolou', meal: 'Zápis jídla', understand: 'Převzetí plánu', takeover: 'Převzetí plánu', newplan: 'Nový plán' };
+var PAGE_NOM = { intro: 'Úvod', registry: 'Schvalovací registr', trace: 'Verze a stopa', review: 'Kontrola', enroll: 'Zařazení a plán', training: 'Zaučení', today: 'Dnes', foods: 'Jídla', plan: 'Plán', safety: 'Bezpečí', preview: 'Přehled před kontrolou', meal: 'Zápis jídla', understand: 'Převzetí plánu', takeover: 'Převzetí plánu', newplan: 'Nový plán' };
 function whereNow(s) {
   var role = { patient: 'Pacient', doctor: 'Lékař', nurse: 'Sestra' }[s.role] || s.role, page = PAGE_NOM[s.page] || s.page, sub = '';
   if (s.page === 'enroll') sub = ', krok ' + ((s.wizardStep || 0) + 1) + ' ze 3';
@@ -317,7 +316,7 @@ function whereNow(s) {
   return 'Na obrazovce: ' + role + ' · ' + page + sub;
 }
 function pageName(s) {
-  var map = { registry: 'schvalovací registr', trace: 'verzi a stopu', review: 'kontrolu', enroll: 'zařazení a plán', training: 'zaučení', today: 'obrazovku Dnes', foods: 'jídla', plan: 'plán', safety: 'Bezpečí', preview: 'přehled před kontrolou', meal: 'zápis jídla' };
+  var map = { intro: 'úvod', registry: 'schvalovací registr', trace: 'verzi a stopu', review: 'kontrolu', enroll: 'zařazení a plán', training: 'zaučení', today: 'obrazovku Dnes', foods: 'jídla', plan: 'plán', safety: 'Bezpečí', preview: 'přehled před kontrolou', meal: 'zápis jídla' };
   return map[s.page] || ('obrazovku „' + s.page + '“');
 }
 function panel(s) {
@@ -337,7 +336,7 @@ function panel(s) {
   var nextStep = i < st.length ? st[i] : null, ids = D.decisionItems(idx), undecided = ids.filter(function (id) { return !NF.itemTouched(s, id); }).length;
   var finale = sc && !sc.appendix && ch.id === 'trace' && i >= st.length;
   var pn = pendingNow(s), blockedBy = pn.ids.length ? 'Nejdřív rozhodněte ' + (pn.ids.length === 1 ? 'položku' : pn.ids.length < 5 ? pn.ids.length + ' položky' : pn.ids.length + ' položek') + ' výše.' : pn.summary ? 'Nejdřív potvrďte souhrn.' : '';
-  var label = busy ? 'Probíhá…' : nextStep ? (i === 0 ? 'Začít ▶' : 'Pokračovat ▶') : last ? 'Konec ukázky' : toAppendix ? 'Dodatek: varianty ▶' : 'Další scéna ▶';
+  var label = busy ? 'Probíhá…' : nextStep ? (i === 0 ? 'Začít ▶' : 'Pokračovat ▶') : last ? 'Konec ukázky' : toAppendix ? 'Dodatek: varianty ▶' : idx === 0 ? 'Začít ukázku ▶' : 'Další scéna ▶';
   if (hidden) return '<div class="tour-panel tour-min">' + btn('Zobrazit vyprávění', 'tourToggle') + btn('←', 'tourBack', null, '', busy ? ' disabled' : '') + btn(e(label), 'tourNext', null, 'primary', busy || last || blockedBy ? ' disabled' : '') + '</div>';
   var body = '<dl class="tour-rows">' + rows(shown) + '</dl>' + (i === 0 ? actOverview(s, idx) + sceneIntroHint(s, ids) : '') + (finale ? summaryBlock(s) : approvalsBlock(s, idx, i, st));
   return '<aside class="tour-panel' + (finale ? ' tour-decide' : '') + '" aria-live="polite" aria-label="Ovládání ukázky"><div class="tour-head"><span>Ovládání ukázky</span><span class="tour-legend">fialové = ovládání · tyrkysové = budoucí aplikace</span></div><p class="tour-kicker">' + (sc && sc.appendix ? 'Dodatek · ' : sc && sc.detour ? 'Odbočka · ' : '') + 'Scéna ' + (idx + 1) + ' z ' + D.scenes.length + ' · ' + (finale ? 'souhrn rozhodnutí' : running != null ? 'krok ' + (running + 1) + ' z ' + st.length : i === 0 ? 'úvod' : 'krok ' + i + ' z ' + st.length) + '</p>' +
@@ -346,8 +345,9 @@ function panel(s) {
     (nextStep && !busy ? '<p class="tour-next">Dál: ' + e(nextStep.t) + '</p>' : '') +
     (upcoming ? '<p class="tour-next">' + (toAppendix ? 'Hlavní linie končí. Dál je dodatek s variantami: ' : 'Další scéna: ') + e(upcoming.title || D.chapters[upcoming.ch].title) + '</p>' : '') +
     (last ? '<p class="tour-next">Konec ukázky i dodatku.</p>' : '') +
+    (returnTo && !busy ? '<p class="tour-next">Přišli jste sem z registru (položka ' + e(returnTo.item) + ').</p>' : '') +
     (blockedBy && !busy ? '<p class="tour-next tour-block">' + e(blockedBy) + '</p>' : '') +
-    '<div class="tour-actions">' + btn('← Zpět', 'tourBack', null, '', busy || (idx === 0 && i === 0) ? ' disabled' : '') + btn(e(label), 'tourNext', null, 'primary', busy || last || blockedBy ? ' disabled' : '') + btn('Skrýt', 'tourToggle') + '</div>' +
+    '<div class="tour-actions">' + (returnTo && !busy ? btn('← Zpět do registru', 'regReturn', null, 'primary') : '') + btn('← Zpět', 'tourBack', null, '', busy || (idx === 0 && i === 0) ? ' disabled' : '') + btn(e(label), 'tourNext', null, 'primary', busy || last || blockedBy ? ' disabled' : '') + btn('Skrýt', 'tourToggle') + '</div>' +
     '<div class="tour-progress" aria-hidden="true"><span style="width:' + Math.round(((idx + (st.length ? Math.min(i, st.length) / st.length : 1)) / D.scenes.length) * 100) + '%"></span></div></aside>';
 }
 /* „Kde je použita“ v registru: scény příběhu, kde položka působí (z demo/scene-items.js a mapy D.itemScene). */
@@ -356,8 +356,13 @@ NF.slots.itemWhere = function (s, id) {
   (D.sceneItems || []).forEach(function (sc, i) { if ((sc.items || []).indexOf(id) >= 0) where.push(i); });
   var manual = D.itemScene[id] ? mainSceneOf(D.itemScene[id]) : -1; if (manual >= 0 && where.indexOf(manual) < 0) where.unshift(manual);
   if (!where.length) return '<p class="small muted">V příběhu bez vlastního štítku; rozhoduje se ve finále.</p>';
-  return '<p class="small">V příběhu:</p><div class="buttonlist">' + where.map(function (i) { return btn((i + 1) + '. ' + (D.scenes[i].title || D.chapters[D.scenes[i].ch].title), 'goScene', String(i), 'sm'); }).join('') + '</div>';
+  return '<p class="small">V příběhu:</p><div class="buttonlist">' + where.map(function (i) { return btn((i + 1) + '. ' + (D.scenes[i].title || D.chapters[D.scenes[i].ch].title), 'goSceneFrom', i + ':' + id, 'sm'); }).join('') + '</div><p class="small muted">Ze scény se vrátíte tlačítkem „Zpět do registru“ v panelu.</p>';
 };
+/* Z registru na místo v příběhu a zpět (12. 10. 2026): panel nabídne návrat k položce, odkud garant přišel. */
+var returnTo = null;
+NF.demoActions.goSceneFrom = function (v) { var p = String(v).split(':'); returnTo = { item: p[1] }; land(D.playScene(Number(p[0]))); NF.closeDrawer(); };
+NF.demoActions.regReturn = function () { var id = returnTo && returnTo.item; returnTo = null; NF.demoActions.openAsideItem(id); };
+D.returnTo = function () { return returnTo; };
 NF.demoActions.garantOpen = function (v) { var s = S(); s.gOpen = s.gOpen === v ? null : v; };
 NF.demoActions.openAsideItem = function (v) { var s = S(); s.role = 'doctor'; s.page = 'registry'; s.reg = s.reg || {}; s.reg.open = v; s.reg.editing = false; s.reg.params = null; NF.closeDrawer(); };
 function decorate() {
@@ -391,6 +396,7 @@ function presenterPanel(s) {
     if (D.garantQuestions[ai]) out += '<details class="more"><summary>Otázky pro garanta k tomuto dějství</summary><ul class="plain small">' + D.garantQuestions[ai].map(function (q) { return '<li>' + e(q) + '</li>'; }).join('') + '</ul></details>';
   });
   out += '<hr><h3>Rychlé odkazy</h3><div class="buttonlist">' + btn('Ke schválení (registr)', 'openAside', 'registry') + btn('Verze a stopa', 'openAside', 'trace') + btn('Scénu znovu', 'tourRestart') + btn('Přeskočit scénu', 'storyStep', '1') + '</div>' +
+    '<h3>Přepnout roli (mimo příběh)</h3><div class="buttonlist">' + [['patient', 'Pacient'], ['doctor', 'Lékař'], ['nurse', 'Sestra']].map(function (r) { return btn(r[1] + (s.role === r[0] ? ' · teď' : ''), 'role', r[0]); }).join('') + '</div>' +
     '<h3>Modelový čas</h3><div class="actions">' + btn('+ 1 den', 'shiftTime', '1') + btn('+ 7 dní', 'shiftTime', '7') + '</div>' +
     '<hr><label class="field"><span>Poznámky z ukázky</span><textarea data-bind="notes">' + e(s.notes || '') + '</textarea></label>' +
     '<div class="actions">' + btn('Vrátit na začátek', 'resetDemo', null, 'danger') + btn('Smazat rozhodnutí garanta (' + glog.length + ')', 'garantReset', null, 'danger') + btn('Zavřít', 'closeDrawer') + '</div>';

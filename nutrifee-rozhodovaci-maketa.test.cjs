@@ -229,6 +229,29 @@ test('Zámek průchodu (8. 10. 2026): bez rozhodnutí nabídnutých položek se 
   assert.match(fs.readFileSync(path.join(__dirname, 'demo/demo.css'), 'utf8'), /body\.pres-locked main\{pointer-events:none\}/);
 });
 
+test('Úvodní obrazovka (12. 10. 2026): scéna 1 vysvětluje v obsahu, k čemu NutriFee je a jak ukázku ovládat; panel je krátký; karta pacienta až ve scéně 2', () => {
+  act('goScene', '0'); act('closeDrawer'); const m = markup();
+  assert.equal(S().page, 'intro'); assert.match(m, /Jak ukázku ovládat/); assert.match(m, /Vlevo běží aplikace sama/); assert.match(m, /Na konci je souhrn/); assert.match(m, /Co uvidíte/); assert.match(m, /Dějství 1 — V ordinaci/);
+  assert.match(m, /Začít ukázku ▶/); assert.equal(/Karta pacienta|Podmínky zařazení/.test(m.slice(m.indexOf('<main'))), false, 'zařazení až ve scéně 2');
+  assert.match(m, /Na obrazovce: Lékař · Úvod/); const panel = m.slice(m.indexOf('<aside'), m.indexOf('</aside>')); assert.ok(panel.replace(/<[^>]+>/g, '').length < 1400, 'panel první scény je krátký: ' + panel.replace(/<[^>]+>/g, '').length);
+  next(); assert.equal(S().sceneIndex, 1); assert.match(markup(), /Karta pacienta/);
+  boot({ withDemo: false }); assert.equal(/Jak ukázku ovládat/.test(markup()), false, 'produkce bez úvodu ukázky');
+});
+
+test('Z registru na místo v příběhu a zpět (12. 10. 2026)', () => {
+  act('role', 'doctor'); act('page', 'registry'); act('regOpen', 'K-KRITERIA'); let m = markup(); assert.match(m, /data-action="goSceneFrom" data-value="1:K-KRITERIA"/);
+  act('goSceneFrom', '1:K-KRITERIA'); assert.equal(S().sceneIndex, 1); assert.equal(S().page, 'enroll'); m = markup();
+  assert.match(m, /Přišli jste sem z registru \(položka K-KRITERIA\)/); assert.match(m, /data-action="regReturn"/); assert.ok(D.returnTo());
+  act('regReturn'); assert.equal(S().page, 'registry'); assert.equal(S().reg.open, 'K-KRITERIA'); assert.equal(D.returnTo(), null);
+  act('goSceneFrom', '1:K-KRITERIA'); next(); assert.equal(D.returnTo(), null, 'pokračování v příběhu návrat zruší'); assert.equal(/data-action="regReturn"/.test(markup()), false);
+});
+
+test('Lišta garanta bez přepínače rolí (12. 10. 2026): role jen v Panelu prezentujícího', () => {
+  const m = markup(); const bar = m.slice(m.indexOf('<div class="pres-bar">'), m.indexOf('</div>', m.indexOf('<div class="pres-bar">')));
+  assert.equal(/data-action="role"/.test(bar), false, 'v liště není Pacient/Lékař/Sestra');
+  act('openPresenter'); assert.match(plain(elements.get('overlay').innerHTML), /Přepnout roli/); assert.match(plain(elements.get('overlay').innerHTML), /data-action="role" data-value="patient"/); act('closeDrawer');
+});
+
 test('Pacientské texty jsou bez rodu (vykání, žádné příčestí „zkusil/zapsal“, žádné „nemocný“)', () => {
   const gendered = /\b(jste|jsem) (si |se |to )?[a-zá-ž]+l\b|\b[a-zá-ž]+l (jste|jsem)\b|nemocný|jistý|abyste|jako bys/i;
   for (let i = 0; i < D.chapters.length; i++) { act('goChapter', String(i)); act('closeDrawer'); act('role', 'patient'); for (const pg of ['today', 'foods', 'plan', 'safety', 'preview']) { act('page', pg); const m = markup().match(gendered); assert.equal(m, null, D.chapters[i].id + '/' + pg + ': ' + (m && m[0])); } }

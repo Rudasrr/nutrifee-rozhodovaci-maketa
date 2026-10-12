@@ -9,7 +9,7 @@ function foodSel(name) { return function (B, S) { return '[data-action="mealFood
 
 T.chapters = {
   prolog: {
-    intro: { t: 'K čemu NutriFee je', co: 'Pacient s diabetem 2. typu a pevnými dávkami inzulinu má jíst ke své dávce pokaždé podobně. NutriFee se učí z jeho jídel, před jídlem radí a připomíná inzulin předepsaný lékařem. Lékař dostane na kontrole souhrn a návrhy a jen je schvaluje.', vsimni: 'Tři věty k odnesení: dávku určuje jen lékař · pacient drží obvyklou porci · lékař jen schvaluje. Štítek „◌ ke schválení“ u každého místa ukazuje položku registru, která tam působí; maketa se chová, jako by byla schválená. Na konci každé scény rozhodnete o položkách, které v ní působily — hned, nebo později přes „Ke schválení“ v liště. Zamítnutí příběh nezastaví: na místě uvidíte, že tahle část nefunguje.', proc: 'Aplikace dávku zobrazí, připomene a zeptá se na podání; směr ani výši nevymýšlí. Příběh jednoho pacienta od zařazení po první kontrolu trvá asi čtvrt hodiny, varianty jsou v dodatku na konci.' },
+    intro: { t: 'Úvod', co: 'Vlevo je, k čemu NutriFee je a jak ukázku ovládat. Přečtěte si to a klepněte na „Začít ukázku“.', vsimni: 'Ovládáte jen tento fialový panel. Obrazovku vlevo odehrává ukázka sama.' },
     steps: []
   },
   enroll: {
