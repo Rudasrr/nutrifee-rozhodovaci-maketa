@@ -231,7 +231,7 @@ test('Zámek průchodu (8. 10. 2026): bez rozhodnutí nabídnutých položek se 
 
 test('Úvodní obrazovka (12. 10. 2026): scéna 1 vysvětluje v obsahu, k čemu NutriFee je a jak ukázku ovládat; panel je krátký; karta pacienta až ve scéně 2', () => {
   act('goScene', '0'); act('closeDrawer'); const m = markup();
-  assert.equal(S().page, 'intro'); assert.match(m, /Jak ukázku ovládat/); assert.match(m, /Vlevo běží aplikace sama/); assert.match(m, /Na konci je souhrn/); assert.match(m, /Co uvidíte/); assert.match(m, /Dějství 1 — V ordinaci/);
+  assert.equal(S().page, 'intro'); assert.match(m, /Jak ukázku ovládat/); assert.match(m, /Vlevo běží aplikace sama/); assert.match(m, /Na konci je souhrn/); assert.match(m, /Co uvidíte/); assert.match(m, /Scénář 1 — V ordinaci/); assert.equal(/Dějství/.test(m), false, 'slovo dějství nahrazeno scénářem'); assert.equal((m.match(/DEMO · syntetická data/g) || []).length, 1, 'štítek DEMO jen jednou (v liště)'); assert.match(m, /Úvod · scéna 1 z/);
   assert.match(m, /Začít ukázku ▶/); assert.equal(/Karta pacienta|Podmínky zařazení/.test(m.slice(m.indexOf('<main'))), false, 'zařazení až ve scéně 2');
   assert.match(m, /Na obrazovce: Lékař · Úvod/); const panel = m.slice(m.indexOf('<aside'), m.indexOf('</aside>')); assert.ok(panel.replace(/<[^>]+>/g, '').length < 1400, 'panel první scény je krátký: ' + panel.replace(/<[^>]+>/g, '').length);
   next(); assert.equal(S().sceneIndex, 1); assert.match(markup(), /Karta pacienta/);
@@ -961,7 +961,7 @@ test('Průchod pro garanta (7. 10. 2026): každá položka má pětidílný popi
 });
 
 test('Průchod pro garanta (8. 10. 2026): schvalování hned v kroku, kdy položka působí, s celým popisem; Pokračovat nikdy neblokuje; řádek Dál a přehled dějství; souhrn na konci; mimo příběh', () => {
-  act('goScene', '0'); act('closeDrawer'); assert.match(markup(), /V tomto dějství/); assert.match(markup(), /schvalujete: /);
+  act('goScene', '1'); act('closeDrawer'); assert.match(markup(), /V tomto scénáři/); assert.match(markup(), /schvalujete: /); /* přehled scénáře 1 na jeho první scéně (úvod je vlastní blok) */
   act('goScene', '2'); act('closeDrawer'); /* scéna 3: dávky, návyky a pokyny */
   let m = markup(); assert.match(m, /V této scéně schvalujete: /); assert.match(m, /Dál: /); assert.match(m, /Ovládejte ukázku jen fialovými tlačítky/);
   assert.equal(/Další krok ▶|Co schvalujete ▶|Rozhodnout později ▶/.test(m), false, 'jediné tlačítko pro pokračování');

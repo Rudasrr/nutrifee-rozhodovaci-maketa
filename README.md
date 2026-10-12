@@ -52,7 +52,7 @@ naložil) jsou v dodatku za finále, případy „menší porce“ a „nevím�
 **Panel prezentujícího** nabízí skok na scénu i volbu varianty. Lékař a sestra jsou na desktopu, pacient
 v rámečku telefonu.
 
-| Dějství | Co ukazuje |
+| Scénář | Co ukazuje |
 |---|---|
 | 1 V ordinaci | Karta, čtyři podmínky, dávky voličem, startovní sada návyků, osobní pokyny; sestra zaučí s náhledem telefonu |
 | 2 Doma | Tři kroky před jídlem (inzulin první); po týdnu známá jídla s rozmezím na stupnici a „X z N v cíli“ |

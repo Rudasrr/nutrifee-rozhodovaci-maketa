@@ -276,23 +276,23 @@ function freshMeal(S, meal, food, portion, bolus) {
    setup = kulisy scény (platí při příchodu), apply = akce, která se ve scéně odehraje. */
 var CH = [
   { id: 'prolog', act: 0, title: 'Úvod — k čemu NutriFee je a jak ukázku ovládat', role: 'doctor', page: 'intro', wizardStep: 0, at: '2026-10-05T09:00:00' }, /* 12. 10. 2026: úvodní obrazovka v obsahu (demo/intro.js); karta pacienta začíná až scénou 2 */
-  /* Dějství 1 — V ordinaci */
-  { id: 'enroll', act: 0, title: 'Lékař — karta a podmínky zařazení', role: 'doctor', page: 'enroll', wizardStep: 0, at: '2026-10-05T09:00:00',
+  /* Scénář 1 — V ordinaci */
+  { id: 'enroll', act: 1, title: 'Lékař — karta a podmínky zařazení', role: 'doctor', page: 'enroll', wizardStep: 0, at: '2026-10-05T09:00:00',
     setup: function (S) { S.draft = S.draft || NF.newDraft(S); }, apply: function (S) { enrolled(S); } },
-  { id: 'doses', act: 0, title: 'Lékař — dávky, startovní návyky a pokyny', role: 'doctor', page: 'enroll', wizardStep: 1, at: '2026-10-05T09:10:00',
+  { id: 'doses', act: 1, title: 'Lékař — dávky, startovní návyky a pokyny', role: 'doctor', page: 'enroll', wizardStep: 1, at: '2026-10-05T09:10:00',
     setup: function (S) { draftReady(S); }, apply: function (S) { S.draft.medicationChecked = true; S.draft.instructionsChecked = true; } },
-  { id: 'issue', act: 0, title: 'Lékař — vydání plánu', role: 'doctor', page: 'enroll', wizardStep: 2, at: '2026-10-05T09:20:00',
+  { id: 'issue', act: 1, title: 'Lékař — vydání plánu', role: 'doctor', page: 'enroll', wizardStep: 2, at: '2026-10-05T09:20:00',
     apply: function (S) { issued(S); } },
-  { id: 'training', act: 0, title: 'Sestra — zaučení s náhledem telefonu', role: 'nurse', page: 'training', at: '2026-10-05T09:35:00',
+  { id: 'training', act: 1, title: 'Sestra — zaučení s náhledem telefonu', role: 'nurse', page: 'training', at: '2026-10-05T09:35:00',
     apply: function (S, B) { trained(S, B); } },
-  { id: 'handover', act: 0, title: 'Pacient — převzetí plánu a jedna otázka', role: 'patient', page: 'takeover', at: '2026-10-05T09:55:00',
+  { id: 'handover', act: 1, title: 'Pacient — převzetí plánu a jedna otázka', role: 'patient', page: 'takeover', at: '2026-10-05T09:55:00',
     apply: function (S, B) { if (B.training !== 'failed') understood(S); } },
 
-  /* Dějství 2 — Doma: aplikace se učí */
-  { id: 'firstMeal', act: 1, title: 'Pacient — první snídaně ve třech krocích', role: 'patient', page: 'meal', at: '2026-10-06T07:00:00',
+  /* Scénář 2 — Doma: aplikace se učí */
+  { id: 'firstMeal', act: 2, title: 'Pacient — první snídaně ve třech krocích', role: 'patient', page: 'meal', at: '2026-10-06T07:00:00',
     setup: function (S) { freshMeal(S, 'breakfast'); },
     apply: function (S) { ep(S, { id: 'E1', food: 'Ovesná kaše s mlékem a banánem', at: '2026-10-06T07:05:00', bolus: 'before' }); basal(S, '2026-10-05'); basal(S, '2026-10-06'); S.meal = null; } },
-  { id: 'week', act: 1, title: 'Pacient — po týdnu: co už aplikace ví', role: 'patient', page: 'foods', at: '2026-10-12T19:00:00',
+  { id: 'week', act: 2, title: 'Pacient — po týdnu: co už aplikace ví', role: 'patient', page: 'foods', at: '2026-10-12T19:00:00',
     setup: function (S) {
       [['E2', 'Chléb se sýrem a zeleninou', '2026-10-07T07:05:00', 'as'], ['E3', 'Ovesná kaše s mlékem a banánem', '2026-10-08T07:10:00', 'unknown'], ['E4', 'Ovesná kaše s mlékem a banánem', '2026-10-09T07:00:00', 'as'], ['E5', 'Chléb se sýrem a zeleninou', '2026-10-10T07:05:00', 'as'], ['E6', 'Ovesná kaše s mlékem a banánem', '2026-10-11T07:00:00', 'as'], ['E7', 'Chléb se sýrem a zeleninou', '2026-10-12T07:05:00', 'as']]
         .forEach(function (x) { ep(S, { id: x[0], food: x[1], at: x[2], insulin: x[3] }); });
@@ -303,18 +303,18 @@ var CH = [
       S.foodsSeg = 'known'; S.foodOpen = foodByName(S, 'Ovesná kaše s mlékem a banánem').id;
     } },
 
-  { id: 'lateMeal', act: 1, title: 'Pacient — otevřel aplikaci až v 10:00', role: 'patient', page: 'today', at: '2026-10-13T10:15:00',
+  { id: 'lateMeal', act: 2, title: 'Pacient — otevřel aplikaci až v 10:00', role: 'patient', page: 'today', at: '2026-10-13T10:15:00',
     setup: function (S) { basal(S, '2026-10-12'); },
     apply: function (S) { ep(S, { id: 'E7c', food: 'Chléb se sýrem a zeleninou', at: '2026-10-13T07:30:00', bolus: 'retro', advice: [{ lever: 'walk', accepted: true }] }); S.meal = null; } },
 
-  /* Dějství 3 — Rada před jídlem */
-  { id: 'advice', act: 2, title: 'Pacient — před píchnutím: porce zpět k obvyklé a doplněk', role: 'patient', page: 'meal', at: '2026-10-14T07:00:00',
+  /* Scénář 3 — Rada před jídlem */
+  { id: 'advice', act: 3, title: 'Pacient — před píchnutím: porce zpět k obvyklé a doplněk', role: 'patient', page: 'meal', at: '2026-10-14T07:00:00',
     setup: function (S) { freshMeal(S, 'breakfast', 'Ovesná kaše s mlékem a banánem', 'bigger', 'before'); },
     apply: function (S) { ep(S, { id: 'E8', food: 'Ovesná kaše s mlékem a banánem', at: '2026-10-14T07:05:00', portion: 'bigger', bolus: 'before', advice: [{ lever: 'portion', accepted: true }, { lever: 'addon', accepted: true }, { lever: 'order' }] }); basal(S, '2026-10-13'); basal(S, '2026-10-14'); S.meal = null; } },
-  { id: 'afterBolus', act: 2, title: 'Pacient — po píchnutí: co aplikace smí a nesmí', role: 'patient', page: 'meal', at: '2026-10-16T07:30:00',
+  { id: 'afterBolus', act: 3, title: 'Pacient — po píchnutí: co aplikace smí a nesmí', role: 'patient', page: 'meal', at: '2026-10-16T07:30:00',
     setup: function (S, B) { freshMeal(S, 'breakfast', 'Ovesná kaše s mlékem a banánem', B.bolus === 'smaller' ? 'smaller' : 'bigger', B.bolus === 'unknown' ? 'unknown' : 'as'); },
     apply: function (S, B) { ep(S, { id: 'E9', food: 'Ovesná kaše s mlékem a banánem', at: '2026-10-16T07:30:00', portion: B.bolus === 'smaller' ? 'smaller' : 'bigger', bolus: B.bolus === 'unknown' ? 'unknown' : 'as', insulin: B.bolus === 'unknown' ? 'unknown' : 'as', advice: B.bolus === 'smaller' ? [{ lever: 'order', accepted: false, reason: 'nowant' }] : [{ lever: 'portion', accepted: true }, { lever: 'order', accepted: false, reason: 'nowant' }] }); basal(S, '2026-10-15'); basal(S, '2026-10-16'); S.meal = null; } },
-  { id: 'custom', act: 2, title: 'Pacient — vlastní jídlo třemi klepnutími', role: 'patient', page: 'meal', at: '2026-10-18T12:20:00',
+  { id: 'custom', act: 3, title: 'Pacient — vlastní jídlo třemi klepnutími', role: 'patient', page: 'meal', at: '2026-10-18T12:20:00',
     setup: function (S) { freshMeal(S, 'lunch', null, null, 'before'); S.meal.step = 2; S.meal.q = 'Řízek s kaší od maminky'; S.meal.newFood = {}; },
     apply: function (S) {
       var r = NF.addFood(S, 'Řízek s kaší od maminky', { side: 'brambory', prep: 'smazene', size: 'velke' });
@@ -322,19 +322,19 @@ var CH = [
       basal(S, '2026-10-17'); basal(S, '2026-10-18'); S.meal = null;
     } },
 
-  /* Dějství 4 — Nemoc */
-  { id: 'illness', act: 3, title: 'Pacient — není mi dobře', role: 'patient', page: 'today', at: '2026-10-20T08:00:00',
+  /* Scénář 4 — Nemoc */
+  { id: 'illness', act: 4, title: 'Pacient — není mi dobře', role: 'patient', page: 'today', at: '2026-10-20T08:00:00',
     setup: function (S) { for (var d = 19; d <= 20; d++) basal(S, '2026-10-' + d); NF.settleFeedback(S); },
     apply: function (S) { NF.setIllness(S, true); ep(S, { id: 'E11', food: 'Chléb se sýrem a zeleninou', at: '2026-10-20T08:30:00', context: 'illness', advice: [{ lever: 'addon', accepted: true }] }); } },
-  { id: 'illnessMeal', act: 3, title: 'Pacient — jídlo během nemoci', role: 'patient', page: 'meal', at: '2026-10-21T08:00:00',
+  { id: 'illnessMeal', act: 4, title: 'Pacient — jídlo během nemoci', role: 'patient', page: 'meal', at: '2026-10-21T08:00:00',
     setup: function (S) { freshMeal(S, 'breakfast', 'Ovesná kaše s mlékem a banánem', 'smaller', 'as'); },
     apply: function (S) { ep(S, { id: 'E12', food: 'Ovesná kaše s mlékem a banánem', at: '2026-10-21T08:05:00', portion: 'smaller', context: 'illness', advice: [{ lever: 'addon' }] }); basal(S, '2026-10-21'); S.meal = null; } },
-  { id: 'recovery', act: 3, title: 'Pacient — už je mi lépe', role: 'patient', page: 'today', at: '2026-10-22T07:30:00',
+  { id: 'recovery', act: 4, title: 'Pacient — už je mi lépe', role: 'patient', page: 'today', at: '2026-10-22T07:30:00',
     setup: function (S) { NF.settleFeedback(S); },
     apply: function (S) { NF.illnessCheckin(S, true); basal(S, '2026-10-22'); } },
 
-  /* Dějství 5 — Během studie: garant upraví pravidlo (funkce ostré aplikace; chronologicky uprostřed období, proto před kontrolou) */
-  { id: 'registry', act: 4, title: 'Během studie — garant upraví pravidlo po podnětu', role: 'doctor', page: 'registry', at: '2026-10-23T09:00:00',
+  /* Scénář 5 — Během studie: garant upraví pravidlo (funkce ostré aplikace; chronologicky uprostřed období, proto před kontrolou) */
+  { id: 'registry', act: 5, title: 'Během studie — garant upraví pravidlo po podnětu', role: 'doctor', page: 'registry', at: '2026-10-23T09:00:00',
     setup: function (S) { S.reg = { open: 'R-PORADI', q: '' }; S.impulse = 'Při testu pacient pochopil radu „snězte nejdřív jogurt“ tak, že jogurt nahradí část kaše, a kaši nedojedl — snědl méně sacharidů, než má.'; },
     apply: function (S) {
       S.role = 'doctor';
@@ -342,16 +342,16 @@ var CH = [
       NF.decideItem(S, 'R-PORADI', 'edited', 'Upřesněn text: příloha se nevynechává.');
       S.reg = null;
     } },
-  { id: 'impact', act: 4, title: 'Pacient — rada s novým textem', role: 'patient', page: 'meal', at: '2026-10-24T12:20:00',
+  { id: 'impact', act: 5, title: 'Pacient — rada s novým textem', role: 'patient', page: 'meal', at: '2026-10-24T12:20:00',
     setup: function (S) { freshMeal(S, 'lunch', 'Smažený řízek s bramborovou kaší', 'usual', 'before'); basal(S, '2026-10-23'); },
     apply: function (S) { ep(S, { id: 'E13', food: 'Smažený řízek s bramborovou kaší', meal: 'lunch', at: '2026-10-24T12:30:00', bolus: 'before', advice: [{ lever: 'order', accepted: true }] }); S.meal = null; } },
 
-  /* Dějství 6 — Kontrola */
-  { id: 'preview', act: 5, title: 'Pacient — den před kontrolou', role: 'patient', page: 'preview', at: '2027-01-04T18:00:00',
+  /* Scénář 6 — Kontrola */
+  { id: 'preview', act: 6, title: 'Pacient — den před kontrolou', role: 'patient', page: 'preview', at: '2027-01-04T18:00:00',
     setup: function (S, B) { series(S, B); if (!S.questions.length) S.questions.push({ id: 'Q1', at: '2027-01-04T18:10:00', text: 'Je v pořádku, že si ke kaši dávám jogurt skoro pokaždé?', suggested: true }); } },
-  { id: 'reviewSummary', act: 5, title: 'Lékař — kontrola, krok 1: souhrn', role: 'doctor', page: 'review', at: '2027-01-05T09:00:00',
+  { id: 'reviewSummary', act: 6, title: 'Lékař — kontrola, krok 1: souhrn', role: 'doctor', page: 'review', at: '2027-01-05T09:00:00',
     apply: function (S) { S.role = 'doctor'; NF.startReview(S, D.habitCatalog); } },
-  { id: 'reviewProposals', act: 5, title: 'Lékař — krok 2: návrhy s důvodem a postupem', role: 'doctor', page: 'review', at: '2027-01-05T09:10:00',
+  { id: 'reviewProposals', act: 6, title: 'Lékař — krok 2: návrhy s důvodem a postupem', role: 'doctor', page: 'review', at: '2027-01-05T09:10:00',
     setup: function (S) { if (S.review) S.review.step = 2; },
     apply: function (S, B) {
       S.role = 'doctor';
@@ -359,22 +359,23 @@ var CH = [
       NF.keepAll(S);
       D.decideSingles(S, B); /* po změně dávky se pokyny potvrzují zvlášť (6. 10. 2026) */
     } },
-  { id: 'reviewConfirm', act: 5, title: 'Lékař — krok 3: potvrzení a vydání plánu P2', role: 'doctor', page: 'review', at: '2027-01-05T09:25:00',
+  { id: 'reviewConfirm', act: 6, title: 'Lékař — krok 3: potvrzení a vydání plánu P2', role: 'doctor', page: 'review', at: '2027-01-05T09:25:00',
     setup: function (S) { if (S.review) S.review.step = 3; },
     apply: function (S) { S.role = 'doctor'; NF.issueFromReview(S, D.habitCatalog); } },
-  { id: 'reviewHandover', act: 5, title: 'Lékař — krok 4: předání pacientovi', role: 'doctor', page: 'review', at: '2027-01-05T09:35:00',
+  { id: 'reviewHandover', act: 6, title: 'Lékař — krok 4: předání pacientovi', role: 'doctor', page: 'review', at: '2027-01-05T09:35:00',
     setup: function (S) { if (S.review) S.review.step = 4; } },
-  { id: 'newplan', act: 5, title: 'Pacient — nový plán a co se změnilo', role: 'patient', page: 'newplan', at: '2027-01-05T09:40:00',
+  { id: 'newplan', act: 6, title: 'Pacient — nový plán a co se změnilo', role: 'patient', page: 'newplan', at: '2027-01-05T09:40:00',
     apply: function (S) { S.role = 'patient'; NF.confirmUnderstanding(S); } },
-  { id: 'trace', act: 5, title: 'Lékař — verze a stopa: důkaz, jak to počítá', role: 'doctor', page: 'trace', at: '2027-01-05T09:50:00' }
+  { id: 'trace', act: 6, title: 'Lékař — verze a stopa: důkaz, jak to počítá', role: 'doctor', page: 'trace', at: '2027-01-05T09:50:00' }
 ];
 D.acts = [
-  { title: 'Dějství 1 — V ordinaci', note: 'Karta, podmínky, dávky voličem, startovní sada návyků, osobní pokyny. Sestra zaučí s náhledem telefonu.' },
-  { title: 'Dějství 2 — Doma: aplikace se učí', note: 'Tři kroky před jídlem s inzulinem první. Po týdnu první známá jídla s rozmezím a reakcí.' },
-  { title: 'Dějství 3 — Rada před jídlem', note: 'Před píchnutím porce zpět k obvyklé; po píchnutí jen z větší; vlastní jídlo třemi klepnutími.' },
-  { title: 'Dějství 4 — Nemoc', note: 'Pacient označí nemoc, aplikace pomáhá dál, ale jinak. Ukončuje pacient.' },
-  { title: 'Dějství 5 — Během studie: garant upraví pravidlo', note: 'Funkce ostré aplikace, ne vaše dnešní schvalování: během studie jako garant (a lékař studie) upravíte text rady po podnětu z provozu; změna platí okamžitě, bez čekání na kontrolu.' },
-  { title: 'Dějství 6 — Kontrola', note: 'Pacient: report před kontrolou. Lékař: souhrn → návrhy → potvrzení → předání. Stopa.' }
+  { title: 'Úvod', note: 'K čemu NutriFee je a jak ukázku ovládat.' },
+  { title: 'Scénář 1 — V ordinaci', note: 'Karta, podmínky, dávky voličem, startovní sada návyků, osobní pokyny. Sestra zaučí s náhledem telefonu.' },
+  { title: 'Scénář 2 — Doma: aplikace se učí', note: 'Tři kroky před jídlem s inzulinem první. Po týdnu první známá jídla s rozmezím a reakcí.' },
+  { title: 'Scénář 3 — Rada před jídlem', note: 'Před píchnutím porce zpět k obvyklé; po píchnutí jen z větší; vlastní jídlo třemi klepnutími.' },
+  { title: 'Scénář 4 — Nemoc', note: 'Pacient označí nemoc, aplikace pomáhá dál, ale jinak. Ukončuje pacient.' },
+  { title: 'Scénář 5 — Během studie: garant upraví pravidlo', note: 'Funkce ostré aplikace, ne vaše dnešní schvalování: během studie jako garant (a lékař studie) upravíte text rady po podnětu z provozu; změna platí okamžitě, bez čekání na kontrolu.' },
+  { title: 'Scénář 6 — Kontrola', note: 'Pacient: report před kontrolou. Lékař: souhrn → návrhy → potvrzení → předání. Stopa.' }
 ];
 D.chapters = CH;
 
@@ -434,8 +435,9 @@ D.sceneFor = function (chapterIndex, B) {
   return exact >= 0 ? exact : first >= 0 ? first : 0;
 };
 
-/* Otázky pro garanta podle dějství (panel prezentujícího). */
+/* Otázky pro garanta podle scénáře (panel prezentujícího). */
 D.garantQuestions = [
+  [], /* úvod */
   ['Stačí čtyři podmínky zařazení?', 'Je startovní sada návyků správná pro všechny?', 'Jsou připravené věty pokynů úplné?', 'Stačí hrubá denní doba (10:00 / 15:30 / 21:00) k rozlišení, že jídlo už minulo?'],
   ['Je vrchol 0–120 min správná míra reakce?', 'Stačí 3 zápisy pro „známé jídlo“?', 'Je správně, že pochvala je jen za snahu a návyk, nikdy za hodnotu glukózy?', 'Jsou milníky (jídlo poznáno, rada = návyk, týden bez mezery) ty správné?'],
   ['Je pravidlo „z větší porce zpět k obvyklé i po píchnutí“ bezpečné?', 'Jsou hrubé štítky dostatečné pro podobnost?'],

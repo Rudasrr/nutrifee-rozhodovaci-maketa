@@ -295,14 +295,14 @@ NF.demoActions.garantConfirmSummary = function () {
   if (D.sync && D.sync.event) D.sync.event('summary', 'SOUHRN', 'Souhrn rozhodnutí potvrzen', { approved: sum.confirmed, edited: sum.edited, rejected: sum.rejected, pending: sum.remaining, total: sum.total, rejectedIds: rej, pendingIds: pend, scene: sceneIdx(s) + 1, total_scenes: D.scenes.length });
   s.toast = 'Souhrn potvrzen a uložen. Rozhodnutí můžete i tak dál měnit.';
 };
-/* Přehled dějství na jeho první scéně: co uvidíte a co budete schvalovat. */
+/* Přehled scénáře na jeho první scéně: co uvidíte a co budete schvalovat. */
 function actOverview(s, idx) {
   var sc = D.scenes[idx]; if (!sc || sc.appendix) return '';
   var act = D.chapters[sc.ch].act, first = -1;
   for (var i = 0; i < D.scenes.length; i++) if (!D.scenes[i].appendix && D.chapters[D.scenes[i].ch].act === act) { first = i; break; }
   if (first !== idx) return '';
   var list = D.scenes.map(function (x, i) { return { x: x, i: i }; }).filter(function (o) { return !o.x.appendix && D.chapters[o.x.ch].act === act; });
-  return '<details class="more tour-act"><summary>V tomto dějství (' + list.length + ' ' + (list.length === 1 ? 'scéna' : list.length < 5 ? 'scény' : 'scén') + ')</summary><ol class="small">' + list.map(function (o) {
+  return '<details class="more tour-act"><summary>V tomto scénáři (' + list.length + ' ' + (list.length === 1 ? 'scéna' : list.length < 5 ? 'scény' : 'scén') + ')</summary><ol class="small">' + list.map(function (o) {
     var ids = D.decisionItems(o.i); return '<li>' + e(o.x.title || D.chapters[o.x.ch].title) + (ids.length ? ' <span class="muted">· schvalujete: ' + e(ids.map(function (id) { var r = NF.item(s, id); return r ? r.title : id; }).join(', ')) + '</span>' : '') + '</li>';
   }).join('') + '</ol></details>';
 }
@@ -393,7 +393,7 @@ function presenterPanel(s) {
     out += '<hr><h3>' + e(a.title) + '</h3><p class="small muted">' + e(a.note) + '</p><div class="buttonlist">' +
       D.scenes.map(function (sc, si) { return { sc: sc, si: si }; }).filter(function (x) { return D.chapters[x.sc.ch].act === ai; }).map(function (x) { return '<button type="button" class="btn ' + (x.si === here ? 'selected' : '') + '" data-action="goScene" data-value="' + x.si + '">' + (x.si + 1) + '. ' + e(x.sc.title || D.chapters[x.sc.ch].title) + '</button>'; }).join('') + '</div>';
     Object.keys(D.branches).forEach(function (k) { var from = D.indexOf(D.branches[k].from); if (from >= 0 && D.chapters[from].act === ai) out += branchPicker(s, k); });
-    if (D.garantQuestions[ai]) out += '<details class="more"><summary>Otázky pro garanta k tomuto dějství</summary><ul class="plain small">' + D.garantQuestions[ai].map(function (q) { return '<li>' + e(q) + '</li>'; }).join('') + '</ul></details>';
+    if (D.garantQuestions[ai]) out += '<details class="more"><summary>Otázky pro garanta k tomuto scénáři</summary><ul class="plain small">' + D.garantQuestions[ai].map(function (q) { return '<li>' + e(q) + '</li>'; }).join('') + '</ul></details>';
   });
   out += '<hr><h3>Rychlé odkazy</h3><div class="buttonlist">' + btn('Ke schválení (registr)', 'openAside', 'registry') + btn('Verze a stopa', 'openAside', 'trace') + btn('Scénu znovu', 'tourRestart') + btn('Přeskočit scénu', 'storyStep', '1') + '</div>' +
     '<h3>Přepnout roli (mimo příběh)</h3><div class="buttonlist">' + [['patient', 'Pacient'], ['doctor', 'Lékař'], ['nurse', 'Sestra']].map(function (r) { return btn(r[1] + (s.role === r[0] ? ' · teď' : ''), 'role', r[0]); }).join('') + '</div>' +
