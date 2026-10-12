@@ -173,7 +173,7 @@ details.more[open]>summary::before{content:"⌄ ";}
 .reg-row.on{background:var(--brandbg)}
 .reg-row .ic{width:36px;height:36px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:17px}
 .reg-row .t{font-weight:700}.reg-row .s{font-size:12.5px;color:var(--muted)}
-.reg-side{position:sticky;top:20px}
+.reg-side{position:sticky;top:20px;max-height:calc(100vh - var(--barh,0px) - 40px);overflow:auto;overscroll-behavior:contain;padding-right:4px} /* detail položky roluje sám, nezávisle na seznamu */
 .hist li{font-size:13px}
 
 /* ---------- pacient (mobil, sklo) ---------- */

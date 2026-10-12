@@ -252,6 +252,10 @@ test('Lišta garanta bez přepínače rolí (12. 10. 2026): role jen v Panelu pr
   act('openPresenter'); assert.match(plain(elements.get('overlay').innerHTML), /Přepnout roli/); assert.match(plain(elements.get('overlay').innerHTML), /data-action="role" data-value="patient"/); act('closeDrawer');
 });
 
+test('Registr: detail položky roluje sám (12. 10. 2026)', () => {
+  const css = fs.readFileSync(path.join(__dirname, 'app/design.css'), 'utf8'); assert.match(css, /\.reg-side\{position:sticky;top:20px;max-height:calc\(100vh[^}]*overflow:auto/);
+});
+
 test('Pacientské texty jsou bez rodu (vykání, žádné příčestí „zkusil/zapsal“, žádné „nemocný“)', () => {
   const gendered = /\b(jste|jsem) (si |se |to )?[a-zá-ž]+l\b|\b[a-zá-ž]+l (jste|jsem)\b|nemocný|jistý|abyste|jako bys/i;
   for (let i = 0; i < D.chapters.length; i++) { act('goChapter', String(i)); act('closeDrawer'); act('role', 'patient'); for (const pg of ['today', 'foods', 'plan', 'safety', 'preview']) { act('page', pg); const m = markup().match(gendered); assert.equal(m, null, D.chapters[i].id + '/' + pg + ': ' + (m && m[0])); } }
