@@ -333,8 +333,8 @@ var CH = [
     setup: function (S) { NF.settleFeedback(S); },
     apply: function (S) { NF.illnessCheckin(S, true); basal(S, '2026-10-22'); } },
 
-  /* Dějství 5 — Registr */
-  { id: 'registry', act: 4, title: 'Lékař-garant — podnět a úprava pravidla', role: 'doctor', page: 'registry', at: '2026-10-23T09:00:00',
+  /* Dějství 5 — Během studie: garant upraví pravidlo (funkce ostré aplikace; chronologicky uprostřed období, proto před kontrolou) */
+  { id: 'registry', act: 4, title: 'Během studie — garant upraví pravidlo po podnětu', role: 'doctor', page: 'registry', at: '2026-10-23T09:00:00',
     setup: function (S) { S.reg = { open: 'R-PORADI', q: '' }; S.impulse = 'Při testu pacient pochopil radu „snězte nejdřív jogurt“ tak, že jogurt nahradí část kaše, a kaši nedojedl — snědl méně sacharidů, než má.'; },
     apply: function (S) {
       S.role = 'doctor';
@@ -373,7 +373,7 @@ D.acts = [
   { title: 'Dějství 2 — Doma: aplikace se učí', note: 'Tři kroky před jídlem s inzulinem první. Po týdnu první známá jídla s rozmezím a reakcí.' },
   { title: 'Dějství 3 — Rada před jídlem', note: 'Před píchnutím porce zpět k obvyklé; po píchnutí jen z větší; vlastní jídlo třemi klepnutími.' },
   { title: 'Dějství 4 — Nemoc', note: 'Pacient označí nemoc, aplikace pomáhá dál, ale jinak. Ukončuje pacient.' },
-  { title: 'Dějství 5 — Registr', note: 'Lékař-garant upraví text rady; změna platí okamžitě a je v historii.' },
+  { title: 'Dějství 5 — Během studie: garant upraví pravidlo', note: 'Funkce ostré aplikace, ne vaše dnešní schvalování: během studie jako garant (a lékař studie) upravíte text rady po podnětu z provozu; změna platí okamžitě, bez čekání na kontrolu.' },
   { title: 'Dějství 6 — Kontrola', note: 'Pacient: report před kontrolou. Lékař: souhrn → návrhy → potvrzení → předání. Stopa.' }
 ];
 D.chapters = CH;

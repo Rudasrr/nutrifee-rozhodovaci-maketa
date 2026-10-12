@@ -8,7 +8,8 @@ function intro(s) {
   return '<div class="intro"><div class="intro-head"><span class="demo-flag">DEMO · syntetická data · není určeno pro léčbu</span>' +
     '<h1>NutriFee — interaktivní ukázka ke schválení</h1>' +
     '<p class="lead">Pacient s diabetem 2. typu a pevnými dávkami inzulinu má jíst ke své dávce pokaždé podobně. NutriFee se učí z jeho jídel, před jídlem radí a připomíná inzulin předepsaný lékařem. Lékař dostane na kontrole souhrn a návrhy a jen je schvaluje.</p>' +
-    '<p class="small"><b>Tři věty k odnesení:</b> dávku určuje jen lékař · pacient drží obvyklou porci · lékař jen schvaluje.</p></div>' +
+    '<p class="small"><b>Tři věty k odnesení:</b> dávku určuje jen lékař · pacient drží obvyklou porci · lékař jen schvaluje.</p>' +
+    '<p class="small"><b>Dvě roviny:</b> dnes schvalujete funkce pro první verzi aplikace, na jejímž základě poběží studie. V příběhu uvidíte i to, co budete jako garant a lékař studie dělat až během ní (dějství 5: úprava pravidla po podnětu z provozu).</p></div>' +
     '<div class="intro-grid">' +
     '<section class="card"><h2>Jak ukázku ovládat</h2><ol class="intro-steps">' +
     '<li><b>Vpravo je fialový panel „Ovládání ukázky“.</b> Je to jediné, co ovládáte: <span class="pill">Pokračovat ▶</span> odehraje další krok, <span class="pill">← Zpět</span> vrátí o krok.</li>' +
