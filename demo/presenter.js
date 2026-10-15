@@ -46,7 +46,7 @@ NF.demoActions.tourReturn = function () { var s = S(); if (s.tourRole) { s.role 
 /* ---------- rozhodovací kroky garanta (7. 10. 2026) ----------
    Každá scéna hlavní linie končí krokem „Co jste viděli a co schvalujete“ s položkami registru, které se v ní poprvé použily.
    Automaticky z demo/scene-items.js (štítky na obrazovce); položky bez štítku, nebo ty, které patří jinam, mapuje D.itemScene. Zbytek jde do finále. */
-D.itemScene = { 'K-KRITERIA': 'enroll', 'S-SILNA': 'reviewSummary', 'R-NAVYKY': 'doses', 'R-POKYNY': 'doses', 'C-CILE': 'doses', 'Z-BODY': 'training', 'R-DIKY': 'firstMeal', 'S-TYDEN': 'lateMeal', 'J-DATABAZE': 'custom', 'J-STITKY': 'custom', 'R-PODOBNOST': 'custom', 'P-NEMOC': 'illness', 'R-ZMIZELA': 'impact', 'D-BAZAL': 'reviewProposals', 'P-LEKAR': 'issue' };
+D.itemScene = { 'K-KRITERIA': 'enroll', 'Z-GLUKOZA': 'firstMeal', 'Z-IMPORT': 'lateMeal', 'S-SILNA': 'reviewSummary', 'R-NAVYKY': 'doses', 'R-POKYNY': 'doses', 'C-CILE': 'doses', 'Z-BODY': 'training', 'R-DIKY': 'firstMeal', 'S-TYDEN': 'lateMeal', 'J-DATABAZE': 'custom', 'J-STITKY': 'custom', 'R-PODOBNOST': 'custom', 'P-NEMOC': 'illness', 'R-ZMIZELA': 'impact', 'D-BAZAL': 'reviewProposals', 'P-LEKAR': 'issue' };
 var decisionPlanCache = null;
 function mainSceneOf(chId) { for (var i = 0; i < D.scenes.length; i++) if (!D.scenes[i].appendix && D.chapters[D.scenes[i].ch].id === chId) return i; return -1; }
 function decisionPlan() {
@@ -104,7 +104,7 @@ function perform(op) {
   if (ch && ch.role && s.role !== ch.role) { s.role = ch.role; } /* krok vyprávění jedná vždy za roli kapitoly */
   NF.muteHooks(function () { /* kroky příběhu nejsou rozhodnutí garanta: neukládají se na server ani do jeho deníku */
     if (op.fn) { op.fn(s); NF.save(s); NF.render(); return; }
-    if (op.bind) { NF.bindValue(op.bind, val(op.val)); NF.render(); return; }
+    if (op.bind) { NF.bindValue(val(op.bind), val(op.val)); NF.render(); return; } /* klíč vazby může být funkce (např. form.peak_<id>) */
     if (op.act) NF.act(op.act, val(op.val));
   });
   var s2 = S(), rej = s2.error ? sceneRejected(s2) : [];
@@ -130,7 +130,7 @@ function runAnimated(step, done) {
         var text = String(val(op.val)), i = 0; el.value = '';
         (function typeOne() {
           if (!alive()) return;
-          if (i < text.length) { el.value += text.charAt(i++); if (op.live) NF.bindValue(op.bind, el.value); wait(90, typeOne); return; }
+          if (i < text.length) { el.value += text.charAt(i++); if (op.live) NF.bindValue(val(op.bind), el.value); wait(90, typeOne); return; }
           if (safe(function () { perform(op); })) wait(350, next);
         })();
         return;

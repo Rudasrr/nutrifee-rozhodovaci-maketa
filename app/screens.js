@@ -35,7 +35,7 @@ function offLevers(S) {
 }
 V.btn = btn; V.choice = choice; V.hint = hint; V.kv = kv; V.tag = tag; V.card = card; V.glass = glass; V.appr = appr; V.off = off; V.offLevers = offLevers;
 
-var LEVEL = { known: ['Známé jídlo', 'known'], similar: ['Podobné jídlo', 'similar'], learning: ['Učíme se', 'similar'], unknown: ['Neznámé jídlo', 'unknown'], none: ['Bez vyhodnocení', 'unknown'] };
+var LEVEL = { known: ['Známé jídlo', 'known'], similar: ['Podobné jídlo', 'similar'], learning: ['Učíme se', 'similar'], unstable: ['Nestálé jídlo', 'unknown'], unknown: ['Neznámé jídlo', 'unknown'], none: ['Bez vyhodnocení', 'unknown'] };
 function levelTag(level, conf) { var l = LEVEL[level] || LEVEL.unknown; return tag(level === 'learning' && conf ? 'Učíme se · ' + conf.st.n + ' z ' + (conf.min || 3) : l[0], l[1]); }
 function reactionTag(r) { return r ? tag(r.label, r.cls) : ''; }
 V.levelTag = levelTag; V.reactionTag = reactionTag;
@@ -124,6 +124,7 @@ V.patient = function (S, forcedPage) {
     case 'plan': body = V.planScreen(S); break;
     case 'safety': body = V.safety(S); break;
     case 'preview': body = V.preview(S); break;
+    case 'import': body = V.importPage(S); break;
     case 'newplan': body = V.newPlan(S); break;
     default: body = V.today(S);
   }
@@ -267,8 +268,7 @@ function goalCard(S) {
 /* Pruh start → vrchol (15, odst. 6: jediný povolený průběh; žádná křivka, žádné velké číslo „před jídlem“). Vykreslí se růstem. */
 function riseBar(S, r) {
   if (['okAdvice', 'okPlain', 'highAdvice', 'highPlain'].indexOf(r.key) < 0) return '';
-  var pts = (r.ep.points || []).filter(function (p) { return p.mmol != null; }); if (!pts.length) return '';
-  var start = pts[0].mmol, peak = NF.peakOfS(S, r.ep.points), high = NF.targets(S).high; if (peak == null || start == null) return '';
+  var g = NF.glucoseOf(S, r.ep), start = g.before, peak = g.peak, high = NF.targets(S).high; if (peak == null || start == null) return '';
   var lo = Math.max(2, Math.floor(Math.min(start, high) - 1.5)), hi = Math.ceil(Math.max(peak, high) + 1); if (hi - lo < 4) hi = lo + 4;
   var y = function (v) { return NF.r1(60 - (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo) * 56); };
   var ok = peak <= high, top = y(Math.max(start, peak)), bot = y(Math.min(start, peak));
@@ -279,7 +279,7 @@ function riseBar(S, r) {
 function resultCard(S) {
   var r = NF.lastResult(S); if (!r) return NF.usable(S, 'S-VYSLEDEK') ? '' : off(S, 'S-VYSLEDEK');
   var rc = NF.confidence(S, r.food.id, r.ep.meal);
-  return glass('<div class="now">' + foodIcon(S, r.food, rc) + '<div><b>Jak to dopadlo</b>' + r.text + riseBar(S, r) + (r.key === 'excluded' && r.smaller ? '<br><span class="small">' + instructionText(S, 'I-MENE').replace(/^<br>/, '') + '</span>' : '') +
+  return glass('<div class="now">' + foodIcon(S, r.food, rc) + '<div><b>Jak to dopadlo</b>' + r.text + riseBar(S, r) + (NF.glucoseOf(S, r.ep).source === 'manual' ? '<p class="small muted" style="margin:4px 0 0">Podle hodnot, které jste opsali; export ze senzoru je upřesní.</p>' : '') + divergenceBlock(S, r.ep) + (r.key === 'excluded' && r.smaller ? '<br><span class="small">' + instructionText(S, 'I-MENE').replace(/^<br>/, '') + '</span>' : '') +
     '<div class="actions" style="margin-top:10px">' + btn('Rozumím', 'resultSeen', r.ep.id, 'sm') + btn('Zobrazit jídlo', 'openFood', r.food.id, 'quiet sm') + '</div></div></div>' +
     '<div class="small" style="margin-top:6px">' + appr(S, 'S-VYSLEDEK') + '</div>', 'result');
 }
@@ -310,7 +310,7 @@ function weekCard(S) {
   if (w.suggest) lines.push(NF.fillText(T.suggest, { food: w.suggest.food, lever: NF.leverNoun(w.suggest.lever), k: w.suggest.k, n: w.suggest.n }));
   lines.push(T.thanks || '');
   return glass('<div class="now"><span class="ic" aria-hidden="true">' + NF.icon('calendar') + '</span><div><b>' + e(NF.fillText(T.head, { week: w.week })) + '</b>' + lines.filter(Boolean).map(function (l) { return '<p style="margin:4px 0">' + l + '</p>'; }).join('') +
-    '<div class="actions" style="margin-top:10px">' + btn('Zavřít', 'weekClose', w.id, 'sm') + '</div></div></div>' +
+    '<div class="actions" style="margin-top:10px">' + btn('Zavřít', 'weekClose', w.id, 'sm') + (NF.importDue(S).missing ? btn('Nahrát data ze senzoru', 'importPage', null, 'sm') : '') + '</div></div></div>' +
     '<div class="small" style="margin-top:6px">' + appr(S, 'S-TYDEN') + '</div>', 'week');
 }
 function pathCard(S, withPreview) {
@@ -332,6 +332,44 @@ function soonCard(S) {
     '<div class="actions" style="margin-top:10px">' + btn('Co uvidí lékař →', 'page', 'preview', 'primary sm') + '</div></div></div>', 'soft');
 }
 V.pathCard = pathCard;
+
+/* ---------- data ze senzoru bez napojení (Z-GLUKOZA, Z-IMPORT) ---------- */
+function peakAskCard(S) {
+  var pend = NF.pendingPeakAsk(S); if (!pend.length) return '';
+  var ep = pend[0], f = NF.foodById(S, ep.foodId), key = 'peak_' + ep.id, val = (S.form || {})[key];
+  return glass('<div class="now"><span class="ic" aria-hidden="true">' + NF.icon('chart') + '</span><div><b>Nejvyšší hodnota od ' + e('po ' + NF.mealLabel(ep.meal, 'ke').replace(/^ke? /, '')) + '?</b>' +
+    'V aplikaci senzoru se podívejte na graf od ' + e(NF.fmtTime(ep.at)) + ' a opište nejvyšší číslo za první dvě hodiny' + (f ? ' (' + e(f.name) + ')' : '') + '.' +
+    '<label class="field" style="margin-top:8px"><span>Nejvyšší hodnota (mmol/l)</span><input type="number" step="0.1" min="1" max="30" inputmode="decimal" data-bind="form.' + key + '" value="' + e(val != null ? val : '') + '" placeholder="např. 9,4"></label>' +
+    '<div class="actions" style="margin-top:8px">' + btn('Uložit', 'peakSave', ep.id, 'primary sm') + btn('Nevím / nemám', 'peakSkip', ep.id, 'quiet sm') + '</div>' +
+    '<p class="small muted" style="margin:6px 0 0">Hodnoty, které opíšete, později nahradí přesný průběh z exportu ze senzoru.</p></div></div>' +
+    '<div class="small" style="margin-top:6px">' + appr(S, 'Z-GLUKOZA') + '</div>', 'soft');
+}
+function divergenceBlock(S, ep) {
+  var dv = NF.divergence(S, ep); if (!dv) return '';
+  return '<div class="hint sand" style="margin-top:10px"><b>Tentokrát to dopadlo jinak než dřív</b> (vzestup ' + e(NF.mmol(dv.mine)) + ' mmol/l, dřív kolem ' + e(NF.mmol(dv.med)) + '). Bylo to stejné jídlo?' +
+    '<div class="choice-row" style="margin-top:8px">' + choice('Stejné jídlo', 'foodDiverge', ep.id + ':same', false, 'sm') + choice('Jiná příloha nebo množství', 'foodDiverge', ep.id + ':side', false, 'sm') + choice('Jinak připravené', 'foodDiverge', ep.id + ':prep', false, 'sm') + choice('Jiný den (stres, pohyb, spánek)', 'foodDiverge', ep.id + ':day', false, 'sm') + '</div>' +
+    '<p class="small muted" style="margin:6px 0 0">Jídlo bude „známé“, až se tři zápisy shodnou. Jiná příloha nebo příprava se založí jako samostatné jídlo.</p></div>';
+}
+function importCard(S) {
+  var d = NF.importDue(S); if (!d.due) return '';
+  return glass('<div class="now"><span class="ic" aria-hidden="true">' + NF.icon('signal') + '</span><div><b>Nahrát data ze senzoru</b>Jednou týdně nahrajte export z aplikace senzoru: doplní přesný průběh k ' + NF.plural(d.missing, 'jídlu', 'jídlům', 'jídlům') + ' a noci pro bazál.' +
+    '<div class="actions" style="margin-top:8px">' + btn('Nahrát export', 'importPage', null, 'primary sm') + '</div></div></div><div class="small" style="margin-top:6px">' + appr(S, 'Z-IMPORT') + '</div>', 'soft');
+}
+function importNotice(S) {
+  var d = NF.importDue(S); if (!d.missing) return '';
+  return hint('<b>Před kontrolou nahrajte data ze senzoru.</b> U ' + NF.plural(d.missing, 'jídla', 'jídel', 'jídel') + ' chybí průběh; lékař by viděl jen opsané hodnoty. ' + btn('Nahrát export', 'importPage', null, 'sm'), 'warn');
+}
+V.importPage = function (S) {
+  var si = S.sensorImport;
+  return head(S, 'Data ze senzoru', 'Nahrát export') +
+    glass('<p>V aplikaci senzoru zvolte <b>export dat</b> a soubor uložte do telefonu (csv; tabulku xlsx uložte jako csv). Potom ho tady vyberte. Soubor se čte jen v telefonu a nikam se neposílá.</p>' +
+      '<label class="field"><span>Soubor s exportem</span><input type="file" accept=".csv,text/csv,.txt" data-action="importFile"></label>' +
+      (NF.slots.importDemo ? NF.slots.importDemo(S) : '') +
+      (si ? '<p class="small muted" style="margin-top:10px">Naposledy nahráno ' + e(NF.fmtDateTime(si.at)) + ': ' + si.readings + ' měření od ' + e(NF.fmtShort(si.from)) + ' do ' + e(NF.fmtShort(si.to)) + ', doplněno ' + NF.plural(si.filled, 'jídlo', 'jídla', 'jídel') + (si.nights ? ' a ' + NF.plural(si.nights, 'noc', 'noci', 'nocí') : '') + '.</p>' : '') +
+      '<div class="small" style="margin-top:6px">' + appr(S, 'Z-IMPORT') + '</div>') +
+    '<div class="actions">' + btn('← Zpět na Dnes', 'page', 'today', 'quiet') + '</div>';
+};
+V.peakAskCard = peakAskCard; V.divergenceBlock = divergenceBlock;
 
 /* ---------- Dnes ---------- */
 function todayEpisodes(S) { return S.episodes.filter(function (x) { return NF.day(x.at) === NF.day(S.clock); }); }
@@ -361,7 +399,9 @@ V.today = function (S) {
   if (ill && NF.illnessLong(S)) out += hint('<b>Nemoc trvá už ' + NF.plural(NF.daysBetween(S.illness.from, S.clock), 'den', 'dny', 'dní') + '.</b>' + (instructionText(S, 'I-NEMOC') || '<br>Když se nelepší, volejte podle pokynů v Bezpečí.') + '<br>Lékař uvidí na kontrole, jak dlouho nemoc trvala.', 'warn');
   out += fixInsulinCard(S);
   /* zpětná vazba: výsledek posledního jídla, pak nejvýš jedna karta milníku nebo týdne (bezpečí má přednost, proto až za nemocí) */
+  out += peakAskCard(S);
   out += resultCard(S);
+  out += importCard(S);
   var msCard = milestoneCard(S); out += msCard || weekCard(S);
 
   var slots = NF.daySlots(S), MT = function (k) { return e(NF.mealText(meal, k)); };
@@ -495,6 +535,7 @@ V.meal = function (S) {
   if (m.step === 1) {
     out += head(S, 'Krok 1 ze 3 · ' + NF.mealLabel(m.meal), 'Je inzulin k tomuto jídlu už píchnutý?') + steps +
       glass('<div class="insulin"><div class="ic" aria-hidden="true">' + NF.icon('syringe') + '</div><div><b>Lékař předepsal · ' + dose.units + ' j.</b><small>' + e(NF.mealLabel(m.meal, 'ke')) + ' · my jen připomínáme</small></div></div>' + insulinAxis(S, m)) +
+      (glass('<label class="field"><span>' + (m.retro ? 'Glukóza při jídle podle grafu senzoru (mmol/l)' : 'Glukóza teď podle aplikace senzoru (mmol/l)') + '</span><input type="number" step="0.1" min="1" max="30" inputmode="decimal" data-bind="meal.before" value="' + e(m.before != null ? m.before : '') + '" placeholder="např. 6,8"></label><p class="field-help">Opište hodnotu, kterou právě ukazuje aplikace senzoru. Bez ní se zápis do učení nepočítá, dokud nenahrajete export.</p><div class="small" style="margin-top:6px">' + appr(S, 'Z-GLUKOZA') + '</div>')) +
       '<div class="choice-row" style="flex-direction:column">' +
       choice('Ano, ' + dose.units + ' j.<small>podle plánu, už píchnuto</small>', 'mealBolus', 'as', m.bolus === 'as', 'big') +
       choice('Ano, jinak<small>jiné množství nebo čas</small>', 'mealBolus', 'other', m.bolus === 'other', 'big') +
@@ -556,7 +597,7 @@ V.meal = function (S) {
   var conf = res.conf;
   out += head(S, stepLabel(3), food.name) + steps;
   out += glass('<div style="display:flex;gap:12px;align-items:center">' + foodIcon(S, food, conf) + '<div><div class="badges">' + levelTag(conf.level, conf) + reactionTag(conf.reaction) + '</div>' +
-    '<div class="learn">' + (conf.level === 'known' ? 'Známe ho · ' + NF.plural(conf.st.n, 'započítaný zápis', 'započítané zápisy', 'započítaných zápisů') : conf.level === 'similar' ? 'Zatím odhad z podobných jídel' : 'Zatím nic neodhadujeme — zapište ho ' + (conf.min || 3) + '×') + '</div></div></div>' +
+    '<div class="learn">' + (conf.level === 'known' ? 'Známe ho · ' + NF.plural(conf.st.n, 'započítaný zápis', 'započítané zápisy', 'započítaných zápisů') : conf.level === 'similar' ? 'Zatím odhad z podobných jídel' : conf.level === 'unstable' ? 'Zápisy se liší, jídlo zatím neznáme' : conf.level === 'learning' && conf.impression === 'mixed' ? 'Zápisy se liší; bude známé, až se tři shodnou' : 'Zatím nic neodhadujeme — zapište ho ' + (conf.min || 3) + '×') + '</div></div></div>' +
     (conf.level === 'unknown' ? '<p class="sum" style="margin-top:10px">Tohle jídlo u vás ještě neznáme a nic podobného také ne. <b>Nic neodhadujeme.</b> Po ' + (conf.min || 3) + ' zápisech vám řekneme, kam se po něm glukóza dostane.</p>' : conf.level === 'none' ? '<p class="sum" style="margin-top:10px">' + e(conf.why) + '</p>' : '<div class="detail">' + peakBlock(S, food, conf) + '</div>'));
   if (!res.gate.ok) out += NF.usable(S, 'R-REAKCE') ? hint('<b>Teď neradíme.</b> ' + e(res.gate.why), 'warn') : off(S, 'R-REAKCE');
   else {
@@ -623,9 +664,10 @@ function foodCard(S, f, open) {
   var c = NF.confidence(S, f.id), st = c.st;
   var sum;
   if (c.level === 'known' && !c.reaction) sum = 'Zapsáno ' + st.eaten + '×. ' + (NF.usable(S, 'R-SKORE') ? 'Zatím ' + st.inTarget + ' z ' + st.n + ' v cíli.' : 'Reakci zatím nehodnotíme; rozmezí vidíte níže.');
-  else if (c.level === 'learning') sum = 'Zapsáno ' + st.eaten + '×, ' + (st.n === 1 ? 'první dojem: tentokrát ' + (c.impression === 'in' ? 'v cíli' : 'nad cílem') + '. Ještě dvakrát a budeme ho znát.' : c.impression === 'mixed' ? 'zápisy se liší. Ještě jednou a budeme ho znát.' : 'zatím to vypadá, že po něm ' + (c.impression === 'in' ? 'zůstáváte v cíli' : 'jdete nad cíl') + '. Ještě jednou a bude známé.');
+  else if (c.level === 'learning') sum = 'Zapsáno ' + st.eaten + '×, ' + (st.n === 1 ? 'první dojem: tentokrát ' + (c.impression === 'in' ? 'v cíli' : 'nad cílem') + '. Ještě dvakrát a budeme ho znát.' : c.impression === 'mixed' ? 'zápisy se liší. Jídlo bude známé, až se tři shodnou.' : 'zatím to vypadá, že po něm ' + (c.impression === 'in' ? 'zůstáváte v cíli' : 'jdete nad cíl') + '. Ještě jednou a bude známé.');
   else if (c.level === 'known') sum = 'Zapsáno ' + st.eaten + '×. ' + (c.reaction.key === 'mild' ? 'Po něm zůstáváte <b>většinou v cíli</b>.' : c.reaction.key === 'mid' ? 'Po něm skončíte <b>zhruba z poloviny</b> v cíli a z poloviny nad ním.' : 'Po něm se <b>většinou dostanete nad cíl</b>.') + (c.reaction.settled ? '' : ' Po pár dalších zápisech se to může ještě změnit.');
   else if (c.level === 'similar') sum = 'Zapsáno ' + st.eaten + '×, ještě ' + (c.min - st.n) + ' a budeme ho znát. Podobá se jídlům, po kterých ' + (c.reaction && c.reaction.key === 'mild' ? 'zůstáváte v cíli' : 'jdete nad cíl') + '.';
+  else if (c.level === 'unstable') sum = 'Zapsáno ' + st.eaten + '×, zápisy se ani po ' + st.n + ' neshodly. Lékař to uvidí v podkladech. Zkuste jídlo dělat pokaždé stejně, nebo ho rozdělte na dvě.';
   else sum = 'Zapsáno ' + st.eaten + '×. Zatím nic neodhadujeme; po ' + (c.min || 3) + ' zápisech se všemi údaji budeme vědět víc.';
   if (!NF.usable(S, 'R-SKORE')) sum += off(S, 'R-SKORE'); if (!NF.usable(S, 'R-PODOBNOST') && c.level !== 'known') sum += off(S, 'R-PODOBNOST');
   var detail = '';
@@ -687,7 +729,7 @@ V.preview = function (S) {
   if (s.illDays) qs.push('Nemoc trvala ' + NF.plural(s.illDays, 'den', 'dny', 'dní') + '. Mám v takové době něco dělat jinak?');
   qs.push('Jsou moje cíle glukózy pořád správné?');
   qs = qs.slice(0, 3); /* 15, odst. 11: tři navržené otázky */
-  return head(S, 'Před kontrolou ' + (S.nextVisit ? NF.fmtShort(S.nextVisit) : ''), 'Co uvidí lékař') +
+  return head(S, 'Před kontrolou ' + (S.nextVisit ? NF.fmtShort(S.nextVisit) : ''), 'Co uvidí lékař') + importNotice(S) +
     glass('<div class="now"><span class="ic" aria-hidden="true">' + NF.icon('heart') + '</span><div><b>Díky za ' + NF.plural(Math.max(1, NF.daysBetween(p.issuedAt, S.clock)), 'den', 'dny', 'dní') + ' zapisování</b>' + praise + '<br><span class="small muted">Tohle uvidí lékař. Neuvidí žádné známky, jen co jste zkusili a jak to dopadlo.</span></div></div>', 'soft') +
     glass('<details class="more"><summary>Podrobnosti v číslech</summary><div class="tiles" style="margin-top:10px">' +
       tile('Jídla', s.meals, 'zapsáno' + (s.snacks ? ' · ' + NF.plural(s.snacks, 'svačina', 'svačiny', 'svačin') : ''), 'c-ok', 'meals') + tile('Obvyklá porce', s.usualPct == null ? '—' : s.usualPct + ' %', 'jídel', s.usualPct == null ? 'c-none' : s.usualPct >= 80 ? 'c-ok' : 'c-warn', 'usual') +

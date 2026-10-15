@@ -36,7 +36,15 @@ D.sceneItems = [
  },
  {
   "title": "Pacient — první snídaně ve třech krocích", "items": [
+   "Z-GLUKOZA",
    "S-CESTA"
+  ]
+ },
+ {
+  "title": "Pacient — dvě hodiny po snídani: nejvyšší hodnota ze senzoru", "items": [
+   "Z-GLUKOZA",
+   "S-CESTA",
+   "S-VYSLEDEK"
   ]
  },
  {
@@ -44,8 +52,10 @@ D.sceneItems = [
  },
  {
   "title": "Pacient — otevřel aplikaci až v 10:00", "items": [
+   "Z-IMPORT",
    "R-MILNIKY",
    "S-CESTA",
+   "Z-GLUKOZA",
    "S-VYSLEDEK"
   ]
  },

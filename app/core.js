@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 50;
+NF.SCHEMA = 51;
 NF.PAGES = ['today', 'foods', 'plan', 'safety', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
@@ -309,7 +309,7 @@ NF.setTarget = function (t, key, delta) {
 /* Meze parametrů registru (min, max): garant krokuje jen uvnitř nich (C6, 6. 10. 2026). */
 NF.PARAM_BOUNDS = {
   'C-CILE': { low: [3.0, 5.0], high: [7.0, 14.0], fastingHigh: [5.0, 10.0], tirGoal: [40, 90] },
-  'R-REAKCE': { minKnown: [1, 10], okno_min: [60, 240], okno_tucne_min: [0, 300], vzestup_max: [1, 6], nestale_mmol: [1, 8] }, 'R-SKORE': { mirna: [0.5, 1], stredni: [0.1, 0.9], odKolika: [2, 6], silnaZeTri: [1, 3], oknoZapisu: [3, 12], ustaleneOd: [3, 12] },
+  'R-REAKCE': { minKnown: [1, 10], okno_min: [60, 240], okno_tucne_min: [0, 300], vzestup_max: [1, 6], nestale_mmol: [1, 8], shoda_mmol: [1, 8], maxUceni: [3, 12] }, 'Z-IMPORT': { dny: [1, 30], po_jidle_min: [120, 300] }, 'R-SKORE': { mirna: [0.5, 1], stredni: [0.1, 0.9], odKolika: [2, 6], silnaZeTri: [1, 3], oknoZapisu: [3, 12], ustaleneOd: [3, 12] },
   'R-PODOBNOST': { minJidel: [1, 6], minZapisu: [2, 20], shoda: [0.5, 1], vaha: [0, 5], maxNaJidlo: [1, 10] }, 'S-SILNA': { silnych: [2, 6], dvaNad_mmol: [1, 6], maxJidel: [1, 10] },
   'D-PRAND': { dny: [7, 120], minJidel: [3, 30], podil: [0.5, 1], radyPrve: [0, 10], hypo: [1, 10], medianNad: [0, 3], hypoPodil: [0, 0.5] },
   'D-BAZAL': { dny: [7, 120], nociPod: [1, 10], minNoci: [3, 30] }, 'D-CISTA': { pred_min: [0, 60], po_min: [0, 60] },
@@ -519,13 +519,31 @@ NF.windowFor = function (S, food) { var t = NF.param(S, 'R-REAKCE', 'okno_tucne_
 /* V cíli pro učení: podle R-REAKCE.kriterium buď vzestup ≤ vzestup_max (výchozí), nebo vrchol ≤ horní cíl. */
 NF.epInTarget = function (S, ep, food) {
   food = food || NF.foodById(S, ep.foodId); var win = NF.windowFor(S, food);
-  if (NF.param(S, 'R-REAKCE', 'kriterium', 'vzestup') === 'vzestup') { var r = NF.riseOf(ep.points, win); return r != null && r <= NF.param(S, 'R-REAKCE', 'vzestup_max', 3); }
-  var pk = NF.peakOf(ep.points, win); return pk != null && pk <= NF.targets(S).high;
+  if (NF.param(S, 'R-REAKCE', 'kriterium', 'vzestup') === 'vzestup') { var r = NF.epRise(S, ep, food); return r != null && r <= NF.param(S, 'R-REAKCE', 'vzestup_max', 3); }
+  var pk = NF.epPeak(S, ep, food); return pk != null && pk <= NF.targets(S).high;
 };
 NF.peakOfS = function (S, points, food) { return NF.peakOf(points, NF.windowFor(S, food)); };
 NF.minutesDiff = function (a, b) { return Math.round((NF.parse(b) - NF.parse(a)) / 60000); };
 NF.at2h = function (points) { var p = (points || []).filter(function (x) { return x.mmol != null && x.min === 120; })[0]; return p ? p.mmol : null; };
+/* Data ze senzoru bez napojení na výrobce (rozhodnutí vlastníka 15. 10. 2026): pacient opíše hodnotu před jídlem a nejvyšší hodnotu do 2 h z aplikace senzoru;
+   export z aplikace senzoru (csv) nahraný později hodnoty nahradí přesným průběhem. */
+NF.hasImport = function (ep) {
+  var pts = (ep.points || []).filter(function (p) { return p.mmol != null; });
+  return !!ep.importedAt && pts.length >= 4 && pts.some(function (p) { return p.min === 0; }) && pts.some(function (p) { return p.min >= 120; });
+};
+NF.hasManual = function (ep) { return !!(ep.manual && ep.manual.before != null && ep.manual.peak != null); };
+NF.glucoseOf = function (S, ep, food) {
+  var ip = ep.importedAt ? (ep.points || []).filter(function (p) { return p.mmol != null; }) : [];
+  if (ip.length) return { before: ip[0].mmol, peak: NF.peakOf(ep.points, NF.windowFor(S, food || NF.foodById(S, ep.foodId))), source: 'import' };
+  if (NF.hasManual(ep)) return { before: ep.manual.before, peak: ep.manual.peak, source: 'manual' };
+  return { before: null, peak: null, source: null };
+};
+NF.epPeak = function (S, ep, food) { return NF.glucoseOf(S, ep, food).peak; };
+NF.epRise = function (S, ep, food) { var g = NF.glucoseOf(S, ep, food); return g.peak == null || g.before == null ? null : NF.r1(g.peak - g.before); };
+/* Kdy je výsledek zápisu k dispozici: po importu, nebo po zapsání nejvyšší hodnoty. */
+NF.readyAt = function (ep) { return ep.importedAt || (ep.manual && ep.manual.peakAt) || null; };
 NF.complete = function (ep) {
+  if (NF.hasManual(ep)) return true;
   var pts = (ep.points || []).filter(function (p) { return p.mmol != null; });
   return pts.length >= 4 && pts.some(function (p) { return p.min === 0; }) && pts.some(function (p) { return p.min >= 120; });
 };
@@ -562,7 +580,7 @@ NF.usableEp = function (S, ep) {
 NF.whyNotUsable = function (S, ep) {
   if (ep.context === 'illness') return 'z doby nemoci';
   if (ep.context === 'unusual') return 'neobvyklý den (stres, spánek, alkohol)';
-  if (!NF.complete(ep)) return 'chybí data ze senzoru';
+  if (!NF.complete(ep)) return 'chybí hodnoty glukózy (před jídlem a nejvyšší do 2 h, nebo export ze senzoru)';
   if (NF.isSnack(ep.meal)) return null;
   if (!ep.insulin || ep.insulin.confirmed !== 'as') return 'inzulin nepotvrzen podle plánu';
   if (!NF.onTime(S, ep)) return 'inzulin mimo čas (víc než ' + NF.tolerance(S).before + ' min před jídlem nebo ' + NF.tolerance(S).after + ' min po něm)';
@@ -596,14 +614,20 @@ NF.foodStats = function (S, foodId, filter, meal) {
   var food = NF.foodById(S, foodId);
   var eps = S.episodes.filter(function (e) { return e.foodId === foodId && (!filter || filter(e)); });
   var usable = eps.filter(function (e) { return NF.usableEp(S, e) && NF.sameDose(S, e, meal); });
-  var peaks = usable.map(function (e) { return NF.peakOfS(S, e.points, food); });
+  var peaks = usable.map(function (e) { return NF.epPeak(S, e, food); });
+  var rises = usable.map(function (e) { return NF.epRise(S, e, food); });
   var flags = usable.map(function (e) { return NF.epInTarget(S, e, food); });
+  /* Shoda zápisů (vlastník 15. 10. 2026): jídlo je známé, až když se aspoň minKnown zápisů z posledních maxUceni shoduje (rozdíl vzestupů ≤ shoda_mmol). */
+  var minK = NF.param(S, 'R-REAKCE', 'minKnown', 3), maxU = NF.param(S, 'R-REAKCE', 'maxUceni', 6), shoda = NF.param(S, 'R-REAKCE', 'shoda_mmol', 3);
+  var rr = rises.slice(-maxU).filter(function (x) { return x != null; }).sort(function (a, b) { return a - b; }), consistent = false;
+  for (var ci = 0; ci + minK <= rr.length; ci++) if (rr[ci + minK - 1] - rr[ci] <= shoda) { consistent = true; break; }
+  var unstableFinal = !consistent && usable.length >= maxU;
   var inT = flags.filter(Boolean).length;
   /* Do R-REAKCE.minQuantile (8) zápisů je rozmezí nejnižší–nejvyšší (percentily z mála hodnot kryjí jen část rozptylu); od té doby 10.–90. percentil (R9, 6. 10. 2026). */
   var q = usable.length >= NF.param(S, 'R-REAKCE', 'minQuantile', 8);
   var k = NF.param(S, 'R-SKORE', 'oknoZapisu', 6), rf = flags.slice(-k);
   return { eaten: eps.length, n: usable.length, peaks: peaks, flags: flags, lo: NF.r1(q ? NF.quantile(peaks, 0.1) : (peaks.length ? Math.min.apply(null, peaks) : null)), hi: NF.r1(q ? NF.quantile(peaks, 0.9) : (peaks.length ? Math.max.apply(null, peaks) : null)), quantile: q,
-    med: NF.r1(NF.median(peaks)), inTarget: inT, recent: { n: rf.length, inTarget: rf.filter(Boolean).length }, list: eps, usable: usable };
+    med: NF.r1(NF.median(peaks)), inTarget: inT, recent: { n: rf.length, inTarget: rf.filter(Boolean).length }, list: eps, usable: usable, rises: rises, consistent: consistent, unstableFinal: unstableFinal };
 };
 /* Stupeň reakce (R29): od 3 zápisů — mírná = všechny v cíli, silná = aspoň 2 ze 3 nad cílem, jinak střední; od 4. zápisu podíl z posledních R-SKORE.oknoZapisu (6)
    s prahy mirna/stredni a hysterezí (mění se, jen když by platil i s jedním zápisem jinak); „ustálené“ od R-SKORE.ustaleneOd (5). */
@@ -634,7 +658,7 @@ NF.similarPool = function (S, food, meal) {
       var fs = NF.foodStats(S, f.id, null, meal); if (!fs.n) return;
       var take = capN ? fs.usable.slice(-capN) : fs.usable;
       var it = take.filter(function (e) { return NF.epInTarget(S, e, f); }).length;
-      peaks = peaks.concat(take.map(function (e) { return NF.peakOfS(S, e.points, f); })); inT += it; n += take.length; classes.push(it / take.length >= 0.5 ? 'in' : 'over');
+      peaks = peaks.concat(take.map(function (e) { return NF.epPeak(S, e, f); })); inT += it; n += take.length; classes.push(it / take.length >= 0.5 ? 'in' : 'over');
     });
     return { peaks: peaks, inT: inT, n: n, classes: classes };
   };
@@ -675,13 +699,14 @@ NF.confidence = function (S, foodId, meal) {
   if (!NF.usable(S, 'R-REAKCE')) return { level: 'none', st: st, items: [], meal: meal, why: 'Pravidlo pro vyhodnocení reakce je zamítnuté; nic nevyhodnocujeme.' };
   var min = NF.param(S, 'R-REAKCE', 'minKnown', 3);
   var res = { st: st, min: min, items: ['R-REAKCE'], reaction: null, meal: meal, stage: Math.min(st.n, min) };
-  if (st.n >= min) { res.level = 'known'; res.reaction = NF.reactionLabel(S, st, foodId); return res; }
+  if (st.n >= min && st.consistent) { res.level = 'known'; res.reaction = NF.reactionLabel(S, st, foodId); return res; }
+  if (st.unstableFinal) { res.level = 'unstable'; res.impression = 'mixed'; return res; } /* zápisy se shodnout nedokázaly ani po maxUceni — lékař to vidí v podkladech */
   if (NF.usable(S, 'R-PODOBNOST')) {
     var pool = NF.similarPool(S, food, meal);
     if (pool) { res.pool = pool; res.items.push('R-PODOBNOST'); res.like = pool.foods; }
     else if (!(food.tags && food.tags.like === 'none')) res.similarWhy = NF.similarWhy(S, food, meal);
   }
-  if (st.n >= 1) { res.level = 'learning'; res.impression = NF.impression(S, st); return res; }
+  if (st.n >= 1) { res.level = 'learning'; res.impression = st.n >= min ? 'mixed' : NF.impression(S, st); res.stage = Math.min(st.n, min); return res; }
   res.level = res.pool ? 'similar' : 'unknown';
   return res;
 };
@@ -690,7 +715,7 @@ NF.strongFoods = function (S) {
   if (!NF.usable(S, 'S-SILNA')) return [];
   var minStrong = NF.param(S, 'S-SILNA', 'silnych', 3), over = NF.param(S, 'S-SILNA', 'dvaNad_mmol', 3), vmax = NF.param(S, 'R-REAKCE', 'vzestup_max', 3);
   return S.foods.map(function (f) {
-    var st = NF.foodStats(S, f.id), overN = st.n - st.inTarget, rises = st.usable.map(function (ep) { return NF.riseOf(ep.points, NF.windowFor(S, f)); }).filter(function (x) { return x != null; });
+    var st = NF.foodStats(S, f.id), overN = st.n - st.inTarget, rises = st.rises.filter(function (x) { return x != null; });
     var hit = overN >= minStrong || (st.n === 2 && overN === 2 && rises.length === 2 && rises.every(function (x) { return x >= vmax + over; }));
     return hit ? { food: f, st: st, conf: NF.confidence(S, f.id), overN: overN, med: NF.r1(NF.median(rises)) } : null;
   }).filter(Boolean).sort(function (a, b) { return b.st.eaten - a.st.eaten; });
@@ -699,7 +724,7 @@ NF.strongFoods = function (S) {
 NF.unstable = function (S, foodId) {
   var f = NF.foodById(S, foodId); if (!f || f.sameAsked) return null;
   var st = NF.foodStats(S, foodId); if (st.n < NF.param(S, 'R-REAKCE', 'minKnown', 3)) return null;
-  var rises = st.usable.map(function (ep) { return NF.riseOf(ep.points, NF.windowFor(S, f)); }).filter(function (x) { return x != null; });
+  var rises = st.rises.filter(function (x) { return x != null; });
   if (rises.length < 3 || Math.max.apply(null, rises) - Math.min.apply(null, rises) < NF.param(S, 'R-REAKCE', 'nestale_mmol', 3)) return null;
   var base = NF.baseStats(S, foodId), lev = NF.leverStats(S, foodId)[0];
   if (base.n && lev && lev.st.n && Math.abs((lev.st.med || 0) - (base.med || 0)) >= 1.5) return { kind: 'lever', lever: lev.lever };
@@ -841,12 +866,13 @@ NF.saveEpisode = function (S, data) {
     insulin: { prescribed: p.doses[data.meal] ? p.doses[data.meal].units : null, confirmed: data.insulin.confirmed, units: data.insulin.units != null ? data.insulin.units : null, time: data.insulin.time || null },
     doseKey: NF.doseKey(S, data.meal),
     advice: advice, context: S.illness && S.illness.active ? 'illness' : (data.unusual ? 'unusual' : null),
-    points: data.points || [], importedAt: data.importedAt || null
+    points: data.points || [], importedAt: data.importedAt || null,
+    manual: { before: data.before != null && data.before !== '' ? NF.r1(Number(data.before)) : null, peak: null, peakAt: null }
   };
   if (ep.insulin.confirmed === 'other' && ep.insulin.units === ep.insulin.prescribed) ep.insulin.confirmed = 'as';
   /* Důvod „v jídle to není“ vypne radu u tohoto jídla natrvalo (složení se nezadává, aplikace se ho dozví z odpovědi). */
   var fo = NF.foodById(S, data.foodId); if (fo) advice.forEach(function (a) { if (a.accepted === false && a.reason === 'absent') { fo.leverOff = fo.leverOff || {}; fo.leverOff[a.lever] = true; NF.log(S, 'rada.vypnuta', fo.name + ' · ' + a.lever); } });
-  ep.peak = NF.peakOfS(S, ep.points, NF.foodById(S, ep.foodId)); ep.rise = NF.riseOf(ep.points, NF.windowFor(S, NF.foodById(S, ep.foodId))); ep.at2h = NF.at2h(ep.points);
+  ep.peak = NF.epPeak(S, ep); ep.rise = NF.epRise(S, ep); ep.at2h = NF.at2h(ep.points);
   S.episodes.push(ep);
   NF.log(S, 'jidlo.zapsano', ep.id + ' ' + ep.foodId, { meal: ep.meal, portion: ep.portion, insulin: ep.insulin, advice: ep.advice, context: ep.context, usable: NF.usableEp(S, ep), whyNot: NF.whyNotUsable(S, ep) });
   NF.checkMilestones(S);
@@ -897,11 +923,11 @@ NF.leverNoun = function (l) { return { addon: 'doplněk k jídlu', order: 'jiné
 NF.lastResult = function (S) {
   var T = NF.texts(S, 'S-VYSLEDEK'); if (!T) return null;
   var fb = fbState(S), day = NF.day(S.clock), high = NF.targets(S).high;
-  var eps = S.episodes.filter(function (e) { return NF.day(e.at) === day && e.importedAt && e.importedAt <= S.clock && !fb.resultSeen[e.id]; });
+  var eps = S.episodes.filter(function (e) { var r = NF.readyAt(e); return NF.day(e.at) === day && r && r <= S.clock && !fb.resultSeen[e.id]; });
   if (!eps.length) return null;
   var ep = eps[eps.length - 1], food = NF.foodById(S, ep.foodId); if (!food) return null;
   var acc = (ep.advice || []).filter(function (a) { return a.accepted === true && a.lever !== 'portion'; }).map(function (a) { return a.lever; });
-  var peak = NF.peakOfS(S, ep.points), usable = NF.usableEp(S, ep), why = NF.whyNotUsable(S, ep);
+  var peak = NF.epPeak(S, ep, food), usable = NF.usableEp(S, ep), why = NF.whyNotUsable(S, ep);
   var map = { food: food.name, peak: NF.mmol(peak), meal: NF.mealLabel(ep.meal, true), lever: acc.length ? NF.LEVER_WITH[acc[0]] : '', why: why || '', base: '', sugg: '' };
   var key, minN = NF.param(S, 'S-VYSLEDEK', 'min_n', 4);
   if (peak == null) key = 'nodata';
@@ -919,6 +945,85 @@ NF.lastResult = function (S) {
   }
   var text = NF.fillText(T[key] || T.okPlain, map) + (!usable && key !== 'nodata' && key !== 'excluded' && why ? NF.fillText(T.unusable, { why: why }) : '');
   return { ep: ep, food: food, key: key, text: text, usable: usable, why: why, peak: key === 'excluded' ? null : peak, smaller: ep.portion === 'smaller' };
+};
+/* Ruční nejvyšší hodnota do 2 h (Z-GLUKOZA): připomínka po okno_min od jídla; „nevím“ zápis vyřadí z učení, ale uloží. */
+NF.pendingPeakAsk = function (S) {
+  var win = NF.param(S, 'Z-GLUKOZA', 'pripominka_min', NF.param(S, 'R-REAKCE', 'okno_min', 120));
+  return S.episodes.filter(function (e) { return !NF.hasImport(e) && e.manual && e.manual.peak == null && !e.manual.skipped && NF.minutesDiff(e.at, S.clock) >= win && NF.minutesDiff(e.at, S.clock) <= 24 * 60; });
+};
+NF.setManualPeak = function (S, epId, value) {
+  var ep = S.episodes.filter(function (x) { return x.id === epId; })[0]; if (!ep) return { ok: false, error: 'Zápis nenalezen.' };
+  ep.manual = ep.manual || { before: null, peak: null, peakAt: null };
+  if (value == null || value === '') { ep.manual.skipped = true; NF.log(S, 'glukoza.nejvyssi.neznama', epId); return { ok: true, skipped: true }; }
+  var v = NF.r1(Number(value)); if (!(v >= 1 && v <= 30)) return { ok: false, error: 'Zadejte hodnotu v mmol/l (1–30).' };
+  ep.manual.peak = v; ep.manual.peakAt = S.clock; ep.peak = NF.epPeak(S, ep); ep.rise = NF.epRise(S, ep);
+  NF.log(S, 'glukoza.nejvyssi', epId, { before: ep.manual.before, peak: v, rise: ep.rise, item: 'Z-GLUKOZA' });
+  return { ok: true, ep: ep };
+};
+/* Rozchod zápisů (vlastník 15. 10. 2026): když se nový zápis liší od dřívějších o ≥ shoda_mmol, jedna otázka — stejné · jiná příloha nebo množství · jinak připravené · jiný den. */
+NF.divergence = function (S, ep) {
+  if (!ep || ep.divergeAsked || !NF.usableEp(S, ep)) return null;
+  var f = NF.foodById(S, ep.foodId); if (!f) return null;
+  var st = NF.foodStats(S, ep.foodId), shoda = NF.param(S, 'R-REAKCE', 'shoda_mmol', 3);
+  var others = st.usable.filter(function (e) { return e.id !== ep.id && NF.parse(e.at) < NF.parse(ep.at); }).map(function (e) { return NF.epRise(S, e, f); }).filter(function (x) { return x != null; });
+  var mine = NF.epRise(S, ep, f); if (mine == null || !others.length) return null;
+  var med = NF.median(others); if (Math.abs(mine - med) < shoda) return null;
+  return { ep: ep, food: f, mine: mine, med: NF.r1(med), higher: mine > med };
+};
+NF.answerDivergence = function (S, epId, answer) {
+  var ep = S.episodes.filter(function (x) { return x.id === epId; })[0]; if (!ep) return { ok: false, error: 'Zápis nenalezen.' };
+  var f = NF.foodById(S, ep.foodId); ep.divergeAsked = answer; var out = { ok: true, answer: answer };
+  if (answer === 'day') { ep.context = 'unusual'; out.text = 'Dobře, tenhle zápis do učení nepočítáme.'; }
+  else if (answer === 'side' || answer === 'prep') {
+    var r = NF.addFood(S, f.name + (answer === 'side' ? ' (jiná příloha)' : ' (jinak připravené)'), { like: f.id }, { force: true });
+    if (r.ok) { ep.foodId = r.food.id; out.text = 'Založili jsme „' + r.food.name + '“ jako samostatné jídlo a tenhle zápis patří k němu. Příště vyberte to, které zrovna jíte.'; out.food = r.food; }
+  } else out.text = 'Dobře. Měříme dál; jídlo bude známé, až se zápisy shodnou.';
+  NF.log(S, 'jidlo.rozchod', epId, { answer: answer, item: 'R-REAKCE' });
+  return out;
+};
+/* Export z aplikace senzoru (Z-IMPORT): csv s časem a hodnotou (formáty běžných aplikací senzorů i obecný „čas;hodnota“). Bez knihoven; xlsx je nutné uložit jako csv. */
+NF.parseSensorCsv = function (text) {
+  var lines = String(text || '').replace(/\r/g, '').split('\n').filter(function (l) { return l.trim(); }); if (!lines.length) return [];
+  var sep = (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length ? ';' : ',';
+  var head = lines[0].split(sep).map(function (h) { return h.trim().toLowerCase(); }), ti = -1, gi = -1;
+  head.forEach(function (h, i) { if (ti < 0 && /timestamp|čas|cas|time|datum|date/.test(h)) ti = i; });
+  head.forEach(function (h, i) { if (gi < 0 && /historic glucose|glucose value|glukóza|glukoza|glucose|hodnota|mmol/.test(h) && !/scan|strip/.test(h)) gi = i; });
+  var start = 1; if (ti < 0 || gi < 0) { ti = 0; gi = 1; start = /^\d/.test(lines[0]) ? 0 : 1; }
+  var out = [];
+  for (var i = start; i < lines.length; i++) {
+    var c = lines[i].split(sep); if (c.length <= Math.max(ti, gi)) continue;
+    var at = NF.parseSensorTime(c[ti].trim()), v = parseFloat(String(c[gi]).trim().replace(',', '.'));
+    if (!at || !(v > 0.5 && v < 40)) continue;
+    out.push({ at: at, mmol: NF.r1(v) });
+  }
+  return out.sort(function (a, b) { return a.at < b.at ? -1 : 1; });
+};
+NF.parseSensorTime = function (s) {
+  var m = s.match(/^(\d{1,2})[-.\/](\d{1,2})[-.\/](\d{4})[ T](\d{1,2}):(\d{2})/); if (m) return m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2) + 'T' + ('0' + m[4]).slice(-2) + ':' + m[5] + ':00';
+  m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/); if (m) return m[1] + '-' + m[2] + '-' + m[3] + 'T' + m[4] + ':' + m[5] + ':00';
+  return null;
+};
+NF.importReadings = function (S, readings) {
+  var win = NF.param(S, 'R-REAKCE', 'okno_min', 120), after = NF.param(S, 'Z-IMPORT', 'po_jidle_min', 180), filled = 0, nights = 0;
+  if (!readings.length) return { ok: false, error: 'V souboru nejsou žádná měření.' };
+  S.episodes.forEach(function (ep) {
+    if (NF.hasImport(ep)) return;
+    var pts = readings.filter(function (r) { var d = NF.minutesDiff(ep.at, r.at); return d >= -5 && d <= after; }).map(function (r) { return { min: Math.max(0, NF.minutesDiff(ep.at, r.at)), at: r.at, mmol: r.mmol }; });
+    if (pts.length < 4 || !pts.some(function (p) { return p.min <= 10; }) || !pts.some(function (p) { return p.min >= win; })) return;
+    if (!pts.some(function (p) { return p.min === 0; })) pts[0].min = 0;
+    ep.points = pts; ep.importedAt = S.clock; ep.peak = NF.epPeak(S, ep); ep.rise = NF.epRise(S, ep); ep.at2h = NF.at2h(ep.points); filled++;
+  });
+  var byDay = {}; readings.forEach(function (r) { var d = r.at.slice(0, 10), h = Number(r.at.slice(11, 13)); if (h < 6) { byDay[d] = byDay[d] || { min: r.mmol, fasting: null }; byDay[d].min = Math.min(byDay[d].min, r.mmol); } if (h === 6 && byDay[d] && byDay[d].fasting == null) byDay[d].fasting = r.mmol; });
+  Object.keys(byDay).forEach(function (d) { if (byDay[d].fasting != null && !S.nights.some(function (n) { return n.date === d; })) { S.nights.push({ date: d, fasting: byDay[d].fasting, min: byDay[d].min }); nights++; } });
+  S.sensorImport = { at: S.clock, readings: readings.length, from: readings[0].at, to: readings[readings.length - 1].at, filled: filled, nights: nights };
+  NF.log(S, 'senzor.import', readings.length + ' měření', { filled: filled, nights: nights, from: readings[0].at, to: readings[readings.length - 1].at, item: 'Z-IMPORT' });
+  return { ok: true, readings: readings.length, filled: filled, nights: nights };
+};
+/* Je čas nahrát export: týdně (Z-IMPORT.dny) a vždy před kontrolou, když některý zápis nemá průběh. */
+NF.importDue = function (S) {
+  var dny = NF.param(S, 'Z-IMPORT', 'dny', 7), last = S.sensorImport && S.sensorImport.at;
+  var missing = S.episodes.filter(function (e) { return !NF.hasImport(e) && NF.minutesDiff(e.at, S.clock) > 180; }).length;
+  return { due: missing > 0 && (!last || NF.daysBetween(last, S.clock) >= dny), missing: missing, last: last };
 };
 NF.markResultSeen = function (S, id) { fbState(S).resultSeen[id] = S.clock; NF.log(S, 'vysledek.zobrazen', id); };
 
@@ -1075,7 +1180,7 @@ NF.adviceOutcome = function (S, planId) {
   var high = NF.targets(S).high;
   var grp = function (pred) {
     var l = eps.filter(pred), c = l.filter(function (e) { return NF.complete(e) && e.context !== 'illness'; });
-    var peaks = c.map(function (e) { return NF.peakOfS(S, e.points); });
+    var peaks = c.map(function (e) { return NF.epPeak(S, e); });
     return { n: l.length, c: c.length, med: NF.r1(NF.median(peaks)), inTarget: peaks.filter(function (p) { return p <= high; }).length };
   };
   var acc = grp(function (e) { return e.advice.some(function (a) { return a.lever !== 'portion' && a.accepted === true; }); });
@@ -1086,7 +1191,7 @@ NF.adviceOutcome = function (S, planId) {
     if (a.lever === 'portion') return;
     byLever[a.lever] = byLever[a.lever] || { offered: 0, accepted: 0, declined: 0, reasons: {}, peaksAcc: [], peaksDec: [] };
     byLever[a.lever].offered++;
-    var ok = NF.complete(e) && e.context !== 'illness', pk = ok ? NF.peakOfS(S, e.points) : null;
+    var ok = NF.complete(e) && e.context !== 'illness', pk = ok ? NF.epPeak(S, e) : null;
     if (a.accepted === true) { byLever[a.lever].accepted++; if (pk != null) byLever[a.lever].peaksAcc.push(pk); }
     if (a.accepted === false) { byLever[a.lever].declined++; if (pk != null) byLever[a.lever].peaksDec.push(pk); if (a.reason) { byLever[a.lever].reasons[a.reason] = (byLever[a.lever].reasons[a.reason] || 0) + 1; reasons[a.reason] = (reasons[a.reason] || 0) + 1; } }
   }); });
@@ -1171,13 +1276,13 @@ NF.proposals = function (S, planId, catalog) {
       return;
     }
     if (eps.length < minN) return;
-    var above = eps.filter(function (e) { return NF.peakOfS(S, e.points) > t.high; });
+    var above = eps.filter(function (e) { return NF.epPeak(S, e) > t.high; });
     if (above.length / eps.length < share) return;
-    var medPeak = NF.r1(NF.median(eps.map(function (e) { return NF.peakOfS(S, e.points); })));
+    var medPeak = NF.r1(NF.median(eps.map(function (e) { return NF.epPeak(S, e); })));
     if (medPeak != null && medPeak <= t.high + medNad) return; /* hraniční jídla návrh nespouštějí (R2) */
     /* Rozpad po jídlech (R1): jednotka návrhu je slot dne, ale lékař vidí, které jídlo za tím stojí. */
     var byFood = {};
-    eps.forEach(function (e) { var f = NF.foodById(S, e.foodId), nm = f ? f.name : e.foodId; byFood[nm] = byFood[nm] || { n: 0, above: 0 }; byFood[nm].n++; if (NF.peakOfS(S, e.points) > t.high) byFood[nm].above++; });
+    eps.forEach(function (e) { var f = NF.foodById(S, e.foodId), nm = f ? f.name : e.foodId; byFood[nm] = byFood[nm] || { n: 0, above: 0 }; byFood[nm].n++; if (NF.epPeak(S, e) > t.high) byFood[nm].above++; });
     var breakdown = Object.keys(byFood).map(function (k) { return { food: k, n: byFood[k].n, above: byFood[k].above }; }).sort(function (a, b) { return b.n - a.n; });
     var inTargetFoods = breakdown.filter(function (b) { return b.n >= 2 && b.above === 0; });
     var heteroWeak = inTargetFoods.length ? ['jídlo ' + inTargetFoods.map(function (b) { return '„' + b.food + '“ (' + b.n + '× v cíli)'; }).join(', ') + ' je v cíli — příčina může být v konkrétním jídle, ne v dávce; zvýšení by dopadlo i na tyto dny'] : [];

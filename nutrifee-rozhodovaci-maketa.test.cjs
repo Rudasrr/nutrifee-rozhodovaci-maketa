@@ -170,7 +170,7 @@ test('Přihlášení (7. 10. 2026): bez přihlášení jen přihlašovací strá
 
 test('Stav položek (7. 10. 2026 večer): ke schválení místo „schváleno předem“; zamítnutí ukáže na místě „tahle část nefunguje“ a příběh pokračuje', () => {
   /* každá z 28 položek má ve scéně, kde se o ní rozhoduje, po zamítnutí oznámení (na obrazovce nebo v panelu) */
-  const ids = S().registry.items.map(r => r.id); assert.equal(ids.length, 29);
+  const ids = S().registry.items.map(r => r.id); assert.equal(ids.length, 31);
   const sceneOf = id => { for (let i = 0; i < D.scenes.length; i++) if (D.decisionItems(i).indexOf(id) >= 0) return i; return -1; };
   for (const id of ids) {
     const i = sceneOf(id); assert.ok(i >= 0, id + ' má rozhodovací scénu');
@@ -378,7 +378,12 @@ test('Před jídlem: inzulin první, kroky zamčené bez volby, zápis nese potv
   act('mealFinish', 'as');
   const ep = S().episodes[S().episodes.length - 1];
   assert.equal(ep.insulin.confirmed, 'as'); assert.equal(ep.insulin.units, 8); assert.equal(ep.insulin.time, '06:45');
-  assert.ok(ep.points.length === 5, 'simulovaný senzor dodal průběh');
+  /* bez napojení na senzor (15. 10. 2026): při uložení žádný průběh, jen opsaná hodnota před jídlem; nejvyšší hodnota přijde za 2 h, export později */
+  assert.equal(ep.points.length, 0); assert.equal(ep.importedAt, null); assert.equal(NF.complete(ep), false);
+  S().clock = NF.addMin(ep.at, 130); assert.equal(NF.pendingPeakAsk(S()).length, 1, 'po 2 h se aplikace zeptá na nejvyšší hodnotu');
+  ep.manual.before = 6.8; S().form = { ['peak_' + ep.id]: '9.6' }; act('peakSave', ep.id);
+  assert.equal(ep.manual.peak, 9.6); assert.equal(NF.complete(ep), true); assert.equal(NF.epRise(S(), ep), 2.8); assert.equal(NF.glucoseOf(S(), ep).source, 'manual');
+  assert.equal(NF.pendingPeakAsk(S()).length, 0);
 });
 
 test('Nové jídlo jen názvem (15. 10. 2026): „Myslíte X?“ u podobného názvu, nepovinné „Je to jako…“, rady se učí z odpovědi „v jídle to není“, lékař dostane jednu větu', () => {
@@ -512,6 +517,7 @@ test('Zpětná vazba: po příchodu dat karta „Jak to dopadlo“ děkuje za č
   assert.equal(/<b>Jak to dopadlo<\/b>/.test(markup()), false, 'bez dnešních dat karta není');
   act('mealRetro', 'breakfast'); act('mealBolus', 'as'); act('mealAt', '7.5'); act('mealTime', '-15'); act('mealStep', '2');
   act('mealFood', food('Chléb se sýrem a zeleninou').id); act('mealPortion', 'usual'); act('mealStep', '3'); act('mealDecide', 'walk:yes'); act('mealFinish', 'as');
+  { const e2 = S().episodes[S().episodes.length - 1]; e2.manual.before = 6.2; act('peakSave', e2.id); S().form = { ['peak_' + e2.id]: '8.9' }; act('peakSave', e2.id); } /* opsaná nejvyšší hodnota → výsledek hned */
   const r = NF.lastResult(S());
   assert.ok(r && r.key === 'okAdvice', r && r.key); assert.match(r.text, /Díky za pokus/); assert.match(r.text, /nejvyšší hodnota/);
   assert.match(markup(), /<b>Jak to dopadlo<\/b>/);
@@ -696,6 +702,7 @@ test('Svačina: bez inzulinu a bez porce, mimo sloty a návrhy k dávce, učí s
   act('mealFinish', 'snack');
   const ep = S().episodes[S().episodes.length - 1];
   assert.equal(ep.meal, 'snack'); assert.equal(ep.insulin.confirmed, 'snack'); assert.equal(ep.insulin.prescribed, null); assert.equal(ep.doseKey, 'snack:0');
+  ep.manual = { before: 6.1, peak: 7.4, peakAt: S().clock }; /* opsané hodnoty */
   assert.ok(NF.usableEp(S(), ep), 'svačina se učí (bez podmínky inzulinu)');
   assert.equal(NF.mealState(S(), 'lunch').state, 'now', 'svačina nezaplní slot');
   assert.equal(NF.foodStats(S(), food('Jablko').id).n >= 1, true);
@@ -999,9 +1006,9 @@ test('Průchod pro garanta (8. 10. 2026): schvalování hned v kroku, kdy polož
   /* souhrn na konci hlavní linie: všechny položky, potvrzení, záznam pro správce */
   const fin = D.scenes.findIndex(x => !x.appendix && D.chapters[x.ch].id === 'trace'); act('goScene', String(fin)); act('closeDrawer');
   const stf = D.tour.stepsFor('trace', S().branches); for (let k = 0; k < stf.length; k++) next();
-  m = markup(); assert.match(m, /Souhrn vašich rozhodnutí/); assert.match(m, /Potvrdit souhrn/); assert.equal((m.match(/class="gitem"/g) || []).length, 29, 'souhrn ukazuje všech 29 položek');
+  m = markup(); assert.match(m, /Souhrn vašich rozhodnutí/); assert.match(m, /Potvrdit souhrn/); assert.equal((m.match(/class="gitem"/g) || []).length, 31, 'souhrn ukazuje všech 31 položek');
   const before = D.sync.pending(); act('garantConfirmSummary'); assert.equal(D.sync.pending(), before + 1);
-  const q = JSON.parse(store.get('nutrifee-sync-queue')); const last = q[q.length - 1]; assert.equal(last.kind, 'summary'); assert.equal(last.item, 'SOUHRN'); assert.equal(last.params.total, 29); assert.ok(last.params.rejectedIds);
+  const q = JSON.parse(store.get('nutrifee-sync-queue')); const last = q[q.length - 1]; assert.equal(last.kind, 'summary'); assert.equal(last.item, 'SOUHRN'); assert.equal(last.params.total, 31); assert.ok(last.params.rejectedIds);
   assert.match(markup(), /Souhrn potvrzen/); assert.ok(D.progress().done);
   assert.ok(q.some(x => x.kind === 'progress' && x.item === 'PRUBEH' && x.params.scene === fin + 1), 'záznam, kam se garant dostal');
   /* správce: panel výsledků ukáže průchod */
@@ -1131,7 +1138,7 @@ test('Vizuální jazyk (15. 10. 2026): jedna SVG ikonová sada bez emoji v jádr
   for (const f of S().foods) assert.ok(NF.ICONS[NF.foodIconName(f)], f.name);
   /* Dnes: pás dne místo štítků, ikony v liště záložek; Jak to dopadlo = pruh start → vrchol s hranicí cíle, žádná křivka */
   chapter('lateMeal'); let m = markup(); assert.match(m, /class="daystrip" role="img" aria-label="Den: Snídaně [^"]+, Oběd [^"]+, Večeře [^"]+, Bazál [^"]+\."/); assert.match(m, /class="dnode (done|now|wait|missed|skipped)"/); assert.match(m, /class="glass tabbar"[\s\S]*data-icon="home"[\s\S]*data-icon="plate"[\s\S]*data-icon="list"[\s\S]*data-icon="shield"/);
-  for (let i = 0; i < 8 && !/class="rise /.test(m); i++) { next(); m = markup(); } /* v lateMeal přijdou data ze senzoru o pár kroků dál */
+  for (let i = 0; i < 14 && !/class="rise /.test(m); i++) { next(); m = markup(); } /* v lateMeal přijdou data ze senzoru o pár kroků dál */
   assert.match(m, /<b>Jak to dopadlo<\/b>/); assert.match(m, /class="rise (ok|bad)" role="img" aria-label="Glukóza při jídle [\d,]+, vrchol [\d,]+ mmol\/l, hranice cíle [\d,]+ mmol\/l\."/); assert.match(m, /<rect class="rbar"/); assert.doesNotMatch(m, /<polyline|class="curve"/);
   /* každé SVG na obrazovce je aria-hidden, nebo grafika s role="img" a popisem u sebe */
   const checkSvg = (html, where) => { for (const sv of html.matchAll(/<svg[^>]*>/g)) assert.ok(/aria-hidden="true"/.test(sv[0]) || /role="img"/.test(sv[0]), where + ': ' + sv[0].slice(0, 80)); };

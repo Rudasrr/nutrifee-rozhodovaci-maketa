@@ -34,6 +34,20 @@ D.guide = {
     co: 'Okno 120 minut, práh 3 zápisů pro „známé“ a způsob výpočtu rozmezí.',
     dopad: 'Při zamítnutí aplikace reakci na jídlo nevyhodnocuje vůbec: karty jídel neukážou rozmezí ani stupeň a před jídlem se neradí.'
   },
+  'Z-GLUKOZA': {
+    proc: 'Napojení na výrobce senzoru by vyžadovalo jeho svolení a certifikaci rozhraní. Pacient hodnoty ze senzoru vidí sám; opsat dvě čísla stačí, aby se aplikace učila a radila.',
+    jak: 'V kroku 1 pole „Glukóza teď podle aplikace senzoru“; 120 minut po jídle karta na Dnes „Nejvyšší hodnota od jídla?“ (z grafu senzoru). Vzestup = nejvyšší − před jídlem. „Nevím“ zápis uloží, ale nepočítá do učení, dokud ho nedoplní export.',
+    kde: 'Krok 1 před jídlem, karta na Dnes po dvou hodinách, karta „Jak to dopadlo“ s poznámkou „podle opsaných hodnot“.',
+    co: 'Že dvě opsané hodnoty jsou dostatečná míra (vrchol do 2 h, ne hodnota ve 2. hodině) a kdy se zeptat.',
+    dopad: 'Při zamítnutí by pacient hodnoty nezapisoval a učení i rady by čekaly na týdenní export.'
+  },
+  'Z-IMPORT': {
+    proc: 'Opsané hodnoty stačí k učení, ale lékař potřebuje přesný průběh (vrcholy, noci pro bazál) a pacientovy hodnoty se mohou mýlit. Export z aplikace senzoru jsou pacientova data.',
+    jak: 'Jednou týdně připomínka na Dnes a v týdenním shrnutí; před kontrolou povinně. Soubor csv (xlsx uložený jako csv) se čte jen v telefonu: měření 0–180 min po jídle se přiřadí k zápisu, noční hodnoty k noci; opsané hodnoty se nahradí.',
+    kde: 'Karta „Nahrát data ze senzoru“ na Dnes, tlačítko v týdenním shrnutí, upozornění před kontrolou, stránka „Nahrát export“.',
+    co: 'Interval připomínky (7 dní), okno přiřazení (180 min) a že je export před kontrolou podmínkou reportu.',
+    dopad: 'Při zamítnutí by lékař viděl jen opsané hodnoty a bazál by neměl noční data.'
+  },
   'R-PODOBNOST': {
     proc: 'U jídla, které pacient ještě nejedl, by číslo vypadalo jako předpověď bez opory. Jediný, kdo ví, čemu se nové jídlo podobá, je pacient.',
     jak: 'Nepovinné „Je to jako X“ při zápisu nového jídla. Do třetího vlastního zápisu se ukáže široké rozmezí z jídla X s váhou {vaha} virtuálních zápisů (s 1 vlastním 67 %, se 2 zápisy 50 %, od 3 zápisů 0 %). Bez potvrzení se nic neodhaduje. Jídla z databáze se k sobě přirovnávají podle předvyplněných údajů při aspoň {minJidel} podobných jídlech, {minZapisu} zápisech (nejvýš {maxNaJidlo} z každého) a shodě {shoda}.',

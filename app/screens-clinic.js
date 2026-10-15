@@ -174,11 +174,15 @@ function bar(label, med, color) {
   return '<span>' + e(label) + '</span><div class="b" style="width:' + w + '%;background:' + color + '">' + (med == null ? '—' : e(NF.mmol(med)) + ' mmol/l') + '</div>';
 }
 /* Jídla se silnou reakcí k probrání (S-SILNA): pozorování pro lékaře, pacientovi žádný zákaz. */
+function unstableLine(S) {
+  var un = S.foods.filter(function (f) { return NF.confidence(S, f.id).level === 'unstable'; });
+  return un.length ? '<p class="small"><b>Nestálá jídla</b> (zápisy se neshodly ani po ' + NF.param(S, 'R-REAKCE', 'maxUceni', 6) + '): ' + e(un.map(function (f) { return f.name; }).join(', ')) + '. K probrání s pacientem: stejné jídlo, nebo dvě pod jedním názvem?</p>' : '';
+}
 function strongFoods(S) {
   if (!NF.usable(S, 'S-SILNA')) return V.off(S, 'S-SILNA');
   var list = NF.strongFoods(S), max = NF.param(S, 'S-SILNA', 'maxJidel', 3), top = list.slice(0, max), rest = list.slice(max), total = list.reduce(function (a, x) { return a + x.overN; }, 0);
   var sentence = list.length ? NF.plural(list.length, 'jídlo', 'jídla', 'jídel') + ' s opakovanou silnou reakcí, celkem ' + NF.plural(total, 'zápis', 'zápisy', 'zápisů') + ' nad cílem; nejčastěji ' + top.map(function (x) { return e(x.food.name) + ' (' + x.st.eaten + '×)'; }).join(', ') + '.' : 'Žádné jídlo s opakovanou silnou reakcí.';
-  return '<details class="part"><summary>Silné reakce<span class="mini">' + list.length + '</span></summary><div class="body"><p><b>' + sentence + '</b></p>' +
+  return '<details class="part"><summary>Silné reakce<span class="mini">' + list.length + '</span></summary><div class="body"><p><b>' + sentence + '</b></p>' + unstableLine(S) + '' +
     (top.length ? '<ul class="plain small">' + top.map(function (x) { return '<li><b>' + e(x.food.name) + '</b> — jí ' + x.st.eaten + '×, ' + x.overN + ' z ' + x.st.n + ' nad cílem, medián vzestupu ' + e(NF.mmol(x.med)) + ' mmol/l</li>'; }).join('') + '</ul>' : '') +
     (rest.length ? '<details class="more"><summary>Další (' + rest.length + ')</summary><ul class="plain small">' + rest.map(function (x) { return '<li>' + e(x.food.name) + ' — ' + x.overN + ' z ' + x.st.n + '</li>'; }).join('') + '</ul></details>' : '') +
     '<p class="small muted">Řeší aplikace s pacientem (porce, pořadí, doplněk, procházka; jídlo se nenabízí mezi návrhy). Bez zákazů. ' + appr(S, 'S-SILNA') + '</p></div></details>';

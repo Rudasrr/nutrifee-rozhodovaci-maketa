@@ -271,14 +271,23 @@ var A = {
     var at = m.retro ? NF.retroAt(S, m.at) : S.clock;
     var time = confirmed === 'none' || confirmed === 'unknown' || confirmed === 'snack' ? null : NF.fmtTime(NF.addMin(at, Number(m.offset || 0)));
     var draft = { meal: m.meal, foodId: f.id, portion: m.portion, bolusState: m.retro ? 'retro' : m.bolus, advice: advice, insulin: { confirmed: confirmed, units: units, time: time }, at: at, retro: !!m.retro, unusual: !!m.unusual };
-    var src = NF.sensorSource ? NF.sensorSource(S, draft) : null;
-    draft.points = src ? src.points : []; draft.importedAt = src ? src.importedAt : null;
+    draft.before = m.before; /* hodnota před jídlem opsaná z aplikace senzoru (Z-GLUKOZA); průběh přijde až z exportu */
+    draft.points = []; draft.importedAt = null;
     var r = NF.saveEpisode(S, draft); if (!r.ok) return fail(r.error);
     S.meal = null; S.page = 'today'; NF.flash = { food: f.id };
     var th = NF.thanks(S, r.episode);
     toast(th || (m.retro ? f.name + ' je zapsané k ' + NF.fmtTime(at) + '.' : f.name + ' je zapsané.'));
   },
   resultSeen: function (v) { NF.markResultSeen(S, v); },
+  /* ruční nejvyšší hodnota do 2 h, otázka při rozchodu zápisů, nahrání exportu ze senzoru */
+  peakSave: function (v) { var r = NF.setManualPeak(S, v, (S.form || {})['peak_' + v]); if (!r.ok) return fail(r.error); if (S.form) delete S.form['peak_' + v]; toast('Díky. Hned ukážeme, jak to dopadlo.'); },
+  peakSkip: function (v) { var r = NF.setManualPeak(S, v, null); if (!r.ok) return fail(r.error); toast('V pořádku. Hodnoty doplní export ze senzoru; do té doby se zápis do učení nepočítá.'); },
+  foodDiverge: function (v) { var p = v.split(':'); var r = NF.answerDivergence(S, p[0], p[1]); if (!r.ok) return fail(r.error); toast(r.text); },
+  importPage: function () { S.page = 'import'; },
+  importText: function (v) {
+    var rows = NF.parseSensorCsv(v); var r = NF.importReadings(S, rows); if (!r.ok) return fail(r.error);
+    toast('Nahráno ' + r.readings + ' měření; doplněn průběh u ' + NF.plural(r.filled, 'jídla', 'jídel', 'jídel') + (r.nights ? ' a ' + NF.plural(r.nights, 'noc', 'noci', 'nocí') : '') + '.');
+  },
   fixInsulinOpen: function (v) { S.fixInsulin = S.fixInsulin === v ? null : v; S.fixInsulinOther = false; S.fixInsulinUnits = null; },
   fixInsulinOther: function (v) { S.fixInsulinOther = !S.fixInsulinOther; var ep = S.episodes.filter(function (x) { return x.id === v; })[0]; S.fixInsulinUnits = ep ? ep.insulin.prescribed : 0; },
   fixInsulinUnits: function (v) { S.fixInsulinUnits = Math.max(0, Math.min(60, (S.fixInsulinUnits || 0) + Number(v))); },
@@ -401,6 +410,10 @@ if (global.document && global.document.addEventListener) {
     if (k === 'meal.q') NF.render();
   });
   global.document.addEventListener('change', function (ev) {
+    if (ev.target.type === 'file' && ev.target.dataset && ev.target.dataset.action === 'importFile') { /* export z aplikace senzoru: čte se jen v telefonu, nikam se neposílá */
+      var f = ev.target.files && ev.target.files[0]; if (!f || !global.FileReader) return;
+      var rd = new global.FileReader(); rd.onload = function () { act('importText', String(rd.result || '')); }; rd.readAsText(f); return;
+    }
     var k = ev.target.dataset && ev.target.dataset.bind; if (!k) return;
     bind(k, ev.target.type === 'checkbox' ? ev.target.checked : ev.target.value); NF.save(S); NF.render();
   });
