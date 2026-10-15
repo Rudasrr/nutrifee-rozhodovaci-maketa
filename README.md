@@ -56,7 +56,7 @@ v rámečku telefonu.
 |---|---|
 | 1 V ordinaci | Karta, čtyři podmínky, dávky voličem, startovní sada návyků, osobní pokyny; sestra zaučí s náhledem telefonu |
 | 2 Doma | Tři kroky před jídlem (inzulin první); po týdnu známá jídla s rozmezím na stupnici a „X z N v cíli“ |
-| 3 Rada | Před píchnutím porce zpět k obvyklé; po píchnutí jen z větší; vlastní jídlo třemi klepnutími |
+| 3 Rada | Před píchnutím porce zpět k obvyklé; po píchnutí jen z větší; nové jídlo jen názvem |
 | 4 Nemoc | Pacient označí nemoc, aplikace pomáhá jinak (jen bezpečné rady, pokyny lékaře), ukončí ji pacient |
 | 5 Registr | Lékař-garant upraví text rady s komentářem; platí okamžitě, historie zůstává |
 | 6 Kontrola | Pacient: report před kontrolou. Lékař: souhrn → návrhy jeden po druhém → potvrzení → předání. Stopa |

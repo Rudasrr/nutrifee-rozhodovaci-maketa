@@ -29,7 +29,7 @@ D.guide = {
   },
   'R-REAKCE': {
     proc: 'Pacient potřebuje vidět, kam se po jeho jídle glukóza dostane — z jeho vlastních dat, ne z tabulek. Bez poctivé definice „co se počítá“ by učení stálo na špatných zápisech.',
-    jak: 'Míra reakce je nejvyšší hodnota glukózy 0–120 minut po jídle (okno vrcholu). Jídlo je „známé“ od 3 započítaných zápisů. Započítaný zápis má úplná data ze senzoru, inzulin potvrzený podle plánu a včas, je mimo nemoc, s obvyklou porcí, při stejné dávce a bez svačiny do 2 hodin. Rozmezí vrcholů: do 8 zápisů nejnižší–nejvyšší hodnota, od 8 zápisů 10.–90. percentil. Popisuje minulost, nepředpovídá.',
+    jak: 'Míra reakce = vzestup (vrchol 0–120 min minus hodnota při jídle, v cíli ≤ 3,0 mmol/l); zápis z nemoci nebo „neobvyklého dne“ se nepočítá; u jídla s rozcházejícími se zápisy (nestálé jídlo) se aplikace pacienta zeptá, zda šlo o stejné jídlo. Míra reakce je nejvyšší hodnota glukózy 0–120 minut po jídle (okno vrcholu). Jídlo je „známé“ od 3 započítaných zápisů. Započítaný zápis má úplná data ze senzoru, inzulin potvrzený podle plánu a včas, je mimo nemoc, s obvyklou porcí, při stejné dávce a bez svačiny do 2 hodin. Rozmezí vrcholů: do 8 zápisů nejnižší–nejvyšší hodnota, od 8 zápisů 10.–90. percentil. Popisuje minulost, nepředpovídá.',
     kde: 'Karty jídel (stupnice s rozmezím), krok 3 před jídlem, report lékaře (tabulka jídel).',
     co: 'Okno 120 minut, práh 3 zápisů pro „známé“ a způsob výpočtu rozmezí.',
     dopad: 'Při zamítnutí aplikace reakci na jídlo nevyhodnocuje vůbec: karty jídel neukážou rozmezí ani stupeň a před jídlem se neradí.'
@@ -43,7 +43,7 @@ D.guide = {
   },
   'R-SKORE': {
     proc: 'Pacient má vědět, jak často po jídle zůstane v cíli — relativně ke svým vlastním jídlům, ne jako známku „dobré / špatné jídlo“.',
-    jak: 'Stupeň reakce = podíl započítaných zápisů s vrcholem pod horním cílem: mírná ≥ 80 %, střední ≥ 50 %, častěji nad cílem < 50 %. Barevný stupeň se ukáže až od 6 započítaných zápisů; do té doby pacient vidí jen „X z N v cíli“. Stupeň se mění s hysterezí: jen když by platil i s jedním zápisem jinak.',
+    jak: 'Stupeň reakce = podíl započítaných zápisů s vrcholem pod horním cílem: mírná ≥ 80 %, střední ≥ 50 %, častěji nad cílem < 50 %. Stupeň se ukáže už od 3 započítaných zápisů (mírná = 3 ze 3 v cíli, častěji nad cílem = aspoň 2 ze 3 nad cílem), od 4 zápisů se počítá z posledních 6 s hysterezí a od 5 je ustálený (R29–R30, 15. 10. 2026). „V cíli“ u jídla znamená vzestup nejvýš 3,0 mmol/l (vrchol minus hodnota při jídle).',
     kde: 'Karty jídel (štítek), krok 3 před jídlem, report lékaře (sloupec Reakce).',
     co: 'Prahy 80 % a 50 %, minimum 6 zápisů pro barevný stupeň a slova „mírná / střední / častěji nad cílem“.',
     dopad: 'Při zamítnutí stupeň zmizí z karet i reportu; pacient vidí jen rozmezí a „X z N v cíli“. Rady před jídlem se dál řídí podílem v cíli.'
@@ -120,7 +120,7 @@ D.guide = {
   },
   'J-DATABAZE': {
     proc: 'Pacient vybírá jídlo jménem, ne složením. Bez seznamu běžných jídel by musel všechno zakládat ručně.',
-    jak: 'Asi 200 běžných českých jídel a hotovek, každé se třemi hrubými štítky, textem doplňku a „co sníst nejdřív“. Hledání od začátku slova, „naposledy“, vlastní jídlo jen názvem a třemi štítky. V maketě je seznam syntetický; skutečný zdroj a licence se vyberou pro studii.',
+    jak: 'Asi 200 běžných českých jídel a hotovek s textem doplňku a „co sníst nejdřív“; vnitřní údaje pro podobnost pacient nevidí a u vlastního jídla je nezadává (jen název, R31). Hledání od začátku slova, „naposledy“, vlastní jídlo jen názvem a třemi štítky. V maketě je seznam syntetický; skutečný zdroj a licence se vyberou pro studii.',
     kde: 'Krok 2 před jídlem (výběr jídla), Jídla (karty).',
     co: 'Že seznam tohoto typu a rozsahu je pro studii vhodný a že texty doplňku a pořadí u jídel jsou součástí schválení rad.',
     dopad: 'Při zamítnutí pacient nemá nabídku jídel a každé jídlo zakládá sám.'

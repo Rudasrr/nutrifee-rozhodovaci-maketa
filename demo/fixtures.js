@@ -389,7 +389,7 @@ D.acts = [
   { title: 'Úvod', note: 'K čemu NutriFee je a jak ukázku ovládat.' },
   { title: 'Scénář 1 — V ordinaci', note: 'Karta, podmínky, dávky voličem, startovní sada návyků, osobní pokyny. Sestra zaučí s náhledem telefonu.' },
   { title: 'Scénář 2 — Doma: aplikace se učí', note: 'Tři kroky před jídlem s inzulinem první. Po týdnu první známá jídla s rozmezím a reakcí.' },
-  { title: 'Scénář 3 — Rada před jídlem', note: 'Před píchnutím porce zpět k obvyklé; po píchnutí jen z větší; vlastní jídlo třemi klepnutími.' },
+  { title: 'Scénář 3 — Rada před jídlem', note: 'Před píchnutím porce zpět k obvyklé; po píchnutí jen z větší; nové jídlo jen názvem.' },
   { title: 'Scénář 4 — Nemoc', note: 'Pacient označí nemoc, aplikace pomáhá dál, ale jinak. Ukončuje pacient.' },
   { title: 'Scénář 5 — Během studie: garant upraví pravidlo', note: 'Funkce ostré aplikace, ne vaše dnešní schvalování: během studie jako garant (a lékař studie) upravíte text rady po podnětu z provozu; změna platí okamžitě, bez čekání na kontrolu.' },
   { title: 'Scénář 6 — Kontrola', note: 'Pacient: report před kontrolou. Lékař: souhrn → návrhy → potvrzení → předání. Stopa.' }
@@ -457,10 +457,10 @@ D.garantQuestions = [
   [], /* úvod */
   ['Stačí čtyři podmínky zařazení?', 'Je startovní sada návyků správná pro všechny?', 'Jsou připravené věty pokynů úplné?', 'Stačí hrubá denní doba (10:00 / 15:30 / 21:00) k rozlišení, že jídlo už minulo?'],
   ['Je vrchol 0–120 min správná míra reakce?', 'Stačí 3 zápisy pro „známé jídlo“?', 'Je správně, že pochvala je jen za snahu a návyk, nikdy za hodnotu glukózy?', 'Jsou milníky (jídlo poznáno, rada = návyk, týden bez mezery) ty správné?'],
-  ['Je pravidlo „z větší porce zpět k obvyklé i po píchnutí“ bezpečné?', 'Jsou hrubé štítky dostatečné pro podobnost?'],
+  ['Je pravidlo „z větší porce zpět k obvyklé i po píchnutí“ bezpečné?', 'Stačí podobnost určená pacientem („podobá se jídlu X“) bez složení?'],
   ['Má aplikace při nemoci radit doplněk a pořadí?'],
   ['Kdo smí pravidla měnit mezi kontrolami a jak rychle to pacient uvidí?'],
-  ['Jsou prahy návrhů k dávce (6 jídel, 2/3, 14 dní) správné?', 'Je postup posouzení D-POSTUP úplný?']
+  ['Jsou prahy návrhů k dávce (okno ≥ 28 dní, ≥ 8 čistých jídel, 2/3 nad cílem, medián > cíl + 0,5) správné?', 'Je postup posouzení D-POSTUP úplný?']
 ];
 
 })(typeof window !== 'undefined' ? window : globalThis);
