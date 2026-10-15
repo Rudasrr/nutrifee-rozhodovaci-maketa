@@ -46,7 +46,7 @@ NF.demoActions.tourReturn = function () { var s = S(); if (s.tourRole) { s.role 
 /* ---------- rozhodovací kroky garanta (7. 10. 2026) ----------
    Každá scéna hlavní linie končí krokem „Co jste viděli a co schvalujete“ s položkami registru, které se v ní poprvé použily.
    Automaticky z demo/scene-items.js (štítky na obrazovce); položky bez štítku, nebo ty, které patří jinam, mapuje D.itemScene. Zbytek jde do finále. */
-D.itemScene = { 'K-KRITERIA': 'enroll', 'R-NAVYKY': 'doses', 'R-POKYNY': 'doses', 'C-CILE': 'doses', 'Z-BODY': 'training', 'R-DIKY': 'firstMeal', 'S-TYDEN': 'lateMeal', 'J-DATABAZE': 'custom', 'J-STITKY': 'custom', 'R-PODOBNOST': 'custom', 'P-NEMOC': 'illness', 'R-ZMIZELA': 'impact', 'D-BAZAL': 'reviewProposals', 'P-LEKAR': 'issue' };
+D.itemScene = { 'K-KRITERIA': 'enroll', 'S-SILNA': 'reviewSummary', 'R-NAVYKY': 'doses', 'R-POKYNY': 'doses', 'C-CILE': 'doses', 'Z-BODY': 'training', 'R-DIKY': 'firstMeal', 'S-TYDEN': 'lateMeal', 'J-DATABAZE': 'custom', 'J-STITKY': 'custom', 'R-PODOBNOST': 'custom', 'P-NEMOC': 'illness', 'R-ZMIZELA': 'impact', 'D-BAZAL': 'reviewProposals', 'P-LEKAR': 'issue' };
 var decisionPlanCache = null;
 function mainSceneOf(chId) { for (var i = 0; i < D.scenes.length; i++) if (!D.scenes[i].appendix && D.chapters[D.scenes[i].ch].id === chId) return i; return -1; }
 function decisionPlan() {

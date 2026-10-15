@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 42;
+NF.SCHEMA = 43;
 NF.PAGES = ['today', 'foods', 'plan', 'safety', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
@@ -309,7 +309,8 @@ NF.setTarget = function (t, key, delta) {
 /* Meze parametrů registru (min, max): garant krokuje jen uvnitř nich (C6, 6. 10. 2026). */
 NF.PARAM_BOUNDS = {
   'C-CILE': { low: [3.0, 5.0], high: [7.0, 14.0], fastingHigh: [5.0, 10.0], tirGoal: [40, 90] },
-  'R-REAKCE': { minKnown: [1, 10], okno_min: [60, 240] }, 'R-SKORE': { mirna: [0.5, 1], stredni: [0.1, 0.9] },
+  'R-REAKCE': { minKnown: [1, 10], okno_min: [60, 240], okno_tucne_min: [60, 300], vzestup_max: [1, 6] }, 'R-SKORE': { mirna: [0.5, 1], stredni: [0.1, 0.9], odKolika: [2, 6], silnaZeTri: [1, 3], oknoZapisu: [3, 12], ustaleneOd: [3, 12] },
+  'R-PODOBNOST': { minJidel: [1, 6], minZapisu: [2, 20], shoda: [0.5, 1], vaha: [0, 5], maxNaJidlo: [1, 10] }, 'S-SILNA': { silnych: [2, 6], dvaNad_mmol: [1, 6] },
   'D-PRAND': { dny: [7, 120], minJidel: [3, 30], podil: [0.5, 1], radyPrve: [0, 10], hypo: [1, 10], medianNad: [0, 3], hypoPodil: [0, 0.5] },
   'D-BAZAL': { dny: [7, 120], nociPod: [1, 10], minNoci: [3, 30] }, 'D-CISTA': { pred_min: [0, 60], po_min: [0, 60] },
   'S-SEMAFOR': { tir_zelena: [50, 90], tir_zluta: [30, 70], tbr_max: [1, 10], tbr3_max: [0.5, 5] }, 'R-PROCHAZKA': { minut: [5, 60] }, 'R-DOPLNEK': { stahnout_po: [1, 10] },
@@ -422,18 +423,51 @@ NF.trainingSummary = function (S) {
 /* ---------- jídla ----------
    Jídlo má název a tři hrubé štítky (příloha, příprava, velikost). Žádná makra. */
 NF.TAGS = {
-  side: [['brambory', 'brambory / kaše'], ['ryze', 'rýže'], ['testoviny', 'těstoviny'], ['knedlik', 'knedlík'], ['pecivo', 'pečivo'], ['bez', 'bez přílohy']],
-  prep: [['smazene', 'smažené'], ['varene', 'vařené / pečené'], ['studene', 'studené']],
-  size: [['male', 'malé'], ['bezne', 'běžné'], ['velke', 'velké']]
+  source: [['brambory', 'brambory'], ['ryze', 'rýže'], ['testoviny', 'těstoviny'], ['knedlik', 'knedlík'], ['pecivo', 'pečivo'], ['ovesne', 'kaše, müsli, cereálie'], ['lusteniny', 'luštěniny, quinoa'], ['ovoce', 'ovoce'], ['sladke', 'sladké, dezert'], ['tekute', 'tekuté (nápoj, polévka)'], ['bez', 'bez přílohy']],
+  prep: [['varene', 'vařené / pečené'], ['smazene', 'smažené / tučné'], ['kase', 'kaše / rozmixované']],
+  plate: [['priloha', 'jen příloha'], ['priloha_maso', 'příloha + maso'], ['priloha_maso_zelenina', 'příloha + maso + zelenina'], ['zelenina', 'hlavně zelenina, trochu přílohy'], ['polevka', 'polévka nebo nápoj']]
 };
+/* Obrázek talíře říká, co v jídle je (R27): bílkovina → má smysl doplněk?; zelenina/maso → je co sníst napřed? */
+NF.PLATE = { priloha: { protein: false, veg: false }, priloha_maso: { protein: true, veg: false }, priloha_maso_zelenina: { protein: true, veg: true }, zelenina: { protein: false, veg: true }, polevka: { protein: false, veg: false } };
+NF.plateHas = function (food) { var t = (food && food.tags) || {}; return NF.PLATE[t.plate] || { protein: false, veg: false }; };
+NF.foodForm = function (food) { var t = (food && food.tags) || {}; return t.source === 'tekute' || t.plate === 'polevka' ? 'tekute' : 'pevne'; };
+NF.defaultPrep = function (source) { return source === 'ovesne' ? 'kase' : 'varene'; };
 NF.tagLabel = function (group, key) { var x = NF.TAGS[group].filter(function (k) { return k[0] === key; })[0]; return x ? x[1] : key; };
+/* Název složený ze složek, když pacient nic nenapíše (R27). */
+NF.autoName = function (tags) {
+  var base = NF.tagLabel('source', tags.source).split(',')[0].split(' (')[0];
+  if (tags.source === 'bez') base = tags.plate === 'zelenina' ? 'zelenina' : tags.plate === 'priloha_maso' || tags.plate === 'priloha_maso_zelenina' ? 'maso' : 'jídlo';
+  if (tags.source === 'tekute') base = tags.plate === 'polevka' ? 'polévka' : 'nápoj';
+  var suf = { priloha: '', priloha_maso: ' s masem', priloha_maso_zelenina: ' s masem a zeleninou', zelenina: ' se zeleninou', polevka: '' }[tags.plate] || '';
+  if (tags.source === 'bez' && tags.plate === 'zelenina') suf = '';
+  if (tags.plate === 'polevka' && tags.source !== 'tekute') suf = ' (polévka)';
+  var n = base + suf + (tags.prep === 'smazene' ? ', smažené' : tags.prep === 'kase' ? ', kaše' : '');
+  return n.charAt(0).toUpperCase() + n.slice(1);
+};
+NF.normName = function (s) {
+  var STOP = ['s', 'se', 'a', 'v', 've', 'na', 'od', 'z', 'ze', 'k', 'ke', 'u', 'po', 'do', 'i'];
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(function (w) { return w && STOP.indexOf(w) < 0; });
+};
+/* Existující jídlo stejné skladby s překryvem slov ≥ 50 % → „Myslíte X?“ (R27: duplicity se spojují dotazem, ne tichým sloučením). */
+NF.likeName = function (S, name, tags) {
+  var w = NF.normName(name); if (!w.length) return null;
+  var best = null, bestScore = 0;
+  S.foods.forEach(function (f) {
+    if (!f.tags || f.tags.source !== tags.source || f.tags.prep !== tags.prep) return;
+    var fw = NF.normName(f.name), common = w.filter(function (x) { return fw.some(function (y) { return y.indexOf(x) === 0 || x.indexOf(y) === 0; }); }).length, score = common / w.length;
+    if (score >= 0.5 && score > bestScore) { best = f; bestScore = score; }
+  });
+  return best;
+};
 NF.foodById = function (S, id) { return S.foods.filter(function (f) { return f.id === id; })[0] || null; };
-NF.addFood = function (S, name, tags) {
-  if (!name || !name.trim()) return { ok: false, error: 'Napište, co bylo k jídlu.' };
-  if (!tags || !tags.side || !tags.prep || !tags.size) return { ok: false, error: 'Klepněte na přílohu, přípravu a velikost.' };
+NF.addFood = function (S, name, tags, opts) {
+  tags = tags || {}; opts = opts || {};
+  if (!tags.source || !tags.prep || !tags.plate) return { ok: false, error: 'Klepněte na zdroj sacharidů, úpravu a talíř.' };
+  name = (name && name.trim()) || NF.autoName(tags);
   var same = S.foods.filter(function (x) { return x.name.trim().toLowerCase() === name.trim().toLowerCase(); })[0];
   if (same) return { ok: true, food: same, existing: true }; /* stejný název = totéž jídlo (CH-8) */
-  var f = { id: NF.uid('F'), name: name.trim(), tags: tags, custom: true, addedAt: S.clock };
+  if (!opts.force) { var like = NF.likeName(S, name, tags); if (like) return { ok: true, suggest: like }; }
+  var f = { id: NF.uid('F'), name: name.trim(), tags: { source: tags.source, prep: tags.prep, plate: tags.plate, like: tags.like || null }, custom: true, addedAt: S.clock };
   S.foods.push(f);
   NF.log(S, 'jidlo.pridano', f.name, f);
   return { ok: true, food: f };
@@ -453,8 +487,20 @@ NF.recentFoods = function (S, meal) {
   });
   return out.slice(0, 6);
 };
+/* Podobné = stejný zdroj sacharidů + úprava + forma (tekuté/pevné), R28; jídlo, které pacient sám označil za podobné, se přidá; „Ne, je jiné“ podobnost vypne. */
 NF.similarFoods = function (S, food) {
-  return S.foods.filter(function (f) { return f.id !== food.id && f.tags.side === food.tags.side && f.tags.prep === food.tags.prep; });
+  if (!food || !food.tags) return [];
+  if (food.tags.like === 'none') return [];
+  var form = NF.foodForm(food);
+  var out = S.foods.filter(function (f) { return f.id !== food.id && f.tags && f.tags.source === food.tags.source && f.tags.prep === food.tags.prep && NF.foodForm(f) === form; });
+  if (food.tags.like) { var l = NF.foodById(S, food.tags.like); if (l && out.indexOf(l) < 0) out.push(l); }
+  return out;
+};
+/* Nejpodobnější známé jídlo k potvrzení „Podobné jídlo: X? Ano / Ne“. */
+NF.likeCandidate = function (S, tags) {
+  var min = NF.param(S, 'R-REAKCE', 'minKnown', 3);
+  var c = NF.similarFoods(S, { id: null, tags: tags }).map(function (f) { return { f: f, n: NF.foodStats(S, f.id).n }; }).filter(function (x) { return x.n >= min; }).sort(function (a, b) { return b.n - a.n; })[0];
+  return c ? c.f : null;
 };
 
 /* ---------- zápisy jídel ----------
@@ -467,8 +513,17 @@ NF.peakOf = function (points, win) {
   var pts = (points || []).filter(function (p) { return p.mmol != null && p.min <= win; });
   return pts.length ? Math.max.apply(null, pts.map(function (p) { return p.mmol; })) : null;
 };
-/* Vrchol v okně z registru (R-REAKCE.okno_min, výchozí 120 min). */
-NF.peakOfS = function (S, points) { return NF.peakOf(points, NF.param(S, 'R-REAKCE', 'okno_min', 120)); };
+/* Vzestup = vrchol minus hodnota před jídlem (R30: vysoký start dne se nepřipisuje jídlu). */
+NF.riseOf = function (points, win) { var pk = NF.peakOf(points, win), p0 = (points || []).filter(function (p) { return p.mmol != null; })[0]; return pk == null || !p0 ? null : NF.r1(pk - p0.mmol); };
+/* Okno vrcholu: u smažených/tučných jídel delší (R30), vrchol přichází později. */
+NF.windowFor = function (S, food) { return food && food.tags && food.tags.prep === 'smazene' ? NF.param(S, 'R-REAKCE', 'okno_tucne_min', 180) : NF.param(S, 'R-REAKCE', 'okno_min', 120); };
+/* V cíli pro učení: podle R-REAKCE.kriterium buď vzestup ≤ vzestup_max (výchozí), nebo vrchol ≤ horní cíl. */
+NF.epInTarget = function (S, ep, food) {
+  food = food || NF.foodById(S, ep.foodId); var win = NF.windowFor(S, food);
+  if (NF.param(S, 'R-REAKCE', 'kriterium', 'vzestup') === 'vzestup') { var r = NF.riseOf(ep.points, win); return r != null && r <= NF.param(S, 'R-REAKCE', 'vzestup_max', 3); }
+  var pk = NF.peakOf(ep.points, win); return pk != null && pk <= NF.targets(S).high;
+};
+NF.peakOfS = function (S, points, food) { return NF.peakOf(points, NF.windowFor(S, food)); };
 NF.minutesDiff = function (a, b) { return Math.round((NF.parse(b) - NF.parse(a)) / 60000); };
 NF.at2h = function (points) { var p = (points || []).filter(function (x) { return x.mmol != null && x.min === 120; })[0]; return p ? p.mmol : null; };
 NF.complete = function (ep) {
@@ -501,12 +556,13 @@ NF.latePodani = function (S, ep) {
   return diff > 0;
 };
 NF.usableEp = function (S, ep) {
-  if (!NF.complete(ep) || ep.context === 'illness') return false;
+  if (!NF.complete(ep) || ep.context === 'illness' || ep.context === 'unusual') return false;
   if (NF.isSnack(ep.meal)) return !!(ep.insulin && ep.insulin.confirmed === 'snack');
   return ep.insulin && ep.insulin.confirmed === 'as' && NF.onTime(S, ep) && ep.portion === 'usual' && ep.doseKey === NF.doseKey(S, ep.meal) && !NF.snackAfter(S, ep);
 };
 NF.whyNotUsable = function (S, ep) {
   if (ep.context === 'illness') return 'z doby nemoci';
+  if (ep.context === 'unusual') return 'neobvyklý den (stres, spánek, alkohol)';
   if (!NF.complete(ep)) return 'chybí data ze senzoru';
   if (NF.isSnack(ep.meal)) return null;
   if (!ep.insulin || ep.insulin.confirmed !== 'as') return 'inzulin nepotvrzen podle plánu';
@@ -538,29 +594,79 @@ NF.sameDose = function (S, ep, meal) {
 };
 NF.foodStats = function (S, foodId, filter, meal) {
   meal = meal || NF.dominantMeal(S, foodId);
+  var food = NF.foodById(S, foodId);
   var eps = S.episodes.filter(function (e) { return e.foodId === foodId && (!filter || filter(e)); });
   var usable = eps.filter(function (e) { return NF.usableEp(S, e) && NF.sameDose(S, e, meal); });
-  var peaks = usable.map(function (e) { return NF.peakOfS(S, e.points); });
-  var high = NF.targets(S).high;
-  var inT = peaks.filter(function (p) { return p <= high; }).length;
+  var peaks = usable.map(function (e) { return NF.peakOfS(S, e.points, food); });
+  var flags = usable.map(function (e) { return NF.epInTarget(S, e, food); });
+  var inT = flags.filter(Boolean).length;
   /* Do R-REAKCE.minQuantile (8) zápisů je rozmezí nejnižší–nejvyšší (percentily z mála hodnot kryjí jen část rozptylu); od té doby 10.–90. percentil (R9, 6. 10. 2026). */
   var q = usable.length >= NF.param(S, 'R-REAKCE', 'minQuantile', 8);
-  return { eaten: eps.length, n: usable.length, peaks: peaks, lo: NF.r1(q ? NF.quantile(peaks, 0.1) : (peaks.length ? Math.min.apply(null, peaks) : null)), hi: NF.r1(q ? NF.quantile(peaks, 0.9) : (peaks.length ? Math.max.apply(null, peaks) : null)), quantile: q,
-    med: NF.r1(NF.median(peaks)), inTarget: inT, list: eps, usable: usable };
+  var k = NF.param(S, 'R-SKORE', 'oknoZapisu', 6), rf = flags.slice(-k);
+  return { eaten: eps.length, n: usable.length, peaks: peaks, flags: flags, lo: NF.r1(q ? NF.quantile(peaks, 0.1) : (peaks.length ? Math.min.apply(null, peaks) : null)), hi: NF.r1(q ? NF.quantile(peaks, 0.9) : (peaks.length ? Math.max.apply(null, peaks) : null)), quantile: q,
+    med: NF.r1(NF.median(peaks)), inTarget: inT, recent: { n: rf.length, inTarget: rf.filter(Boolean).length }, list: eps, usable: usable };
 };
-/* Stupeň reakce až od R-SKORE.minLabel (6) započítaných zápisů; mění se s hysterezí — jen když by platil i s jedním zápisem jinak (R9). */
+/* Stupeň reakce (R29): od 3 zápisů — mírná = všechny v cíli, silná = aspoň 2 ze 3 nad cílem, jinak střední; od 4. zápisu podíl z posledních R-SKORE.oknoZapisu (6)
+   s prahy mirna/stredni a hysterezí (mění se, jen když by platil i s jedním zápisem jinak); „ustálené“ od R-SKORE.ustaleneOd (5). */
 NF.reactionLabel = function (S, st, foodId) {
   if (!st.n || !NF.usable(S, 'R-SKORE')) return null;
-  if (st.n < NF.param(S, 'R-SKORE', 'minLabel', 6)) return null;
-  var mild = NF.param(S, 'R-SKORE', 'mirna', 0.8), mid = NF.param(S, 'R-SKORE', 'stredni', 0.5);
-  var lab = function (k) { var share = k / st.n; return share >= mild ? 'mild' : share >= mid ? 'mid' : 'strong'; };
-  var key = lab(st.inTarget), stable = lab(Math.min(st.n, st.inTarget + 1)) === key && lab(Math.max(0, st.inTarget - 1)) === key;
-  if (foodId) {
-    var store = fbState(S).labels || (fbState(S).labels = {});
-    if (!stable && store[foodId]) key = store[foodId]; else store[foodId] = key;
+  if (st.n < NF.param(S, 'R-SKORE', 'odKolika', 3)) return null;
+  var mild = NF.param(S, 'R-SKORE', 'mirna', 0.8), mid = NF.param(S, 'R-SKORE', 'stredni', 0.5), key;
+  if (st.n < 4) {
+    var over = st.n - st.inTarget;
+    key = st.inTarget === st.n ? 'mild' : over >= NF.param(S, 'R-SKORE', 'silnaZeTri', 2) ? 'strong' : 'mid';
+  } else {
+    var r = st.recent && st.recent.n ? st.recent : st;
+    var lab = function (k) { var share = k / r.n; return share >= mild ? 'mild' : share >= mid ? 'mid' : 'strong'; };
+    key = lab(r.inTarget);
+    var stable = lab(Math.min(r.n, r.inTarget + 1)) === key && lab(Math.max(0, r.inTarget - 1)) === key;
+    if (foodId) { var store = fbState(S).labels || (fbState(S).labels = {}); if (!stable && store[foodId]) key = store[foodId]; else store[foodId] = key; }
   }
   var L = { mild: { key: 'mild', label: 'mírná reakce', cls: 'ok' }, mid: { key: 'mid', label: 'střední reakce', cls: 'warn' }, strong: { key: 'strong', label: 'častěji nad cílem', cls: 'bad' } };
-  return L[key];
+  return { key: L[key].key, label: L[key].label, cls: L[key].cls, settled: st.n >= NF.param(S, 'R-SKORE', 'ustaleneOd', 5) };
+};
+/* Odhad z podobných jídel (R28): buď jídlo, které pacient sám označil za podobné (stačí samo), nebo aspoň R-PODOBNOST.minJidel podobných jídel
+   s aspoň minZapisu započítanými zápisy (nejvýš maxNaJidlo z každého) a shodou ≥ shoda; jinak se nic neodhaduje. */
+NF.similarPool = function (S, food, meal) {
+  var min = NF.param(S, 'R-REAKCE', 'minKnown', 3), cap = NF.param(S, 'R-PODOBNOST', 'maxNaJidlo', 3), minJidel = NF.param(S, 'R-PODOBNOST', 'minJidel', 3), minZapisu = NF.param(S, 'R-PODOBNOST', 'minZapisu', 6), shoda = NF.param(S, 'R-PODOBNOST', 'shoda', 0.67);
+  var collect = function (foods, capN) {
+    var peaks = [], inT = 0, n = 0, classes = [];
+    foods.forEach(function (f) {
+      var fs = NF.foodStats(S, f.id, null, meal); if (!fs.n) return;
+      var take = capN ? fs.usable.slice(-capN) : fs.usable;
+      var it = take.filter(function (e) { return NF.epInTarget(S, e, f); }).length;
+      peaks = peaks.concat(take.map(function (e) { return NF.peakOfS(S, e.points, f); })); inT += it; n += take.length; classes.push(it / take.length >= 0.5 ? 'in' : 'over');
+    });
+    return { peaks: peaks, inT: inT, n: n, classes: classes };
+  };
+  var explicit = food.tags && food.tags.like && food.tags.like !== 'none' ? NF.foodById(S, food.tags.like) : null;
+  if (explicit && NF.foodStats(S, explicit.id, null, meal).n >= min) {
+    var c1 = collect([explicit], 0);
+    return { foods: [explicit], n: c1.n, inTarget: c1.inT, lo: NF.r1(Math.min.apply(null, c1.peaks)), hi: NF.r1(Math.max.apply(null, c1.peaks)), share: c1.inT / c1.n, why: 'podle jídla, které jste označili za podobné', explicit: true };
+  }
+  var like = NF.similarFoods(S, food).filter(function (f) { return NF.foodStats(S, f.id, null, meal).n >= 1; });
+  if (like.length < minJidel) return null;
+  var c = collect(like, cap); if (c.n < minZapisu) return null;
+  var ins = c.classes.filter(function (x) { return x === 'in'; }).length, agree = Math.max(ins, c.classes.length - ins) / c.classes.length;
+  if (agree < shoda) return null;
+  return { foods: like, n: c.n, inTarget: c.inT, lo: NF.r1(NF.quantile(c.peaks, 0.1)), hi: NF.r1(NF.quantile(c.peaks, 0.9)), share: c.inT / c.n, why: like.length + ' podobná jídla ve shodě', explicit: false };
+};
+NF.similarWhy = function (S, food, meal) {
+  var like = NF.similarFoods(S, food).filter(function (f) { return NF.foodStats(S, f.id, null, meal).n >= 1; });
+  return like.length < NF.param(S, 'R-PODOBNOST', 'minJidel', 3) ? 'málo podobných jídel' : 'podobná jídla se liší';
+};
+/* První dojem (1 zápis) / zatím to vypadá (2 zápisy ve shodě) / zápisy se liší (R29). */
+NF.impression = function (S, st) {
+  var f = st.flags || [];
+  if (f.length === 1) return f[0] ? 'in' : 'over';
+  return f.every(Boolean) ? 'in' : f.every(function (x) { return !x; }) ? 'over' : 'mixed';
+};
+/* Podíl v cíli pro rady: známé = vlastní; učíme se = odhad z podobných váhou R-PODOBNOST.vaha (2) virtuálních zápisů + vlastní; od 3 vlastních jen vlastní. */
+NF.blendedShare = function (S, conf) {
+  var w = NF.param(S, 'R-PODOBNOST', 'vaha', 2), n = conf.st.n;
+  if (conf.level === 'known') return n ? conf.st.inTarget / n : null;
+  if (conf.pool) return (w * conf.pool.share + conf.st.inTarget) / (w + n);
+  return n >= 2 ? conf.st.inTarget / n : null;
 };
 NF.confidence = function (S, foodId, meal) {
   var food = NF.foodById(S, foodId);
@@ -569,22 +675,26 @@ NF.confidence = function (S, foodId, meal) {
   if (!food) return { level: 'unknown', st: st, items: [], meal: meal };
   if (!NF.usable(S, 'R-REAKCE')) return { level: 'none', st: st, items: [], meal: meal, why: 'Pravidlo pro vyhodnocení reakce je zamítnuté; nic nevyhodnocujeme.' };
   var min = NF.param(S, 'R-REAKCE', 'minKnown', 3);
-  var res = { st: st, min: min, items: ['R-REAKCE'], reaction: null, meal: meal };
+  var res = { st: st, min: min, items: ['R-REAKCE'], reaction: null, meal: meal, stage: Math.min(st.n, min) };
   if (st.n >= min) { res.level = 'known'; res.reaction = NF.reactionLabel(S, st, foodId); return res; }
   if (NF.usable(S, 'R-PODOBNOST')) {
-    var like = NF.similarFoods(S, food).filter(function (f) { return NF.foodStats(S, f.id, null, meal).n >= min; });
-    if (like.length) {
-      var peaks = [];
-      like.forEach(function (f) { peaks = peaks.concat(NF.foodStats(S, f.id, null, meal).peaks); });
-      var high = NF.targets(S).high;
-      res.level = 'similar'; res.items.push('R-PODOBNOST'); res.like = like;
-      res.pool = { n: peaks.length, lo: NF.r1(NF.quantile(peaks, 0.1)), hi: NF.r1(NF.quantile(peaks, 0.9)), inTarget: peaks.filter(function (p) { return p <= high; }).length };
-      res.reaction = NF.reactionLabel(S, { n: res.pool.n, inTarget: res.pool.inTarget });
-      return res;
-    }
+    var pool = NF.similarPool(S, food, meal);
+    if (pool) { res.pool = pool; res.items.push('R-PODOBNOST'); res.like = pool.foods; }
+    else if (!(food.tags && food.tags.like === 'none')) res.similarWhy = NF.similarWhy(S, food, meal);
   }
-  res.level = 'unknown';
+  if (st.n >= 1) { res.level = 'learning'; res.impression = NF.impression(S, st); return res; }
+  res.level = res.pool ? 'similar' : 'unknown';
   return res;
+};
+/* Jídla se silnou reakcí k probrání s lékařem (S-SILNA): aspoň `silnych` zápisů nad cílem, nebo 2 zápisy s vzestupem aspoň o `dvaNad_mmol` nad hranici. Pacientovi žádný zákaz. */
+NF.strongFoods = function (S) {
+  if (!NF.usable(S, 'S-SILNA')) return [];
+  var minStrong = NF.param(S, 'S-SILNA', 'silnych', 3), over = NF.param(S, 'S-SILNA', 'dvaNad_mmol', 3), vmax = NF.param(S, 'R-REAKCE', 'vzestup_max', 3);
+  return S.foods.map(function (f) {
+    var st = NF.foodStats(S, f.id), overN = st.n - st.inTarget, rises = st.usable.map(function (ep) { return NF.riseOf(ep.points, NF.windowFor(S, f)); }).filter(function (x) { return x != null; });
+    var hit = overN >= minStrong || (st.n === 2 && overN === 2 && rises.length === 2 && rises.every(function (x) { return x >= vmax + over; }));
+    return hit ? { food: f, st: st, conf: NF.confidence(S, f.id), overN: overN, med: NF.r1(NF.median(rises)) } : null;
+  }).filter(Boolean);
 };
 /* Co pomohlo: zápisy s přijatou radou (páka) vs. bez ní. */
 NF.leverStats = function (S, foodId, meal) {
@@ -647,9 +757,9 @@ NF.advise = function (S, foodId, portion, bolusState, meal) {
   /* rady bez změny množství */
   var lv = res.conf.level;
   var cands = [], pa = NF.planAdvice(S), reason = false;
-  if (lv === 'known' || lv === 'similar') {
-    /* Rady se nabízejí podle podílu v cíli (prahy R-SKORE), i když barevný stupeň ještě není (ten je až od 6 zápisů, R9). */
-    var sst = lv === 'known' ? res.conf.st : res.conf.pool, share = sst && sst.n ? sst.inTarget / sst.n : null;
+  if (lv === 'known' || lv === 'similar' || lv === 'learning') {
+    /* Rady podle podílu v cíli (prahy R-SKORE): známé z vlastních zápisů, učíme se z odhadu z podobných + vlastních (R28/R29). */
+    var share = NF.blendedShare(S, res.conf);
     var needs = NF.usable(S, 'R-SKORE') && share != null && share < NF.param(S, 'R-SKORE', 'mirna', 0.8);
     if (needs) { cands = ['addon', 'order', 'walk']; reason = true; }
     else if (lv === 'known') { NF.leverStats(S, foodId, meal).forEach(function (x) { if (cands.indexOf(x.lever) < 0) cands.push(x.lever); }); }
@@ -662,7 +772,8 @@ NF.advise = function (S, foodId, portion, bolusState, meal) {
     if (!NF.usable(S, meta.item)) return; /* zamítnuté pravidlo → rada prostě není */
     if (res.illness && !meta.illnessSafe) return;
     if (meta.beforeOnly && !before) return; /* doplněk jen před píchnutím (6. 10. 2026) */
-    if (l === 'addon' && food.addon === '') return; /* jídlo, ke kterému není co přidat */
+    if (l === 'addon' && (food.addon === '' || NF.plateHas(food).protein)) return; /* jídlo, ke kterému není co přidat, nebo už bílkovinu má (R27) */
+    if (l === 'order' && !(NF.plateHas(food).protein || NF.plateHas(food).veg || food.first)) return; /* není co sníst napřed */
     var ls = lv === 'known' ? NF.leverStats(S, foodId, meal).filter(function (x) { return x.lever === l; })[0] : null;
     if (l === 'addon' && ls && ls.st.n >= NF.param(S, 'R-DOPLNEK', 'stahnout_po', 3) && ls.st.inTarget === 0) return; /* rada stažena po N pokusech bez účinku */
     var item = { lever: l, item: meta.item, label: meta.label, carbs: false, text: fill(S, it.text, food) };
@@ -719,11 +830,11 @@ NF.saveEpisode = function (S, data) {
     bolusAtAdvice: data.bolusState || null, retro: !!data.retro,
     insulin: { prescribed: p.doses[data.meal] ? p.doses[data.meal].units : null, confirmed: data.insulin.confirmed, units: data.insulin.units != null ? data.insulin.units : null, time: data.insulin.time || null },
     doseKey: NF.doseKey(S, data.meal),
-    advice: advice, context: S.illness && S.illness.active ? 'illness' : null,
+    advice: advice, context: S.illness && S.illness.active ? 'illness' : (data.unusual ? 'unusual' : null),
     points: data.points || [], importedAt: data.importedAt || null
   };
   if (ep.insulin.confirmed === 'other' && ep.insulin.units === ep.insulin.prescribed) ep.insulin.confirmed = 'as';
-  ep.peak = NF.peakOfS(S, ep.points); ep.at2h = NF.at2h(ep.points);
+  ep.peak = NF.peakOfS(S, ep.points, NF.foodById(S, ep.foodId)); ep.rise = NF.riseOf(ep.points, NF.windowFor(S, NF.foodById(S, ep.foodId))); ep.at2h = NF.at2h(ep.points);
   S.episodes.push(ep);
   NF.log(S, 'jidlo.zapsano', ep.id + ' ' + ep.foodId, { meal: ep.meal, portion: ep.portion, insulin: ep.insulin, advice: ep.advice, context: ep.context, usable: NF.usableEp(S, ep), whyNot: NF.whyNotUsable(S, ep) });
   NF.checkMilestones(S);

@@ -35,13 +35,13 @@ function offLevers(S) {
 }
 V.btn = btn; V.choice = choice; V.hint = hint; V.kv = kv; V.tag = tag; V.card = card; V.glass = glass; V.appr = appr; V.off = off; V.offLevers = offLevers;
 
-var LEVEL = { known: ['Známé jídlo', 'known'], similar: ['Podobné jídlo', 'similar'], unknown: ['Neznámé jídlo', 'unknown'], none: ['Bez vyhodnocení', 'unknown'] };
-function levelTag(level) { var l = LEVEL[level] || LEVEL.unknown; return tag(l[0], l[1]); }
+var LEVEL = { known: ['Známé jídlo', 'known'], similar: ['Podobné jídlo', 'similar'], learning: ['Učíme se', 'similar'], unknown: ['Neznámé jídlo', 'unknown'], none: ['Bez vyhodnocení', 'unknown'] };
+function levelTag(level, conf) { var l = LEVEL[level] || LEVEL.unknown; return tag(level === 'learning' && conf ? 'Učíme se · ' + conf.st.n + ' z ' + (conf.min || 3) : l[0], l[1]); }
 function reactionTag(r) { return r ? tag(r.label, r.cls) : ''; }
 V.levelTag = levelTag; V.reactionTag = reactionTag;
 
-var EMOJI = { brambory: '🍽', ryze: '🍚', testoviny: '🍝', knedlik: '🥟', pecivo: '🥪', bez: '🥗' };
-function emoji(food) { return food.emoji || EMOJI[(food.tags || {}).side] || '🍽'; }
+var EMOJI = { brambory: '🥔', ryze: '🍚', testoviny: '🍝', knedlik: '🥟', pecivo: '🥪', ovesne: '🥣', lusteniny: '🫘', ovoce: '🍎', sladke: '🍰', tekute: '🥤', bez: '🥗' };
+function emoji(food) { return food.emoji || EMOJI[(food.tags || {}).source] || '🍽'; }
 function ring(n, total) {
   total = total || 3; var arcs = '', seg = 170 / total, gap = 8;
   for (var i = 0; i < total; i++) {
@@ -82,9 +82,19 @@ function peakBlock(S, food, conf) {
   } else if (conf.level === 'similar') {
     inT = '<span class="in tag info">odhad z podobných</span>';
     rows += rowTrack('podobná jídla', conf.pool.lo, conf.pool.hi, '', true);
-    note = 'Tohle jídlo u vás ještě neznáme. Rozmezí je z ' + conf.pool.n + ' zápisů jídel se stejnou přílohou a přípravou (' + e(conf.like.map(function (f) { return f.name; }).slice(0, 2).join(', ')) + '). Je to jen hrubý odhad; s vašimi vlastními zápisy se upřesní.';
+    note = 'Tohle jídlo u vás ještě neznáme. Rozmezí je ' + (conf.pool.explicit ? 'z jídla, které jste označili za podobné (' : 'z ' + conf.pool.n + ' zápisů jídel se stejným zdrojem sacharidů, úpravou a formou (') + e(conf.like.map(function (f) { return f.name; }).slice(0, 2).join(', ')) + '). Je to jen hrubý odhad; s vašimi vlastními zápisy se upřesní.';
+  } else if (conf.level === 'learning') {
+    var imp = conf.impression, stageWord = st.n === 1 ? 'první dojem' : imp === 'mixed' ? 'zápisy se liší' : 'zatím to vypadá';
+    inT = '<span class="in tag ' + (imp === 'in' ? 'ok' : imp === 'over' ? 'warn' : '') + '">' + stageWord + '</span>';
+    rows += rowTrack(st.n === 1 ? 'tentokrát' : 'zatím', st.lo, st.hi, '', st.n === 1);
+    if (conf.pool) rows += rowTrack('podobná jídla', conf.pool.lo, conf.pool.hi, '', true);
+    note = st.n === 1 ? ('První zápis: tentokrát ' + (imp === 'in' ? 'v cíli' : 'nad cílem') + '. Jeden den nic neřekne, zapisujte dál — příště o jídle budeme vědět víc.')
+      : imp === 'mixed' ? 'Dva zápisy se liší (jednou v cíli, jednou nad ním). Potřebujeme třetí, pak jídlo známe.'
+      : imp === 'in' ? 'Zatím to vypadá, že po něm zůstáváte v cíli. Ještě jednou a bude známé.'
+      : 'Tohle jídlo vás zatím zatížilo víc, než jsme čekali — v obou zápisech nad cílem. Dáme mu ještě jednu šanci, ať víme jistě. Porce ať není větší než obvyklá.';
   } else return '';
   var alt = conf.level === 'known' ? 'Stupnice glukózy 4 až 16 mmol/l, hranice cíle ' + NF.mmol(t.high) + ' mmol/l. Bez rady ' + NF.mmol(aLo) + ' až ' + NF.mmol(aHi) + ' mmol/l' + (best && best.st.lo != null ? ', ' + (LEVER_WITH[best.lever] || 's radou') + ' ' + NF.mmol(best.st.lo) + ' až ' + NF.mmol(best.st.hi) + ' mmol/l' : '') + '.'
+    : conf.level === 'learning' ? 'Stupnice glukózy 4 až 16 mmol/l, hranice cíle ' + NF.mmol(t.high) + ' mmol/l. Zatím ' + st.n + ' z ' + (conf.min || 3) + ' zápisů: ' + NF.mmol(st.lo) + ' až ' + NF.mmol(st.hi) + ' mmol/l.'
     : 'Stupnice glukózy 4 až 16 mmol/l, hranice cíle ' + NF.mmol(t.high) + ' mmol/l. Odhad z podobných jídel ' + NF.mmol(conf.pool.lo) + ' až ' + NF.mmol(conf.pool.hi) + ' mmol/l.';
   return '<div class="peak"><div class="lbl"><span>Kam se po něm glukóza dostane</span>' + inT + '</div>' +
     '<div class="rows" role="img" aria-label="' + e(alt) + '"><div class="goal" style="left:calc(72px + (100% - 72px) * ' + (pos(t.high) / 100) + ')"><span>hranice cíle ' + e(NF.mmol(t.high)) + ' mmol/l</span></div>' + rows + '</div>' +
@@ -403,10 +413,7 @@ V.meal = function (S) {
           return '<button type="button" class="food-opt ' + (chosen && chosen.id === f.id ? 'chosen' : '') + '" data-action="mealFood" data-value="' + e(f.id) + '">' + e(emoji(f)) + ' <span>' + e(f.name) + '<small>' + (c.level === 'known' ? 'znáte · ' + c.st.inTarget + ' z ' + c.st.n + ' v cíli' : c.level === 'similar' ? 'podobné známým' : 'zapsáno ' + c.st.eaten + '×') + '</small></span>' + levelTag(c.level) + '</button>';
         }).join('') + '</div>' : (m.q ? '<p class="small muted">Nic takového neznáme.</p>' : '')) +
         (m.q && !chosen ? '<div class="actions">' + btn('＋ Přidat „' + e(m.q) + '“ jako vlastní jídlo', 'mealNewFood', null, m.newFood ? 'primary' : '') + '</div>' : '')) +
-      (m.newFood ? glass('<h2>Vlastní jídlo: ' + e(m.q) + '</h2><p class="small muted">Tři klepnutí. Žádná čísla — učíme se z toho, jak na jídlo reaguje vaše tělo.</p>' +
-        ['side', 'prep', 'size'].map(function (g) {
-          return '<b style="display:block;margin:10px 0 6px">' + { side: 'Příloha', prep: 'Příprava', size: 'Velikost' }[g] + '</b><div class="choice-row">' + NF.TAGS[g].map(function (t) { return choice(t[1], 'mealTag', g + ':' + t[0], m.newFood[g] === t[0]); }).join('') + '</div>';
-        }).join('') + '<div class="actions">' + btn('Uložit jídlo do seznamu', 'mealSaveFood', null, 'primary') + '</div>') : '');
+      (m.newFood ? customBuilder(S, m) : '');
     if (chosen && !snack) {
       out += glass('<h2>' + (m.retro ? 'Jaká byla porce?' : 'Jakou porci si chystáte?') + '</h2><div class="choice-row">' + NF.PORTIONS.map(function (x) { return choice(x[1], 'mealPortion', x[0], m.portion === x[0]); }).join('') + '</div>' +
         '<p class="field-help">Obvyklá porce = tak, jak ' + e(chosen.name.toLowerCase()) + ' jíte obvykle. Na to lékař nastavil vaši dávku.</p>');
@@ -420,7 +427,7 @@ V.meal = function (S) {
   if (m.retro) {
     var ra = NF.adviseAfter(S, food.id, m.meal, NF.retroAt(S, m.at)), rc = ra.conf;
     out += head(S, 'Krok 3 ze 3 · ' + NF.mealLabel(m.meal) + ' zpětně', food.name) + steps +
-      glass('<div style="display:flex;gap:12px;align-items:center">' + foodIcon(S, food, rc) + '<div><div class="badges">' + levelTag(rc.level) + reactionTag(rc.reaction) + '</div><div class="learn">' + e(NF.mealLabel(m.meal, true)) + ' v ' + e(NF.fmtHour(Number(m.at))) + ' · ' + e(NF.PORTIONS.filter(function (x) { return x[0] === m.portion; })[0][1].toLowerCase()) + ' porce · inzulin ' + e(m.bolus === 'as' ? dose.units + ' j.' : m.bolus === 'other' ? m.units + ' j.' : NF.INSULIN[m.bolus]) + '</div></div></div>' +
+      glass('<div style="display:flex;gap:12px;align-items:center">' + foodIcon(S, food, rc) + '<div><div class="badges">' + levelTag(rc.level, rc) + reactionTag(rc.reaction) + '</div><div class="learn">' + e(NF.mealLabel(m.meal, true)) + ' v ' + e(NF.fmtHour(Number(m.at))) + ' · ' + e(NF.PORTIONS.filter(function (x) { return x[0] === m.portion; })[0][1].toLowerCase()) + ' porce · inzulin ' + e(m.bolus === 'as' ? dose.units + ' j.' : m.bolus === 'other' ? m.units + ' j.' : NF.INSULIN[m.bolus]) + '</div></div></div>' +
         (rc.level === 'known' ? '<div class="detail">' + peakBlock(S, food, rc) + '</div>' : '<p class="sum" style="margin-top:10px">Zápis se přidá k učení' + (m.bolus === 'as' ? '' : ' jen jako záznam (inzulin nebyl podle plánu)') + '.</p>')) +
       (ra.items.length ? '<h2 style="margin:14px 4px 8px">Co pomůže teď <span class="small muted" style="font-weight:500">· jídlo už změnit nejde</span></h2>' + ra.items.map(function (it) {
         var d = (m.decisions || {})[it.lever];
@@ -430,13 +437,14 @@ V.meal = function (S) {
       (NF.usable(S, 'R-REAKCE') ? '' : off(S, 'R-REAKCE')) + offLevers(S) +
       (ra.late ? hint('<b>Od jídla už uplynuly víc než tři hodiny.</b> Glukóza po něm už klesla, pohyb teď k tomuto jídlu nic nezmění. Zápis se i tak počítá.', 'sand') : '') +
       (m.bolus === 'none' || m.bolus === 'unknown' ? hint('<b>Inzulin k tomuto jídlu ' + (m.bolus === 'none' ? 'nebyl podán' : 'není potvrzený') + '.</b> Zápis uložíme, ale do učení ho nezapočítáme. Při nejistotě, co dělat, otevřete Bezpečí.', 'warn') : '') +
+      '<div class="choice-row" style="margin:6px 4px">' + choice('Dnes je neobvyklý den (stres, špatný spánek, alkohol)', 'mealUnusual', 'toggle', !!m.unusual, 'sm') + '</div>' + (m.unusual ? '<p class="small muted" style="margin:0 4px 8px">Zápis uložíme, ale do učení ho nezapočítáme.</p>' : '') +
       '<div class="actions">' + btn('Uložit ' + NF.mealLabel(m.meal, 'acc'), 'mealFinish', m.bolus, 'primary big') + '</div><div class="actions" style="margin-top:6px">' + btn('← Zpět', 'mealStep', '2', 'quiet') + '</div>';
     return out;
   }
   var res = NF.advise(S, food.id, m.portion, m.bolus, m.meal);
   var conf = res.conf;
   out += head(S, stepLabel(3), food.name) + steps;
-  out += glass('<div style="display:flex;gap:12px;align-items:center">' + foodIcon(S, food, conf) + '<div><div class="badges">' + levelTag(conf.level) + reactionTag(conf.reaction) + '</div>' +
+  out += glass('<div style="display:flex;gap:12px;align-items:center">' + foodIcon(S, food, conf) + '<div><div class="badges">' + levelTag(conf.level, conf) + reactionTag(conf.reaction) + '</div>' +
     '<div class="learn">' + (conf.level === 'known' ? 'Známe ho · ' + NF.plural(conf.st.n, 'započítaný zápis', 'započítané zápisy', 'započítaných zápisů') : conf.level === 'similar' ? 'Zatím odhad z podobných jídel' : 'Zatím nic neodhadujeme — zapište ho ' + (conf.min || 3) + '×') + '</div></div></div>' +
     (conf.level === 'unknown' ? '<p class="sum" style="margin-top:10px">Tohle jídlo u vás ještě neznáme a nic podobného také ne. <b>Nic neodhadujeme.</b> Po ' + (conf.min || 3) + ' zápisech vám řekneme, kam se po něm glukóza dostane.</p>' : conf.level === 'none' ? '<p class="sum" style="margin-top:10px">' + e(conf.why) + '</p>' : '<div class="detail">' + peakBlock(S, food, conf) + '</div>'));
   if (!res.gate.ok) out += NF.usable(S, 'R-REAKCE') ? hint('<b>Teď neradíme.</b> ' + e(res.gate.why), 'warn') : off(S, 'R-REAKCE');
@@ -489,11 +497,32 @@ function tipLevers(S) {
   var pa = NF.planAdvice(S), ill = !!(S.illness && S.illness.active), txt = { addon: 'přidat k jídlu bílkovinu (jogurt, sýr, vejce)', order: 'sníst nejdřív zeleninu nebo maso', walk: 'po jídle se projít' };
   return Object.keys(txt).filter(function (l) { var meta = NF.LEVERS[l]; return NF.usable(S, meta.item) && (pa.off || []).indexOf(l) < 0 && (!ill || meta.illnessSafe); }).map(function (l) { return txt[l]; });
 }
+/* Builder vlastního jídla (R27): zdroj sacharidů → úprava (předvyplněná) → obrázek talíře → „Zapíšeme to takto“. Max. 4 klepnutí, žádná čísla, velikost se nezadává. */
+var PLATE_ICON = { priloha: '🍚', priloha_maso: '🍚🍗', priloha_maso_zelenina: '🍚🍗🥦', zelenina: '🥦🍚', polevka: '🥣' };
+function customBuilder(S, m) {
+  var nf = m.newFood, stepN = !nf.source ? 1 : !nf.plate ? 3 : 4;
+  var tagsNow = { source: nf.source, prep: nf.prep, plate: nf.plate };
+  var out = '<h2>Vlastní jídlo' + (m.q ? ': ' + e(m.q) : '') + '</h2><p class="small muted">Čtyři klepnutí, žádná čísla. Na množství se neptáme — porci zadáte až při jídle. Učíme se z toho, jak na jídlo reaguje vaše tělo.</p>';
+  out += '<b style="display:block;margin:10px 0 6px">1 · Z čeho jsou v jídle sacharidy?</b><div class="choice-row">' + NF.TAGS.source.map(function (t) { return choice((EMOJI[t[0]] || '🍽') + ' ' + t[1], 'mealTag', 'source:' + t[0], nf.source === t[0]); }).join('') + '</div>';
+  if (nf.source) {
+    out += '<b style="display:block;margin:10px 0 6px">2 · Úprava <span class="small muted" style="font-weight:500">· předvyplněno, změňte jen když to nesedí</span></b><div class="choice-row">' + NF.TAGS.prep.map(function (t) { return choice(t[1], 'mealTag', 'prep:' + t[0], nf.prep === t[0]); }).join('') + '</div>';
+    out += '<b style="display:block;margin:10px 0 6px">3 · Jak vypadal talíř?</b><div class="choice-row plate">' + NF.TAGS.plate.map(function (t) { return choice(PLATE_ICON[t[0]] + ' ' + t[1], 'mealTag', 'plate:' + t[0], nf.plate === t[0]); }).join('') + '</div>';
+  }
+  if (stepN === 4) {
+    var name = (m.q && m.q.trim()) || NF.autoName(tagsNow), cand = NF.usable(S, 'R-PODOBNOST') ? NF.likeCandidate(S, tagsNow) : null, sug = nf.suggest ? NF.foodById(S, nf.suggest) : null;
+    out += '<b style="display:block;margin:12px 0 6px">4 · Zapíšeme to takto</b><div class="box"><div class="k">' + e(name) + '</div><div class="small muted">' + e(NF.tagLabel('source', nf.source)) + ' · ' + e(NF.tagLabel('prep', nf.prep)) + ' · ' + e(NF.tagLabel('plate', nf.plate)) + '</div>' +
+      (sug ? '<div class="hint sand" style="margin-top:8px"><b>Myslíte jídlo „' + e(sug.name) + '“?</b> Už ho máte v seznamu.<div class="choice-row" style="margin-top:6px">' + btn('Ano, to je ono', 'mealUseExisting', sug.id, 'sm primary') + btn('Ne, je jiné', 'mealNotSame', null, 'sm') + '</div></div>' : '') +
+      (cand && !sug ? '<div style="margin-top:8px"><b>Podobné jídlo: ' + e(cand.name) + '?</b> <span class="small muted">Než ho poznáme, vedli bychom vás podle něj.</span><div class="choice-row" style="margin-top:6px">' + choice('Ano, podobné', 'mealLike', cand.id, nf.like === cand.id, 'sm') + choice('Ne, je jiné', 'mealLike', 'none', nf.like === 'none', 'sm') + '</div></div>' : '') +
+      '</div><div class="actions">' + (sug ? '' : btn('Zapsat jídlo', 'mealSaveFood', null, 'primary')) + '</div>';
+  } else out += '<p class="small muted" style="margin-top:8px">' + (stepN === 1 ? 'Klepněte na zdroj sacharidů.' : 'Klepněte na obrázek talíře.') + '</p>';
+  return glass(out);
+}
 function foodCard(S, f, open) {
   var c = NF.confidence(S, f.id), st = c.st;
   var sum;
-  if (c.level === 'known' && !c.reaction) sum = 'Zapsáno ' + st.eaten + '×. ' + (NF.usable(S, 'R-SKORE') ? 'Zatím ' + st.inTarget + ' z ' + st.n + ' v cíli; stupeň reakce ukážeme od ' + NF.param(S, 'R-SKORE', 'minLabel', 6) + ' započítaných zápisů.' : 'Reakci zatím nehodnotíme; rozmezí vidíte níže.');
-  else if (c.level === 'known') sum = 'Zapsáno ' + st.eaten + '×. ' + (c.reaction.key === 'mild' ? 'Po něm zůstáváte <b>většinou v cíli</b>.' : c.reaction.key === 'mid' ? 'Po něm skončíte <b>zhruba z poloviny</b> v cíli a z poloviny nad ním.' : 'Po něm se <b>většinou dostanete nad cíl</b>.');
+  if (c.level === 'known' && !c.reaction) sum = 'Zapsáno ' + st.eaten + '×. ' + (NF.usable(S, 'R-SKORE') ? 'Zatím ' + st.inTarget + ' z ' + st.n + ' v cíli.' : 'Reakci zatím nehodnotíme; rozmezí vidíte níže.');
+  else if (c.level === 'learning') sum = 'Zapsáno ' + st.eaten + '×, ' + (st.n === 1 ? 'první dojem: tentokrát ' + (c.impression === 'in' ? 'v cíli' : 'nad cílem') + '. Ještě dvakrát a budeme ho znát.' : c.impression === 'mixed' ? 'zápisy se liší. Ještě jednou a budeme ho znát.' : 'zatím to vypadá, že po něm ' + (c.impression === 'in' ? 'zůstáváte v cíli' : 'jdete nad cíl') + '. Ještě jednou a bude známé.');
+  else if (c.level === 'known') sum = 'Zapsáno ' + st.eaten + '×. ' + (c.reaction.key === 'mild' ? 'Po něm zůstáváte <b>většinou v cíli</b>.' : c.reaction.key === 'mid' ? 'Po něm skončíte <b>zhruba z poloviny</b> v cíli a z poloviny nad ním.' : 'Po něm se <b>většinou dostanete nad cíl</b>.') + (c.reaction.settled ? '' : ' Po pár dalších zápisech se to může ještě změnit.');
   else if (c.level === 'similar') sum = 'Zapsáno ' + st.eaten + '×, ještě ' + (c.min - st.n) + ' a budeme ho znát. Podobá se jídlům, po kterých ' + (c.reaction && c.reaction.key === 'mild' ? 'zůstáváte v cíli' : 'jdete nad cíl') + '.';
   else sum = 'Zapsáno ' + st.eaten + '×. Zatím nic neodhadujeme; po ' + (c.min || 3) + ' zápisech se všemi údaji budeme vědět víc.';
   if (!NF.usable(S, 'R-SKORE')) sum += off(S, 'R-SKORE'); if (!NF.usable(S, 'R-PODOBNOST') && c.level !== 'known') sum += off(S, 'R-PODOBNOST');

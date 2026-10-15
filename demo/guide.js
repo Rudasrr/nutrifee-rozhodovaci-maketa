@@ -201,6 +201,13 @@ D.guide = {
     kde: 'Celá aplikace; výslovně obrazovka „Pacient je zařazený“ (lékař) a věta „Zápisy nikdo průběžně nečte“ na Dnes (pacient).',
     co: 'Zásadu samu a její důsledky: žádné upozornění lékaři mezi kontrolami, žádné průběžné čtení dat.',
     dopad: 'Položka je zásada, ne výpočet: zamítnutí v maketě nic nevypne, jen zapíše nesouhlas do historie — to je podnět k debatě, ne změna chování.'
+  },
+  'S-SILNA': {
+    proc: 'Jídlo, po kterém pacient opakovaně skončí nad cílem, je informace pro lékaře — ne nálepka pro pacienta. Aplikace ji nesmí proměnit v zákaz.',
+    jak: 'Na kontrole dostane lékař kartu: název jídla, počet zápisů, kolik nad cílem, medián vzestupu a podobná jídla. Práh: aspoň {silnych} zápisy nad cílem, nebo 2 zápisy s vzestupem aspoň o {dvaNad_mmol} mmol/l nad hranici. Pacientovi aplikace říká jen „zapisujte dál, porce ne větší než obvyklá“ a jídlo mu pasivně nenabízí mezi návrhy.',
+    kde: 'Kontrola, krok 1, podklady: „Jídla se silnou reakcí k probrání“.',
+    co: 'Práh pro kartu a to, že pacient žádné hodnocení ani zákaz nedostane.',
+    dopad: 'Při zamítnutí lékař kartu nedostane; silnou reakci najde jen v tabulce reakcí na jídla.'
   }
 };
 

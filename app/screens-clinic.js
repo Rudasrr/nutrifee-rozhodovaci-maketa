@@ -173,10 +173,18 @@ function bar(label, med, color) {
   var w = med == null ? 0 : Math.max(8, Math.min(100, (med - 4) / 12 * 100));
   return '<span>' + e(label) + '</span><div class="b" style="width:' + w + '%;background:' + color + '">' + (med == null ? '—' : e(NF.mmol(med)) + ' mmol/l') + '</div>';
 }
+/* Jídla se silnou reakcí k probrání (S-SILNA): pozorování pro lékaře, pacientovi žádný zákaz. */
+function strongFoods(S) {
+  if (!NF.usable(S, 'S-SILNA')) return V.off(S, 'S-SILNA');
+  var list = NF.strongFoods(S);
+  return '<details class="part"' + (list.length ? ' open' : '') + '><summary>Jídla se silnou reakcí k probrání<span class="mini">' + list.length + '</span></summary><div class="body">' +
+    (list.length ? '<ul class="plain">' + list.map(function (x) { return '<li><b>' + e(x.food.name) + '</b> — ' + x.overN + ' z ' + x.st.n + ' nad cílem · medián vzestupu ' + e(NF.mmol(x.med)) + ' mmol/l' + (x.conf.like && x.conf.like.length ? ' · podobné: ' + e(x.conf.like.map(function (f) { return f.name; }).slice(0, 2).join(', ')) : '') + '</li>'; }).join('') + '</ul>' : '<p class="muted">Žádné jídlo zatím práh nesplnilo.</p>') +
+    '<p class="small muted">Pacientovi aplikace nic nezakazuje; jen zapisuje dál a drží obvyklou porci. ' + appr(S, 'S-SILNA') + '</p></div></details>';
+}
 function podklady(S, p, r) {
   var s = r.summary, a = s.advice, t = NF.targets(S);
   var foods = S.foods.filter(function (f) { return NF.foodStats(S, f.id).eaten > 0; }).sort(function (x, y) { return NF.foodStats(S, y.id).eaten - NF.foodStats(S, x.id).eaten; });
-  var out = '<details class="part"><summary>Reakce na jednotlivá jídla<span class="mini">' + foods.filter(function (f) { return NF.confidence(S, f.id).level === 'known'; }).length + ' známých · ' + foods.length + ' celkem</span></summary><div class="body"><div class="tablewrap"><table><thead><tr><th>Jídlo</th><th>Úroveň</th><th>Zapsáno</th><th>Reakce</th><th>V cíli</th><th>Vrchol</th><th>Co pomohlo</th></tr></thead><tbody>' +
+  var out = strongFoods(S) + '<details class="part"><summary>Reakce na jednotlivá jídla<span class="mini">' + foods.filter(function (f) { return NF.confidence(S, f.id).level === 'known'; }).length + ' známých · ' + foods.length + ' celkem</span></summary><div class="body"><div class="tablewrap"><table><thead><tr><th>Jídlo</th><th>Úroveň</th><th>Zapsáno</th><th>Reakce</th><th>V cíli</th><th>Vrchol</th><th>Co pomohlo</th></tr></thead><tbody>' +
     foods.slice(0, 12).map(function (f) {
       var c = NF.confidence(S, f.id), st = c.st, lev = c.level === 'known' ? NF.leverStats(S, f.id) : [];
       return '<tr><td><b>' + e(f.name) + '</b>' + (f.custom ? ' <span class="tag">vlastní</span>' : '') + '</td><td>' + V.levelTag(c.level) + '</td><td>' + st.eaten + '× · ' + st.n + ' započítáno</td><td>' + V.reactionTag(c.reaction) + '</td><td>' + (st.n ? st.inTarget + ' z ' + st.n : '—') + '</td><td>' + (st.n ? e(NF.mmol(st.lo)) + '–' + e(NF.mmol(st.hi)) : '—') + '</td><td>' + (lev.length ? lev.map(function (x) { return e(NF.LEVERS[x.lever].label) + ' (' + x.st.inTarget + ' z ' + x.st.n + ')'; }).join('<br>') : '—') + '</td></tr>';

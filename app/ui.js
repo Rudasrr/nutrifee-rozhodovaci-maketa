@@ -238,8 +238,18 @@ var A = {
   },
   mealFood: function (v) { if (!needMeal()) return; S.meal.foodId = v; S.meal.newFood = null; S.meal.decisions = {}; S.meal.reasons = {}; },
   mealNewFood: function () { if (!needMeal()) return; S.meal.newFood = S.meal.newFood || {}; },
-  mealTag: function (v) { if (!needMeal()) return; var p = v.split(':'); S.meal.newFood = S.meal.newFood || {}; S.meal.newFood[p[0]] = p[1]; },
-  mealSaveFood: function () { if (!needMeal()) return; var r = NF.addFood(S, S.meal.q, S.meal.newFood); if (!r.ok) return fail(r.error); S.meal.foodId = r.food.id; S.meal.newFood = null; S.meal.q = r.food.name; toast('Jídlo je ve vašem seznamu. Příště ho najdete pod „naposledy“.'); },
+  mealTag: function (v) { if (!needMeal()) return; var p = v.split(':'); var nf = S.meal.newFood = S.meal.newFood || {}; nf[p[0]] = p[1]; if (p[0] === 'source' && !nf.prepTouched) nf.prep = NF.defaultPrep(p[1]); if (p[0] === 'prep') nf.prepTouched = true; nf.suggest = null; },
+  mealLike: function (v) { if (!needMeal()) return; var nf = S.meal.newFood = S.meal.newFood || {}; nf.like = v; }, /* „Podobné jídlo: X?“ Ano = id, Ne = 'none' */
+  mealUseExisting: function (v) { if (!needMeal()) return; S.meal.foodId = v; S.meal.newFood = null; var f = NF.foodById(S, v); if (f) S.meal.q = f.name; toast('Použijeme jídlo, které už máte v seznamu.'); },
+  mealNotSame: function () { if (!needMeal()) return; var nf = S.meal.newFood; if (nf) { nf.force = true; nf.suggest = null; } },
+  mealUnusual: function () { if (!needMeal()) return; S.meal.unusual = !S.meal.unusual; },
+  mealSaveFood: function () {
+    if (!needMeal()) return; var nf = S.meal.newFood || {};
+    var r = NF.addFood(S, S.meal.q, { source: nf.source, prep: nf.prep, plate: nf.plate, like: nf.like || null }, { force: !!nf.force });
+    if (!r.ok) return fail(r.error);
+    if (r.suggest) { nf.suggest = r.suggest.id; return; } /* „Myslíte X?“ — rozhodne pacient */
+    S.meal.foodId = r.food.id; S.meal.newFood = null; S.meal.q = r.food.name; toast('Jídlo je ve vašem seznamu. Příště ho najdete pod „naposledy“.');
+  },
   mealPortion: function (v) { if (!needMeal()) return; S.meal.portion = v; S.meal.decisions = {}; S.meal.reasons = {}; },
   mealDecide: function (v) { if (!needMeal()) return; var p = v.split(':'); S.meal.decisions[p[0]] = p[1] === 'yes'; if (p[1] === 'yes') delete S.meal.reasons[p[0]]; },
   mealReason: function (v) { if (!needMeal()) return; var p = v.split(':'); S.meal.reasons[p[0]] = p[1]; },
@@ -254,7 +264,7 @@ var A = {
     var units = confirmed === 'as' ? p.doses[m.meal].units : confirmed === 'other' ? m.units : null;
     var at = m.retro ? NF.retroAt(S, m.at) : S.clock;
     var time = confirmed === 'none' || confirmed === 'unknown' || confirmed === 'snack' ? null : NF.fmtTime(NF.addMin(at, Number(m.offset || 0)));
-    var draft = { meal: m.meal, foodId: f.id, portion: m.portion, bolusState: m.retro ? 'retro' : m.bolus, advice: advice, insulin: { confirmed: confirmed, units: units, time: time }, at: at, retro: !!m.retro };
+    var draft = { meal: m.meal, foodId: f.id, portion: m.portion, bolusState: m.retro ? 'retro' : m.bolus, advice: advice, insulin: { confirmed: confirmed, units: units, time: time }, at: at, retro: !!m.retro, unusual: !!m.unusual };
     var src = NF.sensorSource ? NF.sensorSource(S, draft) : null;
     draft.points = src ? src.points : []; draft.importedAt = src ? src.importedAt : null;
     var r = NF.saveEpisode(S, draft); if (!r.ok) return fail(r.error);

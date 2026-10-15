@@ -69,8 +69,7 @@ D.sceneItems = [
   ]
  },
  {
-  "title": "Pacient — vlastní jídlo třemi klepnutími", "items": [
-   "R-DOPLNEK",
+  "title": "Pacient — vlastní jídlo čtyřmi klepnutími", "items": [
    "R-PORADI",
    "R-PROCHAZKA",
    "R-MILNIKY",
@@ -93,11 +92,10 @@ D.sceneItems = [
   ]
  },
  {
-  "title": "Lékař-garant — podnět a úprava pravidla", "items": []
+  "title": "Během studie — garant upraví pravidlo po podnětu", "items": []
  },
  {
   "title": "Pacient — rada s novým textem", "items": [
-   "R-DOPLNEK",
    "R-PORADI",
    "R-PROCHAZKA",
    "S-CESTA"
@@ -115,6 +113,7 @@ D.sceneItems = [
    "S-SEMAFOR",
    "D-CISTA",
    "S-SOUHRN",
+   "S-SILNA",
    "R-SKORE",
    "R-REAKCE",
    "D-POSTUP",
