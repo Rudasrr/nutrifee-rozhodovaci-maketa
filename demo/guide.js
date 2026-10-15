@@ -127,7 +127,7 @@ D.guide = {
   },
   'J-STITKY': {
     proc: 'Pacient hotová a domácí jídla nezná složením, ale jménem a rutinou. Aplikace se učí z reakce těla, k tomu složení nepotřebuje; složky s množstvím („hrst, pěst“) mají chybu 30–50 % a působí jako počítání.',
-    jak: 'Nové jídlo = název (našeptávač od pár písmen, „Zase to samé“ u posledních jídel) a nepovinné jedno klepnutí „Je to jako X“ ze svých známých jídel. Nic dalšího: žádný zdroj sacharidů, úprava, talíř, velikost. Porce (obvyklá/větší/menší) se ptáme až při jídle; první zápis ukotví obvyklou. Když se název podobá jídlu v seznamu, přijde dotaz „Myslíte X?“ (Ano, to je ono / Ne, je jiné). Co v jídle je, se aplikace dozví z odpovědí na rady: „Tentokrát ne · V jídle to není“ radu u jídla vypne.',
+    jak: 'Nové jídlo = název (našeptávač od pár písmen, „Zase to samé“ u posledních jídel) a nepovinné jedno klepnutí „Je to jako X“ ze svých známých jídel. Nic dalšího: žádný zdroj sacharidů, úprava, talíř, velikost. Porce (obvyklá/větší/menší) se ptáme až při jídle; první zápis ukotví obvyklou. Když se název podobá jídlu v seznamu, přijde dotaz „Není to totéž jídlo?“ (Ano, to je ono / Ne, je jiné). Co v jídle je, se aplikace dozví z odpovědí na rady: „Tentokrát ne · V jídle to není“ radu u jídla vypne.',
     kde: 'Před jídlem, krok 2 (pacient), když jídlo v seznamu není.',
     co: 'Že název stačí a že složení se nikde nezadává ani nevyptává.',
     dopad: 'Při zamítnutí nejde přidat nové jídlo; pacient vybírá jen ze seznamu a domácí jídlo nezapíše vůbec.'

@@ -522,7 +522,7 @@ V.meal = function (S) {
           var c = NF.confidence(S, f.id, m.meal);
           return '<button type="button" class="food-opt ' + (chosen && chosen.id === f.id ? 'chosen' : '') + '" data-action="mealFood" data-value="' + e(f.id) + '">' + foodIco(f) + '<span>' + e(f.name) + '<small>' + (c.level === 'known' ? 'znáte · ' + c.st.inTarget + ' z ' + c.st.n + ' v cíli' : c.level === 'similar' ? 'podobné známým' : 'zapsáno ' + c.st.eaten + '×') + '</small></span>' + levelTag(c.level) + '</button>';
         }).join('') + '</div>' : (m.q && !like && !m.newFood ? '<p class="small muted">Nic takového neznáme.</p>' : '')) +
-        (like ? '<div class="hint sand"><b>Myslíte jídlo „' + e(like.name) + '“?</b> Už ho máte v seznamu.<div class="choice-row" style="margin-top:6px">' + btn('Ano, to je ono', 'mealUseExisting', like.id, 'sm primary') + btn('Ne, je jiné', 'mealNotSame', null, 'sm') + '</div></div>' : '') +
+        (like ? '<div class="hint sand"><b>Není to totéž jako „' + e(like.name) + '“, které už máte v seznamu?</b><div class="choice-row" style="margin-top:6px">' + btn('Ano, je to ono', 'mealUseExisting', like.id, 'sm primary') + btn('Ne, založit jako nové jídlo', 'mealNotSame', null, 'sm') + '</div></div>' : '') +
         (m.q && !chosen && !m.newFood && !like ? '<div class="actions">' + btn('＋ Přidat „' + e(m.q) + '“ jako vlastní jídlo', 'mealNewFood') + '</div>' : '')) +
       (m.newFood ? customBuilder(S, m) : '');
     if (chosen && !snack) {
@@ -612,9 +612,9 @@ function tipLevers(S) {
 function customBuilder(S, m) {
   var nf = m.newFood, name = (m.q || '').trim(), sug = nf.suggest ? NF.foodById(S, nf.suggest) : null, cands = NF.usable(S, 'R-PODOBNOST') ? NF.likeCandidates(S) : [];
   var out = '<h2>Nové jídlo: ' + e(name) + '</h2><p class="small muted">Nic dalšího nepotřebujeme. Na složení ani množství se neptáme — porci zadáte až při jídle a z vaší reakce se naučíme, jak na vás jídlo působí.</p>';
-  if (sug) out += '<div class="hint sand"><b>Myslíte jídlo „' + e(sug.name) + '“?</b> Už ho máte v seznamu.<div class="choice-row" style="margin-top:6px">' + btn('Ano, to je ono', 'mealUseExisting', sug.id, 'sm primary') + btn('Ne, je jiné', 'mealNotSame', null, 'sm') + '</div></div>';
+  if (sug) out += '<div class="hint sand"><b>Není to totéž jako „' + e(sug.name) + '“, které už máte v seznamu?</b><div class="choice-row" style="margin-top:6px">' + btn('Ano, je to ono', 'mealUseExisting', sug.id, 'sm primary') + btn('Ne, založit jako nové jídlo', 'mealNotSame', null, 'sm') + '</div></div>';
   else {
-    if (cands.length) out += '<b style="display:block;margin:10px 0 6px">Je to jako něco, co už známe? <span class="small muted" style="font-weight:500">· nepovinné; do třetího zápisu bychom vás vedli podle toho</span></b><div class="choice-row">' + cands.map(function (f) { return choice(e(f.name), 'mealLike', f.id, nf.like === f.id, 'sm'); }).join('') + choice('Nic podobného', 'mealLike', 'none', nf.like === 'none', 'sm quiet') + '</div>';
+    if (cands.length) out += '<b style="display:block;margin:10px 0 6px">Nepovinně: podobá se některému jídlu, které už známe? <span class="small muted" style="font-weight:500">Použijeme ho jen jako výchozí odhad na první tři zápisy; vaše jídlo zůstává samostatné.</span></b><div class="choice-row">' + cands.map(function (f) { return choice(e(f.name), 'mealLike', f.id, nf.like === f.id, 'sm'); }).join('') + choice('Nic podobného', 'mealLike', 'none', nf.like === 'none', 'sm quiet') + '</div>';
     out += '<div class="actions">' + btn('Zapsat jídlo', 'mealSaveFood', null, 'primary') + '</div>';
   }
   return glass(out);
