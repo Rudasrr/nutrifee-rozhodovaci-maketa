@@ -241,7 +241,7 @@ var A = {
   mealTag: function (v) { if (!needMeal()) return; var p = v.split(':'); var nf = S.meal.newFood = S.meal.newFood || {}; nf[p[0]] = p[1]; if (p[0] === 'source' && !nf.prepTouched) nf.prep = NF.defaultPrep(p[1]); if (p[0] === 'prep') nf.prepTouched = true; nf.suggest = null; },
   mealLike: function (v) { if (!needMeal()) return; var nf = S.meal.newFood = S.meal.newFood || {}; nf.like = v; }, /* „Podobné jídlo: X?“ Ano = id, Ne = 'none' */
   mealUseExisting: function (v) { if (!needMeal()) return; S.meal.foodId = v; S.meal.newFood = null; var f = NF.foodById(S, v); if (f) S.meal.q = f.name; toast('Použijeme jídlo, které už máte v seznamu.'); },
-  mealNotSame: function () { if (!needMeal()) return; var nf = S.meal.newFood; if (nf) { nf.force = true; nf.suggest = null; } },
+  mealNotSame: function () { if (!needMeal()) return; var nf = S.meal.newFood = S.meal.newFood || {}; nf.force = true; nf.suggest = null; }, /* „Ne, je jiné“ → karta nového jídla */
   mealUnusual: function () { if (!needMeal()) return; S.meal.unusual = !S.meal.unusual; },
   foodSame: function (v) { var f = NF.foodById(S, v); if (!f) return; f.sameAsked = 'same'; toast('Dobře. Rozdíly u tohoto jídla budeme sledovat dál.'); },
   foodSplit: function (v) { var f = NF.foodById(S, v); if (!f) return; f.sameAsked = 'split'; var r = NF.addFood(S, f.name + ' (jinak)', { like: null }, { force: true }); if (r.ok) toast('Přidali jsme „' + r.food.name + '“. Příště vyberte to, které zrovna jíte.'); },

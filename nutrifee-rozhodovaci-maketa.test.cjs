@@ -381,15 +381,23 @@ test('Před jídlem: inzulin první, kroky zamčené bez volby, zápis nese potv
 });
 
 test('Nové jídlo jen názvem (15. 10. 2026): „Myslíte X?“ u podobného názvu, nepovinné „Je to jako…“, rady se učí z odpovědi „v jídle to není“, lékař dostane jednu větu', () => {
-  chapter('custom'); let m = markup(); assert.match(m, /Nové jídlo: Řízek s kaší od maminky/); assert.match(m, /Je to jako něco, co už známe\?/); assert.equal(/Z čeho jsou v jídle sacharidy|Jak vypadal talíř|Úprava/.test(m), false, 'žádné složení');
-  act('mealSaveFood'); assert.ok(S().meal.newFood.suggest, '„Myslíte Smažený řízek…?“'); assert.match(markup(), /Myslíte jídlo „Smažený řízek s bramborovou kaší“\?/); assert.equal(food('Řízek s kaší od maminky'), undefined);
-  act('mealNotSame'); act('mealLike', food('Smažený řízek s bramborovou kaší').id); act('mealSaveFood');
+  chapter('custom'); let m = markup();
+  /* jedna akce v každém okamžiku: podobný název → dotaz hned, bez tlačítka Přidat a bez karty */
+  assert.match(m, /Myslíte jídlo „Smažený řízek s bramborovou kaší“\?/); assert.doesNotMatch(m, /jako vlastní jídlo/); assert.doesNotMatch(m.slice(m.indexOf('<main')), /Nové jídlo: /, 'karta až po „Ne, je jiné“'); assert.doesNotMatch(m, /Nic takového neznáme/);
+  act('mealNotSame'); m = markup(); assert.match(m, /Nové jídlo: Řízek s kaší od maminky/); assert.match(m, /Je to jako něco, co už známe\?/); assert.doesNotMatch(m, /jako vlastní jídlo/); assert.doesNotMatch(m, /Myslíte jídlo/); assert.equal(/Z čeho jsou v jídle sacharidy|Jak vypadal talíř|Úprava/.test(m), false, 'žádné složení');
+  assert.equal(food('Řízek s kaší od maminky'), undefined);
+  act('mealLike', food('Smažený řízek s bramborovou kaší').id); act('mealSaveFood');
   const f = food('Řízek s kaší od maminky'); assert.ok(f && f.custom); assert.equal(f.tags.source, undefined, 'nové jídlo bez složení'); assert.equal(f.tags.like, food('Smažený řízek s bramborovou kaší').id);
   const c = NF.confidence(S(), f.id); assert.equal(c.level, 'similar'); assert.equal(c.pool.explicit, true);
   /* bez „Je to jako“ se nic neodhaduje */
   const g = NF.addFood(S(), 'Karbanátek s hranolky', {}, { force: true }).food; assert.equal(NF.confidence(S(), g.id).level, 'unknown'); assert.equal(NF.similarFoods(S(), g).length, 0);
   /* prázdný název nejde; stejný název = totéž jídlo */
   assert.equal(NF.addFood(S(), '  ', {}).ok, false); assert.equal(NF.addFood(S(), 'karbanátek s hranolky', {}).food.id, g.id);
+  /* název bez podobnosti: jen tlačítko Přidat; po jeho stisku karta a tlačítko zmizí */
+  S().meal.foodId = null; S().meal.newFood = null; S().meal.q = 'Kuskus s cizrnou'; NF.render(); assert.equal(NF.likeName(S(), 'Kuskus s cizrnou'), null);
+  m = markup(); assert.match(m, /Přidat „Kuskus s cizrnou“ jako vlastní jídlo/); assert.doesNotMatch(m, /Myslíte jídlo/); assert.match(m, /Nic takového neznáme/);
+  act('mealNewFood'); m = markup(); assert.match(m, /Nové jídlo: Kuskus s cizrnou/); assert.doesNotMatch(m, /jako vlastní jídlo/); assert.doesNotMatch(m, /Nic takového neznáme/);
+  act('mealFood', f.id); /* zpět k řízku od maminky */
   /* rady bez složení: obecné texty; „Tentokrát ne · V jídle to není“ radu u jídla vypne */
   act('mealPortion', 'usual'); act('mealStep', '3'); let adv = NF.advise(S(), f.id, 'usual', 'before'); assert.ok(adv.items.some(i => i.lever === 'order')); assert.ok(adv.items.some(i => i.lever === 'addon'));
   assert.ok(NF.DECLINE_REASONS.some(r => r[0] === 'absent'));

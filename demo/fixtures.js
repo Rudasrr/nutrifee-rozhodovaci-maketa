@@ -331,7 +331,7 @@ var CH = [
     setup: function (S, B) { freshMeal(S, 'breakfast', 'Ovesná kaše s mlékem a banánem', B.bolus === 'smaller' ? 'smaller' : 'bigger', B.bolus === 'unknown' ? 'unknown' : 'as'); },
     apply: function (S, B) { ep(S, { id: 'E9', food: 'Ovesná kaše s mlékem a banánem', at: '2026-10-16T07:30:00', portion: B.bolus === 'smaller' ? 'smaller' : 'bigger', bolus: B.bolus === 'unknown' ? 'unknown' : 'as', insulin: B.bolus === 'unknown' ? 'unknown' : 'as', advice: B.bolus === 'smaller' ? [{ lever: 'order', accepted: false, reason: 'nowant' }] : [{ lever: 'portion', accepted: true }, { lever: 'order', accepted: false, reason: 'nowant' }] }); basal(S, '2026-10-15'); basal(S, '2026-10-16'); S.meal = null; } },
   { id: 'custom', act: 3, title: 'Pacient — nové jídlo jen názvem', role: 'patient', page: 'meal', at: '2026-10-18T12:20:00',
-    setup: function (S) { freshMeal(S, 'lunch', null, null, 'before'); S.meal.step = 2; S.meal.q = 'Řízek s kaší od maminky'; S.meal.newFood = {}; },
+    setup: function (S) { freshMeal(S, 'lunch', null, null, 'before'); S.meal.step = 2; S.meal.q = 'Řízek s kaší od maminky'; },
     apply: function (S) {
       var like = S.foods.filter(function (f) { return f.name === 'Smažený řízek s bramborovou kaší'; })[0];
       var r = NF.addFood(S, 'Řízek s kaší od maminky', { like: like ? like.id : null }, { force: true }); /* „Myslíte Smažený řízek…?“ → Ne, je jiné; „Je to jako…“ → Smažený řízek s bramborovou kaší */
