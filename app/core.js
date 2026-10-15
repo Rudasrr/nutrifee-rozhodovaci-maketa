@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 51;
+NF.SCHEMA = 52;
 NF.PAGES = ['today', 'foods', 'plan', 'safety', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
@@ -715,6 +715,7 @@ NF.strongFoods = function (S) {
   if (!NF.usable(S, 'S-SILNA')) return [];
   var minStrong = NF.param(S, 'S-SILNA', 'silnych', 3), over = NF.param(S, 'S-SILNA', 'dvaNad_mmol', 3), vmax = NF.param(S, 'R-REAKCE', 'vzestup_max', 3);
   return S.foods.map(function (f) {
+    if (NF.dominantMeal(S, f.id) === 'snack') return null; /* svačina bez inzulinu není silná reakce k posouzení dávky */
     var st = NF.foodStats(S, f.id), overN = st.n - st.inTarget, rises = st.rises.filter(function (x) { return x != null; });
     var hit = overN >= minStrong || (st.n === 2 && overN === 2 && rises.length === 2 && rises.every(function (x) { return x >= vmax + over; }));
     return hit ? { food: f, st: st, conf: NF.confidence(S, f.id), overN: overN, med: NF.r1(NF.median(rises)) } : null;
@@ -867,7 +868,7 @@ NF.saveEpisode = function (S, data) {
     doseKey: NF.doseKey(S, data.meal),
     advice: advice, context: S.illness && S.illness.active ? 'illness' : (data.unusual ? 'unusual' : null),
     points: data.points || [], importedAt: data.importedAt || null,
-    manual: { before: data.before != null && data.before !== '' ? NF.r1(Number(data.before)) : null, peak: null, peakAt: null }
+    manual: { before: (function (v) { var n = v != null && v !== '' ? NF.r1(Number(String(v).replace(',', '.'))) : null; return n >= 1 && n <= 30 ? n : null; })(data.before), peak: null, peakAt: null }
   };
   if (ep.insulin.confirmed === 'other' && ep.insulin.units === ep.insulin.prescribed) ep.insulin.confirmed = 'as';
   /* Důvod „v jídle to není“ vypne radu u tohoto jídla natrvalo (složení se nezadává, aplikace se ho dozví z odpovědi). */
@@ -955,7 +956,7 @@ NF.setManualPeak = function (S, epId, value) {
   var ep = S.episodes.filter(function (x) { return x.id === epId; })[0]; if (!ep) return { ok: false, error: 'Zápis nenalezen.' };
   ep.manual = ep.manual || { before: null, peak: null, peakAt: null };
   if (value == null || value === '') { ep.manual.skipped = true; NF.log(S, 'glukoza.nejvyssi.neznama', epId); return { ok: true, skipped: true }; }
-  var v = NF.r1(Number(value)); if (!(v >= 1 && v <= 30)) return { ok: false, error: 'Zadejte hodnotu v mmol/l (1–30).' };
+  var v = NF.r1(Number(String(value).replace(',', '.'))); if (!(v >= 1 && v <= 30)) return { ok: false, error: 'Zadejte hodnotu v mmol/l (1–30).' };
   ep.manual.peak = v; ep.manual.peakAt = S.clock; ep.peak = NF.epPeak(S, ep); ep.rise = NF.epRise(S, ep);
   NF.log(S, 'glukoza.nejvyssi', epId, { before: ep.manual.before, peak: v, rise: ep.rise, item: 'Z-GLUKOZA' });
   return { ok: true, ep: ep };
@@ -984,15 +985,22 @@ NF.answerDivergence = function (S, epId, answer) {
 /* Export z aplikace senzoru (Z-IMPORT): csv s časem a hodnotou (formáty běžných aplikací senzorů i obecný „čas;hodnota“). Bez knihoven; xlsx je nutné uložit jako csv. */
 NF.parseSensorCsv = function (text) {
   var lines = String(text || '').replace(/\r/g, '').split('\n').filter(function (l) { return l.trim(); }); if (!lines.length) return [];
-  var sep = (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length ? ';' : ',';
-  var head = lines[0].split(sep).map(function (h) { return h.trim().toLowerCase(); }), ti = -1, gi = -1;
-  head.forEach(function (h, i) { if (ti < 0 && /timestamp|čas|cas|time|datum|date/.test(h)) ti = i; });
-  head.forEach(function (h, i) { if (gi < 0 && /historic glucose|glucose value|glukóza|glukoza|glucose|hodnota|mmol/.test(h) && !/scan|strip/.test(h)) gi = i; });
-  var start = 1; if (ti < 0 || gi < 0) { ti = 0; gi = 1; start = /^\d/.test(lines[0]) ? 0 : 1; }
+  /* hlavička může být až na 2.–3. řádku (první řádek bývá metadata exportu) */
+  var hi = -1; for (var h = 0; h < Math.min(4, lines.length); h++) if (/timestamp|čas|cas\b|time|datum|date/i.test(lines[h]) && /glucose|glukóza|glukoza|hodnota|mmol|mg\/dl/i.test(lines[h])) { hi = h; break; }
+  var headLine = hi >= 0 ? lines[hi] : lines[0];
+  var cnt = function (s, ch) { return (s.match(new RegExp('\\' + ch, 'g')) || []).length; };
+  var sep = cnt(headLine, ';') >= cnt(headLine, ',') && cnt(headLine, ';') >= cnt(headLine, '\t') ? ';' : cnt(headLine, '\t') > cnt(headLine, ',') ? '\t' : ',';
+  var head = headLine.split(sep).map(function (x) { return x.trim().toLowerCase(); }), ti = -1, gi = -1, mgdl = false;
+  head.forEach(function (x, i) { if (ti < 0 && /timestamp|čas|cas\b|time|datum|date/.test(x)) ti = i; });
+  head.forEach(function (x, i) { if (gi < 0 && /historic glucose|glucose value|glukóza|glukoza|glucose|hodnota|mmol|mg\/dl/.test(x) && !/scan|strip|ketone/.test(x)) { gi = i; mgdl = /mg\/dl/.test(x); } });
+  var start = hi >= 0 ? hi + 1 : 0; if (ti < 0 || gi < 0) { ti = 0; gi = 1; start = /^\d/.test(lines[0]) ? 0 : 1; }
   var out = [];
   for (var i = start; i < lines.length; i++) {
     var c = lines[i].split(sep); if (c.length <= Math.max(ti, gi)) continue;
-    var at = NF.parseSensorTime(c[ti].trim()), v = parseFloat(String(c[gi]).trim().replace(',', '.'));
+    var g = String(c[gi]).trim();
+    if (sep === ',' && c.length === head.length + 1 && /^\d{1,2}$/.test(g) && /^\d{1,2}$/.test(String(c[gi + 1] || '').trim())) g = g + '.' + String(c[gi + 1]).trim(); /* desetinná čárka uvnitř čárkou odděleného souboru */
+    var at = NF.parseSensorTime(String(c[ti]).trim()), v = parseFloat(g.replace(',', '.'));
+    if (mgdl && v > 0) v = v / 18;
     if (!at || !(v > 0.5 && v < 40)) continue;
     out.push({ at: at, mmol: NF.r1(v) });
   }
