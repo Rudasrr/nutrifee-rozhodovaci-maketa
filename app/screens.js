@@ -138,21 +138,34 @@ V.mealNow = mealNow;
 
 /* ---------- vysvětlující animace (vlastník 15. 10. 2026: pohyb má vysvětlovat podstatné; přehraje se jednou, Přehrát znovu) ----------
    Vše CSS na inline SVG; statický stav = konec animace (při omezení pohybu se ukáže rovnou). */
+/* Ikona ze sady (Lucide) vložená do scény: x, y = levý horní roh, s = velikost. */
+function sceneIcon(name, x, y, s, cls) {
+  var body = NF.ICONS[name]; if (!body) return '';
+  return '<svg class="sico' + (cls ? ' ' + cls : '') + '" x="' + x + '" y="' + y + '" width="' + s + '" height="' + s + '" viewBox="0 0 24 24" aria-hidden="true">' + body + '</svg>';
+}
+/* Talíř ve scéně: dva kruhy a porce (dvoubarevně, bez ručních tahů). */
+function scenePlate(cx, cy, r, foodR, cls) {
+  var s = r * 0.9;
+  return '<g class="splate' + (cls ? ' ' + cls : '') + '"><circle class="p1" cx="' + cx + '" cy="' + cy + '" r="' + r + '"/><circle class="p2" cx="' + cx + '" cy="' + cy + '" r="' + (r * 0.7) + '"/>' +
+    (foodR ? '<circle class="pfood" cx="' + cx + '" cy="' + cy + '" r="' + foodR + '"/>' : sceneIcon('utensils', cx - s / 2, cy - s / 2, s, 'pico')) + '</g>';
+}
+V.sceneIcon = sceneIcon; V.scenePlate = scenePlate;
 function animWrap(id, body, caption) {
   return '<div class="anim play" data-anim="' + id + '">' + body + (caption ? '<div class="anim-cap">' + caption + '</div>' : '') +
     '<div class="anim-ctl">' + btn(NF.icon('refresh') + ' Přehrát znovu', 'animReplay', id, 'sm quiet') + '</div></div>';
 }
 /* Klíč a talíř: dávka je klíč vyrobený na obvyklou porci. */
 function explainerKey(S) {
-  var svg = '<svg viewBox="0 0 320 140" role="img" aria-label="Dávka inzulinu je nastavená na obvyklou porci: s ní zůstane glukóza v cíli. Větší porce ji vyžene nad cíl; návrat k obvyklé porci ji vrátí.">' +
-    '<rect class="kband" x="100" y="48" width="212" height="34" rx="6"/><text class="kt" x="306" y="60" text-anchor="end">v cíli</text>' +
-    '<g class="ksyr"><rect x="12" y="92" width="26" height="12" rx="2"/><path d="M38 98h10M12 98H6M46 95v6"/></g>' +
-    '<g class="kplate"><circle class="krim" cx="76" cy="98" r="20"/><circle class="kfood" cx="76" cy="98" r="9"/></g>' +
-    '<path class="kline" d="M100 80 C130 78 150 64 170 60 S220 64 260 70 S300 76 312 76"/>' +
-    '<path class="khigh" d="M100 80 C130 70 150 30 180 22 S230 34 260 52 S300 70 312 72"/>' +
-    '<text class="kl kl1" x="100" y="128">Obvyklá porce → v cíli</text>' +
-    '<text class="kl kl2" x="100" y="128">Větší porce → nad cíl</text>' +
-    '<text class="kl kl3" x="100" y="128">Zpět k obvyklé → zase v cíli</text></svg>';
+  var svg = '<svg viewBox="0 0 320 150" role="img" aria-label="Dávka inzulinu je nastavená na obvyklou porci: s ní zůstane glukóza v cíli. Větší porce ji vyžene nad cíl; návrat k obvyklé porci ji vrátí.">' +
+    '<line class="kbase" x1="46" y1="98" x2="104" y2="98"/>' +
+    '<rect class="kband" x="104" y="88" width="208" height="20" rx="5"/><text class="kt" x="310" y="84" text-anchor="end">pásmo cíle</text>' +
+    sceneIcon('syringe', 6, 80, 36, 'ksyr') +
+    '<g class="kplate"><circle class="krim" cx="76" cy="98" r="22"/><circle class="krim2" cx="76" cy="98" r="15.5"/><circle class="kfood" cx="76" cy="98" r="9"/></g>' +
+    '<path class="kline" d="M104 101 C130 100 150 92 175 91 S230 95 262 98 S300 102 312 102"/>' +
+    '<path class="khigh" d="M104 101 C130 92 150 42 185 36 S240 60 268 84 S300 97 312 98"/>' +
+    '<text class="kl kl1" x="104" y="134">Obvyklá porce → v cíli</text>' +
+    '<text class="kl kl2 warn" x="104" y="134">Větší porce → nad cíl</text>' +
+    '<text class="kl kl3" x="104" y="134">Zpět k obvyklé → zase v cíli</text></svg>';
   return glass('<h2>Jak NutriFee funguje</h2><p class="small muted">Dávka inzulinu od lékaře je jako klíč vyrobený na vaši obvyklou porci. My vám pomůžeme porci držet a z vaší reakce se učíme.</p>' + animWrap('key', svg), 'soft');
 }
 /* Co aplikace nedělá: tři přeškrtnuté piktogramy. */
@@ -165,29 +178,35 @@ function notsCard(S) {
 }
 /* Osa inzulinu v kroku 1: stříkačka před talířem / za ním / neznámo; pás, kdy se zápis počítá do učení. */
 function insulinAxis(S, m) {
-  var t = NF.tolerance(S), k = 1.6, left = 160 - t.before * k, w = (t.before + t.after) * k, b = ['as', 'other', 'before', 'unknown'].indexOf(m.bolus) >= 0 ? m.bolus : 'none';
+  var t = NF.tolerance(S), k = 2, left = 160 - t.before * k, w = (t.before + t.after) * k, b = ['as', 'other', 'before', 'unknown'].indexOf(m.bolus) >= 0 ? m.bolus : 'none';
   var alt = 'Osa jídla: inzulin ' + (b === 'as' || b === 'other' ? 'už podaný před jídlem' : b === 'before' ? 'ještě ne, až před jídlem' : b === 'unknown' ? 'nevíme, bereme jako podaný' : 'zatím nevybráno') + '. Do učení se počítá inzulin nejvýš ' + t.before + ' minut před jídlem a ' + t.after + ' minut po něm.';
-  return '<div class="ins-axis b-' + b + '" role="img" aria-label="' + e(alt) + '"><svg viewBox="0 0 320 90" aria-hidden="true">' +
-    '<rect class="tol" x="' + left + '" y="22" width="' + w + '" height="36" rx="8"/><line class="ax" x1="16" y1="40" x2="304" y2="40"/>' +
-    '<g class="plate"><circle class="rim" cx="160" cy="40" r="15"/><circle class="food" cx="160" cy="40" r="6.5"/></g>' +
-    '<g class="syr"><rect x="-14" y="-6" width="22" height="12" rx="2"/><path d="M8 0h8M-14 0h-5M14 -3v6"/><text class="q" x="-3" y="-11" text-anchor="middle">?</text></g>' +
-    '<text class="axl" x="' + (left - 6) + '" y="72" text-anchor="end">' + t.before + ' min před</text><text class="axl" x="' + (left + w + 6) + '" y="72">' + t.after + ' min po</text>' +
-    '<text class="axc" x="160" y="86" text-anchor="middle">tady se zápis počítá do učení</text></svg></div>';
+  return '<div class="ins-axis b-' + b + '" role="img" aria-label="' + e(alt) + '" style="--sx-as:' + (left + 16) + 'px;--sx-other:' + (left + 34) + 'px;--sx-before:' + (left - 34) + 'px"><svg viewBox="0 0 320 96" aria-hidden="true">' +
+    '<rect class="tol" x="' + left + '" y="18" width="' + w + '" height="44" rx="8"/><line class="ax" x1="12" y1="40" x2="308" y2="40"/>' +
+    '<line class="tick" x1="' + left + '" y1="62" x2="' + left + '" y2="70"/><line class="tick" x1="' + (left + w) + '" y1="62" x2="' + (left + w) + '" y2="70"/>' +
+    scenePlate(160, 40, 17, null, 'aplate') +
+    '<g class="syr">' + sceneIcon('syringe', -13, -13, 26) + '<text class="q" x="0" y="-17" text-anchor="middle">?</text></g>' +
+    '<text class="axl" x="' + left + '" y="82" text-anchor="middle">' + t.before + ' min před</text><text class="axl" x="' + (left + w) + '" y="82" text-anchor="middle">' + t.after + ' min po</text>' +
+    '<text class="axc" x="160" y="94" text-anchor="middle">tady se zápis počítá do učení</text></svg></div>';
 }
 /* Mikroanimace rad: pořadí jídla · doplněk · procházka. */
-function leverAnim(lever) {
+function leverAnim(lever, food) {
   var svg = '';
-  if (lever === 'order') svg = '<svg viewBox="0 0 120 60" aria-hidden="true"><circle class="rim" cx="30" cy="30" r="24"/>' +
-    '<path class="sec s1" d="M30 30L30 8A22 22 0 0 1 49 41z"/><path class="sec s2" d="M30 30L49 41A22 22 0 0 1 11 41z"/><path class="sec s3" d="M30 30L11 41A22 22 0 0 1 30 8z"/>' +
-    '<text class="n n1" x="38" y="24">1</text><text class="n n2" x="30" y="46">2</text><text class="n n3" x="16" y="24">3</text>' +
-    '<text class="lab l1" x="62" y="20">1 zelenina</text><text class="lab l2" x="62" y="34">2 maso</text><text class="lab l3" x="62" y="48">3 zbytek</text></svg>';
-  else if (lever === 'addon') svg = '<svg viewBox="0 0 120 60" aria-hidden="true"><circle class="rim" cx="34" cy="30" r="24"/><circle class="food" cx="34" cy="30" r="10"/>' +
-    '<g class="bowl"><path d="M72 30h30a15 15 0 0 1-30 0z"/><path d="M78 24c2-4 4-6 8-8"/></g><text class="plus" x="60" y="34" text-anchor="middle">+</text></svg>';
-  else if (lever === 'walk') svg = '<svg viewBox="0 0 120 60" aria-hidden="true"><line class="ground" x1="6" y1="50" x2="76" y2="50"/>' +
-    '<g class="man"><circle cx="0" cy="14" r="4"/><path d="M0 18v14"/><path d="M-6 26l6-4 6 4"/><g class="legs a"><path d="M0 32l-6 12M0 32l6 12"/></g><g class="legs b"><path d="M0 32l-2 12M0 32l2 12"/></g></g>' +
-    '<circle class="ringbg" cx="98" cy="30" r="16"/><circle class="ringfg" cx="98" cy="30" r="16"/><text class="min" x="98" y="34" text-anchor="middle">15 min</text></svg>';
+  if (lever === 'order') {
+    var first = food && food.first ? String(food.first) : '';
+    var segs = first ? [[first, 'M30 30L30 6A24 24 0 0 1 30 54z'], ['zbytek', 'M30 30L30 54A24 24 0 0 1 30 6z']]
+      : [['zelenina', 'M30 30L30 6A24 24 0 0 1 50.8 42z'], ['maso', 'M30 30L50.8 42A24 24 0 0 1 9.2 42z'], ['zbytek', 'M30 30L9.2 42A24 24 0 0 1 30 6z']];
+    var pos = first ? [[42, 34], [18, 34]] : [[40, 22], [30, 46], [20, 22]];
+    svg = '<svg viewBox="0 0 150 60" aria-hidden="true"><circle class="prim" cx="30" cy="30" r="27"/>' + segs.map(function (s, i) {
+      return '<path class="sec s' + (i + 1) + '" d="' + s[1] + '"/><text class="n n' + (i + 1) + '" x="' + pos[i][0] + '" y="' + pos[i][1] + '" text-anchor="middle">' + (i + 1) + '</text>';
+    }).join('') + segs.map(function (s, i) { return '<text class="lab l' + (i + 1) + '" x="66" y="' + (segs.length === 2 ? 24 + i * 18 : 18 + i * 15) + '">' + (i + 1) + ' ' + e(s[0]) + '</text>'; }).join('') + '</svg>';
+  }
+  else if (lever === 'addon') svg = '<svg viewBox="0 0 150 60" aria-hidden="true">' + scenePlate(32, 30, 26, null) +
+    '<g class="bowl">' + sceneIcon('bowl', 80, 12, 36) + '</g><text class="plus" x="63" y="35" text-anchor="middle">+</text></svg>';
+  else if (lever === 'walk') svg = '<svg viewBox="0 0 150 60" aria-hidden="true"><line class="ground" x1="6" y1="52" x2="86" y2="52"/>' +
+    '<g class="steps">' + sceneIcon('walk', 8, 24, 24, 'st st1') + sceneIcon('walk', 34, 17, 24, 'st st2') + sceneIcon('walk', 60, 10, 24, 'st st3') + '</g>' +
+    '<circle class="ringbg" cx="120" cy="30" r="18"/><circle class="ringfg" cx="120" cy="30" r="18"/><line class="hand" x1="120" y1="30" x2="120" y2="14"/><text class="min" x="120" y="34" text-anchor="middle">15 min</text></svg>';
   else return '';
-  return '<div class="lever-anim play" data-anim="' + lever + '" data-lever="' + lever + '">' + svg + btn(NF.icon('refresh'), 'animReplay', lever, 'sm quiet replay', ' aria-label="Přehrát znovu"') + '</div>';
+  return '<div class="lever-anim play" data-anim="' + lever + '" data-lever="' + lever + '">' + svg + btn(NF.icon('refresh') + ' Přehrát znovu', 'animReplay', lever, 'sm quiet replay') + '</div>';
 }
 V.explainerKey = explainerKey; V.notsCard = notsCard; V.insulinAxis = insulinAxis; V.leverAnim = leverAnim;
 
@@ -399,16 +418,15 @@ V.today = function (S) {
 };
 /* Pás dne: ráno → večer, kruh za každé hlavní jídlo a bazál; značka „teď“ bez pohybu (6:00–22:00). */
 function dayStrip(S, slots, meal, basal, basalTime, p) {
-  var d = NF.parse(S.clock), h = d.getHours() + d.getMinutes() / 60, pct = Math.round(Math.max(0, Math.min(100, (h - 6) / 16 * 100)));
   var nodes = slots.map(function (sl) {
     var st = sl.state === 'done' ? 'done' : sl.state === 'skipped' ? 'skipped' : sl.state === 'missed' ? 'missed' : sl.meal === meal ? 'now' : 'wait';
-    var txt = st === 'done' ? 'zapsáno' : st === 'skipped' ? 'vynecháno' : st === 'missed' ? 'chybí zápis' : st === 'now' ? 'na řadě' : 'později';
-    return { cls: st, ic: st === 'done' ? 'check' : st === 'skipped' ? 'minus' : st === 'missed' ? 'question' : st === 'now' ? 'utensils' : '', label: NF.mealLabel(sl.meal, true), txt: txt };
+    var txt = st === 'done' ? 'zapsáno' : st === 'skipped' ? 'vynecháno' : st === 'missed' ? 'chybí zápis' : st === 'now' ? 'teď' : 'později';
+    return { cls: st, ic: st === 'done' ? 'check' : st === 'skipped' ? 'minus' : st === 'missed' ? 'question' : 'utensils', label: NF.mealLabel(sl.meal, true), txt: txt };
   });
-  nodes.push({ cls: basal ? 'done' : basalTime ? 'now' : 'wait', ic: basal ? 'check' : 'moon', label: 'Bazál', txt: basal ? 'potvrzen' : basalTime ? 'na řadě' : String(p.doses.basal.time) });
+  nodes.push({ cls: basal ? 'done' : basalTime ? 'now' : 'wait', ic: basal ? 'check' : 'moon', label: 'Bazál', txt: basal ? 'potvrzen' : basalTime ? 'teď' : String(p.doses.basal.time) });
   var alt = 'Den: ' + nodes.map(function (n) { return n.label + ' ' + n.txt; }).join(', ') + '.';
-  return glass('<div class="daystrip" role="img" aria-label="' + e(alt) + '"><div class="line"><span class="nowmark" style="left:' + pct + '%"></span></div><div class="nodes">' + nodes.map(function (n) {
-    return '<div class="dnode ' + n.cls + '"><span class="dot">' + (n.ic ? NF.icon(n.ic) : '') + '</span><b>' + e(n.label) + '</b><small>' + e(n.txt) + '</small></div>';
+  return glass('<div class="daystrip" role="img" aria-label="' + e(alt) + '"><div class="nodes">' + nodes.map(function (n) {
+    return '<div class="dnode ' + n.cls + '"><span class="dot">' + NF.icon(n.ic) + '</span><b>' + e(n.label) + '</b><small>' + e(n.txt) + '</small></div>';
   }).join('') + '</div></div>');
 }
 V.dayStrip = dayStrip;
@@ -525,7 +543,7 @@ V.meal = function (S) {
       (ra.items.length ? '<h2 style="margin:14px 4px 8px">Co pomůže teď <span class="small muted" style="font-weight:500">· jídlo už změnit nejde</span></h2>' + ra.items.map(function (it) {
         var d = (m.decisions || {})[it.lever];
         return '<div class="advice ' + (d === true ? 'taken' : d === false ? 'declined' : '') + '"><div class="lever">' + e(it.label) + '</div><div class="text">' + e(it.text) + '</div><div class="cert">' + e(it.certainty) + '</div>' +
-          '<div class="choice-row">' + choice('Zkusím to', 'mealDecide', it.lever + ':yes', d === true) + choice('Tentokrát ne', 'mealDecide', it.lever + ':no', d === false) + '</div><div style="margin-top:8px">' + appr(S, it.item) + '</div></div>';
+          '<div class="choice-row">' + choice('Zkusím to', 'mealDecide', it.lever + ':yes', d === true, 'yes') + choice('Tentokrát ne', 'mealDecide', it.lever + ':no', d === false) + '</div><div style="margin-top:8px">' + appr(S, it.item) + '</div></div>';
       }).join('') : '') +
       (NF.usable(S, 'R-REAKCE') ? '' : off(S, 'R-REAKCE')) + offLevers(S) +
       (ra.late ? hint('<b>Od jídla už uplynuly víc než tři hodiny.</b> Glukóza po něm už klesla, pohyb teď k tomuto jídlu nic nezmění. Zápis se i tak počítá.', 'sand') : '') +
@@ -549,8 +567,8 @@ V.meal = function (S) {
       out += '<h2 style="margin:14px 4px 8px">Co můžete zkusit <span class="small muted" style="font-weight:500">· odpovídat nemusíte</span></h2>' + res.items.map(function (it) {
         var d = (m.decisions || {})[it.lever], reason = (m.reasons || {})[it.lever];
         return '<div class="advice ' + (d === true ? 'taken' : d === false ? 'declined' : '') + '"><div class="lever">' + e(it.label) + (it.carbs ? tag('mění množství jídla', 'warn') : '') + '</div>' +
-          (it.lever === 'portion' ? plateMove(m.portion) : leverAnim(it.lever)) + '<div class="text">' + e(it.text) + '</div><div class="cert">' + e(it.certainty) + '</div>' +
-          '<div class="choice-row">' + choice('Zkusím to', 'mealDecide', it.lever + ':yes', d === true) + choice('Tentokrát ne', 'mealDecide', it.lever + ':no', d === false) + '</div>' +
+          (it.lever === 'portion' ? plateMove(m.portion) : leverAnim(it.lever, food)) + '<div class="text">' + e(it.text) + '</div><div class="cert">' + e(it.certainty) + '</div>' +
+          '<div class="choice-row">' + choice('Zkusím to', 'mealDecide', it.lever + ':yes', d === true, 'yes') + choice('Tentokrát ne', 'mealDecide', it.lever + ':no', d === false) + '</div>' +
           (d === false ? '<div class="choice-row reasons">' + NF.DECLINE_REASONS.map(function (r) { return choice(r[1], 'mealReason', it.lever + ':' + r[0], reason === r[0]); }).join('') + '</div>' : '') +
           '<div style="margin-top:8px">' + appr(S, it.item) + '</div></div>';
       }).join('');

@@ -359,7 +359,7 @@ details.more[open]>summary::before{content:"⌄ ";}
 .guide{margin-top:8px}.guide .gsec{border-top:1px solid var(--line);padding:8px 0 2px}.guide .gsec:first-child{border-top:0}.guide h4{margin:0 0 4px;font-size:12.5px;letter-spacing:.04em;font-weight:800;color:var(--brand)}.guide p{margin:0 0 6px;font-size:14px;line-height:1.5}.guide .gparams{margin:2px 0 6px}.guide .gparams li{padding:2px 0}.guide .box{margin-top:6px}
 
 /* ---------- ikonová sada a vizuální jazyk (15. 10. 2026, navrhy-designu/07) ---------- */
-svg.ico{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-5px;display:inline-block}
+svg.ico{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-5px;display:inline-block}
 .btn svg.ico{width:20px;height:20px;vertical-align:-4px}
 .now .ic{color:var(--brand2);display:grid;place-items:center;width:30px;height:30px}
 .now .ic svg.ico{width:26px;height:26px}
@@ -399,20 +399,19 @@ svg.ico{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-wi
 @keyframes plateSmaller{from{transform:scale(.64)}}
 .plate-ico.anim-bigger .food{animation:plateBigger .7s ease-out .4s both}
 .plate-ico.anim-smaller .food{animation:plateSmaller .7s ease-out .4s both}
-/* pás dne */
+/* pás dne (44px kruhy, stav výplní/obrysem) */
 .daystrip{padding:2px 0 0}
-.daystrip .line{position:relative;height:3px;border-radius:2px;background:#ffffffaa;margin:14px 10% 0}
-.daystrip .nowmark{position:absolute;top:-5px;width:13px;height:13px;border-radius:50%;background:var(--brand);border:2px solid #fff;transform:translateX(-50%);box-shadow:0 0 0 2px #27808d33}
-.daystrip .nodes{display:grid;grid-template-columns:repeat(4,1fr);margin-top:-10px}
+.daystrip .nodes{display:grid;grid-template-columns:repeat(4,1fr);margin-top:2px}
 .dnode{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
-.dnode .dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#fff;border:2px solid #c9d6d1;color:var(--muted)}
-.dnode .dot svg.ico{width:18px;height:18px;stroke-width:2;vertical-align:0}
+.dnode .dot{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:#fff;border:2px solid #c3c9ce;color:var(--brand2)}
+.dnode .dot svg.ico{width:22px;height:22px;stroke-width:2;vertical-align:0}
 .dnode.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
-.dnode.now .dot{border-color:var(--brand);color:var(--brand2);box-shadow:0 0 0 3px var(--brandbg)}
-.dnode.missed .dot{border-color:var(--warn);color:var(--warntx);background:var(--warnbg)}
-.dnode.skipped .dot{border-color:#c9d6d1;color:var(--muted)}
+.dnode.now .dot{border:2.5px solid var(--brand);color:var(--brand2);box-shadow:0 0 0 3px var(--brandbg)}
+.dnode.missed .dot{border-color:#d97706;color:#b45309}
+.dnode.skipped .dot{border-color:#c3c9ce;color:var(--muted)}
+.dnode.wait .dot{border-style:dashed;color:#7b8790}
 .dnode b{font-size:13.5px;margin-top:4px}
-.dnode small{font-size:12px;color:var(--muted);line-height:1.2}
+.dnode small{font-size:13px;color:#4b5560;line-height:1.2}
 /* pruh start → vrchol v kartě Jak to dopadlo */
 .rise{display:flex;gap:12px;align-items:center;margin:8px 0 4px}
 .rise svg{width:92px;height:64px;flex:none}
@@ -435,7 +434,6 @@ svg.ico{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-wi
 /* klíč a talíř */
 .kband{fill:var(--okbg);stroke:#bfe0cb}
 .kt{font-size:11px;font-weight:700;fill:var(--oktx)}
-.ksyr rect,.ksyr path{fill:none;stroke:var(--brand2);stroke-width:1.75;stroke-linecap:round}
 .krim{fill:#fff;stroke:var(--brand2);stroke-width:1.75}
 .kfood{fill:var(--brand);fill-opacity:.35;stroke:var(--brand2);stroke-width:1.5;transform-box:fill-box;transform-origin:center}
 .kline{fill:none;stroke:var(--oktx);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:400;stroke-dashoffset:0}
@@ -468,7 +466,6 @@ svg.ico{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-wi
 .ins-axis .ax{stroke:#9aa5ad;stroke-width:2;stroke-linecap:round}
 .ins-axis .rim{fill:#fff;stroke:var(--brand2);stroke-width:1.75}.ins-axis .food{fill:var(--brand);fill-opacity:.35;stroke:var(--brand2);stroke-width:1.5}
 .ins-axis .syr{transition:transform .5s ease-out,opacity .3s;transform:translate(60px,40px);opacity:.35}
-.ins-axis .syr rect,.ins-axis .syr path{fill:#fff;stroke:var(--brand2);stroke-width:1.75;stroke-linecap:round}
 .ins-axis .syr .q{font-size:12px;font-weight:800;fill:var(--warntx);opacity:0;transition:opacity .3s}
 .ins-axis.b-as .syr{transform:translate(118px,40px);opacity:1}
 .ins-axis.b-other .syr{transform:translate(104px,40px);opacity:1}
@@ -513,3 +510,48 @@ svg.ico{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-wi
 .lever-anim .min{font-size:9px;font-weight:800;fill:var(--brand2)}
 @keyframes ringFill{from{stroke-dashoffset:100.5}to{stroke-dashoffset:0}}
 .lever-anim.play .ringfg{animation:ringFill 2.2s linear both}
+
+/* scény z ikon sady (Lucide) + geometrické talíře; bez ručně kreslených tahů */
+.sico{overflow:visible;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.splate .p1{fill:#fff;stroke:var(--brand2);stroke-width:1.75}.splate .p2{fill:none;stroke:var(--brand2);stroke-width:1.25;stroke-opacity:.45}.splate .pfood{fill:var(--brand);fill-opacity:.35;stroke:var(--brand2);stroke-width:1.5}
+.ksyr{color:var(--brand2)}
+.krim2{fill:none;stroke:var(--brand2);stroke-width:1.25;stroke-opacity:.45}
+.ins-axis .rim2{fill:none;stroke:var(--brand2);stroke-width:1.25;stroke-opacity:.45}
+.ins-axis .syr .sico{color:var(--brand2)}
+.ins-axis .syr .q{font-size:13px;font-weight:800;fill:var(--warntx);opacity:0;transition:opacity .3s}
+.lever-anim .bowl .sico{color:var(--brand2)}
+.lever-anim .steps .sico{color:var(--brand2)}
+.lever-anim .st{opacity:1}
+.lever-anim.play .st1{animation:secIn .35s ease-out .2s both}.lever-anim.play .st2{animation:secIn .35s ease-out .9s both}.lever-anim.play .st3{animation:secIn .35s ease-out 1.6s both}
+
+/* nálezy designové kritiky 15. 10. 2026 */
+.splate .pico{color:var(--brand2)}
+.kbase{stroke:#c3c9ce;stroke-width:1.5}
+.kband{fill:var(--okbg);stroke:#9fcfb0}
+.kt{font-size:11px;font-weight:700;fill:var(--oktx)}
+.khigh{stroke:#d97706;opacity:.9;stroke-dasharray:400;stroke-dashoffset:0}
+.kl.warn{fill:#b45309}
+@keyframes kHigh{0%,40%{opacity:0;stroke-dashoffset:400}45%{opacity:.9}60%,100%{opacity:.9;stroke-dashoffset:0}}
+.ins-axis .tol{fill:#27808d1f;stroke:#27808d66;stroke-width:1.5}
+.ins-axis .tick{stroke:#9aa3ab;stroke-width:1.5}
+.ins-axis .axl{font-size:11px;font-weight:700;fill:#5b6670}
+.ins-axis .syr{transform:translate(var(--sx-before),40px);opacity:.35}
+.ins-axis.b-as .syr{transform:translate(var(--sx-as),40px);opacity:1}
+.ins-axis.b-other .syr{transform:translate(var(--sx-other),40px);opacity:1}
+.ins-axis.b-before .syr{transform:translate(var(--sx-before),40px);opacity:.7}
+.ins-axis.b-unknown .syr{transform:translate(160px,12px);opacity:.6}
+.lever-anim{max-width:300px}
+.lever-anim .replay{position:static;margin-top:2px;min-height:32px;font-size:13px}
+.lever-anim .replay svg.ico{width:16px;height:16px}
+.lever-anim .prim{fill:#fff;stroke:var(--brand2);stroke-width:1.75}
+.lever-anim .s1{fill:var(--brand)}.lever-anim .s2{fill:#27808d8c}.lever-anim .s3{fill:#27808d40}
+.lever-anim .sec{stroke:#fff;stroke-width:1.5}
+.lever-anim .n{font-size:10px;font-weight:800;fill:#1f2a30}.lever-anim .n1{fill:#fff}
+.lever-anim .lab{font-size:11.5px;font-weight:500;fill:var(--ink)}
+.lever-anim .ringfg{stroke-dasharray:113.1;stroke-dashoffset:84.8}
+.lever-anim .hand{stroke:var(--brand2);stroke-width:1.5}
+@keyframes ringFill{from{stroke-dashoffset:113.1}to{stroke-dashoffset:84.8}}
+.advice .choice-row .choice{min-height:48px;flex:1}
+.advice .choice.yes{background:var(--brand);color:#fff;border-color:var(--brand)}
+.advice .choice.yes.chosen{box-shadow:inset 0 0 0 2px #fff,0 0 0 2px var(--brand)}
+.advice .cert{font-size:14px}

@@ -77,3 +77,5 @@ Po změně struktury zvyš `NF.SCHEMA` v `app/core.js` · `app/icons.js` i `?v=`
 Senzor (deterministický model průběhu po jídle), seznam jídel (syntetický; skutečný zdroj a licenci
 vybere studie), souhrn ze senzoru, schválení registru, posun času. Prahy návrhů k dávce jsou návrh
 autora makety odvozený z běžných konsenzuálních cílů; ve studii je určí garant-lékař.
+
+Ikony: sada Lucide (ISC, `LICENSE-lucide.txt`), vložené jako inline SVG v `app/icons.js`.
