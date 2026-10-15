@@ -139,6 +139,10 @@ function newMeal(meal) {
 }
 var A = {
   noop: function () { },
+  animReplay: function (v) { /* restart CSS animace: odebrat a vrátit třídu play; stav se nemění, stopa nic nezapisuje */
+    var d = global.document; if (!d || !d.querySelector) return;
+    try { var el = d.querySelector('[data-anim="' + v + '"]'); if (!el) return; el.classList.remove('play'); void el.offsetWidth; el.classList.add('play'); } catch (err) { }
+  },
   page: function (v) { if (S.role === 'nurse' || NF.PAGES.indexOf(v) < 0) return; S.page = v; S.error = ''; S.foodOpen = null; }, /* sestra má jen zaučení; náhled telefonu neovládá */
   role: function (v) {
     if (['patient', 'doctor', 'nurse'].indexOf(v) < 0) return;

@@ -47,28 +47,10 @@ var P = {
   thermometer: '<path d="M10 4a2 2 0 0 1 4 0v9.5a3.5 3.5 0 1 1-4 0z"/><path d="M12 10v6"/>',
   plate: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>',
   utensils: '<path d="M6 3v4.5a2 2 0 0 0 4 0V3M8 3v18"/><path d="M17 3v18M17 3c-2 2.5-2.5 6-2 9h2"/>',
-  /* jídla podle zdroje sacharidů a druhu */
-  potato: '<ellipse cx="12" cy="12" rx="8" ry="6" transform="rotate(-20 12 12)"/><path d="M9 10h.01M13 9h.01M11 14h.01M15 13h.01"/>',
-  rice: '<path d="M4 12h16a8 8 0 0 1-16 0z"/><path d="M6.5 12a5.5 3.5 0 0 1 11 0"/>',
-  pasta: '<path d="M4 8c2-2 4-2 6 0s4 2 6 0 4-2 4 0M4 12.5c2-2 4-2 6 0s4 2 6 0 4-2 4 0M4 17c2-2 4-2 6 0s4 2 6 0 4-2 4 0"/>',
-  dumpling: '<ellipse cx="9" cy="12" rx="4.5" ry="7"/><path d="M13.5 6c2.5 0 4.5 2.7 4.5 6s-2 6-4.5 6M17 7.5c2 .8 3 2.6 3 4.5s-1 3.7-3 4.5"/>',
-  bread: '<path d="M6 11a3.5 3.5 0 0 1 1-7h10a3.5 3.5 0 0 1 1 7v9H6z"/><path d="M6 11h12"/>',
-  porridge: '<path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M17 5l-3 6"/><circle cx="18" cy="4" r="1.5"/>',
-  beans: '<ellipse cx="7.5" cy="9" rx="3" ry="2" transform="rotate(-30 7.5 9)"/><ellipse cx="15.5" cy="9" rx="3" ry="2" transform="rotate(30 15.5 9)"/><ellipse cx="11.5" cy="15.5" rx="3" ry="2"/>',
   apple: '<path d="M12 7c-2.5-2-6-1-6.5 3 0 4 2.5 8 5 8 .8 0 1.2-.4 1.5-.4s.7.4 1.5.4c2.5 0 5-4 5-8-.5-4-4-5-6.5-3z"/><path d="M12 7c0-2 1-3 2.5-3.5"/>',
-  cake: '<path d="M3 20L12 5l9 15z"/><path d="M7 15c1.5 1 3 1 4.5 0s3-1 4.5 0"/>',
-  drink: '<path d="M6 3h12l-1.5 17h-9z"/><path d="M7 9h10"/>',
-  salad: '<path d="M4 20c0-8 5-13 14-13-1 9-6 13-14 13z"/><path d="M4 20c3-4 6-7 10-9"/>',
-  egg: '<path d="M6 9c1-5 7-6 10-3 2 2 3 5 3 8-1 4-7 6-11 3-3-2-3-5-2-8z"/><circle cx="12" cy="12" r="2.5"/>',
-  soup: '<path d="M3 12h18a9 9 0 0 1-18 0z"/><path d="M9 8c0-1.5 1-2 0-3.5M13 8c0-1.5 1-2 0-3.5"/>',
-  meat: '<circle cx="14.5" cy="8.5" r="5"/><path d="M11 12.5L5 18.5M6.5 20l-2-2M5 18.5l1.5 1.5"/>',
-  pizza: '<path d="M3 20L12 3a14 14 0 0 1 9 17z"/><path d="M9 9a10 10 0 0 1 7 5"/><circle cx="12" cy="15" r="1"/><circle cx="15" cy="11" r="1"/>',
-  wrap: '<path d="M4 16l9-9a4 4 0 0 1 5.5 5.5L10 21a4 4 0 0 1-6-5z"/><path d="M12 8l5 5"/>',
-  pastry: '<path d="M4 15c0-5 4-9 8-9s8 4 8 9c-2-2-4-3-5-3-1 2-2 2-3 2s-2 0-3-2c-1 0-3 1-5 3z"/>',
-  nuts: '<ellipse cx="8" cy="10" rx="3" ry="4" transform="rotate(-20 8 10)"/><ellipse cx="15.5" cy="9" rx="3" ry="4" transform="rotate(20 15.5 9)"/><ellipse cx="12" cy="16.5" rx="3" ry="4"/>',
-  milk: '<path d="M7 3h10v4l2 3v11H5V10l2-3z"/><path d="M5 10h14M12 3v7"/>',
-  cookie: '<circle cx="12" cy="12" r="9"/><path d="M9 9h.01M14 8h.01M15 14h.01M9 15h.01M12 12h.01"/>',
-  box: '<path d="M3 8l9-4 9 4v9l-9 4-9-4z"/><path d="M3 8l9 4 9-4M12 12v9"/>'
+  refresh: '<path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/>',
+  scale: '<path d="M12 4v16M5 20h14M6 8h12"/><path d="M6 8l-3 6h6zM18 8l-3 6h6z"/>',
+  eye: '<path d="M2.5 12c1.5-3.5 5-6 9.5-6s8 2.5 9.5 6c-1.5 3.5-5 6-9.5 6s-8-2.5-9.5-6z"/><circle cx="12" cy="12" r="3"/>'
 };
 NF.ICONS = P;
 /* NF.icon(name, cls) → inline SVG (aria-hidden). Neznámé jméno → prázdný řetězec (text vedle ikony význam nese sám). */
@@ -76,11 +58,6 @@ NF.icon = function (name, cls) {
   var body = P[name]; if (!body) return '';
   return '<svg class="ico' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true" focusable="false" data-icon="' + name + '">' + body + '</svg>';
 };
-/* Ikona jídla: podle druhu (fixtures) nebo zdroje sacharidů; nové jídlo jen názvem → talíř. */
-NF.FOOD_ICON_BY_SOURCE = { brambory: 'potato', ryze: 'rice', testoviny: 'pasta', knedlik: 'dumpling', pecivo: 'bread', ovesne: 'porridge', lusteniny: 'beans', ovoce: 'apple', sladke: 'cake', tekute: 'drink', bez: 'salad' };
-NF.foodIconName = function (food) {
-  if (!food) return 'plate';
-  if (food.icon && P[food.icon]) return food.icon;
-  return NF.FOOD_ICON_BY_SOURCE[(food.tags || {}).source] || 'plate';
-};
+/* Ikona jídla: u všech jídel jeden neutrální talíř (vlastník 15. 10. 2026: ikony konkrétních jídel nic neříkají; jídlo je jen název, význam nese prstenec a štítky). */
+NF.foodIconName = function () { return 'plate'; };
 })(typeof window !== 'undefined' ? window : globalThis);

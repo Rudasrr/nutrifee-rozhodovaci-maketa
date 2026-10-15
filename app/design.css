@@ -424,3 +424,92 @@ svg.ico{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-wi
 .rise .lbl{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
 .rise .lbl b{display:block;font-size:15px;color:var(--ink)}
 @keyframes riseIn{from{transform:scaleY(0)}}
+
+/* ---------- vysvětlující animace (15. 10. 2026, 2. vlna): přehrají se jednou (.play), statický stav = konec ---------- */
+.anim{position:relative;margin-top:8px}
+.anim svg{width:100%;height:auto;display:block;font-family:inherit}
+.anim-cap{font-size:13px;color:var(--muted);margin-top:6px}
+.anim-ctl{display:flex;justify-content:flex-end;margin-top:2px}
+.anim-ctl .btn{min-height:34px;font-size:13px}
+.anim-ctl .btn svg.ico{width:16px;height:16px}
+/* klíč a talíř */
+.kband{fill:var(--okbg);stroke:#bfe0cb}
+.kt{font-size:11px;font-weight:700;fill:var(--oktx)}
+.ksyr rect,.ksyr path{fill:none;stroke:var(--brand2);stroke-width:1.75;stroke-linecap:round}
+.krim{fill:#fff;stroke:var(--brand2);stroke-width:1.75}
+.kfood{fill:var(--brand);fill-opacity:.35;stroke:var(--brand2);stroke-width:1.5;transform-box:fill-box;transform-origin:center}
+.kline{fill:none;stroke:var(--oktx);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:400;stroke-dashoffset:0}
+.khigh{fill:none;stroke:var(--bad);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:400;stroke-dashoffset:0;opacity:0}
+.kl{font-size:12px;font-weight:700;fill:var(--ink)}
+.kl1,.kl2{opacity:0}.kl3{opacity:1}
+@keyframes kDraw{from{stroke-dashoffset:400}to{stroke-dashoffset:0}}
+@keyframes kBig{0%,30%{transform:scale(1)}40%,70%{transform:scale(1.55)}80%,100%{transform:scale(1)}}
+@keyframes kHigh{0%,40%{opacity:0;stroke-dashoffset:400}45%{opacity:1}60%,75%{opacity:1;stroke-dashoffset:0}85%,100%{opacity:0;stroke-dashoffset:0}}
+@keyframes kL1{0%{opacity:0}8%,30%{opacity:1}38%,100%{opacity:0}}
+@keyframes kL2{0%,38%{opacity:0}45%,75%{opacity:1}82%,100%{opacity:0}}
+@keyframes kL3{0%,82%{opacity:0}90%,100%{opacity:1}}
+.anim.play .kline{animation:kDraw 1.6s ease-out both}
+.anim.play .kfood{animation:kBig 7s ease-in-out both}
+.anim.play .khigh{animation:kHigh 7s ease-in-out both}
+.anim.play .kl1{animation:kL1 7s linear both}.anim.play .kl2{animation:kL2 7s linear both}.anim.play .kl3{animation:kL3 7s linear both}
+/* co aplikace nedělá */
+.nots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.not .pic{position:relative;display:inline-grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#fff;color:var(--brand2)}
+.not .pi svg.ico{width:28px;height:28px}
+.not .strike-svg{position:absolute;inset:0;width:56px;height:56px}
+.not .strike{fill:none;stroke:var(--bad);stroke-width:3;stroke-linecap:round;stroke-dasharray:40;stroke-dashoffset:0}
+.not small{display:block;font-size:12.5px;color:var(--ink);font-weight:600;margin-top:6px;line-height:1.25}
+@keyframes strike{from{stroke-dashoffset:40}to{stroke-dashoffset:0}}
+.anim.play .strike.s1{animation:strike .45s ease-out .3s both}.anim.play .strike.s2{animation:strike .45s ease-out .9s both}.anim.play .strike.s3{animation:strike .45s ease-out 1.5s both}
+/* osa inzulinu */
+.ins-axis{margin-top:10px}
+.ins-axis svg{width:100%;height:auto;display:block}
+.ins-axis .tol{fill:var(--okbg);stroke:#bfe0cb}
+.ins-axis .ax{stroke:#9aa5ad;stroke-width:2;stroke-linecap:round}
+.ins-axis .rim{fill:#fff;stroke:var(--brand2);stroke-width:1.75}.ins-axis .food{fill:var(--brand);fill-opacity:.35;stroke:var(--brand2);stroke-width:1.5}
+.ins-axis .syr{transition:transform .5s ease-out,opacity .3s;transform:translate(60px,40px);opacity:.35}
+.ins-axis .syr rect,.ins-axis .syr path{fill:#fff;stroke:var(--brand2);stroke-width:1.75;stroke-linecap:round}
+.ins-axis .syr .q{font-size:12px;font-weight:800;fill:var(--warntx);opacity:0;transition:opacity .3s}
+.ins-axis.b-as .syr{transform:translate(118px,40px);opacity:1}
+.ins-axis.b-other .syr{transform:translate(104px,40px);opacity:1}
+.ins-axis.b-before .syr{transform:translate(56px,40px);opacity:.7}
+.ins-axis.b-unknown .syr{transform:translate(160px,12px);opacity:.6}.ins-axis.b-unknown .syr .q{opacity:1}
+.ins-axis .axl{font-size:10.5px;font-weight:700;fill:var(--oktx)}
+.ins-axis .axc{font-size:10.5px;fill:var(--muted)}
+/* mikroanimace rad */
+.lever-anim{position:relative;margin:4px 0 6px;max-width:260px}
+.lever-anim svg{width:100%;height:auto;display:block}
+.lever-anim .replay{position:absolute;right:-6px;top:-4px;min-height:30px;padding:4px 6px}
+.lever-anim .replay svg.ico{width:15px;height:15px}
+.lever-anim .rim{fill:#fff;stroke:var(--brand2);stroke-width:1.5}
+.lever-anim .food{fill:var(--brand);fill-opacity:.35;stroke:var(--brand2);stroke-width:1.5}
+.lever-anim .sec{stroke:#fff;stroke-width:1.5;opacity:1}
+.lever-anim .s1{fill:#7fbf8f}.lever-anim .s2{fill:#d9a06b}.lever-anim .s3{fill:#d8dee3}
+.lever-anim .n{font-size:9px;font-weight:800;fill:#fff}
+.lever-anim .lab{font-size:11px;font-weight:700;fill:var(--ink)}
+@keyframes secIn{from{opacity:0}to{opacity:1}}
+.lever-anim.play .s1,.lever-anim.play .n1,.lever-anim.play .l1{animation:secIn .4s ease-out .2s both}
+.lever-anim.play .s2,.lever-anim.play .n2,.lever-anim.play .l2{animation:secIn .4s ease-out 1s both}
+.lever-anim.play .s3,.lever-anim.play .n3,.lever-anim.play .l3{animation:secIn .4s ease-out 1.8s both}
+.lever-anim .bowl path{fill:#fff;stroke:var(--brand2);stroke-width:1.5;stroke-linecap:round}
+.lever-anim .bowl{transform:translateX(0)}
+.lever-anim .plus{font-size:16px;font-weight:800;fill:var(--oktx)}
+@keyframes bowlIn{from{transform:translateX(44px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.lever-anim.play .bowl{animation:bowlIn .9s ease-out .3s both}
+.lever-anim.play .plus{animation:fadeIn .3s ease-out 1.1s both}
+.lever-anim .ground{stroke:#c9d6d1;stroke-width:2;stroke-linecap:round}
+.lever-anim .man{transform:translateX(62px)}
+.lever-anim .man circle{fill:var(--brand2)}.lever-anim .man path{fill:none;stroke:var(--brand2);stroke-width:2;stroke-linecap:round}
+.lever-anim .legs.b{opacity:0}
+@keyframes manGo{from{transform:translateX(10px)}to{transform:translateX(62px)}}
+@keyframes stepA{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes stepB{0%,49%{opacity:0}50%,100%{opacity:1}}
+.lever-anim.play .man{animation:manGo 2.2s linear both}
+.lever-anim.play .legs.a{animation:stepA .5s steps(1) 4}
+.lever-anim.play .legs.b{animation:stepB .5s steps(1) 4}
+.lever-anim .ringbg{fill:none;stroke:#dfe6ea;stroke-width:4}
+.lever-anim .ringfg{fill:none;stroke:var(--brand);stroke-width:4;stroke-linecap:round;stroke-dasharray:100.5;stroke-dashoffset:0;transform:rotate(-90deg);transform-box:fill-box;transform-origin:center}
+.lever-anim .min{font-size:9px;font-weight:800;fill:var(--brand2)}
+@keyframes ringFill{from{stroke-dashoffset:100.5}to{stroke-dashoffset:0}}
+.lever-anim.play .ringfg{animation:ringFill 2.2s linear both}

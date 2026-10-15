@@ -40,6 +40,7 @@ const markup = () => plain(elements.get('app').innerHTML);
 const chapter = id => { const i = D.indexOf(id); assert.ok(i >= 0, 'neznámá kapitola ' + id); act('goChapter', String(i)); act('closeDrawer'); };
 const branch = (k, v) => { act('setBranch', k + ':' + v); act('closeDrawer'); };
 const food = name => S().foods.find(f => f.name === name);
+const V_leverAnim = lv => NF.screens.leverAnim(lv);
 const everyScreen = fn => { for (let i = 0; i < D.chapters.length; i++) { act('goChapter', String(i)); act('closeDrawer'); for (const r of ['patient', 'doctor', 'nurse']) { act('role', r); fn(markup(), D.chapters[i].id + '/' + r); } } };
 
 let passed = 0, failed = 0; const fails = [];
@@ -1124,9 +1125,9 @@ test('Vizuální jazyk (15. 10. 2026): jedna SVG ikonová sada bez emoji v jádr
   /* každé jméno ikony použité v jádru existuje */
   const names = new Set(); for (const f of CORE) for (const m of fs.readFileSync(path.join(__dirname, f), 'utf8').matchAll(/NF\.icon\('([a-z-]+)'/g)) names.add(m[1]);
   for (const n of names) assert.ok(NF.ICONS[n], 'ikona ' + n); assert.equal(NF.icon('neexistuje'), '');
-  assert.ok(Object.keys(NF.ICONS).length >= 50); assert.match(NF.icon('syringe'), /^<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"/);
+  assert.ok(Object.keys(NF.ICONS).length >= 40); assert.equal(NF.ICONS.meat, undefined, 'bez ikon konkrétních jídel'); assert.match(NF.icon('syringe'), /^<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"/);
   /* ikony jídel: podle druhu z fixtures, podle zdroje sacharidů, nové jídlo jen názvem = talíř */
-  chapter('custom'); assert.equal(NF.foodIconName(food('Smažený řízek s bramborovou kaší')), 'meat'); assert.equal(NF.foodIconName(food('Ovesná kaše s mlékem a banánem')), 'porridge'); assert.equal(NF.foodIconName({ name: 'x', tags: { like: null }, custom: true }), 'plate');
+  chapter('custom'); assert.equal(NF.foodIconName(food('Smažený řízek s bramborovou kaší')), 'plate', 'jeden neutrální talíř u všech jídel'); assert.equal(NF.foodIconName(food('Ovesná kaše s mlékem a banánem')), 'plate'); assert.equal(NF.foodIconName({ name: 'x', tags: { like: null }, custom: true }), 'plate');
   for (const f of S().foods) assert.ok(NF.ICONS[NF.foodIconName(f)], f.name);
   /* Dnes: pás dne místo štítků, ikony v liště záložek; Jak to dopadlo = pruh start → vrchol s hranicí cíle, žádná křivka */
   chapter('lateMeal'); let m = markup(); assert.match(m, /class="daystrip" role="img" aria-label="Den: Snídaně [^"]+, Oběd [^"]+, Večeře [^"]+, Bazál [^"]+\."/); assert.match(m, /class="dnode (done|now|wait|missed|skipped)"/); assert.match(m, /class="glass tabbar"[\s\S]*data-icon="home"[\s\S]*data-icon="plate"[\s\S]*data-icon="list"[\s\S]*data-icon="shield"/);
@@ -1140,6 +1141,15 @@ test('Vizuální jazyk (15. 10. 2026): jedna SVG ikonová sada bez emoji v jádr
   act('mealStep', '2'); m = markup(); assert.match(m, /class="choice chosen plate"[^>]*data-action="mealPortion" data-value="bigger"[^>]*>[\s\S]*?<svg class="plate-ico"/); assert.match(m, /data-value="usual"[^>]*><svg class="plate-ico"[^>]*><circle class="rim"/); checkSvg(m, 'porce');
   /* prstenec: po uložení zápisu nový oblouk s animací (jen jedno vykreslení), pak bez ní */
   act('mealStep', '3'); const fid = S().meal.foodId; act('mealFinish', 'as'); assert.ok(NF.flash && NF.flash.food === fid); m = markup(); assert.match(m, /class="emoji just"[\s\S]*?<circle class="new"/); act('noop'); assert.equal(NF.flash, null); assert.doesNotMatch(markup(), /emoji just/);
+  /* vysvětlující animace (2. vlna): klíč a talíř + co aplikace nedělá při převzetí plánu; Přehrát znovu nemění stav */
+  chapter('handover'); m = markup(); assert.match(m, /class="anim play" data-anim="key"[\s\S]*role="img" aria-label="Dávka inzulinu je nastavená na obvyklou porci[\s\S]*class="kline"[\s\S]*class="khigh"/); assert.match(m, /data-action="animReplay" data-value="key"/);
+  assert.match(m, /class="anim play" data-anim="nots"[\s\S]*class="strike s1"[\s\S]*class="strike s2"[\s\S]*class="strike s3"/); assert.match(m, /nepočítáme sacharidy[\s\S]*neměníme dávku inzulinu[\s\S]*nikdo nečte zápisy mezi kontrolami/); checkSvg(m, 'převzetí');
+  const before = JSON.stringify(S()); act('animReplay', 'key'); assert.equal(JSON.stringify(S()), before, 'Přehrát znovu nemění stav');
+  /* osa inzulinu v kroku 1 reaguje na volbu; mikroanimace rad v kroku 3 */
+  chapter('firstMeal'); m = markup(); assert.match(m, /class="ins-axis b-none" role="img" aria-label="Osa jídla: inzulin zatím nevybráno\. Do učení se počítá inzulin nejvýš \d+ minut před jídlem a \d+ minut po něm\."/); checkSvg(m, 'krok 1');
+  act('mealBolus', 'as'); assert.match(markup(), /class="ins-axis b-as"/); act('mealBolus', 'unknown'); assert.match(markup(), /class="ins-axis b-unknown"/);
+  chapter('advice'); m = markup(); assert.match(m, /class="lever-anim play" data-anim="addon" data-lever="addon"[\s\S]*class="bowl"/); assert.match(m, /data-action="animReplay" data-value="addon"/); checkSvg(m, 'rady');
+  for (const lv of ['order', 'addon', 'walk']) assert.match(V_leverAnim(lv), new RegExp('data-lever="' + lv + '"'));
   /* lékař: lišta a registr s ikonami */
   chapter('registry'); m = markup(); assert.match(m, /class="rail"[\s\S]*data-icon="clipboard"[\s\S]*data-icon="stethoscope"/); assert.match(m, /class="reg-row[^"]*"[^>]*><span class="ic" aria-hidden="true"><svg/); checkSvg(m, 'registr');
 });
