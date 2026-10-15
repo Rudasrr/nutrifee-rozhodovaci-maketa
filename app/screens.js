@@ -497,24 +497,15 @@ function tipLevers(S) {
   var pa = NF.planAdvice(S), ill = !!(S.illness && S.illness.active), txt = { addon: 'přidat k jídlu bílkovinu (jogurt, sýr, vejce)', order: 'sníst nejdřív zeleninu nebo maso', walk: 'po jídle se projít' };
   return Object.keys(txt).filter(function (l) { var meta = NF.LEVERS[l]; return NF.usable(S, meta.item) && (pa.off || []).indexOf(l) < 0 && (!ill || meta.illnessSafe); }).map(function (l) { return txt[l]; });
 }
-/* Builder vlastního jídla (R27): zdroj sacharidů → úprava (předvyplněná) → obrázek talíře → „Zapíšeme to takto“. Max. 4 klepnutí, žádná čísla, velikost se nezadává. */
-var PLATE_ICON = { priloha: '🍚', priloha_maso: '🍚🍗', priloha_maso_zelenina: '🍚🍗🥦', zelenina: '🥦🍚', polevka: '🥣' };
+/* Nové jídlo jen názvem (rozhodnutí vlastníka 15. 10. 2026): žádné složení. Nepovinné „Je to jako …“ a dotaz „Myslíte X?“ u podobného názvu. */
 function customBuilder(S, m) {
-  var nf = m.newFood, stepN = !nf.source ? 1 : !nf.plate ? 3 : 4;
-  var tagsNow = { source: nf.source, prep: nf.prep, plate: nf.plate };
-  var out = '<h2>Vlastní jídlo' + (m.q ? ': ' + e(m.q) : '') + '</h2><p class="small muted">Čtyři klepnutí, žádná čísla. Na množství se neptáme — porci zadáte až při jídle. Učíme se z toho, jak na jídlo reaguje vaše tělo.</p>';
-  out += '<b style="display:block;margin:10px 0 6px">1 · Z čeho jsou v jídle sacharidy?</b><div class="choice-row">' + NF.TAGS.source.map(function (t) { return choice((EMOJI[t[0]] || '🍽') + ' ' + t[1], 'mealTag', 'source:' + t[0], nf.source === t[0]); }).join('') + '</div>';
-  if (nf.source) {
-    out += '<b style="display:block;margin:10px 0 6px">2 · Úprava <span class="small muted" style="font-weight:500">· předvyplněno, změňte jen když to nesedí</span></b><div class="choice-row">' + NF.TAGS.prep.map(function (t) { return choice(t[1], 'mealTag', 'prep:' + t[0], nf.prep === t[0]); }).join('') + '</div>';
-    out += '<b style="display:block;margin:10px 0 6px">3 · Jak vypadal talíř?</b><div class="choice-row plate">' + NF.TAGS.plate.map(function (t) { return choice(PLATE_ICON[t[0]] + ' ' + t[1], 'mealTag', 'plate:' + t[0], nf.plate === t[0]); }).join('') + '</div>';
+  var nf = m.newFood, name = (m.q || '').trim(), sug = nf.suggest ? NF.foodById(S, nf.suggest) : null, cands = NF.usable(S, 'R-PODOBNOST') ? NF.likeCandidates(S) : [];
+  var out = '<h2>Nové jídlo: ' + e(name) + '</h2><p class="small muted">Nic dalšího nepotřebujeme. Na složení ani množství se neptáme — porci zadáte až při jídle a z vaší reakce se naučíme, jak na vás jídlo působí.</p>';
+  if (sug) out += '<div class="hint sand"><b>Myslíte jídlo „' + e(sug.name) + '“?</b> Už ho máte v seznamu.<div class="choice-row" style="margin-top:6px">' + btn('Ano, to je ono', 'mealUseExisting', sug.id, 'sm primary') + btn('Ne, je jiné', 'mealNotSame', null, 'sm') + '</div></div>';
+  else {
+    if (cands.length) out += '<b style="display:block;margin:10px 0 6px">Je to jako něco, co už známe? <span class="small muted" style="font-weight:500">· nepovinné; do třetího zápisu bychom vás vedli podle toho</span></b><div class="choice-row">' + cands.map(function (f) { return choice(e(f.name), 'mealLike', f.id, nf.like === f.id, 'sm'); }).join('') + choice('Nic podobného', 'mealLike', 'none', nf.like === 'none', 'sm quiet') + '</div>';
+    out += '<div class="actions">' + btn('Zapsat jídlo', 'mealSaveFood', null, 'primary') + '</div>';
   }
-  if (stepN === 4) {
-    var name = (m.q && m.q.trim()) || NF.autoName(tagsNow), cand = NF.usable(S, 'R-PODOBNOST') ? NF.likeCandidate(S, tagsNow) : null, sug = nf.suggest ? NF.foodById(S, nf.suggest) : null;
-    out += '<b style="display:block;margin:12px 0 6px">4 · Zapíšeme to takto</b><div class="box"><div class="k">' + e(name) + '</div><div class="small muted">' + e(NF.tagLabel('source', nf.source)) + ' · ' + e(NF.tagLabel('prep', nf.prep)) + ' · ' + e(NF.tagLabel('plate', nf.plate)) + '</div>' +
-      (sug ? '<div class="hint sand" style="margin-top:8px"><b>Myslíte jídlo „' + e(sug.name) + '“?</b> Už ho máte v seznamu.<div class="choice-row" style="margin-top:6px">' + btn('Ano, to je ono', 'mealUseExisting', sug.id, 'sm primary') + btn('Ne, je jiné', 'mealNotSame', null, 'sm') + '</div></div>' : '') +
-      (cand && !sug ? '<div style="margin-top:8px"><b>Podobné jídlo: ' + e(cand.name) + '?</b> <span class="small muted">Než ho poznáme, vedli bychom vás podle něj.</span><div class="choice-row" style="margin-top:6px">' + choice('Ano, podobné', 'mealLike', cand.id, nf.like === cand.id, 'sm') + choice('Ne, je jiné', 'mealLike', 'none', nf.like === 'none', 'sm') + '</div></div>' : '') +
-      '</div><div class="actions">' + (sug ? '' : btn('Zapsat jídlo', 'mealSaveFood', null, 'primary')) + '</div>';
-  } else out += '<p class="small muted" style="margin-top:8px">' + (stepN === 1 ? 'Klepněte na zdroj sacharidů.' : 'Klepněte na obrázek talíře.') + '</p>';
   return glass(out);
 }
 function foodCard(S, f, open) {
@@ -528,8 +519,11 @@ function foodCard(S, f, open) {
   if (!NF.usable(S, 'R-SKORE')) sum += off(S, 'R-SKORE'); if (!NF.usable(S, 'R-PODOBNOST') && c.level !== 'known') sum += off(S, 'R-PODOBNOST');
   var detail = '';
   if (open) {
-    var lev = c.level === 'known' ? NF.leverStats(S, f.id) : [];
+    var lev = c.level === 'known' ? NF.leverStats(S, f.id) : [], un = c.level === 'known' ? NF.unstable(S, f.id) : null;
     detail = '<div class="detail">' + peakBlock(S, f, c) +
+      (un && un.kind === 'lever' ? '<div class="tip"><b>Zápisy se liší</b> — rozdíl vysvětluje rada „' + e(NF.LEVERS[un.lever].label) + '“: s ní bývá níž.</div>' : '') +
+      (un && un.kind === 'ask' ? '<div class="tip"><b>Zápisy tohoto jídla se liší víc, než je obvyklé.</b> Děláte ho pokaždé stejně (porce, příprava)?<div class="choice-row" style="margin-top:6px">' + btn('Ano, stejně', 'foodSame', f.id, 'sm') + btn('Ne, různě — rozdělit na dvě jídla', 'foodSplit', f.id, 'sm primary') + '</div></div>' : '') +
+      (f.sameAsked === 'same' ? '<div class="tip">Nestálé jídlo: reakce kolísá, i když ho děláte stejně. Sledujeme dál.</div>' : '') +
       (lev.length ? '<div class="tip"><b>Co u vás pomohlo</b>' + lev.map(function (x) { return e(NF.LEVERS[x.lever].label) + ': ' + x.st.inTarget + ' z ' + x.st.n + ' v cíli'; }).join(' · ') + '.</div>' : '') +
       (c.level === 'known' && c.reaction && c.reaction.key !== 'mild' && tipLevers(S).length ? '<div class="tip"><b>Co můžete zkusit</b>' + e(tipLevers(S).join(', ')) + '. Každou radu vám nabídneme přímo před jídlem.</div>' : '') +
       '<details class="more"><summary>Historie zápisů (' + st.eaten + ')</summary><div class="tablewrap"><table><thead><tr><th>Datum</th><th>Porce</th><th>Inzulin</th><th>Rada</th><th>Vrchol</th></tr></thead><tbody>' +

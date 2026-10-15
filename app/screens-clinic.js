@@ -176,10 +176,12 @@ function bar(label, med, color) {
 /* Jídla se silnou reakcí k probrání (S-SILNA): pozorování pro lékaře, pacientovi žádný zákaz. */
 function strongFoods(S) {
   if (!NF.usable(S, 'S-SILNA')) return V.off(S, 'S-SILNA');
-  var list = NF.strongFoods(S);
-  return '<details class="part"' + (list.length ? ' open' : '') + '><summary>Jídla se silnou reakcí k probrání<span class="mini">' + list.length + '</span></summary><div class="body">' +
-    (list.length ? '<ul class="plain">' + list.map(function (x) { return '<li><b>' + e(x.food.name) + '</b> — ' + x.overN + ' z ' + x.st.n + ' nad cílem · medián vzestupu ' + e(NF.mmol(x.med)) + ' mmol/l' + (x.conf.like && x.conf.like.length ? ' · podobné: ' + e(x.conf.like.map(function (f) { return f.name; }).slice(0, 2).join(', ')) : '') + '</li>'; }).join('') + '</ul>' : '<p class="muted">Žádné jídlo zatím práh nesplnilo.</p>') +
-    '<p class="small muted">Pacientovi aplikace nic nezakazuje; jen zapisuje dál a drží obvyklou porci. ' + appr(S, 'S-SILNA') + '</p></div></details>';
+  var list = NF.strongFoods(S), max = NF.param(S, 'S-SILNA', 'maxJidel', 3), top = list.slice(0, max), rest = list.slice(max), total = list.reduce(function (a, x) { return a + x.overN; }, 0);
+  var sentence = list.length ? NF.plural(list.length, 'jídlo', 'jídla', 'jídel') + ' s opakovanou silnou reakcí, celkem ' + NF.plural(total, 'zápis', 'zápisy', 'zápisů') + ' nad cílem; nejčastěji ' + top.map(function (x) { return e(x.food.name) + ' (' + x.st.eaten + '×)'; }).join(', ') + '.' : 'Žádné jídlo s opakovanou silnou reakcí.';
+  return '<details class="part"><summary>Silné reakce<span class="mini">' + list.length + '</span></summary><div class="body"><p><b>' + sentence + '</b></p>' +
+    (top.length ? '<ul class="plain small">' + top.map(function (x) { return '<li><b>' + e(x.food.name) + '</b> — jí ' + x.st.eaten + '×, ' + x.overN + ' z ' + x.st.n + ' nad cílem, medián vzestupu ' + e(NF.mmol(x.med)) + ' mmol/l</li>'; }).join('') + '</ul>' : '') +
+    (rest.length ? '<details class="more"><summary>Další (' + rest.length + ')</summary><ul class="plain small">' + rest.map(function (x) { return '<li>' + e(x.food.name) + ' — ' + x.overN + ' z ' + x.st.n + '</li>'; }).join('') + '</ul></details>' : '') +
+    '<p class="small muted">Řeší aplikace s pacientem (porce, pořadí, doplněk, procházka; jídlo se nenabízí mezi návrhy). Bez zákazů. ' + appr(S, 'S-SILNA') + '</p></div></details>';
 }
 function podklady(S, p, r) {
   var s = r.summary, a = s.advice, t = NF.targets(S);

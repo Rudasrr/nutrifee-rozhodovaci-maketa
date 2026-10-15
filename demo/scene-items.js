@@ -69,7 +69,8 @@ D.sceneItems = [
   ]
  },
  {
-  "title": "Pacient — vlastní jídlo čtyřmi klepnutími", "items": [
+  "title": "Pacient — nové jídlo jen názvem", "items": [
+   "R-DOPLNEK",
    "R-PORADI",
    "R-PROCHAZKA",
    "R-MILNIKY",

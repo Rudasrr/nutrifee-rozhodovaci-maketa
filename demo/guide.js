@@ -35,11 +35,11 @@ D.guide = {
     dopad: 'Při zamítnutí aplikace reakci na jídlo nevyhodnocuje vůbec: karty jídel neukážou rozmezí ani stupeň a před jídlem se neradí.'
   },
   'R-PODOBNOST': {
-    proc: 'U jídla, které pacient nikdy nejedl, by číslo vypadalo jako předpověď bez opory. Druhá úroveň jistoty říká jen směr: „podobá se jídlům, po kterých…“.',
-    jak: 'Neznámé jídlo se přirovná ke známým jídlům se stejnou přílohou a přípravou (ze štítků, nikdy z názvu). Ukáže se široké rozmezí z jejich zápisů a štítek „Podobné jídlo“, bez čísla „přesně“. S vlastními zápisy se jídlo stane známým a odhad z podobných zmizí.',
-    kde: 'Karty jídel a krok 3 před jídlem u jídel se štítkem „Podobné jídlo“ (např. vlastní jídlo „Řízek s kaší od maminky“).',
-    co: 'Že podobnost se smí odvozovat ze štítků příloha + příprava a že se u ní neukazuje přesné číslo.',
-    dopad: 'Při zamítnutí je každé nové jídlo „Neznámé“ bez odhadu, dokud ho pacient 3× nezapíše.'
+    proc: 'U jídla, které pacient ještě nejedl, by číslo vypadalo jako předpověď bez opory. Jediný, kdo ví, čemu se nové jídlo podobá, je pacient.',
+    jak: 'Nepovinné „Je to jako X“ při zápisu nového jídla. Do třetího vlastního zápisu se ukáže široké rozmezí z jídla X s váhou {vaha} virtuálních zápisů (s 1 vlastním 67 %, se 2 zápisy 50 %, od 3 zápisů 0 %). Bez potvrzení se nic neodhaduje. Jídla z databáze se k sobě přirovnávají podle předvyplněných údajů při aspoň {minJidel} podobných jídlech, {minZapisu} zápisech (nejvýš {maxNaJidlo} z každého) a shodě {shoda}.',
+    kde: 'Nové jídlo (řádek „Je to jako…“), karta jídla a krok 3 před jídlem (čárkované okno „podobná jídla“).',
+    co: 'Že podobnost určuje jen pacient a jaká je váha odhadu.',
+    dopad: 'Při zamítnutí je nové jídlo do 3. zápisu „neznámé“: žádné rozmezí, jen obecné rady.'
   },
   'R-SKORE': {
     proc: 'Pacient má vědět, jak často po jídle zůstane v cíli — relativně ke svým vlastním jídlům, ne jako známku „dobré / špatné jídlo“.',
@@ -56,18 +56,18 @@ D.guide = {
     dopad: 'Při zamítnutí aplikace k porci neradí vůbec, ani před píchnutím. Pacient s větší porcí nedostane nic.'
   },
   'R-DOPLNEK': {
-    proc: 'Bílkovina nebo tuk přidané k jídlu zpomalí vzestup glukózy, aniž by se měnilo množství sacharidů, na které je dávka. Je to levnější páka než inzulin.',
-    jak: 'Rada „Přidejte k jídlu {doplněk}. Z jídla nic neubírejte.“ Doplněk je u každého jídla v seznamu (jogurt, sýr, vejce, ořechy, zelenina). Nabízí se jen před píchnutím a mimo nemoc; po 3 pokusech bez účinku u téhož jídla se už nenabízí. U jídla, ke kterému není co přidat, se rada neukáže.',
-    kde: 'Krok 3 před jídlem (pacient); report lékaře (přijato / odmítnuto, srovnání s radou a bez ní); návrhy „zachovat / vyměnit radu“.',
-    co: 'Že doplněk jen přidává a nic nenahrazuje, kdy se smí nabízet (jen před píchnutím, mimo nemoc) a po kolika neúspěších se stáhne. Texty doplňků u jednotlivých jídel jsou součástí schválení.',
-    dopad: 'Při zamítnutí rada zmizí před jídlem i z návrhů na kontrole. Pacient, který ji dřív přijímal, dostane jednou neutrální větu (R-ZMIZELA).'
+    proc: 'Bílkovina nebo tuk přidané k jídlu zpomalí vzestup glukózy, aniž by se z jídla cokoli ubralo. Je to jediná rada, která jídlo mění, a proto musí být výslovně schválená.',
+    jak: 'Text „Přidejte k jídlu {addon}. Z jídla nic neubírejte.“ (u databázových jídel konkrétní doplněk, u nových obecný). Jen před píchnutím a mimo nemoc. U jídla, kde pacient odpoví „Tentokrát ne · V jídle to není“, se už nenabízí; po {stahnout_po} pokusech bez účinku u téhož jídla se stáhne. Účinek se hodnotí stejným oknem jako jídlo (R-REAKCE).',
+    kde: 'Krok 3 před jídlem (pacient), karta jídla „co u vás pomohlo“, report lékaři.',
+    co: 'Že doplněk jen přidává a nic nenahrazuje, kdy se smí nabízet a po kolika neúspěších se stáhne.',
+    dopad: 'Při zamítnutí rada zmizí ze všech jídel; pacient, který ji dřív přijímal, dostane jednu neutrální větu (R-ZMIZELA).'
   },
   'R-PORADI': {
     proc: 'Pořadí soust mění křivku glukózy bez změny množství: zelenina a bílkovina před přílohou zpomalí vzestup.',
-    jak: 'Rada „Snězte nejdřív {co}, potom zbytek jídla.“ „Co“ je u každého jídla v seznamu zelenina, maso nebo sýr — nikdy příloha nebo sladké. Nabízí se před píchnutím i po něm, ne při nemoci.',
-    kde: 'Krok 3 před jídlem (pacient); report lékaře; návrhy „zachovat / vyměnit radu“.',
-    co: 'Znění rady a to, co se u jídel dosazuje za „nejdřív“. Při zkoušce pacient větu „snězte nejdřív jogurt“ pochopil jako „jogurt místo kaše“ — proto garant text upravil na „potom zbytek jídla“.',
-    dopad: 'Při zamítnutí rada zmizí před jídlem i z návrhů; dřív přijímaná rada dostane neutrální větu.'
+    jak: 'Rada „Snězte nejdřív {first}, potom zbytek jídla.“ (u databázových jídel konkrétní, u nových „zeleninu nebo maso“). Nabízí se před píchnutím i po něm, ne při nemoci. Složení se nezadává: když pacient odpoví „Tentokrát ne · V jídle to není“, rada se u toho jídla už neukáže.',
+    kde: 'Krok 3 před jídlem (pacient), karta jídla, report lékaři; položka má historii úprav textu (scénář 5).',
+    co: 'Text rady a to, že se u jídla vypíná odpovědí pacienta, ne zadáním složení.',
+    dopad: 'Při zamítnutí rada zmizí ze všech jídel (R-ZMIZELA).'
   },
   'R-PROCHAZKA': {
     proc: 'Krátký pohyb po jídle zmírní vzestup glukózy. Po jídle, které už je snědené, je to jediná rada, která ještě dává smysl.',
@@ -126,11 +126,11 @@ D.guide = {
     dopad: 'Při zamítnutí pacient nemá nabídku jídel a každé jídlo zakládá sám.'
   },
   'J-STITKY': {
-    proc: 'Pacient hotová a domácí jídla nezná složením, ale jménem a rutinou. Přesné složení aplikace nepotřebuje — učí se z opakování. Makra by navíc sváděla k počítání sacharidů k inzulinu.',
-    jak: 'Tři hrubé štítky: příloha (6 možností) · příprava (3) · velikost (3). U jídel ze seznamu jsou předvyplněné, u vlastního jídla pacient klepne třikrát. Štítky slouží jen k „podobné jídlo“, ne k výpočtům.',
-    kde: 'Vlastní jídlo (krok 2 před jídlem), podobnost na kartách jídel.',
-    co: 'Sadu štítků a to, že aplikace nepracuje s gramy ani makry.',
-    dopad: 'Při zamítnutí nelze založit vlastní jídlo a podobnost se nepočítá.'
+    proc: 'Pacient hotová a domácí jídla nezná složením, ale jménem a rutinou. Aplikace se učí z reakce těla, k tomu složení nepotřebuje; složky s množstvím („hrst, pěst“) mají chybu 30–50 % a působí jako počítání.',
+    jak: 'Nové jídlo = název (našeptávač od pár písmen, „Zase to samé“ u posledních jídel) a nepovinné jedno klepnutí „Je to jako X“ ze svých známých jídel. Nic dalšího: žádný zdroj sacharidů, úprava, talíř, velikost. Porce (obvyklá/větší/menší) se ptáme až při jídle; první zápis ukotví obvyklou. Když se název podobá jídlu v seznamu, přijde dotaz „Myslíte X?“ (Ano, to je ono / Ne, je jiné). Co v jídle je, se aplikace dozví z odpovědí na rady: „Tentokrát ne · V jídle to není“ radu u jídla vypne.',
+    kde: 'Před jídlem, krok 2 (pacient), když jídlo v seznamu není.',
+    co: 'Že název stačí a že složení se nikde nezadává ani nevyptává.',
+    dopad: 'Při zamítnutí nejde přidat nové jídlo; pacient vybírá jen ze seznamu a domácí jídlo nezapíše vůbec.'
   },
   'S-SOUHRN': {
     proc: 'Lékař potřebuje jednu větu „co se dělo“ hned nahoře reportu — ze šablony podle pravidel, ne z generativní AI. A srovnání „s radou vs. bez rady“ nesmí tvrdit víc, než data unesou.',
@@ -203,11 +203,11 @@ D.guide = {
     dopad: 'Položka je zásada, ne výpočet: zamítnutí v maketě nic nevypne, jen zapíše nesouhlas do historie — to je podnět k debatě, ne změna chování.'
   },
   'S-SILNA': {
-    proc: 'Jídlo, po kterém pacient opakovaně skončí nad cílem, je informace pro lékaře — ne nálepka pro pacienta. Aplikace ji nesmí proměnit v zákaz.',
-    jak: 'Na kontrole dostane lékař kartu: název jídla, počet zápisů, kolik nad cílem, medián vzestupu a podobná jídla. Práh: aspoň {silnych} zápisy nad cílem, nebo 2 zápisy s vzestupem aspoň o {dvaNad_mmol} mmol/l nad hranici. Pacientovi aplikace říká jen „zapisujte dál, porce ne větší než obvyklá“ a jídlo mu pasivně nenabízí mezi návrhy.',
-    kde: 'Kontrola, krok 1, podklady: „Jídla se silnou reakcí k probrání“.',
-    co: 'Práh pro kartu a to, že pacient žádné hodnocení ani zákaz nedostane.',
-    dopad: 'Při zamítnutí lékař kartu nedostane; silnou reakci najde jen v tabulce reakcí na jídla.'
+    proc: 'Jídlo, po kterém pacient opakovaně skončí nad cílem, je informace pro lékaře — ale lékař nesmí na kontrole probírat dvacet jídel a jejich složení.',
+    jak: 'Jedna věta v podkladech kontroly: kolik jídel má opakovanou silnou reakci, kolik zápisů celkem a nejvýš {maxJidel} nejčastěji jedená (ostatní jen rozbalením). Práh: aspoň {silnych} zápisy nad cílem, nebo 2 zápisy s vzestupem aspoň o {dvaNad_mmol} mmol/l nad hranici. Silné reakce řeší aplikace s pacientem: páky (porce, pořadí, doplněk, procházka), jídlo se pasivně nenabízí. Pacientovi žádný zákaz ani „jezte méně“.',
+    kde: 'Kontrola, krok 1, podklady: „Silné reakce“.',
+    co: 'Práh, počet jídel ve větě a to, že lékař o jídlech nerozhoduje — rozhoduje o dávce a plánu.',
+    dopad: 'Při zamítnutí lékař větu nedostane; silnou reakci najde jen v tabulce reakcí na jídla.'
   }
 };
 

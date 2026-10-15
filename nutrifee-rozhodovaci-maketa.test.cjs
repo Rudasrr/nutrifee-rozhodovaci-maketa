@@ -380,24 +380,28 @@ test('Před jídlem: inzulin první, kroky zamčené bez volby, zápis nese potv
   assert.ok(ep.points.length === 5, 'simulovaný senzor dodal průběh');
 });
 
-test('Vlastní jídlo čtyřmi klepnutími (R27): zdroj · úprava předvyplněná · talíř · zápis; „Myslíte X?“ u duplicity; podobnost ze složek s potvrzením (R28)', () => {
-  chapter('custom'); S().meal.newFood = {}; /* kapitola má force; tady testujeme celou cestu */
-  act('mealSaveFood'); assert.match(S().error, /Klepněte/);
-  act('mealTag', 'source:brambory'); assert.equal(S().meal.newFood.prep, 'varene', 'úprava předvyplněná'); act('mealTag', 'prep:smazene'); act('mealTag', 'plate:priloha_maso');
-  let m = markup(); assert.match(m, /4 · Zapíšeme to takto/); assert.match(m, /Podobné jídlo: Smažený řízek s bramborovou kaší\?/); assert.match(m, /Zapsat jídlo/);
-  act('mealSaveFood'); assert.ok(S().meal.newFood.suggest, '„Myslíte Smažený řízek…?“ u podobného názvu'); assert.match(markup(), /Myslíte jídlo „Smažený řízek s bramborovou kaší“\?/); assert.equal(food('Řízek s kaší od maminky'), undefined);
+test('Nové jídlo jen názvem (15. 10. 2026): „Myslíte X?“ u podobného názvu, nepovinné „Je to jako…“, rady se učí z odpovědi „v jídle to není“, lékař dostane jednu větu', () => {
+  chapter('custom'); let m = markup(); assert.match(m, /Nové jídlo: Řízek s kaší od maminky/); assert.match(m, /Je to jako něco, co už známe\?/); assert.equal(/Z čeho jsou v jídle sacharidy|Jak vypadal talíř|Úprava/.test(m), false, 'žádné složení');
+  act('mealSaveFood'); assert.ok(S().meal.newFood.suggest, '„Myslíte Smažený řízek…?“'); assert.match(markup(), /Myslíte jídlo „Smažený řízek s bramborovou kaší“\?/); assert.equal(food('Řízek s kaší od maminky'), undefined);
   act('mealNotSame'); act('mealLike', food('Smažený řízek s bramborovou kaší').id); act('mealSaveFood');
-  const f = food('Řízek s kaší od maminky'); assert.ok(f && f.custom); assert.deepEqual([f.tags.source, f.tags.prep, f.tags.plate], ['brambory', 'smazene', 'priloha_maso']); assert.equal(f.tags.like, food('Smažený řízek s bramborovou kaší').id);
-  const c = NF.confidence(S(), f.id); assert.equal(c.level, 'similar'); assert.equal(c.pool.explicit, true); assert.ok(c.like.some(x => x.name.indexOf('řízek') >= 0));
-  /* bez potvrzení: jediné podobné jídlo nestačí (min. 3 jídla, 6 zápisů) */
-  const g = NF.addFood(S(), 'Karbanátek s hranolky', { source: 'brambory', prep: 'smazene', plate: 'priloha_maso' }, { force: true }).food; assert.equal(NF.confidence(S(), g.id).level, 'unknown'); assert.match(NF.confidence(S(), g.id).similarWhy || '', /málo podobných/);
-  /* „Ne, je jiné“ podobnost vypne; jiný zdroj není podobný i při podobném názvu */
-  const h = NF.addFood(S(), 'Řízek s kaší jinak', { source: 'brambory', prep: 'smazene', plate: 'priloha_maso', like: 'none' }, { force: true }).food; assert.equal(NF.similarFoods(S(), h).length, 0);
-  const same = NF.addFood(S(), 'Smažený řízek s bramborovou kaší po našem', { source: 'ryze', prep: 'varene', plate: 'priloha' }, { force: true }).food; assert.notEqual(NF.confidence(S(), same.id).level, 'similar');
-  /* název složený ze složek, když pacient nic nenapíše */
-  assert.equal(NF.autoName({ source: 'lusteniny', prep: 'varene', plate: 'priloha_maso_zelenina' }), 'Luštěniny s masem a zeleninou'); assert.equal(NF.autoName({ source: 'tekute', prep: 'varene', plate: 'polevka' }), 'Polévka');
-  /* talíř řídí rady: s masem se nenabízí doplněk bílkoviny, ale pořadí ano */
-  act('mealPortion', 'usual'); act('mealStep', '3'); const adv = NF.advise(S(), f.id, 'usual', 'before'); assert.equal(adv.items.some(i => i.lever === 'addon'), false); assert.ok(adv.items.some(i => i.lever === 'order'));
+  const f = food('Řízek s kaší od maminky'); assert.ok(f && f.custom); assert.equal(f.tags.source, undefined, 'nové jídlo bez složení'); assert.equal(f.tags.like, food('Smažený řízek s bramborovou kaší').id);
+  const c = NF.confidence(S(), f.id); assert.equal(c.level, 'similar'); assert.equal(c.pool.explicit, true);
+  /* bez „Je to jako“ se nic neodhaduje */
+  const g = NF.addFood(S(), 'Karbanátek s hranolky', {}, { force: true }).food; assert.equal(NF.confidence(S(), g.id).level, 'unknown'); assert.equal(NF.similarFoods(S(), g).length, 0);
+  /* prázdný název nejde; stejný název = totéž jídlo */
+  assert.equal(NF.addFood(S(), '  ', {}).ok, false); assert.equal(NF.addFood(S(), 'karbanátek s hranolky', {}).food.id, g.id);
+  /* rady bez složení: obecné texty; „Tentokrát ne · V jídle to není“ radu u jídla vypne */
+  act('mealPortion', 'usual'); act('mealStep', '3'); let adv = NF.advise(S(), f.id, 'usual', 'before'); assert.ok(adv.items.some(i => i.lever === 'order')); assert.ok(adv.items.some(i => i.lever === 'addon'));
+  assert.ok(NF.DECLINE_REASONS.some(r => r[0] === 'absent'));
+  act('mealDecide', 'order:no'); act('mealReason', 'order:absent'); act('mealFinish', 'as'); assert.equal(f.leverOff && f.leverOff.order, true);
+  act('startMeal', 'lunch'); act('mealBolus', 'before'); act('mealStep', '2'); act('mealFood', f.id); act('mealPortion', 'usual'); act('mealStep', '3');
+  adv = NF.advise(S(), f.id, 'usual', 'before'); assert.equal(adv.items.some(i => i.lever === 'order'), false, 'pořadí se u tohoto jídla už nenabízí'); assert.ok(adv.items.some(i => i.lever === 'addon'));
+  /* lékař: jedna věta a nejvýš maxJidel jídel */
+  chapter('reviewSummary'); act('startReview'); const r = markup(); assert.match(r, /Silné reakce/); assert.match(r, /s opakovanou silnou reakcí|Žádné jídlo s opakovanou silnou reakcí/);
+  const strong = NF.strongFoods(S()); if (strong.length > 1) assert.ok(strong[0].st.eaten >= strong[1].st.eaten, 'seřazeno podle četnosti');
+  assert.ok(NF.param(S(), 'S-SILNA', 'maxJidel', 0) === 3);
+  /* nestálé jídlo: nejdřív vysvětlit z rady, pak otázka */
+  assert.equal(typeof NF.unstable, 'function');
 });
 
 test('Učení: známé od 3 započítaných; nezapočítá se nevím, nemoc, jiná porce, jiná dávka', () => {

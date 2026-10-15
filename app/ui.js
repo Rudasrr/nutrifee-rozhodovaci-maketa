@@ -243,9 +243,11 @@ var A = {
   mealUseExisting: function (v) { if (!needMeal()) return; S.meal.foodId = v; S.meal.newFood = null; var f = NF.foodById(S, v); if (f) S.meal.q = f.name; toast('Použijeme jídlo, které už máte v seznamu.'); },
   mealNotSame: function () { if (!needMeal()) return; var nf = S.meal.newFood; if (nf) { nf.force = true; nf.suggest = null; } },
   mealUnusual: function () { if (!needMeal()) return; S.meal.unusual = !S.meal.unusual; },
+  foodSame: function (v) { var f = NF.foodById(S, v); if (!f) return; f.sameAsked = 'same'; toast('Dobře. Rozdíly u tohoto jídla budeme sledovat dál.'); },
+  foodSplit: function (v) { var f = NF.foodById(S, v); if (!f) return; f.sameAsked = 'split'; var r = NF.addFood(S, f.name + ' (jinak)', { like: null }, { force: true }); if (r.ok) toast('Přidali jsme „' + r.food.name + '“. Příště vyberte to, které zrovna jíte.'); },
   mealSaveFood: function () {
     if (!needMeal()) return; var nf = S.meal.newFood || {};
-    var r = NF.addFood(S, S.meal.q, { source: nf.source, prep: nf.prep, plate: nf.plate, like: nf.like || null }, { force: !!nf.force });
+    var r = NF.addFood(S, S.meal.q, { like: nf.like || null }, { force: !!nf.force });
     if (!r.ok) return fail(r.error);
     if (r.suggest) { nf.suggest = r.suggest.id; return; } /* „Myslíte X?“ — rozhodne pacient */
     S.meal.foodId = r.food.id; S.meal.newFood = null; S.meal.q = r.food.name; toast('Jídlo je ve vašem seznamu. Příště ho najdete pod „naposledy“.');
