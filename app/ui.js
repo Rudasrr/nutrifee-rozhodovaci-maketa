@@ -270,7 +270,7 @@ var A = {
     var src = NF.sensorSource ? NF.sensorSource(S, draft) : null;
     draft.points = src ? src.points : []; draft.importedAt = src ? src.importedAt : null;
     var r = NF.saveEpisode(S, draft); if (!r.ok) return fail(r.error);
-    S.meal = null; S.page = 'today';
+    S.meal = null; S.page = 'today'; NF.flash = { food: f.id };
     var th = NF.thanks(S, r.episode);
     toast(th || (m.retro ? f.name + ' je zapsané k ' + NF.fmtTime(at) + '.' : f.name + ' je zapsané.'));
   },
@@ -367,7 +367,7 @@ NF.actions = A;
 function act(name, value) {
   var fn = A[name] || (NF.demoActions && NF.demoActions[name]);
   if (!fn) return;
-  S.error = '';
+  S.error = ''; NF.flash = null; /* jednorázový příznak pro animaci (není součást stavu ani stopy) */
   try { fn(value); }
   catch (err) {
     /* Výjimka v akci nesmí shodit aplikaci: zapíše se do stopy a zobrazí jako hláška (C4, 6. 10. 2026). */

@@ -1118,6 +1118,32 @@ test('Produkční sestavení bez demo/ startuje prázdné a bez registru nic ner
   assert.equal(/DEMO · syntetická data · není určeno/.test(markup()), true, 'i produkce nese označení');
   assert.ok(markup().length > 200);
 });
+test('Vizuální jazyk (15. 10. 2026): jedna SVG ikonová sada bez emoji v jádru; ikona nikdy nenese význam sama; talíře porcí, pás dne, prstenec učení s animací, pruh start → vrchol', () => {
+  /* žádná emoji v jádru (mimo komentáře) */
+  for (const f of CORE) { const src = fs.readFileSync(path.join(__dirname, f), 'utf8').replace(/\/\*[\s\S]*?\*\//g, ''); assert.equal(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}\u{2B50}]/u.test(src), false, f + ': emoji v jádru'); }
+  /* každé jméno ikony použité v jádru existuje */
+  const names = new Set(); for (const f of CORE) for (const m of fs.readFileSync(path.join(__dirname, f), 'utf8').matchAll(/NF\.icon\('([a-z-]+)'/g)) names.add(m[1]);
+  for (const n of names) assert.ok(NF.ICONS[n], 'ikona ' + n); assert.equal(NF.icon('neexistuje'), '');
+  assert.ok(Object.keys(NF.ICONS).length >= 50); assert.match(NF.icon('syringe'), /^<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"/);
+  /* ikony jídel: podle druhu z fixtures, podle zdroje sacharidů, nové jídlo jen názvem = talíř */
+  chapter('custom'); assert.equal(NF.foodIconName(food('Smažený řízek s bramborovou kaší')), 'meat'); assert.equal(NF.foodIconName(food('Ovesná kaše s mlékem a banánem')), 'porridge'); assert.equal(NF.foodIconName({ name: 'x', tags: { like: null }, custom: true }), 'plate');
+  for (const f of S().foods) assert.ok(NF.ICONS[NF.foodIconName(f)], f.name);
+  /* Dnes: pás dne místo štítků, ikony v liště záložek; Jak to dopadlo = pruh start → vrchol s hranicí cíle, žádná křivka */
+  chapter('lateMeal'); let m = markup(); assert.match(m, /class="daystrip" role="img" aria-label="Den: Snídaně [^"]+, Oběd [^"]+, Večeře [^"]+, Bazál [^"]+\."/); assert.match(m, /class="dnode (done|now|wait|missed|skipped)"/); assert.match(m, /class="glass tabbar"[\s\S]*data-icon="home"[\s\S]*data-icon="plate"[\s\S]*data-icon="list"[\s\S]*data-icon="shield"/);
+  for (let i = 0; i < 8 && !/class="rise /.test(m); i++) { next(); m = markup(); } /* v lateMeal přijdou data ze senzoru o pár kroků dál */
+  assert.match(m, /<b>Jak to dopadlo<\/b>/); assert.match(m, /class="rise (ok|bad)" role="img" aria-label="Glukóza při jídle [\d,]+, vrchol [\d,]+ mmol\/l, hranice cíle [\d,]+ mmol\/l\."/); assert.match(m, /<rect class="rbar"/); assert.doesNotMatch(m, /<polyline|class="curve"/);
+  /* každé SVG na obrazovce je aria-hidden, nebo grafika s role="img" a popisem u sebe */
+  const checkSvg = (html, where) => { for (const sv of html.matchAll(/<svg[^>]*>/g)) assert.ok(/aria-hidden="true"/.test(sv[0]) || /role="img"/.test(sv[0]), where + ': ' + sv[0].slice(0, 80)); };
+  checkSvg(m, 'Dnes');
+  /* rada k porci před píchnutím ukáže pohyb z větší zpět k obvyklé; porce v kroku 2 jako talíře */
+  chapter('advice'); m = markup(); assert.equal(S().meal.portion, 'bigger'); assert.match(m, /class="plates"[\s\S]*plate-ico anim-bigger[\s\S]*data-icon="arrow-right"[\s\S]*z větší zpět k obvyklé/); checkSvg(m, 'rada k porci');
+  act('mealStep', '2'); m = markup(); assert.match(m, /class="choice chosen plate"[^>]*data-action="mealPortion" data-value="bigger"[^>]*>[\s\S]*?<svg class="plate-ico"/); assert.match(m, /data-value="usual"[^>]*><svg class="plate-ico"[^>]*><circle class="rim"/); checkSvg(m, 'porce');
+  /* prstenec: po uložení zápisu nový oblouk s animací (jen jedno vykreslení), pak bez ní */
+  act('mealStep', '3'); const fid = S().meal.foodId; act('mealFinish', 'as'); assert.ok(NF.flash && NF.flash.food === fid); m = markup(); assert.match(m, /class="emoji just"[\s\S]*?<circle class="new"/); act('noop'); assert.equal(NF.flash, null); assert.doesNotMatch(markup(), /emoji just/);
+  /* lékař: lišta a registr s ikonami */
+  chapter('registry'); m = markup(); assert.match(m, /class="rail"[\s\S]*data-icon="clipboard"[\s\S]*data-icon="stethoscope"/); assert.match(m, /class="reg-row[^"]*"[^>]*><span class="ic" aria-hidden="true"><svg/); checkSvg(m, 'registr');
+});
+
 test('Verze v HTML souhlasí se schématem stavu', () => {
   const all = [...html.matchAll(/(?:src|href)="(?:app|demo)\/[^"]+\?v=(\d+)"/g)].map(m => m[1]);
   assert.equal(all.length, CORE.length + DEMO.length + 2);

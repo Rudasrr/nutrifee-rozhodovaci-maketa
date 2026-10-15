@@ -357,3 +357,70 @@ details.more[open]>summary::before{content:"⌄ ";}
 
 /* Pětidílný průvodce položkou registru (7. 10. 2026) */
 .guide{margin-top:8px}.guide .gsec{border-top:1px solid var(--line);padding:8px 0 2px}.guide .gsec:first-child{border-top:0}.guide h4{margin:0 0 4px;font-size:12.5px;letter-spacing:.04em;font-weight:800;color:var(--brand)}.guide p{margin:0 0 6px;font-size:14px;line-height:1.5}.guide .gparams{margin:2px 0 6px}.guide .gparams li{padding:2px 0}.guide .box{margin-top:6px}
+
+/* ---------- ikonová sada a vizuální jazyk (15. 10. 2026, navrhy-designu/07) ---------- */
+svg.ico{width:22px;height:22px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;vertical-align:-5px;display:inline-block}
+.btn svg.ico{width:20px;height:20px;vertical-align:-4px}
+.now .ic{color:var(--brand2);display:grid;place-items:center;width:30px;height:30px}
+.now .ic svg.ico{width:26px;height:26px}
+.now .ic.ok,svg.ico.ok{color:var(--oktx)}
+.insulin .ic{color:var(--brand2)}.insulin .ic.ok{color:var(--oktx)}
+.insulin .ic svg.ico{width:26px;height:26px}
+.tabbar .ic{display:grid;place-items:center;height:22px}
+.tabbar .ic svg.ico{width:22px;height:22px}
+.rail button.nav .ic{display:grid;place-items:center}
+.rail button.nav .ic svg.ico{width:20px;height:20px}
+.reg-row .ic{color:var(--brand2)}
+.reg-row .ic svg.ico{width:20px;height:20px}
+.appr span[aria-hidden]{display:inline-grid;place-items:center}
+.appr span[aria-hidden] svg.ico{width:14px;height:14px;stroke-width:2.2}
+.habit .mark svg.ico,.dot svg.ico,.emoji .ck svg.ico,.n svg.ico{width:13px;height:13px;vertical-align:0;stroke-width:2.4}
+.sick svg.ico{color:var(--brand2);width:22px;height:22px}
+.food .chev svg.ico{width:20px;height:20px}
+.emoji{color:var(--brand2)}
+.emoji svg.ico.fico{position:static;width:26px;height:26px;transform:none}
+.food-opt svg.ico.fico{width:26px;height:26px;color:var(--brand2)}
+/* prstenec učení: nový oblouk se vykreslí, fajfka se objeví */
+@keyframes arcIn{from{stroke-dasharray:0 170}}
+@keyframes popIn{from{transform:scale(0);opacity:0}}
+.emoji.just svg circle.new{animation:arcIn .5s ease-out .15s both}
+.emoji.just .ck{animation:popIn .3s ease-out .7s both}
+/* talíře porcí */
+.choice.plate{flex:1;flex-direction:column;display:flex;align-items:center;gap:4px;padding:10px 8px;min-height:84px;font-size:14px}
+.plate-ico{width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;flex:none}
+.plate-ico .rim{stroke-width:1.6}.plate-ico .inner{stroke-opacity:.35}
+.plate-ico .food{fill:currentColor;fill-opacity:.22;stroke-width:1.6;transform-box:fill-box;transform-origin:center}
+.choice.plate.chosen .plate-ico .food{fill-opacity:.4}
+.plates{display:flex;align-items:center;gap:8px;margin:6px 0 8px;color:var(--brand2);flex-wrap:wrap}
+.plates .plate-ico{width:44px;height:44px}
+.plates .arr svg.ico{width:22px;height:22px}
+.plates small{color:var(--muted);font-weight:600;flex-basis:100%}
+@keyframes plateBigger{from{transform:scale(1.46)}}
+@keyframes plateSmaller{from{transform:scale(.64)}}
+.plate-ico.anim-bigger .food{animation:plateBigger .7s ease-out .4s both}
+.plate-ico.anim-smaller .food{animation:plateSmaller .7s ease-out .4s both}
+/* pás dne */
+.daystrip{padding:2px 0 0}
+.daystrip .line{position:relative;height:3px;border-radius:2px;background:#ffffffaa;margin:14px 10% 0}
+.daystrip .nowmark{position:absolute;top:-5px;width:13px;height:13px;border-radius:50%;background:var(--brand);border:2px solid #fff;transform:translateX(-50%);box-shadow:0 0 0 2px #27808d33}
+.daystrip .nodes{display:grid;grid-template-columns:repeat(4,1fr);margin-top:-10px}
+.dnode{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
+.dnode .dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#fff;border:2px solid #c9d6d1;color:var(--muted)}
+.dnode .dot svg.ico{width:18px;height:18px;stroke-width:2;vertical-align:0}
+.dnode.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.dnode.now .dot{border-color:var(--brand);color:var(--brand2);box-shadow:0 0 0 3px var(--brandbg)}
+.dnode.missed .dot{border-color:var(--warn);color:var(--warntx);background:var(--warnbg)}
+.dnode.skipped .dot{border-color:#c9d6d1;color:var(--muted)}
+.dnode b{font-size:13.5px;margin-top:4px}
+.dnode small{font-size:12px;color:var(--muted);line-height:1.2}
+/* pruh start → vrchol v kartě Jak to dopadlo */
+.rise{display:flex;gap:12px;align-items:center;margin:8px 0 4px}
+.rise svg{width:92px;height:64px;flex:none}
+.rise .goal{stroke:var(--oktx);stroke-width:1.5;stroke-dasharray:4 3}
+.rise .rbar{fill:var(--ok);transform-box:fill-box;transform-origin:50% 100%;animation:riseIn .6s ease-out .2s both}
+.rise.bad .rbar{fill:var(--bad)}
+.rise .s{fill:#fff;stroke:var(--ink);stroke-width:1.5}
+.rise .t{font-size:9px;font-weight:700;fill:var(--oktx)}
+.rise .lbl{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.rise .lbl b{display:block;font-size:15px;color:var(--ink)}
+@keyframes riseIn{from{transform:scaleY(0)}}

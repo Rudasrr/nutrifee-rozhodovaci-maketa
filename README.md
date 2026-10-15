@@ -70,7 +70,7 @@ demo/   prezentační vrstva — registr a katalogy, ~200 jídel, simulovaný se
 
 Vynecháním složky `demo/` a jejích `<script>` řádků vznikne produkční sestavení bez přepisování
 obrazovek: jádro startuje prázdné a bez schválené položky registru nic nevyhodnocuje ani neradí.
-Po změně struktury zvyš `NF.SCHEMA` v `app/core.js` i `?v=` v HTML (test to hlídá).
+Po změně struktury zvyš `NF.SCHEMA` v `app/core.js` · `app/icons.js` i `?v=` v HTML (test to hlídá).
 
 ## Co je simulované
 
