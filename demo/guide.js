@@ -36,14 +36,21 @@ D.guide = {
   },
   'Z-GLUKOZA': {
     proc: 'Napojení na výrobce senzoru by vyžadovalo jeho svolení a certifikaci rozhraní. Pacient hodnoty ze senzoru vidí sám; opsat dvě čísla stačí, aby se aplikace učila a radila.',
-    jak: 'V kroku 1 pole „Glukóza teď podle aplikace senzoru“; 120 minut po jídle karta na Dnes „Nejvyšší hodnota od jídla?“ (z grafu senzoru). Vzestup = nejvyšší − před jídlem. „Nevím“ zápis uloží, ale nepočítá do učení, dokud ho nedoplní export.',
+    jak: 'V kroku 1 čipy po celých mmol/l (4–15, pod 4, nad 15, nemám) pro hodnotu teď; nejvyšší hodnota po minulém jídle se ptá až v kroku 1 dalšího jídla a večer u bazálu, u zpětného zápisu rovnou obě. Vzestup = nejvyšší − před jídlem. „Nemám“ zápis uloží, ale nepočítá do učení, dokud ho nedoplní export.',
     kde: 'Krok 1 před jídlem, karta na Dnes po dvou hodinách, karta „Jak to dopadlo“ s poznámkou „podle opsaných hodnot“.',
     co: 'Že dvě opsané hodnoty jsou dostatečná míra (vrchol do 2 h, ne hodnota ve 2. hodině) a kdy se zeptat.',
     dopad: 'Při zamítnutí by pacient hodnoty nezapisoval a učení i rady by čekaly na týdenní export.'
   },
+  'B-HYPO': {
+    proc: 'Menší porce po podaném inzulinu a vynechané jídlo s inzulinem jsou nejčastější cesta k hypoglykemii u pevných dávek. Aplikace nesmí radit „sněz víc“ ani měnit dávku, ale nesmí ani mlčet.',
+    jak: 'Pokyn lékaře hned a za 60 min otázka „klesla pod 4?“; u každého jídla vedle nejvyšší hodnoty i „pod 4 do 4 h?“ (ano/ne/nevím); 2 poklesy za 7 dní → „zavolejte do ordinace“ s odkazem na Bezpečí. Opsané „pod 4“ vstupuje do návrhu „pod cílem“; report má část Bezpečnost.',
+    kde: 'Dnes (karta sledování, výstraha), krok 1 (otázka k minulému jídlu), report lékaře (Bezpečnost), návrh k dávce.',
+    co: 'Prahy 2 poklesy / 7 dní / 60 min a znění pokynu, kdy má pacient volat.',
+    dopad: 'Při zamítnutí aplikace po menší porci mlčí a poklesy zná lékař až z exportu na kontrole.'
+  },
   'Z-IMPORT': {
     proc: 'Opsané hodnoty stačí k učení, ale lékař potřebuje přesný průběh (vrcholy, noci pro bazál) a pacientovy hodnoty se mohou mýlit. Export z aplikace senzoru jsou pacientova data.',
-    jak: 'Jednou týdně připomínka na Dnes a v týdenním shrnutí; před kontrolou povinně. Soubor csv (xlsx uložený jako csv) se čte jen v telefonu: měření 0–180 min po jídle se přiřadí k zápisu, noční hodnoty k noci; opsané hodnoty se nahradí.',
+    jak: 'Na kontrole nahraje sestra export z portálu výrobce senzoru (csv; xlsx uložený jako csv) v části Podklady › Data ze senzoru; pacient může nahrát sám z Plánu, nic mu to nepřipomíná. Měření 0–180 min po jídle se přiřadí k zápisu, noční hodnoty k noci, spočítá se čas v cíli; opsané hodnoty se nahradí.',
     kde: 'Karta „Nahrát data ze senzoru“ na Dnes, tlačítko v týdenním shrnutí, upozornění před kontrolou, stránka „Nahrát export“.',
     co: 'Interval připomínky (7 dní), okno přiřazení (180 min) a že je export před kontrolou podmínkou reportu.',
     dopad: 'Při zamítnutí by lékař viděl jen opsané hodnoty a bazál by neměl noční data.'

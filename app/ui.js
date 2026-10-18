@@ -139,6 +139,7 @@ function newMeal(meal) {
 }
 var A = {
   noop: function () { },
+  enrollPad: function () { S.enrollment.pad = !S.enrollment.pad; },
   animReplay: function (v) { /* restart CSS animace: odebrat a vrátit třídu play; stav se nemění, stopa nic nezapisuje */
     var d = global.document; if (!d || !d.querySelector) return;
     try { var el = d.querySelector('[data-anim="' + v + '"]'); if (!el) return; el.classList.remove('play'); void el.offsetWidth; el.classList.add('play'); } catch (err) { }
@@ -234,10 +235,12 @@ var A = {
     if (!needMeal()) return;
     var m = S.meal, n = Number(v);
     if (n === 2 && !m.bolus) return fail('Vyberte, jak to je s inzulinem.');
+    if (n === 2 && m.step === 1 && !m.beforeAsked) return fail('Vyberte hodnotu ze senzoru, nebo „nemám“.');
     if (n === 2 && m.retro && m.at == null) return fail('Vyberte čas jídla.');
     if (n === 3 && (!m.foodId || !m.portion)) return fail(!m.foodId ? 'Vyberte jídlo.' : 'Vyberte porci.');
     m.step = n; S.error = '';
     if (n === 3 && m.retro) { var f2 = NF.foodById(S, m.foodId), ra = NF.adviseAfter(S, f2.id, m.meal, NF.retroAt(S, m.at)); NF.log(S, 'rada.zobrazena', f2.name + ' (zpětně)', { level: ra.conf.level, items: ra.items.map(function (i) { return { lever: i.lever, item: i.item }; }), retro: true }); return; }
+    if (n === 3) { var f0 = NF.foodById(S, m.foodId), res0 = NF.advise(S, f0.id, m.portion, m.bolus, m.meal); m.compact = {}; res0.items.forEach(function (it) { var last = NF.lastAnswers(S, f0.id, it.lever, 3); if (last) { m.compact[it.lever] = true; m.decisions[it.lever] = last.accepted; if (last.reason) m.reasons[it.lever] = last.reason; } }); } /* rutinní rada po 3 odpovědích sbalená, odpověď jako minule */
     if (n === 3) { var f = NF.foodById(S, m.foodId), res = NF.advise(S, f.id, m.portion, m.bolus, m.meal); NF.log(S, 'rada.zobrazena', f.name, { level: res.conf.level, items: res.items.map(function (i) { return { lever: i.lever, item: i.item }; }), blocked: res.blocked.map(function (b) { return { lever: b.lever, reason: b.reason }; }), bolus: m.bolus, portion: m.portion, gate: res.gate }); }
   },
   mealFood: function (v) { if (!needMeal()) return; S.meal.foodId = v; S.meal.newFood = null; S.meal.decisions = {}; S.meal.reasons = {}; },
@@ -247,6 +250,13 @@ var A = {
   mealUseExisting: function (v) { if (!needMeal()) return; S.meal.foodId = v; S.meal.newFood = null; var f = NF.foodById(S, v); if (f) S.meal.q = f.name; toast('Použijeme jídlo, které už máte v seznamu.'); },
   mealNotSame: function () { if (!needMeal()) return; var nf = S.meal.newFood = S.meal.newFood || {}; nf.force = true; nf.suggest = null; }, /* „Ne, je jiné“ → karta nového jídla */
   mealUnusual: function () { if (!needMeal()) return; S.meal.unusual = !S.meal.unusual; },
+  mealBefore: function (v) { if (!needMeal()) return; S.meal.before = NF.chipValue(v); S.meal.beforeAsked = true; }, /* čip po celých mmol/l: 'low' pod 4, 'high' nad 15, 'none' nemám */
+  mealPeak: function (v) { if (!needMeal()) return; S.meal.peak = NF.chipValue(v); S.meal.peakAsked = true; }, /* u zpětného zápisu: nejvyšší po jídle */
+  mealLow: function (v) { if (!needMeal()) return; S.meal.low = v === 'yes' ? true : v === 'no' ? false : null; S.meal.lowAsked = true; },
+  mealExpand: function (v) { if (!needMeal()) return; S.meal.compact = S.meal.compact || {}; delete S.meal.compact[v]; },
+  peakChip: function (v) { var p = v.split(':'); var val = NF.chipValue(p[1]); var r = NF.setManualPeak(S, p[0], val == null ? null : val); if (!r.ok) return fail(r.error); if (!r.skipped) toast('Díky. Výsledek je na Dnes.'); },
+  lowChip: function (v) { var p = v.split(':'); var r = NF.setManualLow(S, p[0], p[1]); if (!r.ok) return fail(r.error); },
+  hypoAnswer: function (v) { var p = v.split(':'); var r = NF.answerHypoWatch(S, p[0], p[1]); if (!r.ok) return fail(r.error); toast(r.low ? 'Díky. Postupujte podle pokynu lékaře k nízké glukóze.' : 'Díky, zapsáno.'); },
   foodSame: function (v) { var f = NF.foodById(S, v); if (!f) return; f.sameAsked = 'same'; toast('Dobře. Rozdíly u tohoto jídla budeme sledovat dál.'); },
   foodSplit: function (v) { var f = NF.foodById(S, v); if (!f) return; f.sameAsked = 'split'; var r = NF.addFood(S, f.name + ' (jinak)', { like: null }, { force: true }); if (r.ok) toast('Přidali jsme „' + r.food.name + '“. Příště vyberte to, které zrovna jíte.'); },
   mealSaveFood: function () {
@@ -271,7 +281,7 @@ var A = {
     var at = m.retro ? NF.retroAt(S, m.at) : S.clock;
     var time = confirmed === 'none' || confirmed === 'unknown' || confirmed === 'snack' ? null : NF.fmtTime(NF.addMin(at, Number(m.offset || 0)));
     var draft = { meal: m.meal, foodId: f.id, portion: m.portion, bolusState: m.retro ? 'retro' : m.bolus, advice: advice, insulin: { confirmed: confirmed, units: units, time: time }, at: at, retro: !!m.retro, unusual: !!m.unusual };
-    draft.before = m.before; /* hodnota před jídlem opsaná z aplikace senzoru (Z-GLUKOZA); průběh přijde až z exportu */
+    draft.before = m.before; draft.peak = m.retro ? m.peak : null; draft.low = m.retro ? m.low : null; /* opsané hodnoty ze senzoru (Z-GLUKOZA); u zpětného zápisu i nejvyšší a „pod 4“; průběh přijde až z exportu */
     draft.points = []; draft.importedAt = null;
     var r = NF.saveEpisode(S, draft); if (!r.ok) return fail(r.error);
     S.meal = null; S.page = 'today'; NF.flash = { food: f.id };

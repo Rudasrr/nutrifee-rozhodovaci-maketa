@@ -52,6 +52,7 @@ V.enroll = function (S) {
     out += card('<h2>1 · Karta pacienta</h2><p class="muted">Načteno z karty. Nic se nepřepisuje.</p>' + ctx.map(function (r) { return kv(r[0], e(r[1])); }).join('')) +
       card('<h2>2 · Podmínky zařazení</h2><p class="muted">Aplikace stojí na pevné dávce inzulinu. Bez všech čtyř podmínek nedává smysl.</p>' +
         NF.ELIGIBILITY.map(function (c) { var fromCard = D && D.cardEligibility && D.cardEligibility.indexOf(c[0]) >= 0; return '<label class="check"><input type="checkbox" data-action="eligibility" data-value="' + c[0] + '"' + (en.criteria[c[0]] ? ' checked' : '') + '><span>' + e(c[1]) + (fromCard ? ' ' + tag('z karty: splněno', 'info') : '') + '</span></label>'; }).join('') +
+        '<label class="check"><input type="checkbox" data-action="enrollPad"' + (en.pad ? ' checked' : '') + '><span>Bere i tablety nebo GLP-1 <span class="small muted">· jen záznam; při kontrole se ověří, zda se léky neměnily</span></span></label>' +
         (NF.usable(S, 'K-KRITERIA') ? '' : V.off(S, 'K-KRITERIA')) + (en.eligible ? hint('Všechny podmínky potvrzené. ' + appr(S, 'K-KRITERIA'), 'ok') : hint('Potvrďte všechny čtyři podmínky (karta je dokládá, potvrzení je vaše). Dokud některá chybí, pokračovat nejde.', 'warn')));
     out += nextbar('Další krok: dávky, návyky a pokyny', en.eligible ? '' : 'Odemkne se po potvrzení všech podmínek.', btn('Pokračovat →', 'wizardGo', '1', 'primary', en.eligible ? '' : ' disabled'));
     return out;
@@ -143,6 +144,21 @@ V.review = function (S) {
   else out += reviewHandover(S, p, r);
   return out;
 };
+function sensorImportPart(S) {
+  var si = S.sensorImport, d = NF.importDue(S);
+  return '<details class="part" open><summary>Data ze senzoru<span class="mini">' + (si ? 'nahráno ' + e(NF.fmtShort(si.at)) : d.missing ? NF.plural(d.missing, 'zápis bez průběhu', 'zápisy bez průběhu', 'zápisů bez průběhu') : 'kompletní') + '</span></summary><div class="body">' +
+    '<p class="small">Export z portálu výrobce senzoru nahraje sestra na kontrole (csv; xlsx uložený jako csv). Doplní průběh k zápisům, noci pro bazál a čas v cíli; čte se jen v tomto počítači.</p>' +
+    '<label class="field"><span>Soubor s exportem</span><input type="file" accept=".csv,text/csv,.txt" data-action="importFile"></label>' + (NF.slots.importDemo ? NF.slots.importDemo(S) : '') +
+    (si ? '<p class="small muted">Naposledy: ' + si.readings + ' měření od ' + e(NF.fmtShort(si.from)) + ' do ' + e(NF.fmtShort(si.to)) + ', doplněno ' + NF.plural(si.filled, 'jídlo', 'jídla', 'jídel') + (si.nights ? ' a ' + NF.plural(si.nights, 'noc', 'noci', 'nocí') : '') + '.</p>' : '') +
+    '<div class="small" style="margin-top:6px">' + appr(S, 'Z-IMPORT') + '</div></div></details>';
+}
+function safetyPart(S) {
+  var ev = NF.lowEvents(S, 92), pac = ev.filter(function (x) { return x.source === 'pacient'; }).length, w = (S.hypoWatch || []);
+  return '<details class="part"><summary>Bezpečnost<span class="mini">' + (ev.length ? NF.plural(ev.length, 'nízká hodnota', 'nízké hodnoty', 'nízkých hodnot') : 'bez nízkých hodnot') + '</span></summary><div class="body">' +
+    (ev.length ? '<ul class="plain small">' + ev.slice(-10).map(function (x) { return '<li>' + e(NF.fmtDateTime(x.at)) + ' · ' + e(NF.mealLabel(x.meal, true)) + ' · ' + (x.source === 'senzor' ? 'ze senzoru' : 'hlásil pacient') + '</li>'; }).join('') + '</ul>' : '<p class="small muted">Žádný pokles pod dolní cíl do 4 h po jídle ani hlášený pacientem.</p>') +
+    '<p class="small">Sledování po menší porci nebo vynechaném jídle s inzulinem: ' + w.length + '× · odpovědí „pod 4“: ' + w.filter(function (x) { return x.answer === 'yes'; }).length + ' · bez odpovědi: ' + w.filter(function (x) { return x.answer == null; }).length + '.' + (pac ? ' Hlášení pacienta: ' + pac + '.' : '') + '</p>' +
+    '<div class="small" style="margin-top:6px">' + appr(S, 'B-HYPO') + '</div></div></details>';
+}
 function reviewSummary(S, p, r) {
   var s = r.summary, ss = s.sensor, D = global.NutriFeeDemo, t = NF.targets(S);
   var tiles = tileBtn(S, 'tir', 'Čas v cíli', ss ? ss.tir + ' <small>%</small>' : '—', ss ? 'cíl > ' + t.tirGoal + ' % · pod ' + NF.mmol(t.low) + ': ' + ss.below + ' %' : 'souhrn ze senzoru chybí', 'c-' + s.tirState, r.tile === 'tir') +
@@ -182,7 +198,7 @@ function strongFoods(S) {
   if (!NF.usable(S, 'S-SILNA')) return V.off(S, 'S-SILNA');
   var list = NF.strongFoods(S), max = NF.param(S, 'S-SILNA', 'maxJidel', 3), top = list.slice(0, max), rest = list.slice(max), total = list.reduce(function (a, x) { return a + x.overN; }, 0);
   var sentence = list.length ? NF.plural(list.length, 'jídlo', 'jídla', 'jídel') + ' s opakovanou silnou reakcí, celkem ' + NF.plural(total, 'zápis', 'zápisy', 'zápisů') + ' nad cílem; nejčastěji ' + top.map(function (x) { return e(x.food.name) + ' (' + x.st.eaten + '×)'; }).join(', ') + '.' : 'Žádné jídlo s opakovanou silnou reakcí.';
-  return '<details class="part"><summary>Silné reakce<span class="mini">' + list.length + '</span></summary><div class="body"><p><b>' + sentence + '</b></p>' + unstableLine(S) + '' +
+  return sensorImportPart(S) + safetyPart(S) + '<details class="part"><summary>Silné reakce<span class="mini">' + list.length + '</span></summary><div class="body"><p><b>' + sentence + '</b></p>' + unstableLine(S) + '' +
     (top.length ? '<ul class="plain small">' + top.map(function (x) { return '<li><b>' + e(x.food.name) + '</b> — jí ' + x.st.eaten + '×, ' + x.overN + ' z ' + x.st.n + ' nad cílem, medián vzestupu ' + e(NF.mmol(x.med)) + ' mmol/l</li>'; }).join('') + '</ul>' : '') +
     (rest.length ? '<details class="more"><summary>Další (' + rest.length + ')</summary><ul class="plain small">' + rest.map(function (x) { return '<li>' + e(x.food.name) + ' — ' + x.overN + ' z ' + x.st.n + '</li>'; }).join('') + '</ul></details>' : '') +
     '<p class="small muted">Řeší aplikace s pacientem (porce, pořadí, doplněk, procházka; jídlo se nenabízí mezi návrhy). Bez zákazů. ' + appr(S, 'S-SILNA') + '</p></div></details>';
