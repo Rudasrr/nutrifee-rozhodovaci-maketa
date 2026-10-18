@@ -82,7 +82,7 @@ vybere studie), souhrn ze senzoru, schválení registru, posun času. Prahy náv
 autora makety odvozený z běžných konsenzuálních cílů; ve studii je určí garant-lékař.
 
 Ikony: sada Lucide (ISC, `LICENSE-lucide.txt`), vložené jako inline SVG v `app/icons.js`.
-Písma: Plus Jakarta Sans a Atkinson Hyperlegible (OFL 1.1, soubory a licence v `app/fonts/`).
+Písmo: Plus Jakarta Sans 400–800 (OFL 1.1, soubory a licence v `app/fonts/`).
 
 ## Designový systém
 
