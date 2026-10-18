@@ -230,6 +230,9 @@ var A = {
   mealBolus: function (v) { if (!needMeal()) return; S.meal.bolus = v; S.meal.decisions = {}; S.meal.reasons = {}; },
   mealUnits: function (v) { if (!needMeal()) return; S.meal.units = Math.max(0, Math.min(60, S.meal.units + Number(v))); },
   mealTime: function (v) { if (!needMeal()) return; S.meal.offset = v; },
+  mealCancelAsk: function () { if (!S.meal) return; S.meal.cancelAsk = true; },
+  mealCancelKeep: function () { if (!S.meal) return; S.meal.cancelAsk = false; },
+  mealCancel: function () { S.meal = null; S.page = 'today'; S.error = ''; toast('Zápis zahozen. Až se budete chystat jíst, klepněte znovu.'); },
   mealStep: function (v) {
     if (!needMeal()) return;
     var m = S.meal, n = Number(v);

@@ -279,7 +279,7 @@ test('Pacientské obrazovky bez zakázaných slov (report, medián, skóre, gara
 });
 test('Přístupnost E (6. 10. 2026): barvy a velikosti v CSS, stupnice s textovým ekvivalentem, přepínač nemoci nahoře jako switch, dlaždice lékaře znakem + slovem, fokus na h1, zásuvka vrací fokus', () => {
   const css = fs.readFileSync(path.join(__dirname, 'app/design.css'), 'utf8');
-  const tokens = fs.readFileSync(path.join(__dirname, 'app/tokens.css'), 'utf8'); assert.match(tokens, /--nf-muted:#627585/); assert.match(tokens, /--nf-primary:#0F6F8C/); assert.equal(/uppercase/.test(css), false, 'žádné verzálky z CSS');
+  const tokens = fs.readFileSync(path.join(__dirname, 'app/tokens.css'), 'utf8'); assert.match(tokens, /--nf-muted:#536677/); assert.match(tokens, /--nf-primary:#0F6F8C/); assert.equal(/uppercase/.test(css), false, 'žádné verzálky z CSS');
   assert.match(css, /prefers-contrast:more/); assert.match(css, /outline:3px solid var\(--nf-focus\)/); assert.equal(/\.tiny\{font-size:1[12]/.test(css), false);
   assert.match(html, /%230F6F8C/, 'favikona v barvě tokenu --nf-primary'); assert.match(html, /id="toast" aria-live="polite"/);
   chapter('week'); act('page', 'foods'); const fid = food('Ovesná kaše s mlékem a banánem').id; if (S().foodOpen !== fid) act('foodOpen', fid);
@@ -564,7 +564,7 @@ test('Kontrola je vedené flow: souhrn → návrhy (jeden po druhém) → plán 
   assert.match(markup(), /Čas v cíli/); assert.match(markup(), /Co se dělo/);
   act('reviewStep', '3'); assert.equal(S().review.step, 1); assert.match(S().error, /Nejdřív/);
   act('reviewStep', '2');
-  assert.equal((markup().match(/class="prop now"/g) || []).length, 1, 'jen jeden návrh otevřený');
+  assert.equal((markup().match(/class="prop current"/g) || []).length, 1, 'jen jeden návrh otevřený');
   const pr = r.proposals[0];
   act('propDecide', pr.id + ':agree');
   if (pr.kind === 'dose') { assert.equal(S().review.decisions[pr.id], undefined, 'bez ověření nejde souhlasit'); }
@@ -625,7 +625,7 @@ test('Rady svázané s plánem: výměna rady má účinek; návrhy beze změny 
   chapter('reviewSummary'); branch('response', 'impractical'); act('role', 'doctor'); act('startReview'); act('reviewStep', '2');
   const r = S().review;
   assert.match(markup(), /Rozhodněte \d+ návrh/); assert.equal(/\d+ návrhy</.test(markup()), false, 'gramatika');
-  assert.match(markup(), /Beze změny \(\d+\)/); assert.equal((markup().match(/class="prop now"/g) || []).length, 1);
+  assert.match(markup(), /Beze změny \(\d+\)/); assert.equal((markup().match(/class="prop current"/g) || []).length, 1);
   const pr = NF.nextProposal(S()); assert.ok(pr.lever, 'první návrh se týká rady');
   act('propVerifyAll', pr.id); assert.ok(pr.verify.every((_, i) => r.verify[pr.id][i] === true));
   act('propVerify', pr.id + ':0:no');
@@ -1144,7 +1144,7 @@ test('Vizuální jazyk (15. 10. 2026): jedna SVG ikonová sada bez emoji v jádr
   /* Dnes: pás dne místo štítků, ikony v liště záložek; Jak to dopadlo = pruh start → vrchol s hranicí cíle, žádná křivka */
   chapter('lateMeal'); let m = markup(); assert.match(m, /class="daystrip" role="img" aria-label="Den: Snídaně [^"]+, Oběd [^"]+, Večeře [^"]+, Bazál [^"]+\."/); assert.match(m, /class="dnode (done|now|wait|missed|skipped)"/); assert.match(m, /class="glass tabbar"[\s\S]*data-icon="home"[\s\S]*data-icon="plate"[\s\S]*data-icon="list"[\s\S]*data-icon="shield"/);
   for (let i = 0; i < 14 && !/class="rise /.test(m); i++) { next(); m = markup(); } /* v lateMeal přijdou data ze senzoru o pár kroků dál */
-  assert.match(m, /<b>Jak to dopadlo<\/b>/); assert.match(m, /class="rise (ok|bad)" role="img" aria-label="Glukóza při jídle [\d,]+, vrchol [\d,]+ mmol\/l, hranice cíle [\d,]+ mmol\/l\."/); assert.match(m, /<rect class="rbar"/); assert.doesNotMatch(m, /<polyline|class="curve"/);
+  assert.match(m, /<b>Jak to dopadlo<\/b>/); assert.match(m, /class="rise (ok|bad)" role="img" aria-label="Glukóza při jídle [\d,]+, vrchol [\d,]+ mmol\/l, hranice cíle [\d,]+ mmol\/l\."/); assert.match(m, /class="rise (ok|bad)"[^>]*>\s*<div class="track"/); assert.match(m, /class="mark p"/); assert.doesNotMatch(m, /<polyline|class="curve"|<rect class="rbar"/);
   /* každé SVG na obrazovce je aria-hidden, nebo grafika s role="img" a popisem u sebe */
   const checkSvg = (html, where) => { for (const sv of html.matchAll(/<svg[^>]*>/g)) assert.ok(/aria-hidden="true"/.test(sv[0]) || /role="img"/.test(sv[0]), where + ': ' + sv[0].slice(0, 80)); };
   checkSvg(m, 'Dnes');
@@ -1229,7 +1229,7 @@ test('Sedm rozhodnutí z 18. 10. 2026 (SCHEMA 54): katalogy v jádru, provozní 
   for (const r of prov) { assert.equal(r.status, 'approved'); assert.equal(r.decidedBy, 'vlastník aplikace'); assert.equal(NF.screens.appr(S(), r.id), '', r.id + ' bez štítku'); }
   assert.ok(prov.some(r => r.id === 'Z-IMPORT') && prov.some(r => r.id === 'S-TYDEN'), 'export a texty jsou provozní'); assert.ok(!prov.some(r => r.id === 'B-HYPO' || r.id === 'R-REAKCE' || r.id === 'C-CILE'), 'klinické zůstávají garantovi');
   assert.equal(NF.registrySummary(S()).total, 21); for (let i = 0; i < D.scenes.length; i++) for (const id of D.decisionItems(i)) assert.equal(NF.item(S(), id).scope, undefined, id + ' v rozhodovací scéně');
-  act('role', 'doctor'); act('page', 'registry'); let m = markup(); assert.doesNotMatch(m, /data-value="S-TYDEN"/); assert.match(m, /data-value="B-HYPO"/); assert.match(m, /schváleno \d+ z 21/); act('role', 'patient');
+  act('role', 'doctor'); act('page', 'registry'); let m = markup(); assert.doesNotMatch(m, /data-value="S-TYDEN"/); assert.match(m, /data-value="B-HYPO"/); assert.match(m, /Rozhodnuto \d+ z 21/); act('role', 'patient');
   /* po menší večeři se otázka „pod 4?“ neptá za hodinu, ale ráno (v kroku 1 další snídaně i na Dnes) */
   chapter('week'); S().clock = '2026-10-12T19:05:00'; act('noop');
   const w = NF.addHypoWatch(S(), 'smaller', 'dinner', S().clock, null); assert.equal(w.night, true); assert.equal(w.askAt, '2026-10-13T05:00:00');

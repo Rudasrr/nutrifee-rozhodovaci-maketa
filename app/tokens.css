@@ -15,12 +15,13 @@
   --nf-surface-2:#F4F9FA;     /* vnořená plocha v kartě (boxy, segmentovaný přepínač) */
   --nf-card-edge:rgba(11,28,43,.05); /* téměř neviditelná hrana karty (jen aby karta nesplynula) */
   --nf-line:#E4EEF0;          /* dělicí linka uvnitř karet */
-  --nf-line-strong:#C7DEE3;   /* okraj voleb a prázdných kroužků */
+  --nf-line-strong:#C7DEE3;   /* dekorativní okraj (pruh kroků, osa, prázdné kroužky) */
+  --nf-border-control:#7A96A3;/* okraj ovládacích prvků (volby, čipy, pole, voliče): 3,1:1 na bílé — „obrys = dá se zmáčknout“ */
 
   /* ---------- barvy: text ---------- */
   --nf-ink:#0B1C2B;           /* titulky, čísla — hluboká modročerná (reference) */
   --nf-text:#26394A;          /* běžný text */
-  --nf-muted:#627585;         /* vedlejší text; na bílé 5,0:1 */
+  --nf-muted:#536677;         /* vedlejší text; na bílé 6,0:1, na podkladech a tintech ≥ 5,0:1 */
   --nf-on-primary:#FFFFFF;
 
   /* ---------- barvy: akce (jediná akční barva) ---------- */
@@ -35,7 +36,7 @@
   --nf-ok-text:#1E7A52;       /* na bílé 5,3:1 */
   --nf-over:#EC7F4F;          /* nad cílem, upozornění, „brzy“ = korálově oranžová (není chyba); jen výplně a pruhy */
   --nf-over-bg:#FDEBE2;
-  --nf-over-text:#B8532A;     /* na bílé 5,2:1 */
+  --nf-over-text:#A64923;     /* na bílé 6,0:1, na --nf-over-bg 5,1:1 */
   --nf-low:#D9453D;           /* chyby, kritická upozornění, pokles pod 4, mimo rozsah, zamítnuto = červená (výplně s bílou ikonou 4,4:1) */
   --nf-low-bg:#FCE8E6;
   --nf-low-text:#A93226;      /* na bílé 6,0:1 */
@@ -52,7 +53,7 @@
   /* ---------- písmo ---------- */
   --nf-font-display:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;   /* titulky, čísla, značka (700–800) */
   --nf-font-text:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;      /* text, tlačítka, štítky (500, zvýraznění 700) */
-  --nf-fs-xs:13px;--nf-fs-sm:15px;--nf-fs-md:17px;--nf-fs-lg:19px;--nf-fs-xl:24px;--nf-fs-2xl:30px;--nf-fs-num:44px;
+  --nf-fs-xs:14px;--nf-fs-sm:15px;--nf-fs-md:17px;--nf-fs-lg:19px;--nf-fs-xl:24px;--nf-fs-2xl:30px;--nf-fs-num:44px;--nf-fs-num-sm:32px;
   --nf-fs-desk:15px;          /* základní velikost textu v ordinaci (desktop) */
   --nf-lh:1.45;--nf-lh-tight:1.15;
   --nf-w-text:500;--nf-w-strong:700;--nf-w-display:700;--nf-w-display-strong:800;
@@ -61,7 +62,8 @@
   /* ---------- rozměry ---------- */
   --nf-s1:4px;--nf-s2:8px;--nf-s3:12px;--nf-s4:16px;--nf-s5:20px;--nf-s6:24px;--nf-s8:32px;
   --nf-r-sm:10px;--nf-r-md:16px;--nf-r-lg:20px;--nf-r-pill:999px;
-  --nf-tap:48px;              /* nejmenší cíl dotyku */
+  --nf-tap:48px;              /* nejmenší cíl dotyku pacienta */
+  --nf-tap-desk:40px;         /* nejmenší cíl kliknutí v ordinaci (myš) */
   --nf-tap-lg:56px;           /* primární akce pacienta */
   --nf-icon:22px;--nf-icon-lg:26px;--nf-icon-circle:40px;
   --nf-phone:480px;           /* šířka sloupce pacienta */
@@ -71,6 +73,9 @@
   --nf-sh-raised:0 14px 36px rgba(11,28,43,.10);
   --nf-sh-primary:0 8px 20px rgba(15,111,140,.26);
   --nf-sh-inset:inset 0 0 0 1px var(--nf-line);
+  --nf-scrim:rgba(11,28,43,.35);          /* ztmavení pod zásuvkou */
+  --nf-shadow-ink:rgba(11,28,43,.2);      /* drobné stíny knoflíků a značek */
+  --nf-phone-frame:#0B0F0E;               /* rám náhledu telefonu u sestry */
 
   /* ---------- pohyb ---------- */
   --nf-t-fast:.15s;--nf-t:.25s;--nf-ease:cubic-bezier(.2,.7,.2,1);
