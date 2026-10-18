@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 54;
+NF.SCHEMA = 55;
 NF.PAGES = ['today', 'foods', 'plan', 'safety', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
@@ -659,7 +659,7 @@ NF.reactionLabel = function (S, st, foodId) {
     var stable = lab(Math.min(r.n, r.inTarget + 1)) === key && lab(Math.max(0, r.inTarget - 1)) === key;
     if (foodId) { var store = fbState(S).labels || (fbState(S).labels = {}); if (!stable && store[foodId]) key = store[foodId]; else store[foodId] = key; }
   }
-  var L = { mild: { key: 'mild', label: 'většinou v cíli', cls: 'ok' }, mid: { key: 'mid', label: 'střední reakce', cls: 'warn' }, strong: { key: 'strong', label: 'častěji nad cílem', cls: 'bad' } };
+  var L = { mild: { key: 'mild', label: 'většinou v cíli', cls: 'ok' }, mid: { key: 'mid', label: 'střední reakce', cls: 'warn' }, strong: { key: 'strong', label: 'častěji nad cílem', cls: 'over' } }; /* oranžová = nad cílem; červenohnědá jen pro pokles pod 4 (18. 10. 2026) */
   return { key: L[key].key, label: L[key].label, cls: L[key].cls, settled: st.n >= NF.param(S, 'R-SKORE', 'ustaleneOd', 5) };
 };
 /* Odhad z podobných jídel (R28): buď jídlo, které pacient sám označil za podobné (stačí samo), nebo aspoň R-PODOBNOST.minJidel podobných jídel

@@ -82,3 +82,10 @@ vybere studie), souhrn ze senzoru, schválení registru, posun času. Prahy náv
 autora makety odvozený z běžných konsenzuálních cílů; ve studii je určí garant-lékař.
 
 Ikony: sada Lucide (ISC, `LICENSE-lucide.txt`), vložené jako inline SVG v `app/icons.js`.
+Písma: Plus Jakarta Sans a Atkinson Hyperlegible (OFL 1.1, soubory a licence v `app/fonts/`).
+
+## Designový systém
+
+Zdroj pravdy pro vzhled je `app/tokens.css`; `app/design.css` z tokenů skládá komponenty. Živý katalog
+`design-system/index.html` čte oba soubory přímo (tokeny, komponenty se stavy, inspektor s kopírováním
+CSS a zadání, pravidla pro předání). Vývojář ostré aplikace přebírá tokens.css beze změny.

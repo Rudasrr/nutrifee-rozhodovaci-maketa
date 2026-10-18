@@ -279,9 +279,9 @@ test('Pacientské obrazovky bez zakázaných slov (report, medián, skóre, gara
 });
 test('Přístupnost E (6. 10. 2026): barvy a velikosti v CSS, stupnice s textovým ekvivalentem, přepínač nemoci nahoře jako switch, dlaždice lékaře znakem + slovem, fokus na h1, zásuvka vrací fokus', () => {
   const css = fs.readFileSync(path.join(__dirname, 'app/design.css'), 'utf8');
-  assert.match(css, /--muted:#56636c/); assert.match(css, /--brand:#27808d/); assert.equal(/uppercase/.test(css), false, 'žádné verzálky z CSS');
-  assert.match(css, /prefers-contrast:more/); assert.match(css, /outline:3px solid #26303a/); assert.equal(/\.tiny\{font-size:1[12]/.test(css), false);
-  assert.match(html, /%2327808d/, 'favikona v nové barvě'); assert.match(html, /id="toast" aria-live="polite"/);
+  const tokens = fs.readFileSync(path.join(__dirname, 'app/tokens.css'), 'utf8'); assert.match(tokens, /--nf-muted:#5E6F7B/); assert.match(tokens, /--nf-primary:#1A6E85/); assert.equal(/uppercase/.test(css), false, 'žádné verzálky z CSS');
+  assert.match(css, /prefers-contrast:more/); assert.match(css, /outline:3px solid var\(--nf-focus\)/); assert.equal(/\.tiny\{font-size:1[12]/.test(css), false);
+  assert.match(html, /%231A6E85/, 'favikona v barvě tokenu --nf-primary'); assert.match(html, /id="toast" aria-live="polite"/);
   chapter('week'); act('page', 'foods'); const fid = food('Ovesná kaše s mlékem a banánem').id; if (S().foodOpen !== fid) act('foodOpen', fid);
   const m = markup();
   assert.match(m, /class="rows" role="img" aria-label="Stupnice glukózy 4 až 16 mmol\/l, hranice cíle 10[,0]* mmol\/l\. Bez rady [\d,]+ až [\d,]+ mmol\/l/);
@@ -1248,9 +1248,22 @@ test('Sedm rozhodnutí z 18. 10. 2026 (SCHEMA 54): katalogy v jádru, provozní 
   assert.match(fs.readFileSync(path.join(__dirname, 'app/core.js'), 'utf8'), /NF\.STORAGE \+ '\.zaloha-'/);
 });
 
+test('Designový systém (18. 10. 2026): tokeny v app/tokens.css, design.css bez vlastních hodnot, vlastní písma s licencí, stavy barvou + slovem', () => {
+  const tok = fs.readFileSync(path.join(__dirname, 'app/tokens.css'), 'utf8'), css = fs.readFileSync(path.join(__dirname, 'app/design.css'), 'utf8');
+  for (const v of ['--nf-bg', '--nf-surface', '--nf-ink', '--nf-muted', '--nf-primary', '--nf-primary-soft', '--nf-over', '--nf-low', '--nf-font-display', '--nf-font-text', '--nf-r-pill', '--nf-tap', '--nf-sh-card']) assert.ok(tok.includes(v + ':'), 'token ' + v);
+  assert.equal(/\n:root\s*\{/.test(css), false, 'design.css nedefinuje vlastní :root — hodnoty jen z tokens.css (jen přepis pro vysoký kontrast v @media)');
+  assert.equal(/radial-gradient|backdrop-filter/.test(css), false, 'bez skleněných karet a přechodových podkladů');
+  assert.ok(css.includes('.tag.over{') && css.includes('.segmented button.on{background:var(--nf-primary)'), 'štítek nad cílem a pilulkový přepínač');
+  assert.ok(html.indexOf('app/tokens.css') < html.indexOf('app/design.css') && /font-src 'self'/.test(html), 'tokens před design.css; CSP povoluje vlastní písma');
+  for (const f of ['plus-jakarta-sans-600-800-latin.woff2', 'plus-jakarta-sans-600-800-latin-ext.woff2', 'atkinson-hyperlegible-400-latin.woff2', 'atkinson-hyperlegible-700-latin.woff2', 'OFL-PlusJakartaSans.txt', 'OFL-AtkinsonHyperlegible.txt']) assert.ok(fs.statSync(path.join(__dirname, 'app/fonts', f)).size > 1000, f);
+  assert.equal((tok.match(/@font-face/g) || []).length, 6);
+  chapter('week'); const rid = food('Smažený řízek s bramborovou kaší').id; assert.equal(NF.reactionLabel(S(), NF.foodStats(S(), rid), rid).cls, 'over', 'častěji nad cílem = oranžová třída');
+  assert.match(markup(), /class="tag over">častěji nad cílem/);
+});
+
 test('Verze v HTML souhlasí se schématem stavu', () => {
   const all = [...html.matchAll(/(?:src|href)="(?:app|demo)\/[^"]+\?v=(\d+)"/g)].map(m => m[1]);
-  assert.equal(all.length, CORE.length + DEMO.length + 2);
+  assert.equal(all.length, CORE.length + DEMO.length + 3); /* design.css, tokens.css, demo.css */
   assert.equal(new Set(all).size, 1);
   assert.equal(Number(all[0]), NF.SCHEMA);
 });

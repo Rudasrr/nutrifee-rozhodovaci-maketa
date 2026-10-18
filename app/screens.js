@@ -486,7 +486,7 @@ V.today = function (S) {
   } else if (basal && basalTime) {
     out += glass('<div class="insulin"><div class="ic ok" aria-hidden="true">' + NF.icon('check') + '</div><div><b>Bazál potvrzen · ' + (basal.units != null ? basal.units + ' j.' : 'bez inzulinu') + '</b><small>' + e(basal.time) + ' · ' + e(NF.INSULIN[basal.confirmed]) + '</small></div></div>');
   } else if (dose && fm && fm.state === 'now') {
-    out += glass('<div class="insulin"><div class="ic" aria-hidden="true">' + NF.icon('syringe') + '</div><div><b>Inzulin ' + e(NF.mealLabel(meal, 'ke')) + ' · ' + dose.units + ' j.</b><small>Předepsal lékař · zeptáme se před jídlem</small></div><span class="chip">brzy</span></div>');
+    out += glass('<div class="insulin"><div class="ic" aria-hidden="true">' + NF.icon('syringe') + '</div><div><b>Inzulin ' + e(NF.mealLabel(meal, 'ke')) + ' · ' + dose.units + ' j.</b><small>Předepsal lékař · zeptáme se před jídlem</small></div><span class="badge">brzy</span></div>');
   }
   if (fm && fm.state === 'missed') out += '';
   else if (!eaten) out += '<div class="actions" style="margin:4px 0 14px">' + btn('' + NF.icon('utensils') + ' Chystám se jíst', 'startMeal', meal, 'primary big') + '</div>' +

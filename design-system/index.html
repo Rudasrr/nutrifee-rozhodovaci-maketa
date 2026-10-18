@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NutriFee · designový systém</title>
+<meta name="description" content="Živý katalog designového systému NutriFee: tokeny, komponenty, pravidla a předání vývojáři. Čte přímo CSS makety.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; form-action 'none'; base-uri 'none'">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%231A6E85'/%3E%3Cpath d='M11 29V11l18 18V11' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="../app/tokens.css">
+<link rel="stylesheet" href="../app/design.css">
+<link rel="stylesheet" href="catalog.css">
+</head>
+<body class="ds">
+<a class="skip" href="#main">Přeskočit na obsah</a>
+<header class="ds-head">
+  <div class="ds-brand"><span class="brandmark" aria-hidden="true">N</span><div><b>NutriFee · designový systém</b><small>Živý katalog. Čte přímo <code>app/tokens.css</code> a <code>app/design.css</code> makety, proto se od ní nemůže rozejít.</small></div></div>
+  <div class="ds-meta"><span class="demo-flag">DEMO · syntetická data · není určeno pro léčbu</span><span id="ds-version" class="ds-pill">verze —</span></div>
+</header>
+<div class="ds-shell">
+<nav class="ds-nav" aria-label="Obsah katalogu">
+  <a href="#zasady">Zásady</a>
+  <a href="#tokeny">Tokeny</a>
+  <a href="#komponenty">Komponenty</a>
+  <a href="#obrazovky">Obrazovky</a>
+  <a href="#predani">Předání vývojáři</a>
+  <p class="ds-navnote">Klepněte na kterýkoli prvek v náhledu: vpravo uvidíte jeho třídy, tokeny a CSS a můžete je zkopírovat.</p>
+</nav>
+<main id="main" class="ds-main">
+
+<section id="zasady" class="ds-sec">
+  <h1>Zásady</h1>
+  <p class="ds-lead">Směr „Teplý a lidský“ s paletou podle reference vlastníka (18. 10. 2026): bledě tyrkysový podklad, bílé karty, jedna petrolejová akční barva, kulatá tlačítka, ikony v tyrkysových kolečkách. Pacientovi je 65+, aplikaci otevírá třikrát denně.</p>
+  <ol class="ds-rules">
+    <li><b>Jedna akční barva.</b> Petrolejová <code>--nf-primary</code> patří jen tomu, co se má stisknout nebo co je aktivní. Nic jiného ji nenosí.</li>
+    <li><b>Stav nikdy jen barvou.</b> Zelená = v cíli, hotovo, splněno · oranžová = nad cílem, upozornění, „brzy“ (není to chyba) · červená = chyby, kritická upozornění, pokles pod 4, hodnoty mimo rozsah · petrolejová = jen akce. Zelená a červená se liší i světlostí a každý stav nese slovo a ikonu, aby fungoval i při poruše barvocitu.</li>
+    <li><b>Cíl dotyku aspoň 48 px</b> (<code>--nf-tap</code>), primární akce pacienta 56 px. Text pacienta od 17 px, popisky od 13 px, kontrast textu aspoň 4,5 : 1.</li>
+    <li><b>Titulky Plus Jakarta Sans, text Atkinson Hyperlegible</b> (písmo navržené pro slabší zrak). Obě vlastní hostování, licence OFL v <code>app/fonts/</code>. Žádné verzálky z CSS.</li>
+    <li><b>Karty bílé, zaoblení 20 px, jemný stín.</b> Žádné sklo, žádné přechodové podklady, žádný barevný levý okraj. Oddělení uvnitř karty linkou <code>--nf-line</code>.</li>
+    <li><b>Pohyb jen vysvětlující</b> (prstenec učení, pruh start → vrchol, osa inzulinu), přehraje se jednou, respektuje <code>prefers-reduced-motion</code>. Žádné dekorace bez funkce.</li>
+    <li><b>Ikony Lucide</b> (<code>app/icons.js</code>), obrysové, 22 px, barva z kontextu; v kartách v kolečku <code>--nf-primary-soft</code> o průměru 40 px. Žádná emoji, žádné ikony konkrétních jídel — jídlo je vždy neutrální talíř.</li>
+    <li><b>Jedno primární tlačítko na obrazovce.</b> Sekundární akce jsou bílé pilulky s linkou, terciární podtržený text.</li>
+  </ol>
+</section>
+
+<section id="tokeny" class="ds-sec">
+  <h1>Tokeny</h1>
+  <p class="ds-lead">Zdroj pravdy je <code>app/tokens.css</code>. Všechny hodnoty níže se čtou z něj za běhu; klepnutím na políčko zkopírujete název proměnné.</p>
+  <h2>Barvy</h2>
+  <div id="tok-colors" class="ds-swatches" aria-live="polite"></div>
+  <h2>Písmo</h2>
+  <div class="ds-type">
+    <div class="ds-typerow"><span class="ds-tk">display · 30/1.15 · 700</span><div style="font-family:var(--nf-font-display);font-size:var(--nf-fs-2xl);line-height:var(--nf-lh-tight);font-weight:700;letter-spacing:var(--nf-track-tight)">Dobré ráno</div></div>
+    <div class="ds-typerow"><span class="ds-tk">display · 24 · 700</span><div style="font-family:var(--nf-font-display);font-size:var(--nf-fs-xl);line-height:var(--nf-lh-tight);font-weight:700">Je inzulin k tomuto jídlu už píchnutý?</div></div>
+    <div class="ds-typerow"><span class="ds-tk">display · 19 · 700</span><div style="font-family:var(--nf-font-display);font-size:var(--nf-fs-lg);font-weight:700">Jak to dopadlo</div></div>
+    <div class="ds-typerow"><span class="ds-tk">číslo · 44 · 800</span><div style="font-family:var(--nf-font-display);font-size:var(--nf-fs-num);line-height:1;font-weight:800;letter-spacing:-.03em">11,8 <small style="font-size:16px;font-weight:600;color:var(--nf-muted)">mmol/l</small></div></div>
+    <div class="ds-typerow"><span class="ds-tk">text · 17/1.45 · 400</span><div style="font-size:var(--nf-fs-md);line-height:var(--nf-lh)">Oběd · Smažený řízek s bramborovou kaší: nejvyšší hodnota 11,8 mmol/l, nad cílem. Příště můžete zkusit doplněk k jídlu nebo jiné pořadí.</div></div>
+    <div class="ds-typerow"><span class="ds-tk">text · 15 · 400 · muted</span><div style="font-size:var(--nf-fs-sm);color:var(--nf-muted)">Vedlejší text, vysvětlivky a poznámky. Na bílé 4,9 : 1.</div></div>
+    <div class="ds-typerow"><span class="ds-tk">popisek · 13 · 700 · prostrkání</span><div class="eyebrow" style="margin:0">Krok 1 ze 3 · večeře</div></div>
+  </div>
+  <h2>Odstupy, zaoblení, stíny, pohyb</h2>
+  <div class="ds-grid3">
+    <div class="ds-card"><h3>Odstupy</h3><div id="tok-space" class="ds-space"></div></div>
+    <div class="ds-card"><h3>Zaoblení</h3><div class="ds-radii"><span style="border-radius:var(--nf-r-sm)">sm 10</span><span style="border-radius:var(--nf-r-md)">md 16</span><span style="border-radius:var(--nf-r-lg)">lg 20</span><span style="border-radius:var(--nf-r-pill)">pill</span></div></div>
+    <div class="ds-card"><h3>Stíny a pohyb</h3><div class="ds-shadows"><span style="box-shadow:var(--nf-sh-card)">card</span><span style="box-shadow:var(--nf-sh-raised)">raised</span><span style="box-shadow:var(--nf-sh-primary);background:var(--nf-primary);color:#fff">primary</span></div><p class="small muted" style="margin-top:10px">Přechody <code>--nf-t-fast</code> 0,15 s · <code>--nf-t</code> 0,25 s · <code>--nf-ease</code> cubic-bezier(.2,.7,.2,1). Vysvětlující animace 0,5–2 s, jednou.</p></div>
+  </div>
+</section>
+
+<section id="komponenty" class="ds-sec">
+  <h1>Komponenty</h1>
+  <p class="ds-lead">Náhledy jsou skutečné komponenty makety se skutečnými třídami. Klepnutím na prvek otevřete inspektor vpravo; „Kopírovat CSS“ vybere z <code>design.css</code> pravidla pro jeho třídy.</p>
+
+  <article class="comp" id="c-tlacitka"><header><h2>Tlačítka</h2><p>Jedno primární na obrazovce. Pilulka, 48 px; primární akce pacienta <code>.big</code> 56 px. Sekundární bílá s linkou, terciární <code>.quiet</code> podtržená.</p></header>
+    <div class="preview patient">
+      <div class="actions" style="margin:0"><button type="button" class="btn primary">Uložit</button><button type="button" class="btn">Zobrazit jídlo</button><button type="button" class="btn quiet">Snídaně už byla</button><button type="button" class="btn danger">Zamítnout</button><button type="button" class="btn sm">Rozumím</button><button type="button" class="btn primary" disabled>Další</button></div>
+      <div class="actions" style="margin-top:14px"><button type="button" class="btn primary big">Chystám se jíst</button></div>
+    </div></article>
+
+  <article class="comp" id="c-volby"><header><h2>Volby a čipy</h2><p><code>.choice</code> je vybíratelná možnost (jedna z několika), <code>.chosen</code> vybraná. Čipy glukózy jsou <code>.choice.chip</code> v mřížce <code>.chips</code>: celá čísla, „pod 4“, „nad 15“, tišší „nemám“.</p></header>
+    <div class="preview patient">
+      <div class="choice-row"><button type="button" class="choice">Obvyklá</button><button type="button" class="choice chosen" aria-pressed="true">Větší</button><button type="button" class="choice">Menší</button></div>
+      <div class="chips" style="margin-top:14px"><button type="button" class="choice chip">pod 4</button><button type="button" class="choice chip">6</button><button type="button" class="choice chip">7</button><button type="button" class="choice chip chosen" aria-pressed="true">8</button><button type="button" class="choice chip">9</button><button type="button" class="choice chip">nad 15</button><button type="button" class="choice chip quiet">nemám</button></div>
+      <div class="choice-row" style="margin-top:14px"><button type="button" class="choice big">Ano, 8 j. · píchnuto<small>podle plánu</small></button><button type="button" class="choice big">Píchnuto jinak<small>jiné množství nebo čas</small></button></div>
+    </div></article>
+
+  <article class="comp" id="c-prepinace"><header><h2>Přepínače</h2><p>Segmentovaný přepínač je pilulka s petrolejovou aktivní položkou (filtry seznamu). Přepínač stavu <code>.toggle</code> je 64 × 40 px, role switch.</p></header>
+    <div class="preview patient">
+      <div class="segmented"><button type="button" class="on" aria-pressed="true">Známá · 3</button><button type="button" aria-pressed="false">Učíme se · 3</button><button type="button" aria-pressed="false">Všechna</button></div>
+      <div class="sick" style="margin-top:14px"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg> Nemoc · není mi dobře <button type="button" class="toggle" role="switch" aria-checked="false" aria-label="Není mi dobře"></button></div>
+      <div class="sick" style="margin-top:8px"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg> Zapnuto <button type="button" class="toggle on" role="switch" aria-checked="true" aria-label="Není mi dobře"></button></div>
+    </div></article>
+
+  <article class="comp" id="c-stitky"><header><h2>Štítky a stavy</h2><p>Stav jídla, stupeň reakce a stav položky registru. Barva vždy se slovem. <code>.appr</code> je štítek položky registru u místa, kde působí.</p></header>
+    <div class="preview patient">
+      <div class="badges"><span class="tag known">Známé jídlo</span><span class="tag ok">většinou v cíli</span><span class="tag over">častěji nad cílem</span><span class="tag bad">pod 4 · 2× za 7 dní</span><span class="tag info">odhad z podobných</span><span class="tag similar">podobné</span><span class="tag unknown">neznámé</span><span class="tag">učíme se</span></div>
+      <div class="badges" style="margin-top:14px"><button type="button" class="appr pend"><span aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-dasharray="4 4"/></svg></span> Rada: obvyklá porce <span class="st">· ke schválení</span></button><button type="button" class="appr"><span aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span> Cíle glukózy</button><button type="button" class="appr edit"><span aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span> Stupeň reakce <span class="st">· upraveno</span></button><button type="button" class="appr rej"><span aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span> Rada: doplněk <span class="st">· zamítnuto</span></button></div>
+      <div class="badges" style="margin-top:14px"><span class="badge">brzy</span><span class="badge ok">podle plánu</span><span class="demo-flag">DEMO · syntetická data · není určeno pro léčbu</span></div>
+    </div></article>
+
+  <article class="comp" id="c-karty"><header><h2>Karty pacienta</h2><p>Bílá karta <code>.glass</code> (název zůstal z dřívějška, sklo už není), uvnitř řádek <code>.now</code> s ikonou v kolečku. Varianty: <code>.warn</code> bezpečí, <code>.result</code> výsledek, <code>.milestone</code> milník.</p></header>
+    <div class="preview patient">
+      <section class="glass"><div class="now"><span class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg></span><div><b>Co teď</b>Na řadě je večeře. Až se budete chystat jíst, klepněte na „Chystám se jíst“ — připomeneme inzulin a poradíme.</div></div></section>
+      <section class="glass warn"><div class="now"><span class="ic warn" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span><div><b>Před hodinou jste snědli méně než obvykle</b>Podívejte se na senzor. Klesla glukóza pod 4?<div class="chips" style="margin-top:8px"><button type="button" class="choice chip">Ano, pod 4</button><button type="button" class="choice chip">Ne</button><button type="button" class="choice chip">Nevím</button></div></div></div></section>
+      <section class="glass milestone"><div class="now"><span class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/></svg></span><div><b>Milník</b><strong>Chléb se sýrem a zeleninou</strong> už známe (4 zápisy se všemi údaji). Od teď vám k němu umíme poradit.<div class="actions" style="margin-top:10px"><button type="button" class="btn sm">Zavřít</button></div></div></div></section>
+      <div class="hint">Nápověda a vysvětlení v klidné modré.</div><div class="hint warn">Upozornění: nad cílem, pozor.</div><div class="hint bad">Bezpečí: pokles pod 4, zavolejte.</div><div class="hint ok">Potvrzení: zaučení dokončeno.</div>
+    </div></article>
+
+  <article class="comp" id="c-inzulin"><header><h2>Řádek inzulinu a pás dne</h2><p>Připomínka dávky od lékaře (aplikace ji jen zobrazuje) a stav dne ve čtyřech slotech: hotovo · teď · později · vynecháno.</p></header>
+    <div class="preview patient">
+      <section class="glass"><div class="insulin"><div class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="m18 2 4 4"/><path d="m17 7 3-3"/><path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"/><path d="m9 11 4 4"/><path d="m5 19-3 3"/><path d="m14 4 6 6"/></svg></div><div><b>Inzulin k večeři · 8 j.</b><small>Předepsal lékař · zeptáme se před jídlem</small></div><span class="badge">brzy</span></div></section>
+      <section class="glass"><div class="daystrip" role="img" aria-label="Den: Snídaně zapsáno, Oběd zapsáno, Večeře teď, Bazál potvrzen."><div class="nodes"><div class="dnode done"><span class="dot"><svg class="ico" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><b>Snídaně</b><small>zapsáno</small></div><div class="dnode missed"><span class="dot"><svg class="ico" viewBox="0 0 24 24"><path d="M12 8v4"/><path d="M12 16h.01"/><circle cx="12" cy="12" r="10"/></svg></span><b>Oběd</b><small>bez zápisu</small></div><div class="dnode now"><span class="dot"><svg class="ico" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></span><b>Večeře</b><small>teď</small></div><div class="dnode wait"><span class="dot"><svg class="ico" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span><b>Bazál</b><small>večer</small></div></div></div></section>
+    </div></article>
+
+  <article class="comp" id="c-navyky"><header><h2>Návyky a seznamy</h2><p>Řádek návyku s kolečkem stavu; položky oddělené linkou, ne kartami.</p></header>
+    <div class="preview patient">
+      <section class="glass"><div style="display:flex;justify-content:space-between;font-weight:800;margin-bottom:8px"><span>Moje návyky dnes</span><span class="muted" style="font-weight:600">3 / 4</span></div>
+        <div class="habit"><span class="mark todo"></span><div>Zapsat hlavní jídla<small>2 / 3 jídla</small></div></div>
+        <div class="habit"><span class="mark"><svg class="ico" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><div>Obvyklá porce<small>2 / 2 jídel v obvyklé porci</small></div></div>
+        <div class="habit"><span class="mark"><svg class="ico" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><div>Potvrdit inzulin<small>2 / 2 potvrzeno</small></div></div>
+        <div class="habit"><span class="mark"><svg class="ico" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><div>Bazál večer<small>potvrzeno 21:05</small></div></div></section>
+    </div></article>
+
+  <article class="comp" id="c-vysledek"><header><h2>Výsledek: pruh start → vrchol a stupnice</h2><p>Jediné zobrazení hodnot glukózy pro pacienta: kde začal, kam se dostal, kde je hranice cíle. Zelená v cíli, oranžová nad ním, červená jen pod 4. Rozmezí vrcholů jako okno na stupnici.</p></header>
+    <div class="preview patient">
+      <section class="glass result"><div class="now"><span class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></svg></span><div><b>Jak to dopadlo</b>Oběd · Smažený řízek s bramborovou kaší: nejvyšší hodnota <strong>11,8 mmol/l</strong>, nad cílem.
+        <div class="rise bad" role="img" aria-label="Glukóza při jídle 6,9, vrchol 11,8 mmol/l, hranice cíle 10 mmol/l."><svg viewBox="0 0 120 64" aria-hidden="true"><line class="goal" x1="4" x2="116" y1="25" y2="25"/><circle class="s" cx="60" cy="46.7" r="4"/><rect class="rbar" x="52" width="16" y="12.4" height="34.3" rx="3"/><text class="t" x="118" y="22" text-anchor="end">cíl 10</text></svg><div class="lbl"><span>při jídle<b>6,9</b></span><span>vrchol<b>11,8</b></span><span>hranice cíle<b>10</b></span></div></div>
+        <div class="rise ok" role="img" aria-label="Glukóza při jídle 6,2, vrchol 8,9 mmol/l, hranice cíle 10 mmol/l."><svg viewBox="0 0 120 64" aria-hidden="true"><line class="goal" x1="4" x2="116" y1="25" y2="25"/><circle class="s" cx="60" cy="50" r="4"/><rect class="rbar" x="52" width="16" y="30" height="20" rx="3"/><text class="t" x="118" y="22" text-anchor="end">cíl 10</text></svg><div class="lbl"><span>při jídle<b>6,2</b></span><span>vrchol<b>8,9</b></span><span>hranice cíle<b>10</b></span></div></div>
+      </div></div></section>
+      <section class="glass"><div class="peak"><div class="lbl"><span>Kam se po něm glukóza dostane</span><span class="in tag over">0 z 4 v cíli</span></div><div class="rows" role="img" aria-label="Stupnice glukózy 4 až 16 mmol/l, hranice cíle 10 mmol/l. Bez rady 11,6 až 12,3 mmol/l."><div class="goal" style="left:calc(72px + (100% - 72px) * 0.5)"><span>hranice cíle 10 mmol/l</span></div><div class="row"><span class="rl">obvykle</span><div class="track"><div class="dim" style="left:0;width:63%"></div><div class="dim" style="left:69%;right:0"></div><div class="win" style="left:63%;width:6%"><b class="l">11,6</b><b class="r">12,3</b></div></div></div></div><div class="axis" aria-hidden="true"><span>4</span><span>7</span><span>10</span><span>13</span><span>16</span></div><div class="axis-words"><span>v cíli</span><span>nad cílem</span></div></div></section>
+    </div></article>
+
+  <article class="comp" id="c-rady"><header><h2>Rada před jídlem</h2><p>Rada má páku, text, jistotu a odpověď, která není povinná. Přijatá rada je petrolejová; rutinní rada po třech stejných odpovědích je sbalená na řádek.</p></header>
+    <div class="preview patient">
+      <div class="advice"><div class="lever"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/><path d="M12 6v6l4 2"/></svg> Rada: procházka po jídle</div><div class="text">Po jídle se asi 15 minut svižně projděte.</div><div class="cert">U tohoto jídla zatím nevyzkoušeno. Po prvním pokusu uvidíte, jestli pomohlo.</div><div class="choice-row"><button type="button" class="choice yes">Zkusím to</button><button type="button" class="choice">Tentokrát ne</button></div></div>
+      <div class="advice taken"><div class="lever">Rada: pořadí jídla</div><div class="text">Snězte nejdřív zeleninu nebo maso, pak přílohu.</div><div class="cert">S radou bývalo níž: 5 z 6 v cíli.</div></div>
+      <div class="advice compact"><div class="text">Doplněk k jídlu: <b>zkusím</b> <button type="button" class="btn quiet sm">změnit</button></div></div>
+    </div></article>
+
+  <article class="comp" id="c-kroky"><header><h2>Kroky a postup</h2><p>Tři kroky před jídlem jako tenký pruh, kroky kontroly v ordinaci jako číslované pilulky.</p></header>
+    <div class="preview patient">
+      <div class="msteps" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
+      <p class="eyebrow">Krok 1 ze 3 · večeře</p>
+      <div class="flow"><button type="button" class="step done"><span class="n">1</span>Souhrn<small>přečteno</small></button><button type="button" class="step now"><span class="n">2</span>Návrhy<small>0 z 6</small></button><button type="button" class="step"><span class="n">3</span>Potvrdit plán</button><button type="button" class="step"><span class="n">4</span>Předat pacientovi</button></div>
+    </div></article>
+
+  <article class="comp" id="c-formular"><header><h2>Volič hodnot a pole</h2><p>V ordinaci se nepíše: hodnoty se volí voličem. Textová pole jen tam, kde je psaní nutné (hledání jídla, komentář garanta).</p></header>
+    <div class="preview">
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center"><div class="stepper"><button type="button" aria-label="méně">−</button><span class="val">8<small>j. ke snídani</small></span><button type="button" aria-label="více">+</button></div><label class="field" style="margin:0;min-width:260px"><span>Komentář (nepovinný)</span><input placeholder="co změnit, proč, nebo jen poznámka"></label><label class="check"><input type="checkbox" checked><span><b>Dospělý s diabetem 2. typu</b> <span class="tag ok">z karty: splněno</span></span></label></div>
+    </div></article>
+
+  <article class="comp" id="c-tabbar"><header><h2>Lišta záložek</h2><p>Čtyři záložky pacienta, plovoucí bílá pilulka s jemným stínem; aktivní má tyrkysové kolečko.</p></header>
+    <div class="preview patient" style="padding-bottom:20px">
+      <nav class="glass tabbar ds-static" aria-label="Hlavní nabídka"><button type="button" class="active" aria-current="page"><span class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>Dnes</button><button type="button"><span class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></svg></span>Jídla</button><button type="button"><span class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/></svg></span>Plán</button><button type="button"><span class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></span>Bezpečí</button></nav>
+    </div></article>
+
+  <article class="comp" id="c-ordinace"><header><h2>Ordinace: dlaždice, návrhová karta, položka registru</h2><p>Dlaždice souhrnu nesou barvu, znak i slovo. Návrhová karta má číslo, název a stav. Řádek registru má ikonu v kolečku, název a popis.</p></header>
+    <div class="preview">
+      <div class="tiles"><button type="button" class="tile c-ok"><div class="k"><i aria-hidden="true"></i>Čas v cíli ✓ v cíli</div><div class="v">72<small>%</small></div><div class="d">cíl ≥ 70 % · pod 3,9: 2 %</div></button><button type="button" class="tile c-warn"><div class="k"><i aria-hidden="true"></i>Inzulin podle plánu ! blízko cíle</div><div class="v">78<small>%</small></div><div class="d">6× jinak · 6× bez inzulinu</div></button><button type="button" class="tile c-bad"><div class="k"><i aria-hidden="true"></i>Mimo cíl ✕ mimo cíl</div><div class="v">3</div><div class="d">3 dny nemoci · 9 zápisů bez dat</div></button></div>
+      <div class="prop now"><button type="button" class="bar"><span class="n">2</span><h3>Posoudit prandiální dávku k obědu</h3><span class="state">k rozhodnutí</span></button></div>
+      <div class="card flat" style="padding:0;overflow:hidden;margin:0"><button type="button" class="reg-row on"><span class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg></span><span><span class="t">Nízká glukóza: sledování a eskalace</span><br><span class="s">B-HYPO · Osobní pokyny</span></span><span class="tag">ke schválení</span><span class="muted">›</span></button></div>
+    </div></article>
+</section>
+
+<section id="obrazovky" class="ds-sec">
+  <h1>Obrazovky</h1>
+  <p class="ds-lead">Celé obrazovky jsou v maketě (vyžaduje přihlášení garanta nebo správce): <a href="../nutrifee-rozhodovaci-maketa.html">nutrifee-rozhodovaci-maketa.html</a>. Pořadí přepisu na tento systém: nejdřív pacient (Dnes, kroky 1–3, Jídla, Plán, Bezpečí), pak ordinace a sestra. Tři zkoumané směry a výběr vlastníka jsou na plátně „NutriFee — tři vizuální směry“ (soukromé).</p>
+</section>
+
+<section id="predani" class="ds-sec">
+  <h1>Předání vývojáři</h1>
+  <ol class="ds-rules">
+    <li><b>Převezměte <code>app/tokens.css</code> beze změny</b> a načtěte ho před vlastními styly. Mapování starých názvů (<code>--brand</code>, <code>--ok</code> …) na konci souboru je jen pro maketu; nová implementace používá <code>--nf-*</code>.</li>
+    <li><b>Komponenty kopírujte z <code>app/design.css</code></b> podle tříd v tomto katalogu (inspektor vpravo vybere pravidla). Hodnoty v nich jsou jen <code>var(--nf-…)</code>; pokud najdete pevnou barvu nebo rozměr, je to chyba — nahlaste ji.</li>
+    <li><b>Písma</b>: soubory woff2 a licence OFL v <code>app/fonts/</code>; deklarace <code>@font-face</code> jsou v tokens.css. Titulky Plus Jakarta Sans 600–800, text Atkinson Hyperlegible 400/700. Podmnožiny latin + latin-ext (čeština).</li>
+    <li><b>Ikony</b>: sada Lucide (ISC, <code>LICENSE-lucide.txt</code>), inline SVG 24 × 24, tah 2 px, barva <code>currentColor</code>. Seznam použitých ikon je v <code>app/icons.js</code>.</li>
+    <li><b>Nová komponenta</b> musí: brát barvy jen z tokenů; mít cíl dotyku ≥ 48 px; nést stav slovem a ikonou, ne jen barvou; mít viditelný fokus (outline 3 px <code>--nf-focus</code>); fungovat při <code>prefers-reduced-motion</code> a <code>prefers-contrast: more</code>.</li>
+    <li><b>Co nedělat</b>: přechodové podklady, sklo a rozostření, barevný levý okraj karet, emoji, ikony konkrétních jídel, verzálky z CSS, žlutá, červená pro běžný stav „nad cílem“, zaoblení jiné než 10 / 16 / 20 / pilulka.</li>
+  </ol>
+</section>
+
+</main>
+<aside class="ds-inspector" aria-label="Inspektor" aria-live="polite">
+  <h2>Inspektor</h2>
+  <p id="insp-empty" class="muted small">Klepněte na prvek v náhledu komponenty. Zobrazí se jeho třídy, použité tokeny a CSS.</p>
+  <div id="insp" hidden>
+    <div class="ds-insp-row"><span>Prvek</span><code id="insp-tag"></code></div>
+    <div class="ds-insp-row"><span>Třídy</span><code id="insp-cls"></code></div>
+    <table class="ds-insp-table"><tbody id="insp-props"></tbody></table>
+    <div class="actions" style="margin-top:10px"><button type="button" class="btn sm primary" id="insp-copy-css">Kopírovat CSS</button><button type="button" class="btn sm" id="insp-copy-prompt">Kopírovat jako zadání</button></div>
+    <pre id="insp-css" class="ds-css" tabindex="0"></pre>
+  </div>
+</aside>
+</div>
+<div id="toast" aria-live="polite" aria-atomic="true"></div>
+<script src="catalog.js"></script>
+</body>
+</html>

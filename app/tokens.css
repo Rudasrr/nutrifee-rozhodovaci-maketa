@@ -1,0 +1,89 @@
+/* NutriFee — designové tokeny (zdroj pravdy pro vzhled; 18. 10. 2026, směr „Teplý a lidský“ s paletou podle reference vlastníka).
+   Vše, co má barvu, písmo, odstup, zaoblení, stín nebo pohyb, bere hodnotu odsud. design.css tokeny jen skládá do komponent.
+   Katalog komponent a pravidla: ../design-system/ . Ostrá aplikace přebírá tento soubor beze změny.
+   Zásady: jedna akční barva (petrolejová) · zelená = v cíli a hotovo · oranžová = nad cílem a upozornění · červená = chyby, pokles pod 4, mimo rozsah (rozhodnutí vlastníka 18. 10. 2026) · stav nikdy jen barvou (vždy slovo + ikona) · kontrast textu ≥ 4,5:1 · cíl dotyku ≥ 48 px · text pacienta od 17 px. */
+
+/* ---------- písma (vlastní hostování, licence OFL 1.1 v app/fonts/) ---------- */
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:600 800;font-display:swap;src:url("fonts/plus-jakarta-sans-600-800-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Plus Jakarta Sans";font-style:normal;font-weight:600 800;font-display:swap;src:url("fonts/plus-jakarta-sans-600-800-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/atkinson-hyperlegible-400-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:400;font-display:swap;src:url("fonts/atkinson-hyperlegible-400-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:700;font-display:swap;src:url("fonts/atkinson-hyperlegible-700-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Atkinson Hyperlegible";font-style:normal;font-weight:700;font-display:swap;src:url("fonts/atkinson-hyperlegible-700-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+:root{
+  /* ---------- barvy: plocha ---------- */
+  --nf-bg:#EAF4F6;            /* podklad obrazovky pacienta i ordinace — bledě tyrkysový */
+  --nf-bg-2:#DCEFF2;          /* hlubší tyrkysová pro pruhy a vyznačené plochy */
+  --nf-surface:#FFFFFF;       /* karta */
+  --nf-surface-2:#F3F9FA;     /* vnořená plocha v kartě (boxy, segmentovaný přepínač) */
+  --nf-line:#D7E6E9;          /* okraj karty, dělicí linka */
+  --nf-line-strong:#B9DCE2;   /* výraznější okraj (prázdné kroužky, rámeček výběru) */
+
+  /* ---------- barvy: text ---------- */
+  --nf-ink:#10212E;           /* titulky, čísla */
+  --nf-text:#2A3B47;          /* běžný text */
+  --nf-muted:#5E6F7B;         /* vedlejší text; na bílé 4,9:1 */
+  --nf-on-primary:#FFFFFF;
+
+  /* ---------- barvy: akce (jediná akční barva) ---------- */
+  --nf-primary:#1A6E85;       /* tlačítka, aktivní pilulka, linky grafů; na bílé 5,6:1 */
+  --nf-primary-strong:#0F566A;/* stisk, text akcentu, ikony */
+  --nf-primary-soft:#D6EEF1;  /* kolečka ikon, vybraný stav, jemné zvýraznění */
+  --nf-primary-tint:#EDF7F9;  /* nejjemnější zvýraznění karty (milník, výsledek) */
+
+  /* ---------- barvy: stavy glukózy a bezpečí (vždy se slovem a ikonou) ---------- */
+  --nf-ok:#2E8B57;            /* v cíli, hotovo, splněno = zelená (výplně s bílou ikonou 3,8:1; pro text --nf-ok-text) */
+  --nf-ok-bg:#E3F3EA;
+  --nf-ok-text:#1F6B43;       /* na bílé 6,3:1, na --nf-ok-bg 5,4:1 */
+  --nf-over:#D9743F;          /* nad cílem, upozornění, „brzy“ = oranžová (není chyba) */
+  --nf-over-bg:#FBE6DC;
+  --nf-over-text:#8F4320;     /* na bílé 5,8:1, na --nf-over-bg 5,2:1 */
+  --nf-low:#C53030;           /* chyby, kritická upozornění, pokles pod 4, mimo rozsah, zamítnuto = červená (bílý text 4,6:1) */
+  --nf-low-bg:#FBE4E1;
+  --nf-low-text:#9B2C2C;      /* na bílé 6,4:1 */
+  --nf-info:#3E6B8F;          /* podobné jídlo, poznámka lékaře */
+  --nf-info-bg:#E5EEF5;
+  --nf-info-text:#2B4D69;
+  --nf-demo:#6B5B95;          /* štítek DEMO */
+  --nf-demo-bg:#EFEBF7;
+  --nf-basal:#1C3344;         /* skupina bazálu v ordinaci (tmavá) */
+  --nf-basal-2:#2A4659;
+  --nf-basal-text:#C9DCE6;
+  --nf-focus:#10212E;
+
+  /* ---------- písmo ---------- */
+  --nf-font-display:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;   /* titulky, čísla, značka */
+  --nf-font-text:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,sans-serif;  /* text, tlačítka, štítky */
+  --nf-fs-xs:13px;--nf-fs-sm:15px;--nf-fs-md:17px;--nf-fs-lg:19px;--nf-fs-xl:24px;--nf-fs-2xl:30px;--nf-fs-num:44px;
+  --nf-fs-desk:15px;          /* základní velikost textu v ordinaci (desktop) */
+  --nf-lh:1.45;--nf-lh-tight:1.15;
+  --nf-w-text:400;--nf-w-strong:700;--nf-w-display:700;--nf-w-display-strong:800;
+  --nf-track-tight:-0.02em;--nf-track-caps:0.06em;
+
+  /* ---------- rozměry ---------- */
+  --nf-s1:4px;--nf-s2:8px;--nf-s3:12px;--nf-s4:16px;--nf-s5:20px;--nf-s6:24px;--nf-s8:32px;
+  --nf-r-sm:10px;--nf-r-md:16px;--nf-r-lg:20px;--nf-r-pill:999px;
+  --nf-tap:48px;              /* nejmenší cíl dotyku */
+  --nf-tap-lg:56px;           /* primární akce pacienta */
+  --nf-icon:22px;--nf-icon-lg:26px;--nf-icon-circle:40px;
+  --nf-phone:480px;           /* šířka sloupce pacienta */
+
+  /* ---------- stíny ---------- */
+  --nf-sh-card:0 6px 20px rgba(16,33,46,.07);
+  --nf-sh-raised:0 10px 28px rgba(16,33,46,.10);
+  --nf-sh-primary:0 8px 20px rgba(26,110,133,.28);
+  --nf-sh-inset:inset 0 0 0 1px var(--nf-line);
+
+  /* ---------- pohyb ---------- */
+  --nf-t-fast:.15s;--nf-t:.25s;--nf-ease:cubic-bezier(.2,.7,.2,1);
+
+  /* ---------- mapování starších názvů (design.css je zatím používá; nové komponenty berou --nf-*) ---------- */
+  --ink:var(--nf-ink);--muted:var(--nf-muted);--brand:var(--nf-primary);--brand2:var(--nf-primary-strong);--brandbg:var(--nf-primary-soft);
+  --paper:var(--nf-surface);--bg:var(--nf-bg);--line:var(--nf-line);--sand:var(--nf-primary-tint);--peach:var(--nf-over-bg);
+  --ok:var(--nf-ok);--okbg:var(--nf-ok-bg);--oktx:var(--nf-ok-text);
+  --warn:var(--nf-over);--warnbg:var(--nf-over-bg);--warntx:var(--nf-over-text);
+  --bad:var(--nf-low);--badbg:var(--nf-low-bg);--badtx:var(--nf-low-text);
+  --info:var(--nf-info);--infobg:var(--nf-info-bg);--demo:var(--nf-demo);--demobg:var(--nf-demo-bg);
+  --r:var(--nf-r-lg);--sh:var(--nf-sh-card);--glass:var(--nf-surface);--glass2:var(--nf-surface-2);--edge:var(--nf-line)
+}
