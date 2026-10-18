@@ -117,7 +117,7 @@ function bind(key, value) {
 }
 
 /* ---------- akce ---------- */
-function catalog() { var D = global.NutriFeeDemo; return (D && D.habitCatalog) || []; }
+function catalog() { return NF.habitCatalog(); }
 /* Po vydání plánu z kontroly se návrhy už nemění (P6); bez zahájené kontroly akce nad návrhy nic nedělají. */
 function reviewLocked() {
   if (!S.review) { fail('Kontrola není zahájená.'); return true; }
@@ -159,32 +159,31 @@ var A = {
   startDraft: function () {
     if (S.draft) return;
     S.draft = NF.newDraft(S);
-    var D = global.NutriFeeDemo;
     /* Startovní sada je stejná pro všechny: NutriFee navrhne, lékař škrtá nebo přidává (15 odst. 4). Dávky nepředvyplňujeme. */
     catalog().forEach(function (h) { if (h.default && NF.usable(S, h.item)) S.draft.habits.push(h.id); });
-    ((D && D.instructionCatalog) || []).forEach(function (i) { if (i.default) S.draft.instructions.push({ id: i.id, value: i.value }); });
+    NF.instructionCatalog().forEach(function (i) { if (i.default) S.draft.instructions.push({ id: i.id, value: i.value }); });
   },
   dose: function (v) { var p = v.split(':'); NF.setDose(S, p[0], Number(p[1])); },
   target: function (v) { var p = v.split(':'); if (S.draft) NF.setTarget(S.draft.targets, p[0], Number(p[1])); },
   revTarget: function (v) { var p = v.split(':'); if (S.review) NF.setTarget(S.review.newTargets, p[0], Number(p[1])); },
   revInstrToggle: function (v) {
-    var D = global.NutriFeeDemo, c = ((D && D.instructionCatalog) || []).filter(function (x) { return x.id === v; })[0], r = S.review; if (!r) return;
+    var c = NF.instructionCatalog().filter(function (x) { return x.id === v; })[0], r = S.review; if (!r) return;
     var has = r.newInstructions.some(function (x) { return x.id === v; });
     r.newInstructions = has ? r.newInstructions.filter(function (x) { return x.id !== v; }) : r.newInstructions.concat([{ id: v, value: c ? c.value : true }]);
   },
   revInstrValue: function (v) {
-    var p = v.split(':'), D = global.NutriFeeDemo, c = ((D && D.instructionCatalog) || []).filter(function (x) { return x.id === p[0]; })[0], r = S.review; if (!r) return;
+    var p = v.split(':'), c = NF.instructionCatalog().filter(function (x) { return x.id === p[0]; })[0], r = S.review; if (!r) return;
     var ex = r.newInstructions.filter(function (x) { return x.id === p[0]; })[0]; if (!ex || !c) return;
     ex.value = Math.max(0, Math.round((ex.value + Number(p[1]) * (c.step || 1)) * 10) / 10);
   },
   toggleHabit: function (v) { NF.toggleHabit(S, v); },
   instrToggle: function (v) {
-    var D = global.NutriFeeDemo, c = ((D && D.instructionCatalog) || []).filter(function (x) { return x.id === v; })[0];
+    var c = NF.instructionCatalog().filter(function (x) { return x.id === v; })[0];
     var has = S.draft && S.draft.instructions.some(function (x) { return x.id === v; });
     NF.setInstruction(S, v, has ? null : (c ? c.value : true));
   },
   instrValue: function (v) {
-    var p = v.split(':'), D = global.NutriFeeDemo, c = ((D && D.instructionCatalog) || []).filter(function (x) { return x.id === p[0]; })[0];
+    var p = v.split(':'), c = NF.instructionCatalog().filter(function (x) { return x.id === p[0]; })[0];
     var ex = S.draft.instructions.filter(function (x) { return x.id === p[0]; })[0]; if (!ex || !c) return;
     ex.value = Math.round((ex.value + Number(p[1]) * (c.step || 1)) * 10) / 10;
   },

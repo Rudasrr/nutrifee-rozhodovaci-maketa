@@ -43,7 +43,7 @@ D.guide = {
   },
   'B-HYPO': {
     proc: 'Menší porce po podaném inzulinu a vynechané jídlo s inzulinem jsou nejčastější cesta k hypoglykemii u pevných dávek. Aplikace nesmí radit „sněz víc“ ani měnit dávku, ale nesmí ani mlčet.',
-    jak: 'Pokyn lékaře hned a za 60 min otázka „klesla pod 4?“; u každého jídla vedle nejvyšší hodnoty i „pod 4 do 4 h?“ (ano/ne/nevím); 2 poklesy za 7 dní → „zavolejte do ordinace“ s odkazem na Bezpečí. Opsané „pod 4“ vstupuje do návrhu „pod cílem“; report má část Bezpečnost.',
+    jak: 'Pokyn lékaře hned a za 60 min otázka „klesla pod 4?“ (po večeři až ráno v kroku 1 další snídaně: „klesla v noci pod 4?“, protože pokles po večeři bývá mezi 22. a 24. hodinou); u každého jídla vedle nejvyšší hodnoty i „pod 4 do 4 h?“ (ano/ne/nevím); 2 poklesy za 7 dní → „zavolejte do ordinace“ s odkazem na Bezpečí. Opsané „pod 4“ vstupuje do návrhu „pod cílem“; report má část Bezpečnost.',
     kde: 'Dnes (karta sledování, výstraha), krok 1 (otázka k minulému jídlu), report lékaře (Bezpečnost), návrh k dávce.',
     co: 'Prahy 2 poklesy / 7 dní / 60 min a znění pokynu, kdy má pacient volat.',
     dopad: 'Při zamítnutí aplikace po menší porci mlčí a poklesy zná lékař až z exportu na kontrole.'
@@ -127,14 +127,14 @@ D.guide = {
   },
   'R-POKYNY': {
     proc: 'Co dělat při nízké glukóze, při menší porci po píchnutí, při nemoci nebo při nejistotě s inzulinem, nesmí říkat aplikace. Říká to lékař — připravenou větou, do které dosadí hodnotu.',
-    jak: 'Katalog vět: nízká glukóza (práh 3,9) · nevím, jestli byl inzulin píchnutý (změřit za 60 min, znovu nepíchat) · méně jídla než obvykle (změřit za 60 min) · nemoc (měřit každé 3 h, inzulin nevysazovat) · vysoká glukóza (nad 15 déle než 3 h volat) · kdy a kam volat. Lékař při zařazení pokyny zapne a hodnoty nastaví voličem; na kontrole je může upravit. Pacient je má v Bezpečí, při nemoci nahoře na Dnes a přímo v kartách, kde aplikace neradí.',
+    jak: 'Katalog vět: nízká glukóza (práh 3,9) · nevím, jestli byl inzulin píchnutý (změřit za 60 min, znovu nepíchat) · méně jídla než obvykle (změřit za 60 min) · nemoc zvlášť pro bazál (píchat dál, měřit každé 3 h) a pro inzulin k jídlu (jen když pacient jí; při zvracení nebo nad 15 volat) · vysoká glukóza (nad 15 déle než 3 h volat) · kdy a kam volat. Lékař při zařazení pokyny zapne a hodnoty nastaví voličem; na kontrole je může upravit. Pacient je má v Bezpečí, při nemoci nahoře na Dnes a přímo v kartách, kde aplikace neradí.',
     kde: 'Zařazení (krok 2), Bezpečí (pacient), Dnes při nemoci, krok 1 a 3 před jídlem (pod „Nevím“ a u menší porce), kontrola (návrh „Osobní pokyny stále platí?“).',
     co: 'Znění vět a výchozí hodnoty. Věty jsou návrh autora makety; garant je může přepsat v registru.',
     dopad: 'Při zamítnutí pacient nemá v Bezpečí žádné pokyny a aplikace v situacích, kdy neradí, nemá na co odkázat.'
   },
   'Z-BODY': {
     proc: 'Zaučení bez pohledu na to, co pacient skutečně umí, je jen odškrtávání. Body zaučení se skládají z návyků v plánu, protože s návykem souvisí to, co má pacient umět.',
-    jak: 'Tři pevné body (našel Dnes, našel Bezpečí, ví kam volat) a body podle návyků plánu (zapsal zkušební jídlo, ví o radě k porci, ví o otázce na inzulin, našel připomínku bazálu). Sestra zaškrtává, co pacient udělal sám; „Ukázat“ přepne náhled telefonu na příslušnou obrazovku. Dokončit lze až po všech bodech; „nezdařilo se“ s důvodem vidí lékař v zařazení a na kontrole.',
+    jak: 'Tři pevné body (našel Dnes, našel Bezpečí, ví kam volat), bod sestry (umí stáhnout export z portálu výrobce senzoru a nahrát ho při kontrole) a body podle návyků plánu (zapsal zkušební jídlo, ví o radě k porci, ví o otázce na inzulin, našel připomínku bazálu). Sestra zaškrtává, co pacient udělal sám; „Ukázat“ přepne náhled telefonu na příslušnou obrazovku. Dokončit lze až po všech bodech; „nezdařilo se“ s důvodem vidí lékař v zařazení a na kontrole.',
     kde: 'Zaučení (sestra); stav zaučení v zařazení a v podkladech kontroly (lékař).',
     co: 'Seznam bodů a pravidlo, že návyky začnou platit až po dokončeném zaučení a jedné kontrolní otázce.',
     dopad: 'Při zamítnutí má sestra jen tři pevné body; body podle návyků se neskládají.'

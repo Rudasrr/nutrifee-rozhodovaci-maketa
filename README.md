@@ -64,12 +64,15 @@ v rámečku telefonu.
 ## Kód
 
 ```
-app/    jádro — doména, obrazovky, morph-vykreslení. Vanilla JS, bez závislostí, běží z file://
-demo/   prezentační vrstva — registr a katalogy, ~200 jídel, simulovaný senzor, příběh, vyprávění
+app/       jádro — doména, obrazovky, morph-vykreslení. Vanilla JS, bez závislostí, běží z file://
+app/data/  katalogy jádra: registr položek, návyky a pokyny lékaře, ~200 jídel
+demo/      prezentační vrstva — modelový pacient, simulovaný senzor, příběh, vyprávění, průvodce položkami
 ```
 
 Vynecháním složky `demo/` a jejích `<script>` řádků vznikne produkční sestavení bez přepisování
-obrazovek: jádro startuje prázdné a bez schválené položky registru nic nevyhodnocuje ani neradí.
+obrazovek: jádro dostane registr a jídla z `app/data/`, ale žádný plán; bez schválené položky
+registru nic nevyhodnocuje ani neradí. Klinické položky registru schvaluje lékař-garant, provozní
+(formát exportu, texty, zaučení) vlastník aplikace — garant je nevidí.
 Po změně struktury zvyš `NF.SCHEMA` v `app/core.js` · `app/icons.js` i `?v=` v HTML (test to hlídá).
 
 ## Co je simulované

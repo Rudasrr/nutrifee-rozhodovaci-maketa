@@ -50,7 +50,7 @@ D.itemScene = { 'K-KRITERIA': 'enroll', 'Z-GLUKOZA': 'firstMeal', 'Z-IMPORT': 'r
 var decisionPlanCache = null;
 function mainSceneOf(chId) { for (var i = 0; i < D.scenes.length; i++) if (!D.scenes[i].appendix && D.chapters[D.scenes[i].ch].id === chId) return i; return -1; }
 function decisionPlan() {
-  var ids = S().registry.items.map(function (r) { return r.id; }), offered = {}, plan = D.scenes.map(function () { return []; });
+  var ids = NF.garantItems(S()).map(function (r) { return r.id; }), offered = {}, plan = D.scenes.map(function () { return []; });
   if (decisionPlanCache && decisionPlanCache.n === ids.length) return decisionPlanCache.plan;
   if (!ids.length) return plan; /* před načtením registru (první vykreslení) se nic neukládá */
   ids.forEach(function (id) { var ch = D.itemScene[id]; if (!ch) return; var i = mainSceneOf(ch); if (i >= 0) { plan[i].push(id); offered[id] = 1; } });
@@ -277,7 +277,7 @@ function noteProgress(idx) {
 D.progress = function () { return { max: prog.max || 0, done: prog.done || null, total: D.scenes.length, mainEnd: mainSceneOf('trace') + 1 }; };
 D.progressClear = function () { prog = { max: 0, done: null, doneAt: null }; saveProg(); };
 function summaryBlock(s) {
-  var items = s.registry.items, sum = NF.registrySummary(s);
+  var items = NF.garantItems(s), sum = NF.registrySummary(s);
   var open = s.gOpen && items.some(function (r) { return r.id === s.gOpen; }) ? s.gOpen : null;
   var changedSince = prog.done && s.registry.history.some(function (h) { return h.kind !== 'comment' && h.rt && h.rt > prog.done; });
   var byCat = {}; items.forEach(function (r) { (byCat[r.cat] = byCat[r.cat] || []).push(r); });
@@ -290,8 +290,8 @@ function summaryBlock(s) {
 NF.demoActions.garantConfirmSummary = function () {
   var s = S(), sum = NF.registrySummary(s), now = new Date();
   prog.done = now.toISOString(); prog.doneAt = NF.fmtShort(prog.done) + ' ' + NF.fmtTime(prog.done); prog.max = Math.max(prog.max || 0, sceneIdx(s)); saveProg();
-  var rej = s.registry.items.filter(function (r) { return r.status === 'rejected'; }).map(function (r) { return r.id; });
-  var pend = s.registry.items.filter(function (r) { return !NF.itemTouched(s, r.id); }).map(function (r) { return r.id; });
+  var rej = NF.garantItems(s).filter(function (r) { return r.status === 'rejected'; }).map(function (r) { return r.id; });
+  var pend = NF.garantItems(s).filter(function (r) { return !NF.itemTouched(s, r.id); }).map(function (r) { return r.id; });
   if (D.sync && D.sync.event) D.sync.event('summary', 'SOUHRN', 'Souhrn rozhodnutí potvrzen', { approved: sum.confirmed, edited: sum.edited, rejected: sum.rejected, pending: sum.remaining, total: sum.total, rejectedIds: rej, pendingIds: pend, scene: sceneIdx(s) + 1, total_scenes: D.scenes.length });
   s.toast = 'Souhrn potvrzen a uložen. Rozhodnutí můžete i tak dál měnit.';
 };
@@ -428,6 +428,9 @@ if (doc && doc.addEventListener) doc.addEventListener('keydown', function (ev) {
 T.isBusy = function () { return busy; };
 T.lastIndex = lastIndex;
 
+/* Nová verze makety zahodí rozehraný průchod (stav se nepřevádí); garantovi to řekneme jednou větou — rozhodnutí k položkám jsou na serveru a načtou se zpět (18. 10. 2026). */
+var migratedFrom = NF.migrated;
 if (!S().chapter) land(D.playScene(0)); else NF.render();
+if (migratedFrom) { S().toast = 'Maketa byla aktualizována, příběh začíná od začátku. Vaše rozhodnutí k položkám zůstala uložena.'; NF.render(); }
 
 })(typeof window !== 'undefined' ? window : globalThis);

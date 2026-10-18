@@ -37,7 +37,7 @@ function progressBlock(evs) {
   }).join('') + '</div>';
 }
 function panel(s) {
-  var items = (s.registry && s.registry.items) || [];
+  var items = s.registry ? NF.garantItems(s) : []; /* jen položky garanta; provozní schvaluje vlastník */
   var out = '<h2>Výsledky garanta</h2><p class="muted">Co garant v maketě rozhodl a okomentoval: poslední stav každé položky registru a celá historie zápisů. Načteno ze serveru pod přihlášením správce; neformální rozhodnutí k maketě.</p>' +
     '<div class="actions" style="margin-top:0">' + btn(loading ? 'Načítám…' : 'Obnovit', 'resultsReload', null, 'sm', loading ? ' disabled' : '') + btn('Zavřít', 'closeDrawer', null, 'sm quiet') + (loadedAt ? '<span class="small muted">načteno ' + e(fmt(loadedAt)) + '</span>' : '') + '</div>';
   if (err) out += '<div class="error" role="alert">Nepodařilo se načíst: ' + e(err) + '</div>';

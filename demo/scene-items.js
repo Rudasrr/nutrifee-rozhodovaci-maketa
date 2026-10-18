@@ -20,24 +20,17 @@ D.sceneItems = [
   ]
  },
  {
-  "title": "Lékař — vydání plánu", "items": [
-   "S-CESTA"
-  ]
+  "title": "Lékař — vydání plánu", "items": []
  },
  {
-  "title": "Sestra — zaučení s náhledem telefonu", "items": [
-   "S-CESTA"
-  ]
+  "title": "Sestra — zaučení s náhledem telefonu", "items": []
  },
  {
-  "title": "Pacient — převzetí plánu a jedna otázka", "items": [
-   "S-CESTA"
-  ]
+  "title": "Pacient — převzetí plánu a jedna otázka", "items": []
  },
  {
   "title": "Pacient — první snídaně ve třech krocích", "items": [
-   "Z-GLUKOZA",
-   "S-CESTA"
+   "Z-GLUKOZA"
   ]
  },
  {
@@ -50,54 +43,38 @@ D.sceneItems = [
   "title": "Pacient — po týdnu: co už aplikace ví", "items": []
  },
  {
-  "title": "Pacient — otevřel aplikaci až v 10:00", "items": [
-   "R-MILNIKY",
-   "S-CESTA",
-   "S-VYSLEDEK"
-  ]
+  "title": "Pacient — otevřel aplikaci až v 10:00", "items": []
  },
  {
   "title": "Pacient — před píchnutím: porce zpět k obvyklé a doplněk", "items": [
    "R-PORCE",
    "R-DOPLNEK",
    "R-PORADI",
-   "R-PROCHAZKA",
-   "R-MILNIKY",
-   "S-CESTA"
+   "R-PROCHAZKA"
   ]
  },
  {
   "title": "Pacient — po píchnutí: co aplikace smí a nesmí", "items": [
    "R-PORCE",
    "R-PORADI",
-   "R-PROCHAZKA",
-   "R-MILNIKY",
-   "S-CESTA"
+   "R-PROCHAZKA"
   ]
  },
  {
   "title": "Pacient — nové jídlo jen názvem", "items": [
    "R-DOPLNEK",
    "R-PORADI",
-   "R-PROCHAZKA",
-   "R-MILNIKY",
-   "S-CESTA"
+   "R-PROCHAZKA"
   ]
  },
  {
-  "title": "Pacient — není mi dobře", "items": [
-   "S-CESTA"
-  ]
+  "title": "Pacient — není mi dobře", "items": []
  },
  {
-  "title": "Pacient — jídlo během nemoci", "items": [
-   "S-CESTA"
-  ]
+  "title": "Pacient — jídlo během nemoci", "items": []
  },
  {
-  "title": "Pacient — už je mi lépe", "items": [
-   "S-CESTA"
-  ]
+  "title": "Pacient — už je mi lépe", "items": []
  },
  {
   "title": "Během studie — garant upraví pravidlo po podnětu", "items": []
@@ -105,14 +82,12 @@ D.sceneItems = [
  {
   "title": "Pacient — rada s novým textem", "items": [
    "R-PORADI",
-   "R-PROCHAZKA",
-   "S-CESTA"
+   "R-PROCHAZKA"
   ]
  },
  {
   "title": "Pacient — den před kontrolou", "items": [
-   "C-CILE",
-   "S-SOUHRN"
+   "C-CILE"
   ]
  },
  {
@@ -120,8 +95,6 @@ D.sceneItems = [
    "C-CILE",
    "S-SEMAFOR",
    "D-CISTA",
-   "S-SOUHRN",
-   "Z-IMPORT",
    "B-HYPO",
    "S-SILNA",
    "R-SKORE",
@@ -144,18 +117,13 @@ D.sceneItems = [
   "title": "Lékař — krok 4: předání pacientovi", "items": []
  },
  {
-  "title": "Pacient — nový plán a co se změnilo", "items": [
-   "R-MILNIKY",
-   "S-CESTA"
-  ]
+  "title": "Pacient — nový plán a co se změnilo", "items": []
  },
  {
   "title": "Lékař — verze a stopa: důkaz, jak to počítá", "items": []
  },
  {
-  "title": "Dodatek · zaučení se nezdařilo", "items": [
-   "S-CESTA"
-  ]
+  "title": "Dodatek · zaučení se nezdařilo", "items": []
  },
  {
   "title": "Dodatek · bez zaučení plán nezačne platit", "items": []
@@ -173,10 +141,7 @@ D.sceneItems = [
   ]
  },
  {
-  "title": "Dodatek · „nemám to doma“: co uvidí pacient", "items": [
-   "R-MILNIKY",
-   "S-CESTA"
-  ]
+  "title": "Dodatek · „nemám to doma“: co uvidí pacient", "items": []
  }
 ];
 })(typeof window !== 'undefined' ? window : globalThis);

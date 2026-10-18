@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 53;
+NF.SCHEMA = 54;
 NF.PAGES = ['today', 'foods', 'plan', 'safety', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
@@ -107,6 +107,20 @@ NF.createState = function () {
   };
 };
 
+/* ---------- katalogy jádra (app/data/, 18. 10. 2026) ----------
+   Registr, jídla, návyky a pokyny jsou součást jádra; produkční sestavení bez demo/ je dostane také. Stav „schváleno“ u položek je výchozí
+   podoba registru pro ukázku a pro předání; ostrý provoz ho nahradí skutečným rozhodnutím garanta (historie zůstává stejná). */
+NF.registryItems = function (at, by) {
+  if (!NF.data || !NF.data.registry) return [];
+  return NF.data.registry().map(function (o) { o.status = 'approved'; o.decidedAt = at; o.decidedBy = o.scope === 'provozni' ? 'vlastník aplikace' : by; o.params = o.params || {}; if (o.guide === undefined) o.guide = null; return o; });
+};
+NF.seedRegistry = function (S, at, by) { S.registry = { items: NF.registryItems(at || S.clock, by || S.doctor.id), history: [] }; };
+NF.seed = function (S, at, by) { NF.seedRegistry(S, at, by); S.foods = NF.data && NF.data.foods ? NF.data.foods() : []; };
+/* Položky, o kterých rozhoduje lékař-garant. Provozní položky (scope 'provozni') schvaluje vlastník aplikace; garant je nevidí (18. 10. 2026). */
+NF.garantItems = function (S) { return S.registry.items.filter(function (r) { return r.scope !== 'provozni'; }); };
+NF.habitCatalog = function () { return (NF.data && NF.data.habits) || []; };
+NF.instructionCatalog = function () { return (NF.data && NF.data.instructions) || []; };
+
 /* ---------- úložiště ---------- */
 NF.storageOK = true;
 NF.migrated = null;
@@ -121,7 +135,7 @@ NF.load = function () {
     s = null;
   }
   var base = NF.createState();
-  if (!s) return base;
+  if (!s) { NF.seed(base); return base; }
   Object.keys(base).forEach(function (k) { if (s[k] === undefined || s[k] === null) s[k] = base[k]; }); /* osekaný stav doplní výchozí klíče */
   return s;
 };
@@ -204,7 +218,7 @@ NF.applyDecision = function (S, d, quiet) {
 NF.itemTouched = function (S, id) { return S.registry.history.some(function (h) { return h.item === id && h.kind !== 'comment'; }); };
 NF.itemCommented = function (S, id) { return S.registry.history.some(function (h) { return h.item === id && h.comment; }); };
 NF.registrySummary = function (S) {
-  var items = S.registry.items, out = { total: items.length, touched: 0, confirmed: 0, approved: 0, edited: 0, rejected: 0, commented: 0, pending: 0, remaining: 0 };
+  var items = NF.garantItems(S), out = { total: items.length, touched: 0, confirmed: 0, approved: 0, edited: 0, rejected: 0, commented: 0, pending: 0, remaining: 0 };
   items.forEach(function (r) {
     var t = NF.itemTouched(S, r.id), c = NF.itemCommented(S, r.id);
     if (t) out.touched++; else out.remaining++;
@@ -391,7 +405,8 @@ NF.hasHabit = function (S, catalogId) { return NF.activeHabits(S).some(function 
 NF.FIXED_TRAINING = [
   ['app', 'Pacient si otevřel aplikaci a našel obrazovku Dnes', 'today'],
   ['safety', 'Pacient našel své osobní pokyny v části Bezpečí', 'safety'],
-  ['contacts', 'Pacient ví, kam se obrátit s technickým problémem a kam se zdravotním', 'safety']
+  ['contacts', 'Pacient ví, kam se obrátit s technickým problémem a kam se zdravotním', 'safety'],
+  ['export', 'Sestra: umím stáhnout export z portálu výrobce senzoru (csv) a nahrát ho při kontrole do podkladů', null] /* export nahrává sestra na kontrole (18. 10. 2026) */
 ];
 NF.trainingItems = function (S) {
   var list = NF.FIXED_TRAINING.map(function (x) { return { id: x[0], text: x[1], page: x[2] }; });
@@ -964,12 +979,13 @@ NF.setManualLow = function (S, epId, v) {
 /* Sledování po menší porci s podaným inzulinem nebo po vynechaném jídle s inzulinem (B-HYPO): připomínka za pripominka_min, otázka „bylo pod 4?“. */
 NF.addHypoWatch = function (S, kind, meal, at, epId) {
   S.hypoWatch = S.hypoWatch || [];
-  var w = { id: NF.uid('W'), kind: kind, meal: meal, at: at || S.clock, epId: epId || null, answer: null };
+  var when = at || S.clock, night = meal === 'dinner'; /* po večeři se ptáme až ráno: pokles bývá mezi 22. a 24. h a otázka ve 22 h by budila (18. 10. 2026) */
+  var w = { id: NF.uid('W'), kind: kind, meal: meal, at: when, epId: epId || null, answer: null, night: night, askAt: night ? NF.day(NF.addDays(when, 1)) + 'T05:00:00' : null };
   S.hypoWatch.push(w); NF.log(S, 'hypo.sledovani', kind + ' ' + meal, { item: 'B-HYPO' }); return w;
 };
 NF.pendingHypoWatch = function (S) {
   var m = NF.param(S, 'B-HYPO', 'pripominka_min', 60);
-  return (S.hypoWatch || []).filter(function (w) { var d = NF.minutesDiff(w.at, S.clock); return w.answer == null && d >= m && d <= 24 * 60; });
+  return (S.hypoWatch || []).filter(function (w) { var d = NF.minutesDiff(w.at, S.clock); if (w.answer != null || d > 24 * 60) return false; return w.askAt ? NF.parse(S.clock) >= NF.parse(w.askAt) : d >= m; });
 };
 NF.answerHypoWatch = function (S, id, v) {
   var w = (S.hypoWatch || []).filter(function (x) { return x.id === id; })[0]; if (!w) return { ok: false, error: 'Záznam nenalezen.' };
