@@ -55,8 +55,12 @@
   /* ---------- písmo ---------- */
   --nf-font-display:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;   /* titulky, čísla, značka (700–800) */
   --nf-font-text:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;      /* text, tlačítka, štítky (500, zvýraznění 700) */
+  --nf-fs-2xs:13px;           /* jen ordinace: popisky, záhlaví tabulek, čísla v kolečkách (pacient nikdy pod 14) */
   --nf-fs-xs:14px;--nf-fs-sm:15px;--nf-fs-md:17px;--nf-fs-lg:19px;--nf-fs-xl:24px;--nf-fs-2xl:30px;--nf-fs-num:44px;--nf-fs-num-sm:32px;
   --nf-fs-desk:15px;          /* základní velikost textu v ordinaci (desktop) */
+  --nf-fs-h1-desk:clamp(24px,3vw,30px); /* titulek stránky v ordinaci */
+  /* popisky uvnitř vysvětlujících obrázků (SVG): jednotky viewBoxu, obrázek se zvětšuje se šířkou karty */
+  --nf-fs-fig-xs:10px;--nf-fs-fig-sm:11px;--nf-fs-fig:12px;--nf-fs-fig-lg:13px;--nf-fs-fig-xl:16px;
   --nf-lh:1.45;--nf-lh-tight:1.15;
   --nf-w-text:500;--nf-w-strong:700;--nf-w-display:700;--nf-w-display-strong:800;
   --nf-track-tight:-0.02em;--nf-track-caps:0.06em;
@@ -75,6 +79,8 @@
   --nf-sh-raised:0 14px 36px rgba(11,28,43,.10);
   --nf-sh-primary:0 8px 20px rgba(15,111,140,.26);
   --nf-sh-inset:inset 0 0 0 1px var(--nf-line);
+  --nf-sh-bar:0 -6px 24px rgba(11,28,43,.06);  /* spodní lišta záložek (stín nahoru) */
+  --nf-tabbar-h:72px;                       /* výška lišty záložek bez bezpečné zóny telefonu */
   --nf-scrim:rgba(11,28,43,.35);          /* ztmavení pod zásuvkou */
   --nf-shadow-ink:rgba(11,28,43,.2);      /* drobné stíny knoflíků a značek */
   --nf-phone-frame:#0B0F0E;               /* rám náhledu telefonu u sestry */

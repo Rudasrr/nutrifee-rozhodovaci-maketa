@@ -47,11 +47,11 @@ code{font:600 .92em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(-
 .comp>header p{margin:0;color:var(--nf-muted);font-size:14px;max-width:80ch}
 .comp .preview{background:var(--nf-bg);padding:20px}
 .comp .preview.patient{max-width:none;padding:20px 24px;font-size:var(--nf-fs-md)}
-.comp .preview .glass{margin-bottom:12px}
-.comp .preview .glass:last-child{margin-bottom:0}
+.comp .preview .card{margin-bottom:12px}
+.comp .preview .card:last-child{margin-bottom:0}
 .comp .preview .tiles{margin-bottom:12px}
 .comp .preview [data-insp]{outline:2px solid var(--nf-primary);outline-offset:3px;border-radius:inherit}
-.tabbar.ds-static{position:static;transform:none;width:100%;margin:0}
+.tabbar.ds-static{position:static;transform:none;width:100%;margin:0;border-radius:var(--nf-r-lg) var(--nf-r-lg) 0 0;border:1px solid var(--nf-line);border-bottom:0}
 .ds-inspector{position:sticky;top:84px;align-self:start;background:var(--nf-surface);border:1px solid var(--nf-line);border-radius:var(--nf-r-lg);padding:16px 18px;max-height:calc(100vh - 110px);overflow:auto}
 .ds-inspector h2{margin:0 0 8px;font-size:17px}
 .ds-insp-row{display:grid;grid-template-columns:64px 1fr;gap:8px;align-items:start;padding:6px 0;border-bottom:1px solid var(--nf-line);font-size:13px}

@@ -73,7 +73,7 @@ D.demoCsv = function (S) {
 D.importDemoApply = function (S) { var csv = D.demoCsv(S); if (csv) NF.importReadings(S, NF.parseSensorCsv(csv)); };
 NF.demoActions = NF.demoActions || {};
 NF.demoActions.importDemo = function () { var S = NF.getState(), csv = D.demoCsv(S); if (!csv) return; NF.actions.importText(csv); };
-NF.slots.importDemo = function () { return '<div class="actions" style="margin-top:8px"><button type="button" class="btn sm" data-action="importDemo">Použít ukázkový export ze senzoru</button><span class="small muted">DEMO: soubor vytvoří ukázka místo aplikace senzoru</span></div>'; };
+NF.slots.importDemo = function () { return '<div class="actions mt-2"><button type="button" class="btn sm" data-action="importDemo">Použít ukázkový export ze senzoru</button><span class="small muted">DEMO: soubor vytvoří ukázka místo aplikace senzoru</span></div>'; };
 
 /* ---------- pomocníci příběhu ---------- */
 function foodByName(S, name) { return S.foods.filter(function (f) { return f.name === name; })[0]; }

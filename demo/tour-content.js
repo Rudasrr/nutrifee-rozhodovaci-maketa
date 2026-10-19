@@ -52,7 +52,7 @@ T.chapters = {
   handover: {
     intro: { t: 'Pacient přebírá plán na telefonu', co: 'Rámeček telefonu: karta „Co teď“, co chceme do kontroly, dávky, návyky s „proč“, pokyny lékaře.', vsimni: 'Karta „Co teď“ je na každé obrazovce: pacient vždy ví, co má udělat.', proc: 'Cíl je jíst ke své dávce pokaždé podobně. Aplikace se z jeho zápisů učí, jak tělo reaguje na jeho jídla; pacient nic nepočítá.' },
     steps: [
-      { do: [{ sel: '.patient .glass:nth-of-type(2)' }], t: 'Dávky inzulinu', co: 'Snídaně 8, oběd 10, večeře 8 j.; bazál 18 j. na noc odděleně dole.', proc: 'Pacient vidí lékařův předpis. Aplikace ho bude připomínat.' },
+      { do: [{ sel: '.patient .card:nth-of-type(2)' }], t: 'Dávky inzulinu', co: 'Snídaně 8, oběd 10, večeře 8 j.; bazál 18 j. na noc odděleně dole.', proc: 'Pacient vidí lékařův předpis. Aplikace ho bude připomínat.' },
       { do: [{ sel: '[data-anim="key"]', act: 'animReplay', val: 'key' }], t: 'Animace „Jak NutriFee funguje“', co: 'Dávka je klíč vyrobený na obvyklou porci: s obvyklou porcí glukóza zůstane v cíli, větší porce ji vyžene nad cíl, návrat k obvyklé ji vrátí. Pod tím tři přeškrtnuté piktogramy: nepočítáme sacharidy, neměníme dávku, nikdo nečte mezi kontrolami.', vsimni: 'Pohyb vysvětluje jediný princip, který má pacient pochopit. Přehraje se jednou, tlačítko ho spustí znovu; při omezení pohybu v telefonu se ukáže rovnou konec.', proc: 'Obrázek v pohybu řekne, co by odstavec textu neřekl; text zůstává pro čtečky a pro toho, kdo chce číst.' },
       { do: [{ sel: '[data-action="page"][data-value="understand"]', act: 'page', val: 'understand' }], t: 'Závěrečná otázka', co: 'Po „Plán přebírám“ se otevřela jedna závěrečná otázka.' },
       { do: [{ sel: '[data-value="yes"]', act: 'answerCheck', val: 'yes' }], watch: '.hint.warn', t: 'Špatná odpověď nic nezkazí', co: '„Ano, hned“ — aplikace vysvětlí, že zápis není zpráva do ordinace. Tlačítko „Začít“ zůstává zamčené.', proc: 'Kdyby pacient čekal, že ho někdo sleduje, čekal by na pomoc, která nepřijde.' },
@@ -129,13 +129,13 @@ T.chapters = {
   illness: {
     intro: { t: 'Není mi dobře', co: '20. října. Pacientovi není dobře. Na Dnes je nahoře přepínač „Nemoc · není mi dobře“ — viditelný, ne schovaný.', vsimni: 'Přepínač je hned pod hlavičkou, velký, s popisem, co se stane.', proc: 'Nemoc oznamuje člověk. Aplikace ji nehádá z čísel.' },
     steps: [
-      { do: [{ sel: '.sick .toggle', act: 'illness', val: 'on' }], watch: '.glass.soft', t: 'Režim nemoci', co: 'Nahoře se objevily pokyny lékaře pro nemoc: inzulin nevysazujte, pijte, měřte každé 3 h, kdy volat.', vsimni: 'Aplikace pomáhá dál, jen jinak. Dávky platí, jak řekl lékař.', proc: 'Pacient nesmí zůstat bezradný. Klinický obsah je ale z pokynů lékaře, ne z aplikace.' }
+      { do: [{ sel: '.sick .toggle', act: 'illness', val: 'on' }], watch: '.card.ill', t: 'Režim nemoci', co: 'Nahoře se objevily pokyny lékaře pro nemoc: inzulin nevysazujte, pijte, měřte každé 3 h, kdy volat.', vsimni: 'Aplikace pomáhá dál, jen jinak. Dávky platí, jak řekl lékař.', proc: 'Pacient nesmí zůstat bezradný. Klinický obsah je ale z pokynů lékaře, ne z aplikace.' }
     ]
   },
   illnessMeal: {
     intro: { t: 'Jídlo během nemoci', co: 'Pacient si chystá menší porci kaše, píchl si podle plánu.', vsimni: 'Žádná rada k jídlu, ani doplněk a pořadí; jen pokyn lékaře.', proc: 'V nemoci tělo reaguje jinak; rady postavené na běžných dnech by neseděly.' },
     steps: [
-      { do: [{ sel: '.hint.sand' }], t: 'Jen bezpečné rady', co: '„Při nemoci nabízíme jen rady, které nemění množství jídla.“ K menší porci žádná rada — jen odkaz na pokyn lékaře.', proc: 'Zápisy z nemoci se štítkují a do učení nevstupují; lékař je v reportu uvidí zvlášť.' },
+      { do: [{ sel: '.hint.neutral' }], t: 'Jen bezpečné rady', co: '„Při nemoci nabízíme jen rady, které nemění množství jídla.“ K menší porci žádná rada — jen odkaz na pokyn lékaře.', proc: 'Zápisy z nemoci se štítkují a do učení nevstupují; lékař je v reportu uvidí zvlášť.' },
       { do: [{ sel: '[data-action="mealFinish"][data-value="as"]', act: 'mealFinish', val: 'as' }], t: 'Zápis uložen se štítkem nemoci', co: 'Zápis má štítek „z doby nemoci — nezapočítáno“.' }
     ]
   },
@@ -163,7 +163,7 @@ T.chapters = {
   preview: {
     intro: { t: 'Den před kontrolou', co: '4. ledna. Pacient si prohlíží, co zítra uvidí lékař — poděkování za dny zapisování, co fungovalo, a otázky na lékaře na jedno klepnutí.', vsimni: 'Čísla jsou sbalená pod „Podrobnosti v číslech“; obrazovka začíná tím podstatným. Navrženou otázku stačí klepnutím vybrat.' },
     steps: [
-      { do: [{ sel: '.tile[data-value="adv"]', act: 'previewTile', val: 'adv' }], watch: '.hint.sand', t: 'Rozklik dlaždice', co: 'Vysvětlení, co číslo znamená: nejvyšší hodnota po jídle s radou a bez ní.', proc: 'Pacient má rozumět tomu, co lékař uvidí.' },
+      { do: [{ sel: '.tile[data-value="adv"]', act: 'previewTile', val: 'adv' }], watch: '.hint.neutral', t: 'Rozklik dlaždice', co: 'Vysvětlení, co číslo znamená: nejvyšší hodnota po jídle s radou a bez ní.', proc: 'Pacient má rozumět tomu, co lékař uvidí.' },
       { do: [{ sel: '[data-action="toggleQuestion"]', act: 'toggleQuestion', val: function (B, S) { var b = S.foods.filter(function (f) { return f.name.indexOf('kaše') >= 0; })[0]; return 'Mám pokračovat s tím, že si k ' + b.name.toLowerCase() + ' dávám doplněk k jídlu?'; } }], t: 'Navržená otázka na lékaře', co: 'Otázka z dat, jedno klepnutí. Vlastní otázku lze napsat jako druhou možnost.', dusledek: 'Lékař ji uvidí v podkladech kontroly.' }
     ]
   },
@@ -172,7 +172,7 @@ T.chapters = {
     steps: [
       { do: [{ sel: '[data-action="startReview"]', act: 'startReview' }], watch: '.tiles', t: 'Kontrola zahájena: dlaždice souhrnu', co: 'Dlaždice se semaforem: čas v cíli, obvyklá porce, inzulin podle plánu, s radou bývalo níž, HbA1c s datem, mimo učení. Pod nimi věta „co se dělo“ ze šablony.', vsimni: 'Věta je z pravidla S-SOUHRN, ne z AI.' },
       { do: [{ sel: '[data-action="importDemo"]', act: 'importDemo' }], watch: '.tiles', t: 'Sestra nahrála export ze senzoru', co: 'V podkladech je část „Data ze senzoru“: sestra na kontrole nahraje export z portálu výrobce (v ukázce ho vytvoří maketa). Doplní průběh k zápisům, které měly jen opsané hodnoty, noci pro bazál a čas v cíli.', vsimni: 'Pacient export dělat nemusí; lékař mezi kontrolami dál nic nedělá. Dlaždice „Čas v cíli“ a návrh k bazálu stojí na tomto souboru.', proc: 'Export jsou pacientova data a umí ho ten, kdo s portálem pracuje — sestra, ne pacient 65+.' },
-      { do: [{ sel: '.tile[data-value="adv"]', act: 'reviewTile', val: 'adv' }], watch: '.card.soft', t: 'Rozklik dlaždice', co: 'Sloupce: přijato / nepřijato / bez odpovědi s mediánem vrcholu. Nejčastější důvod odmítnutí.', proc: 'Neutrální srovnání: pacient si sám volí, kdy radu přijme, takže to není důkaz účinku. Report neříká „neposlechl“.' },
+      { do: [{ sel: '.tile[data-value="adv"]', act: 'reviewTile', val: 'adv' }], watch: '.card.tint', t: 'Rozklik dlaždice', co: 'Sloupce: přijato / nepřijato / bez odpovědi s mediánem vrcholu. Nejčastější důvod odmítnutí.', proc: 'Neutrální srovnání: pacient si sám volí, kdy radu přijme, takže to není důkaz účinku. Report neříká „neposlechl“.' },
       { do: [{ sel: 'details.part:first-of-type summary' }], t: 'Podklady jen na vyžádání', co: 'Reakce na jednotlivá jídla, rady, dávky a potvrzení, senzor, pokyny, otázky pacienta — sbalené.', proc: 'Text až po rozbalení. Na první pohled jen to, co lékař potřebuje.' },
       { do: [{ sel: '.nextbar .btn.primary', act: 'reviewStep', val: '2' }], t: 'Krok 2: návrhy otevřen', co: 'Spodní lišta vedla dál; na obrazovce je krok 2 kontroly.' }
     ]

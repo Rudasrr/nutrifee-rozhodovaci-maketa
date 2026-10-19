@@ -96,7 +96,7 @@ function badge(s) {
   return '<span class="sync-badge ok" title="' + (lastOk ? 'naposledy ' + e(lastOk) : '') + '">rozhodnutí uložena ✓</span>';
 }
 NF.slots.syncBadge = badge;
-NF.slots.syncStatus = function (s) { return '<div class="actions" style="margin:0">' + badge(s) + '</div>'; };
+NF.slots.syncStatus = function (s) { return '<div class="actions m-0">' + badge(s) + '</div>'; };
 NF.demoActions = NF.demoActions || {};
 NF.demoActions.syncRetry = function () { lastErr = null; flush(); };
 if (global.addEventListener) global.addEventListener('online', function () { lastErr = null; flush(); });

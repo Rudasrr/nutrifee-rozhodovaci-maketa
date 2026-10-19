@@ -289,7 +289,7 @@ test('Přístupnost E (6. 10. 2026): barvy a velikosti v CSS, stupnice s textov�
   assert.match(m, /data-action="foodsSeg" data-value="known" aria-pressed="true"/);
   act('page', 'today'); const td = markup();
   assert.match(td, /role="switch" aria-checked="false" data-action="illness" data-value="on"/);
-  assert.ok(td.indexOf('class="sick"') < td.indexOf('class="glass path"'), 'přepínač nemoci je nad Cestou ke kontrole');
+  assert.ok(td.indexOf('class="sick"') < td.indexOf('class="card path"'), 'přepínač nemoci je nad Cestou ke kontrole');
   act('illness', 'on'); act('page', 'safety'); assert.match(markup(), /role="switch" aria-checked="true" data-action="illness" data-value="off"/); act('illness', 'off'); act('page', 'today');
   assert.match(td, /<span class="ic" aria-hidden="true">/); assert.equal(/aria-label="Pravidlo ke schválení: /.test(td), false, 'karty na Dnes nesou jen provozní položky — bez štítku (18. 10. 2026)');
   act('startMeal', 'dinner'); const tm = markup(); assert.match(tm, /aria-label="Pravidlo ke schválení: /); assert.match(tm, /· ke schválení/); assert.equal(/class="appr [^"]*"[^>]*><span aria-hidden="true">✓/.test(tm), false, 'před rozhodnutím garanta žádný štítek „schváleno“'); S().meal = null; act('noop');
@@ -539,7 +539,7 @@ test('Milníky: jednou, za snahu a návyk, ne za hodnotu; Cesta ke kontrole poč
   const m = NF.pendingMilestone(S()); assert.ok(m); assert.match(markup(), /Milník<\/b>/);
   act('milestoneClose', m.id); assert.equal(NF.pendingMilestone(S()), null, 'zavření zavře i starší; na Dnes je nejvýš jedna karta');
   const ps = NF.pathStats(S()); assert.ok(ps.known <= ps.repeated && ps.left > 0);
-  const path = markup().match(/class="glass path"[\s\S]*?<\/section>/)[0];
+  const path = markup().match(/class="card path"[\s\S]*?<\/section>/)[0];
   assert.match(path, /Cesta ke kontrole/); assert.match(path, new RegExp(ps.known + ' z ' + ps.repeated)); assert.equal(/\d+ %/.test(path), false, 'čísla X z N, ne procenta');
   assert.ok(S().events.some(x => x.what === 'milnik'), 'milník je ve stopě');
 });
@@ -1142,7 +1142,7 @@ test('Vizuální jazyk (15. 10. 2026): jedna SVG ikonová sada bez emoji v jádr
   chapter('custom'); assert.equal(NF.foodIconName(food('Smažený řízek s bramborovou kaší')), 'plate', 'jeden neutrální talíř u všech jídel'); assert.equal(NF.foodIconName(food('Ovesná kaše s mlékem a banánem')), 'plate'); assert.equal(NF.foodIconName({ name: 'x', tags: { like: null }, custom: true }), 'plate');
   for (const f of S().foods) assert.ok(NF.ICONS[NF.foodIconName(f)], f.name);
   /* Dnes: pás dne místo štítků, ikony v liště záložek; Jak to dopadlo = pruh start → vrchol s hranicí cíle, žádná křivka */
-  chapter('lateMeal'); let m = markup(); assert.match(m, /class="daystrip" role="img" aria-label="Den: Snídaně [^"]+, Oběd [^"]+, Večeře [^"]+, Bazál [^"]+\."/); assert.match(m, /class="dnode (done|now|wait|missed|skipped)"/); assert.match(m, /class="glass tabbar"[\s\S]*data-icon="home"[\s\S]*data-icon="utensils"[\s\S]*data-icon="list"[\s\S]*data-icon="shield"/);
+  chapter('lateMeal'); let m = markup(); assert.match(m, /class="daystrip" role="img" aria-label="Den: Snídaně [^"]+, Oběd [^"]+, Večeře [^"]+, Bazál [^"]+\."/); assert.match(m, /class="dnode (done|now|wait|missed|skipped)"/); assert.match(m, /class="tabbar"[\s\S]*data-icon="home"[\s\S]*data-icon="utensils"[\s\S]*data-icon="list"[\s\S]*data-icon="shield"/);
   for (let i = 0; i < 14 && !/class="rise /.test(m); i++) { next(); m = markup(); } /* v lateMeal přijdou data ze senzoru o pár kroků dál */
   assert.match(m, /<b>Jak to dopadlo<\/b>/); assert.match(m, /class="rise (ok|bad)" role="img" aria-label="Glukóza při jídle [\d,]+, vrchol [\d,]+ mmol\/l, hranice cíle [\d,]+ mmol\/l\."/); assert.match(m, /class="rise (ok|bad)"[^>]*>\s*<div class="track"/); assert.match(m, /class="mark p"/); assert.doesNotMatch(m, /<polyline|class="curve"|<rect class="rbar"/);
   /* každé SVG na obrazovce je aria-hidden, nebo grafika s role="img" a popisem u sebe */
@@ -1253,7 +1253,7 @@ test('Designový systém (18. 10. 2026): tokeny v app/tokens.css, design.css bez
   for (const v of ['--nf-bg', '--nf-surface', '--nf-ink', '--nf-muted', '--nf-primary', '--nf-primary-soft', '--nf-over', '--nf-low', '--nf-font-display', '--nf-font-text', '--nf-r-pill', '--nf-tap', '--nf-sh-card']) assert.ok(tok.includes(v + ':'), 'token ' + v);
   assert.equal(/\n:root\s*\{/.test(css), false, 'design.css nedefinuje vlastní :root — hodnoty jen z tokens.css (jen přepis pro vysoký kontrast v @media)');
   assert.equal(/radial-gradient|backdrop-filter/.test(css), false, 'bez skleněných karet a přechodových podkladů');
-  assert.ok(css.includes('.tag.over{') && css.includes('.segmented button.on{background:var(--nf-primary)'), 'štítek nad cílem a pilulkový přepínač');
+  assert.ok(/\.tag\.over[,{]/.test(css) && /\.segmented button\.on[^{]*\{background:var\(--nf-primary\)/.test(css), 'štítek nad cílem a pilulkový přepínač');
   assert.ok(html.indexOf('app/tokens.css') < html.indexOf('app/design.css') && /font-src 'self'/.test(html), 'tokens před design.css; CSP povoluje vlastní písma');
   for (const f of ['plus-jakarta-sans-400-800-latin.woff2', 'plus-jakarta-sans-400-800-latin-ext.woff2', 'OFL-PlusJakartaSans.txt']) assert.ok(fs.statSync(path.join(__dirname, 'app/fonts', f)).size > 1000, f);
   assert.equal((tok.match(/@font-face/g) || []).length, 2, 'jedno písmo, dvě podmnožiny'); assert.equal(/Atkinson/.test(tok), false, 'bez zvláštního písma pro slabozraké (18. 10. 2026 večer)');
@@ -1266,11 +1266,11 @@ test('Druhá dávka kritiky (19. 10. 2026): CSS jen z tokenů, mřížka čipů,
   const noMedia = css.replace(/@media \(prefers-contrast:more\)[^\n]*/g, '');
   assert.equal(/#[0-9a-fA-F]{3,8}\b/.test(noMedia), false, 'pevná barva v design.css mimo vysoký kontrast');
   assert.equal(/var\(--[a-z0-9-]+,\s*#/.test(css), false, 'žádné záložní barvy ve var()');
-  const legacy = [...new Set([...css.matchAll(/var\((--(?!nf-)[a-z0-9-]+)/g)].map(x => x[1]))].filter(v => !['--c', '--c-tx', '--goal', '--sx-as', '--sx-before', '--sx-other', '--barh'].includes(v));
+  const legacy = [...new Set([...css.matchAll(/var\((--(?!nf-)[a-z0-9-]+)/g)].map(x => x[1]))].filter(v => !['--c', '--c-tx', '--goal', '--sx-as', '--sx-before', '--sx-other', '--barh', '--pct', '--f', '--from', '--to', '--at'].includes(v));
   assert.deepEqual(legacy, [], 'design.css bez starých názvů proměnných');
   chapter('firstMeal'); let m = markup(); assert.match(m, /class="chips glu"/); assert.match(m, /class="choice chip low"/); assert.match(m, /nemám hodnotu/);
   chapter('week'); act('page', 'today'); m = markup(); assert.match(m, /class="dnode now"><button type="button" data-action="startMeal"/); assert.doesNotMatch(m, /<b>Bazál potvrzen/, 'potvrzený bazál nese pás dne');
-  chapter('reviewProposals'); m = markup(); assert.match(m, /class="sec-h"><span class="n">1<\/span>Ověřte s pacientem<span class="prog">\d+ z \d+/); assert.match(m, /class="sec-h"[^>]*><span class="n">3<\/span>Rozhodnutí/); assert.match(m, /class="decide"/);
+  chapter('reviewProposals'); m = markup(); assert.match(m, /class="sec-h"><span class="n">1<\/span>Ověřte s pacientem<span class="prog">\d+ z \d+/); assert.match(m, /class="sec-h[^"]*"><span class="n">3<\/span>Rozhodnutí/); assert.match(m, /class="decide"/);
   const cat = fs.readFileSync(path.join(__dirname, 'design-system/index.html'), 'utf8'); assert.match(cat, new RegExp('data-version="' + NF.SCHEMA + '"'), 'katalog nese verzi makety'); for (const id of ['c-jidlo', 'c-vyber', 'c-cesta', 'c-navrh', 'c-davky', 'c-registr']) assert.match(cat, new RegExp('id="' + id + '"'), 'katalog: ' + id);
   chapter('doses'); act('basalTime', '22:00'); assert.equal(S().draft.doses.basal.time, '22:00'); assert.match(markup(), /data-action="basalTime" data-value="22:00" aria-pressed="true"/);
 });
@@ -1281,6 +1281,22 @@ test('Verze v HTML souhlasí se schématem stavu', () => {
   assert.equal(new Set(all).size, 1);
   assert.equal(Number(all[0]), NF.SCHEMA);
 });
+test('Třetí dávka kritiky (19. 10. 2026): jedna karta, písmo jen z tokenů, obrazovky bez inline stylů, klasická lišta záložek', () => {
+  const css = fs.readFileSync(path.join(__dirname, 'app/design.css'), 'utf8');
+  const noMedia = css.replace(/@media \(prefers-contrast:more\)[^\n]*/g, '');
+  assert.deepEqual(noMedia.match(/font-size:\s*[\d.]+px/g) || [], [], 'velikost písma jen z tokenů --nf-fs-*');
+  assert.match(css, /\.card,\.tile,\.prop,details\.part\{background:var\(--nf-surface\)/, 'jedna plocha karty pro kartu, dlaždici, návrh i oddíl');
+  assert.equal(/\.glass\b/.test(css), false, 'bez staré třídy .glass');
+  assert.match(css, /\.tabbar\{position:fixed;left:50%;bottom:0;[^}]*env\(safe-area-inset-bottom/, 'klasická lišta u spodní hrany s bezpečnou zónou');
+  for (const f of CORE.filter(f => /screens|ui\.js/.test(f))) {
+    const src = fs.readFileSync(path.join(__dirname, f), 'utf8');
+    assert.deepEqual(src.match(/style="(?!--)[^"]*"/g) || [], [], f + ': inline styl jen pro datové proměnné');
+    assert.equal(/class="glass|class="now"/.test(src), false, f + ': .card a .now-row místo .glass a .now');
+  }
+  chapter('week'); act('page', 'today'); const m = markup();
+  assert.match(m, /<nav class="tabbar" aria-label="Hlavní nabídka">/); assert.match(m, /<section class="card"><div class="now-row">/);
+});
+
 test('V publikovaných souborech nejsou skutečná jména', () => {
   const bad = /MUDr\.|Ing\. ?[A-Z]|prof\. |doc\. |a kol\.|et al\.|nemocnic|FN [A-Z]|Standards of Care|iPhone|Apple/;
   for (const f of ['nutrifee-rozhodovaci-maketa.html', 'README.md', ...CORE, ...DEMO]) assert.equal(bad.test(fs.readFileSync(path.join(__dirname, f), 'utf8')), false, f);

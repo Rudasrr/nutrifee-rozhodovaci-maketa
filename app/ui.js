@@ -57,7 +57,7 @@ NF.render = function () {
   var banner = slot('banner'); NF.renderSeq = (NF.renderSeq || 0) + 1; /* obsah obrazovky: oznámení o zamítnuté položce se v jednom vykreslení neopakuje */
   var html = '<a class="skip" href="#main">Přeskočit na obsah</a>' + banner +
     (NF.storageOK ? '' : '<div class="error" role="alert">Zařízení nemá místo pro uložení, nebo je ukládání zakázané. Zápisy se po zavření ztratí.</div>') +
-    (NF.migrated ? '<div class="error" role="status" style="background:var(--sand,#faf6ef);color:inherit">Uložený stav byl ze starší verze (' + e(NF.migrated) + '); začínáme znovu. Záloha zůstala v zařízení.</div>' : '') +
+    (NF.migrated ? '<div class="hint neutral mb-3" role="status">Uložený stav byl ze starší verze (' + e(NF.migrated) + '); začínáme znovu. Záloha zůstala v zařízení.</div>' : '') +
     '<main id="main" class="role-' + e(S.role) + '">' +
     (S.error ? '<div id="error" class="error" role="alert">' + e(S.error) + '</div>' : '') + content() + '</main>';
   html = NF.nbsp(html);
