@@ -144,7 +144,7 @@ var A = {
     var d = global.document; if (!d || !d.querySelector) return;
     try { var el = d.querySelector('[data-anim="' + v + '"]'); if (!el) return; el.classList.remove('play'); void el.offsetWidth; el.classList.add('play'); } catch (err) { }
   },
-  page: function (v) { if (S.role === 'nurse' || NF.PAGES.indexOf(v) < 0) return; S.page = v; S.error = ''; S.foodOpen = null; }, /* sestra má jen zaučení; náhled telefonu neovládá */
+  page: function (v) { if (S.role === 'nurse' || NF.PAGES.indexOf(v) < 0) return; S.page = v; S.error = ''; S.foodOpen = null; if (v === 'understand' && S.onboarding) S.onboarding.page = 6; }, /* sestra má jen zaučení; náhled telefonu neovládá; „understand“ = 6. stránka převzetí */
   role: function (v) {
     if (['patient', 'doctor', 'nurse'].indexOf(v) < 0) return;
     S.role = v; S.error = ''; S.meal = null; S.ask = null; /* rozpracovaný zápis nepatří jiné roli (P5) */
@@ -174,7 +174,7 @@ var A = {
   },
   revInstrValue: function (v) {
     var p = v.split(':'), c = NF.instructionCatalog().filter(function (x) { return x.id === p[0]; })[0], r = S.review; if (!r) return;
-    var ex = r.newInstructions.filter(function (x) { return x.id === p[0]; })[0]; if (!ex || !c) return;
+    var ex = r.newInstructions.filter(function (x) { return x.id === p[0]; })[0]; if (!ex || !c || c.fixed) return;
     ex.value = Math.max(0, Math.round((ex.value + Number(p[1]) * (c.step || 1)) * 10) / 10);
   },
   toggleHabit: function (v) { NF.toggleHabit(S, v); },
@@ -185,7 +185,7 @@ var A = {
   },
   instrValue: function (v) {
     var p = v.split(':'), c = NF.instructionCatalog().filter(function (x) { return x.id === p[0]; })[0];
-    var ex = S.draft.instructions.filter(function (x) { return x.id === p[0]; })[0]; if (!ex || !c) return;
+    var ex = S.draft.instructions.filter(function (x) { return x.id === p[0]; })[0]; if (!ex || !c || c.fixed) return;
     ex.value = Math.round((ex.value + Number(p[1]) * (c.step || 1)) * 10) / 10;
   },
   issuePlan: function () {
@@ -211,6 +211,7 @@ var A = {
   },
   answerCheck: function (v) { S.onboarding.checkAnswer = v === 'reset' ? null : v; },
   confirmUnderstanding: function () {
+    if (S.onboarding && S.onboarding.readback === 'no') return fail('Dávky nesouhlasí. Ukažte telefon sestře.');
     var p = NF.activePlan(S); if (p && !p.handedOver) NF.handover(S);
     var r = NF.confirmUnderstanding(S); if (!r.ok) return fail(r.error);
     S.page = 'today'; toast('Hotovo. Plán platí.');
@@ -258,8 +259,13 @@ var A = {
   mealLow: function (v) { if (!needMeal()) return; S.meal.low = v === 'yes' ? true : v === 'no' ? false : null; S.meal.lowAsked = true; },
   mealExpand: function (v) { if (!needMeal()) return; S.meal.compact = S.meal.compact || {}; delete S.meal.compact[v]; },
   peakChip: function (v) { var p = v.split(':'); var val = NF.chipValue(p[1]); var r = NF.setManualPeak(S, p[0], val == null ? null : val); if (!r.ok) return fail(r.error); if (!r.skipped) toast('Díky. Výsledek je na Dnes.'); },
-  lowChip: function (v) { var p = v.split(':'); var r = NF.setManualLow(S, p[0], p[1]); if (!r.ok) return fail(r.error); },
-  hypoAnswer: function (v) { var p = v.split(':'); var r = NF.answerHypoWatch(S, p[0], p[1]); if (!r.ok) return fail(r.error); toast(r.low ? 'Díky. Postupujte podle pokynu lékaře k nízké glukóze.' : 'Díky, zapsáno.'); },
+  lowChip: function (v) { var p = v.split(':'); var r = NF.setManualLow(S, p[0], p[1]); if (!r.ok) return fail(r.error); if (p[1] === 'yes') S.lowNotice = { at: S.clock }; },
+  /* odpověď „ano, pod 4“ nezmizí v toastu: na Dnes zůstane karta s pokynem lékaře, dokud ji pacient nepotvrdí (19. 10. 2026) */
+  hypoAnswer: function (v) { var p = v.split(':'); var r = NF.answerHypoWatch(S, p[0], p[1]); if (!r.ok) return fail(r.error); if (r.low) S.lowNotice = { at: S.clock }; else toast('Zapsáno.'); },
+  lowNoticeSeen: function () { S.lowNotice = null; },
+  pendingInsulin: function (v) { var p = v.split(':'); var r = NF.confirmPendingInsulin(S, p[0], p[1]); if (!r.ok) return fail(r.error); toast(p[1] === 'as' ? 'Inzulin je zapsaný.' : 'Zapsáno.'); },
+  takeoverPage: function (v) { S.onboarding.page = Math.max(1, Math.min(6, Number(v) || 1)); },
+  doseReadback: function (v) { S.onboarding.readback = v; },
   foodSame: function (v) { var f = NF.foodById(S, v); if (!f) return; f.sameAsked = 'same'; toast('Dobře. Rozdíly u tohoto jídla budeme sledovat dál.'); },
   foodSplit: function (v) { var f = NF.foodById(S, v); if (!f) return; f.sameAsked = 'split'; var r = NF.addFood(S, f.name + ' (jinak)', { like: null }, { force: true }); if (r.ok) toast('Přidali jsme „' + r.food.name + '“. Příště vyberte to, které zrovna jíte.'); },
   mealSaveFood: function () {
@@ -279,16 +285,16 @@ var A = {
     if (!p) return fail('Není plán.'); if (!f) return fail('Vyberte jídlo.');
     var res = m.retro ? NF.adviseAfter(S, f.id, m.meal, NF.retroAt(S, m.at)) : NF.advise(S, f.id, m.portion, m.bolus, m.meal);
     var advice = res.items.map(function (it) { var d = m.decisions[it.lever]; return { lever: it.lever, item: it.item, accepted: d === true ? true : d === false ? false : null, reason: m.reasons[it.lever] || null }; });
-    var confirmed = v === 'as' ? 'as' : v === 'other' ? 'other' : v === 'none' ? 'none' : v === 'unknown' ? 'unknown' : v === 'snack' ? 'snack' : 'as';
+    var confirmed = v === 'as' ? 'as' : v === 'other' ? 'other' : v === 'none' ? 'none' : v === 'unknown' ? 'unknown' : v === 'pending' ? 'pending' : v === 'snack' ? 'snack' : 'as';
     var units = confirmed === 'as' ? p.doses[m.meal].units : confirmed === 'other' ? m.units : null;
     var at = m.retro ? NF.retroAt(S, m.at) : S.clock;
-    var time = confirmed === 'none' || confirmed === 'unknown' || confirmed === 'snack' ? null : NF.fmtTime(NF.addMin(at, Number(m.offset || 0)));
+    var time = confirmed === 'none' || confirmed === 'unknown' || confirmed === 'snack' || confirmed === 'pending' ? null : NF.fmtTime(NF.addMin(at, Number(m.offset || 0)));
     var draft = { meal: m.meal, foodId: f.id, portion: m.portion, bolusState: m.retro ? 'retro' : m.bolus, advice: advice, insulin: { confirmed: confirmed, units: units, time: time }, at: at, retro: !!m.retro, unusual: !!m.unusual };
     draft.before = m.before; draft.peak = m.retro ? m.peak : null; draft.low = m.retro ? m.low : null; /* opsané hodnoty ze senzoru (Z-GLUKOZA); u zpětného zápisu i nejvyšší a „pod 4“; průběh přijde až z exportu */
     draft.points = []; draft.importedAt = null;
     var r = NF.saveEpisode(S, draft); if (!r.ok) return fail(r.error);
     S.meal = null; S.page = 'today'; NF.flash = { food: f.id };
-    var th = NF.thanks(S, r.episode);
+    var th = confirmed === 'pending' ? 'Jídlo je zapsané. Až si píchnete, potvrďte to na Dnes.' : NF.thanks(S, r.episode);
     toast(th || (m.retro ? f.name + ' je zapsané k ' + NF.fmtTime(at) + '.' : f.name + ' je zapsané.'));
   },
   resultSeen: function (v) { NF.markResultSeen(S, v); },
@@ -380,12 +386,15 @@ var A = {
   regParam: function (v) { var p = v.split(':'), it = S.reg && NF.item(S, S.reg.open); if (!it || !it.params || it.params[p[1]] == null) return; S.reg.params = S.reg.params || {}; var cur = S.reg.params[p[1]] != null ? S.reg.params[p[1]] : it.params[p[1]]; S.reg.params[p[1]] = NF.clampParam(it.id, p[1], Math.round((cur + Number(p[2])) * 100) / 100); },
   regDecide: function (v) {
     var id = S.reg && S.reg.open; if (!id) return;
+    if (v === 'rejected' && V.SAFETY_ITEMS && V.SAFETY_ITEMS[id] && S.reg.confirmReject !== id) { S.reg.confirmReject = id; return; } /* bezpečnostní položka: nejdřív věta, co přestane fungovat */
+    S.reg.confirmReject = null;
     var r = NF.decideItem(S, id, v, (S.form && S.form['regcomment_' + id]) || '', v === 'edited' ? (S.reg.params || null) : null, v === 'edited' && S.reg.off ? { off: S.reg.off } : null);
     if (!r.ok) return fail(r.error);
     if (S.form) S.form['regcomment_' + id] = '';
     S.reg.params = null; S.reg.off = null; S.reg.editing = false;
     toast('Rozhodnutí je uložené a hned platí v aplikaci.');
   },
+  regConfirmCancel: function () { if (S.reg) S.reg.confirmReject = null; },
   traceOpen: function (v) { S.traceOpen = S.traceOpen === v ? null : v; }
 };
 NF.actions = A;

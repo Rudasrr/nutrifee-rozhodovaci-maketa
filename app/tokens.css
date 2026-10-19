@@ -16,7 +16,7 @@
   --nf-card-edge:rgba(11,28,43,.05); /* téměř neviditelná hrana karty (jen aby karta nesplynula) */
   --nf-line:#E4EEF0;          /* dělicí linka uvnitř karet */
   --nf-line-strong:#C7DEE3;   /* dekorativní okraj (pruh kroků, osa, prázdné kroužky) */
-  --nf-border-control:#7A96A3;/* okraj ovládacích prvků (volby, čipy, pole, voliče): 3,1:1 na bílé — „obrys = dá se zmáčknout“ */
+  --nf-border-control:#6F8B98;/* okraj ovládacích prvků (volby, čipy, pole, voliče): 3,6:1 na bílé, 3,4:1 na podkladu — „obrys = dá se zmáčknout“ (19. 10. 2026: 3:1 i na --nf-bg) */
 
   /* ---------- barvy: text ---------- */
   --nf-ink:#0B1C2B;           /* titulky, čísla — hluboká modročerná (reference) */
@@ -55,10 +55,12 @@
   /* ---------- písmo ---------- */
   --nf-font-display:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;   /* titulky, čísla, značka (700–800) */
   --nf-font-text:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;      /* text, tlačítka, štítky (500, zvýraznění 700) */
-  --nf-fs-2xs:13px;           /* jen ordinace: popisky, záhlaví tabulek, čísla v kolečkách (pacient nikdy pod 14) */
-  --nf-fs-xs:14px;--nf-fs-sm:15px;--nf-fs-md:17px;--nf-fs-lg:19px;--nf-fs-xl:24px;--nf-fs-2xl:30px;--nf-fs-num:44px;--nf-fs-num-sm:32px;
-  --nf-fs-desk:15px;          /* základní velikost textu v ordinaci (desktop) */
-  --nf-fs-h1-desk:clamp(24px,3vw,30px); /* titulek stránky v ordinaci */
+  /* velikosti v rem (19. 10. 2026): písmo roste se systémovým nastavením telefonu; při výchozích 16 px = 13 · 14 · 15 · 17 · 19 · 24 · 30 · 44 px */
+  --nf-fs-2xs:.8125rem;       /* jen ordinace: popisky, záhlaví tabulek, čísla v kolečkách (pacient nikdy pod 14 px) */
+  --nf-fs-xs:.875rem;--nf-fs-sm:.9375rem;--nf-fs-md:1.0625rem;--nf-fs-lg:1.1875rem;--nf-fs-xl:1.5rem;--nf-fs-2xl:1.875rem;--nf-fs-num:2.75rem;--nf-fs-num-sm:2rem;
+  --nf-fs-hero:1.625rem;      /* zpráva karty „Co teď“ na Dnes (26 px): jediný hrdina obrazovky */
+  --nf-fs-desk:.9375rem;      /* základní velikost textu v ordinaci (desktop) */
+  --nf-fs-h1-desk:clamp(1.5rem,3vw,1.875rem); /* titulek stránky v ordinaci */
   /* popisky uvnitř vysvětlujících obrázků (SVG): jednotky viewBoxu, obrázek se zvětšuje se šířkou karty */
   --nf-fs-fig-xs:10px;--nf-fs-fig-sm:11px;--nf-fs-fig:12px;--nf-fs-fig-lg:13px;--nf-fs-fig-xl:16px;
   --nf-lh:1.45;--nf-lh-tight:1.15;
@@ -73,17 +75,22 @@
   --nf-tap-lg:56px;           /* primární akce pacienta */
   --nf-icon-sm:20px;--nf-icon:22px;--nf-icon-lg:26px;--nf-icon-circle-sm:36px;--nf-icon-circle:40px;--nf-icon-circle-lg:48px;--nf-icon-circle-xl:56px;
   --nf-phone:480px;           /* šířka sloupce pacienta */
+  --nf-ctx-w:380px;           /* kontextový sloupec ordinace od 1600 px */
 
   /* ---------- stíny ---------- */
-  --nf-sh-card:0 8px 24px rgba(11,28,43,.06);
+  /* vyvýšení tónem a tvarem, stín jen náznakem (19. 10. 2026: barevná záře pod tlačítky a mlha mezi kartami působily o generaci starší) */
+  --nf-sh-card:0 1px 2px rgba(11,28,43,.04),0 4px 14px rgba(11,28,43,.05);
   --nf-sh-raised:0 14px 36px rgba(11,28,43,.10);
-  --nf-sh-primary:0 8px 20px rgba(15,111,140,.26);
+  --nf-sh-primary:0 1px 2px rgba(10,90,114,.24);
   --nf-sh-inset:inset 0 0 0 1px var(--nf-line);
   --nf-sh-bar:0 -6px 24px rgba(11,28,43,.06);  /* spodní lišta záložek (stín nahoru) */
   --nf-tabbar-h:72px;                       /* výška lišty záložek bez bezpečné zóny telefonu */
   --nf-scrim:rgba(11,28,43,.35);          /* ztmavení pod zásuvkou */
   --nf-shadow-ink:rgba(11,28,43,.2);      /* drobné stíny knoflíků a značek */
   --nf-phone-frame:#0B0F0E;               /* rám náhledu telefonu u sestry */
+  /* fajfka (ikona Lucide „check“) pro zaškrtávátko a vybranou volbu; data URI, aby komponenta nepotřebovala obrázek */
+  --nf-check-white:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  --nf-check-ink:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230F6F8C' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
 
   /* ---------- pohyb ---------- */
   --nf-t-fast:.15s;--nf-t:.25s;--nf-t-slow:.4s;--nf-ease:cubic-bezier(.2,.7,.2,1);--nf-ease-move:cubic-bezier(.4,0,.2,1);
@@ -95,5 +102,17 @@
   --warn:var(--nf-over);--warnbg:var(--nf-over-bg);--warntx:var(--nf-over-text);
   --bad:var(--nf-low);--badbg:var(--nf-low-bg);--badtx:var(--nf-low-text);
   --info:var(--nf-info);--infobg:var(--nf-info-bg);--demo:var(--nf-demo);--demobg:var(--nf-demo-bg);
-  --r:var(--nf-r-lg);--sh:var(--nf-sh-card);--glass:var(--nf-surface);--glass2:var(--nf-surface-2);--edge:var(--nf-line)
+  --r:var(--nf-r-lg);--sh:var(--nf-sh-card);--glass:var(--nf-surface);--glass2:var(--nf-surface-2);--edge:var(--nf-line);
+
+  /* ---------- prezentační vrstva (demo/demo.css; 19. 10. 2026, prověrka V6) ----------
+     Fialová = ovládání ukázky, nikdy stav aplikace. Do produkčního sestavení se nepromítne: tokeny čte jen demo.css. */
+  --nf-demo-strong:#54467A;   /* plné tlačítko a text vrstvy; bílý text 8,4:1 */
+  --nf-demo-line:#CFC6E3;     /* okraje a dělicí linky vrstvy */
+  --nf-demo-surface:#F8F6FC;  /* plocha panelu vyprávění */
+  --nf-demo-focus:#7B4FC4;    /* zvýraznění místa v příběhu (krok i „čeho si všímat“) */
+  --nf-demo-glow:rgba(123,79,196,.30);
+  --nf-demo-shadow:0 18px 50px rgba(43,24,74,.20);
+  --nf-demo-stage:var(--nf-bg-2); /* podklad za rámečkem telefonu */
+  --nf-demo-panel-w:380px;
+  --nf-demo-phone-w:402px;--nf-demo-phone-h:874px;--nf-demo-phone-r:52px;--nf-demo-phone-edge:12px
 }

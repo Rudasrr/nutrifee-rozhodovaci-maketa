@@ -36,9 +36,10 @@ function progressBlock(evs) {
       (sm ? '<br>v souhrnu: schváleno ' + e(String(sm.approved)) + ' · s úpravou ' + e(String(sm.edited)) + ' · zamítnuto ' + e(String(sm.rejected)) + ' · ke schválení ' + e(String(sm.pending)) + (sm.rejectedIds && sm.rejectedIds.length ? ' · zamítnuté: ' + e(sm.rejectedIds.join(', ')) : '') : '') + '</div>';
   }).join('') + '</div>';
 }
-function panel(s) {
+function panel(s) { return panelInner(s) + '</div>'; }
+function panelInner(s) {
   var items = s.registry ? NF.garantItems(s) : []; /* jen položky garanta; provozní schvaluje vlastník */
-  var out = '<h2>Výsledky garanta</h2><p class="muted">Co garant v maketě rozhodl a okomentoval: poslední stav každé položky registru a celá historie zápisů. Načteno ze serveru pod přihlášením správce; neformální rozhodnutí k maketě.</p>' +
+  var out = '<div class="pres-drawer"><h2>Výsledky garanta</h2><p class="muted">Co garant v maketě rozhodl a okomentoval: poslední stav každé položky registru a celá historie zápisů. Načteno ze serveru pod přihlášením správce; neformální rozhodnutí k maketě.</p>' +
     '<div class="actions mt-0">' + btn(loading ? 'Načítám…' : 'Obnovit', 'resultsReload', null, 'sm', loading ? ' disabled' : '') + btn('Zavřít', 'closeDrawer', null, 'sm quiet') + (loadedAt ? '<span class="small muted">načteno ' + e(fmt(loadedAt)) + '</span>' : '') + '</div>';
   if (err) out += '<div class="error" role="alert">Nepodařilo se načíst: ' + e(err) + '</div>';
   if (!rows) return out + (loading ? '' : '<p class="muted">Zatím nic nenačteno.</p>');

@@ -78,6 +78,8 @@ function gate() {
     '<span class="demo-flag">DEMO · syntetická data · není určeno pro léčbu</span>' +
     '<h1>Maketa ke schválení</h1>' +
     '<p class="muted">Přihlaste se e-mailem a heslem, které jste dostali od autora makety. Vaše rozhodnutí a komentáře k položkám registru se ukládají pod tímto přihlášením; nic jiného se neposílá. Jde o neformální rozhodnutí k maketě, ne o podpis pro ostrý provoz.</p>' +
+    '<p class="small muted">Vyhraďte si asi 15 minut a 4 minuty na dodatek. Ukázku můžete přerušit; rozhodnutí se ukládají a po přihlášení se načtou zpět.</p>' +
+    '<p class="small gate-device">Ukázka je navržená pro počítač. Na telefonu ji projdete, ale obrazovky lékaře jsou široké.</p>' +
     (form.info ? '<div class="error soft" role="status">' + e(form.info) + '</div>' : '') +
     '<label class="field"><span>E-mail</span><input id="auth-email" type="email" autocomplete="username" data-auth="email" value="' + e(form.email) + '"' + dis + '></label>' +
     '<label class="field"><span>Heslo</span><input id="auth-pass" type="password" autocomplete="current-password" data-auth="pass" value="' + e(form.pass) + '"' + dis + '></label>' +

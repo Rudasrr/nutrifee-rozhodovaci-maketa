@@ -1,4 +1,4 @@
-/* Katalogy návyků a osobních pokynů lékaře — součást jádra (přesun z demo/ 18. 10. 2026).
+/* Katalogy návyků a osobních pokynů lékaře – součást jádra (přesun z demo/ 18. 10. 2026).
    Návyky: položka registru R-NAVYKY / R-PROCHAZKA; pokyny: R-POKYNY. Věty jsou návrh autora makety, lékař do nich dosazuje hodnotu voličem.
    Pokyn pro nemoc je od 18. 10. 2026 rozdělený: bazál se při nemoci píchá dál, inzulin k jídlu jen když pacient jí. */
 (function (global) {
@@ -14,8 +14,8 @@ NF.data.habits = [
 ];
 NF.data.instructions = [
   { id: 'I-NEVIM', title: 'Nevím, jestli byl inzulin píchnutý', text: 'Když nevíte, jestli jste si inzulin už píchli, znovu ho nepíchejte. Změřte glukózu za {v} a řiďte se pokynem pro vysokou, nebo nízkou glukózu.', value: 60, unit: 'min', step: 15, default: true },
-  { id: 'I-HYPO', title: 'Nízká glukóza', text: 'Když glukóza klesne pod {v}, snězte 15 g rychlých sacharidů (asi 1,5 dl džusu) a změřte za 15 minut.', value: 3.9, unit: 'mmol/l', step: 0.1, default: true },
-  { id: 'I-MENE', title: 'Méně jídla než obvykle', text: 'Když sníte méně, než na kolik máte inzulin, změřte glukózu za {v} a při poklesu postupujte jako u nízké glukózy. Je to pokyn lékaře, ne rada aplikace.', value: 60, unit: 'min', step: 15, default: true },
+  { id: 'I-HYPO', title: 'Nízká glukóza', text: 'Když glukóza klesne pod {v}, snězte 15 g rychlých sacharidů (asi 1,5 dl džusu) a změřte za 15 minut.', value: 4, unit: 'mmol/l', fixed: true, default: true } /* práh pevně 4: stejné číslo jako čipy, otázky a eskalace (19. 10. 2026) */,
+  { id: 'I-MENE', title: 'Méně jídla než obvykle', text: 'Když sníte méně, než na kolik máte inzulin, změřte glukózu za {v} a při poklesu postupujte jako u nízké glukózy.', value: 60, unit: 'min', step: 15, default: true },
   { id: 'I-NEMOC-BAZAL', title: 'Nemoc: inzulin na noc (bazál)', text: 'Bazál si píchejte dál ve stejný čas, i když nejíte. Pijte a měřte glukózu každé {v}.', value: 3, unit: 'h', step: 1, default: true },
   { id: 'I-NEMOC-JIDLO', title: 'Nemoc: inzulin k jídlu', text: 'Když jídlo vynecháte, inzulin k němu nepíchejte. Když jíte, píchněte podle plánu. Při zvracení nebo glukóze nad {v} déle než 3 hodiny volejte ordinaci.', value: 15, unit: 'mmol/l', step: 0.5, default: true },
   { id: 'I-VYSOKA', title: 'Vysoká glukóza', text: 'Když je glukóza nad {v} déle než 3 hodiny, volejte ordinaci.', value: 15, unit: 'mmol/l', step: 0.5, default: false },
