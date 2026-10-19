@@ -84,7 +84,7 @@ T.chapters = {
     intro: { t: 'Po týdnu: co už aplikace ví', co: 'Pacient zapsal sedm snídaní a šest obědů. Kaše i chléb se sýrem jsou „Známé jídlo“.', vsimni: 'Prstenec učení s fajfkou, štítek reakce a rozmezí vrcholů ve dvou pásmech: v cíli a nad cílem.' },
     steps: [
       { do: [{ sel: '.food .peak' }], t: 'Kam se po kaši glukóza dostane', co: 'Okno na stupnici: rozmezí vrcholů z započítaných zápisů, vpravo od čáry cíle. Vpravo nahoře „X z N v cíli“.', vsimni: 'Zápisy jsou 4, započítané 3 — jeden má u inzulinu „nevím“.', proc: 'Bez potvrzeného inzulinu nejde říct, jestli vzestup způsobilo jídlo, nebo chybějící dávka.' },
-      { do: [{ sel: '.food .tag.bad,.food .tag.warn' }], t: 'Reakce: častěji nad cílem', co: 'Štítek říká, jak často po jídle pacient zůstane v cíli. Kaše: málokdy, proto „častěji nad cílem“. Kdy se stupeň ukáže a jak se počítá, říká položka „Stupeň reakce“.', proc: 'Žádné známky, žádné „špatné jídlo“. Jen podíl zápisů v cíli, vztažený k pacientovým vlastním jídlům.' },
+      { do: [{ sel: '.food .tag.over,.food .tag.bad' }], t: 'Reakce: častěji nad cílem', co: 'Štítek říká, jak často po jídle pacient zůstane v cíli. Kaše: málokdy, proto „častěji nad cílem“. Kdy se stupeň ukáže a jak se počítá, říká položka „Stupeň reakce“.', proc: 'Žádné známky, žádné „špatné jídlo“. Jen podíl zápisů v cíli, vztažený k pacientovým vlastním jídlům.' },
       { do: [{ sel: '[data-action="foodsSeg"][data-value="all"]', act: 'foodsSeg', val: 'all' }], t: 'Všechna jídla', co: 'Řízek s kaší už je známý (4×), svíčkovou a rýži teprve poznáváme („Učíme se“). Je tu i jablko ze svačiny: svačina se zapisuje bez inzulinu a učí se zvlášť.', vsimni: 'Detail každého jídla je až po rozbalení, aby pacient nebyl zahlcený.' }
     ]
   },

@@ -62,7 +62,8 @@
   --nf-fs-desk:.9375rem;      /* základní velikost textu v ordinaci (desktop) */
   --nf-fs-h1-desk:clamp(1.5rem,3vw,1.875rem); /* titulek stránky v ordinaci */
   /* popisky uvnitř vysvětlujících obrázků (SVG): jednotky viewBoxu, obrázek se zvětšuje se šířkou karty */
-  --nf-fs-fig-xs:10px;--nf-fs-fig-sm:11px;--nf-fs-fig:12px;--nf-fs-fig-lg:13px;--nf-fs-fig-xl:16px;
+  --nf-fs-fig-xs:10px;--nf-fs-fig-sm:11px;--nf-fs-fig:12px;--nf-fs-fig-lg:13px;--nf-fs-fig-xl:16px;--nf-fs-fig-2xl:28px;
+  --nf-fig-h:96px;--nf-fig-stroke:1.75;   /* jeden rámeček ilustrací rad: výška a tah (19. 10. 2026) */
   --nf-lh:1.45;--nf-lh-tight:1.15;
   --nf-w-text:500;--nf-w-strong:700;--nf-w-display:700;--nf-w-display-strong:800;
   --nf-track-tight:-0.02em;--nf-track-caps:0.06em;
@@ -93,6 +94,7 @@
   --nf-check-ink:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230F6F8C' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
 
   /* ---------- pohyb ---------- */
+  --nf-t-success:.6s;          /* okamžik potvrzení po uložení */
   --nf-t-fast:.15s;--nf-t:.25s;--nf-t-slow:.4s;--nf-ease:cubic-bezier(.2,.7,.2,1);--nf-ease-move:cubic-bezier(.4,0,.2,1);
 
   /* ---------- mapování starších názvů (design.css je zatím používá; nové komponenty berou --nf-*) ---------- */

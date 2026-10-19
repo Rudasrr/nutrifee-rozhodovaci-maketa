@@ -75,29 +75,41 @@ NF.render = function () {
   if (S.toast) { showToast(S.toast); S.toast = ''; }
   if (NF.slots.afterRender) { try { NF.slots.afterRender(S); } catch (e3) { } }
 };
-/* Po přepnutí obrazovky nebo role dostane fokus nadpis h1 (E5, 6. 10. 2026); první vykreslení fokus nemění. */
+/* Po přepnutí obrazovky nebo role dostane fokus nadpis h1 (E5, 6. 10. 2026); první vykreslení fokus nemění.
+   Krok jídla a stránka převzetí plánu jsou samostatné obrazovky: i po „Další“ dostane fokus nový h1 (A2, 19. 10. 2026). */
 var lastScreen = null;
 function focusAfterRender(root) {
-  var key = S.role + '/' + S.page;
+  var key = S.role + '/' + S.page + (S.meal ? '/k' + S.meal.step : '') + (S.onboarding && S.onboarding.page ? '/o' + S.onboarding.page : '');
   if (lastScreen !== null && lastScreen !== key && root && typeof root.querySelector === 'function') {
     try { var h = root.querySelector('main h1'); if (h && h.focus) { h.setAttribute('tabindex', '-1'); h.focus(); } } catch (err) { }
   }
   lastScreen = key;
 }
+/* Oznámení zůstane tak dlouho, aby ho senior dočetl: nejméně 6 s, u delšího textu 60 ms na znak; při najetí myší nebo fokusu nezmizí (A14, 19. 10. 2026). */
+var toastTimer = null;
+NF.toastMs = function (msg) { return Math.max(6000, String(msg || '').length * 60); };
 function showToast(msg) {
   var el = global.document && global.document.getElementById('toast'); if (!el) return;
   el.innerHTML = '<div class="toast">' + e(msg) + '</div>'; /* #toast je trvalá živá oblast (aria-live v HTML) */
-  if (global.setTimeout) global.setTimeout(function () { el.innerHTML = ''; }, 4000);
+  var hide = function () { el.innerHTML = ''; toastTimer = null; };
+  var arm = function (ms) { if (toastTimer && global.clearTimeout) global.clearTimeout(toastTimer); toastTimer = global.setTimeout ? global.setTimeout(hide, ms) : null; };
+  arm(NF.toastMs(msg));
+  el.onmouseenter = el.onfocusin = function () { if (toastTimer && global.clearTimeout) global.clearTimeout(toastTimer); toastTimer = null; };
+  el.onmouseleave = el.onfocusout = function () { if (el.innerHTML) arm(3000); };
 }
+/* Zásuvka je modální: obsah pod ní je inert, takže Tab ani čtečka z ní neodejdou (A3, 19. 10. 2026). */
+function setInert(on) { var app = global.document && global.document.getElementById('app'); if (!app) return; app.inert = !!on; if (app.setAttribute) { if (on) app.setAttribute('inert', ''); else if (app.removeAttribute) app.removeAttribute('inert'); } }
 function renderDrawer() {
   var el = global.document && global.document.getElementById('overlay'); if (!el) return;
+  setInert(!!drawer);
   if (!drawer) { el.innerHTML = ''; if (drawerOpener && typeof drawerOpener.focus === 'function') { try { drawerOpener.focus(); } catch (err) { } } drawerOpener = null; return; }
   var body = '';
   if (drawer.indexOf('item:') === 0) body = V.itemDetail ? V.itemDetail(S, drawer.slice(5)) : '';
   else if (drawer === 'acute') body = V.acute ? V.acute(S) : '';
+  else if (drawer === 'safety') body = V.safetySheet ? V.safetySheet(S) : '';
   else if (NF.slots.drawer) body = NF.slots.drawer(S, drawer) || '';
-  if (!body) { el.innerHTML = ''; drawer = null; return; }
-  el.innerHTML = '<div class="drawer"><section class="drawerpanel" role="dialog" aria-modal="true" aria-label="Podrobnosti">' +
+  if (!body) { el.innerHTML = ''; drawer = null; setInert(false); return; }
+  el.innerHTML = '<div class="drawer' + (drawer === 'safety' ? ' sheet' : '') + '"><section class="drawerpanel" role="dialog" aria-modal="true" aria-label="' + (drawer === 'safety' ? 'Bezpečí' : 'Podrobnosti') + '">' +
     '<button type="button" class="btn sm close" data-action="closeDrawer" aria-label="Zavřít">×</button>' + body + '</section></div>';
   try { var c = el.querySelector && el.querySelector('.close'); if (c && c.focus) c.focus(); } catch (err2) { }
 }
@@ -221,7 +233,7 @@ var A = {
   illness: function (v) { NF.setIllness(S, v === 'on'); toast(v === 'on' ? 'Nemoc je označená. Pomáháme dál, jen jinak.' : 'Nemoc je ukončená. Rady zase platí naplno.'); },
   illnessCheck: function (v) { NF.illnessCheckin(S, v === 'better'); toast(v === 'better' ? 'Rádi to slyšíme. Rady zase platí naplno.' : 'Zeptáme se zítra. Pokyny lékaře máte nahoře.'); },
   basalOther: function () { S.basalOther = !S.basalOther; S.basalUnits = S.basalUnits != null ? S.basalUnits : NF.activePlan(S).doses.basal.units; },
-  basalUnits: function (v) { S.basalUnits = Math.max(0, Math.min(60, (S.basalUnits != null ? S.basalUnits : NF.activePlan(S).doses.basal.units) + Number(v))); },
+  basalUnits: function (v) { S.basalUnits = Math.max(1, Math.min(60, (S.basalUnits != null ? S.basalUnits : NF.activePlan(S).doses.basal.units) + Number(v))); },
   basalYesterday: function (v) { var p = NF.activePlan(S); var r = NF.confirmBasal(S, v, undefined, p.doses.basal.time, NF.day(NF.addDays(S.clock, -1))); if (!r.ok) return fail(r.error); toast('Díky za doplnění. Včerejší bazál je zapsaný.'); },
   basalConfirm: function (v) { var r = NF.confirmBasal(S, v, v === 'other' ? S.basalUnits : v === 'none' ? null : undefined); if (!r.ok) return fail(r.error); S.basalOther = false; toast('Bazál je zapsaný.'); },
   startMeal: function (v) { if (S.role !== 'patient') return fail('Jídlo zapisuje pacient.'); var meal = v || V.mealNow(S); if (!validMeal(meal)) return fail('Neznámé jídlo dne.'); S.meal = newMeal(meal); S.page = 'meal'; S.error = ''; },
@@ -230,7 +242,7 @@ var A = {
   mealSkipAsk: function (v) { S.ask = S.ask && S.ask.meal === v ? null : { day: NF.day(S.clock), meal: v }; },
   mealSkip: function (v) { var p = v.split(':'); var r = NF.skipMeal(S, p[0], p[1]); S.ask = null; toast(r.warn ? 'Zapsáno. Inzulin bez jídla — podívejte se na pokyn lékaře „méně jídla než obvykle“.' : 'Zapsáno: dnes ' + NF.mealText(p[0], 'without') + '.'); },
   mealBolus: function (v) { if (!needMeal()) return; S.meal.bolus = v; S.meal.decisions = {}; S.meal.reasons = {}; },
-  mealUnits: function (v) { if (!needMeal()) return; S.meal.units = Math.max(0, Math.min(60, S.meal.units + Number(v))); },
+  mealUnits: function (v) { if (!needMeal()) return; S.meal.units = Math.max(1, Math.min(60, S.meal.units + Number(v))); },
   mealTime: function (v) { if (!needMeal()) return; S.meal.offset = v; },
   mealCancelAsk: function () { if (!S.meal) return; S.meal.cancelAsk = true; },
   mealCancelKeep: function () { if (!S.meal) return; S.meal.cancelAsk = false; },
@@ -259,7 +271,9 @@ var A = {
   mealLow: function (v) { if (!needMeal()) return; S.meal.low = v === 'yes' ? true : v === 'no' ? false : null; S.meal.lowAsked = true; },
   mealExpand: function (v) { if (!needMeal()) return; S.meal.compact = S.meal.compact || {}; delete S.meal.compact[v]; },
   peakChip: function (v) { var p = v.split(':'); var val = NF.chipValue(p[1]); var r = NF.setManualPeak(S, p[0], val == null ? null : val); if (!r.ok) return fail(r.error); if (!r.skipped) toast('Díky. Výsledek je na Dnes.'); },
-  lowChip: function (v) { var p = v.split(':'); var r = NF.setManualLow(S, p[0], p[1]); if (!r.ok) return fail(r.error); if (p[1] === 'yes') S.lowNotice = { at: S.clock }; },
+  lowChip: function (v) { var p = v.split(':'); var r = NF.setManualLow(S, p[0], p[1]); if (!r.ok) return fail(r.error); if (p[1] === 'yes') S.lowNotice = { at: S.clock }; if (S.meal) { S.meal.prevDone = S.meal.prevDone || []; if (S.meal.prevDone.indexOf(p[0]) < 0) S.meal.prevDone.push(p[0]); } },
+  /* „Změnit“ u sbaleného řádku minulého jídla: otázky se znovu otevřou (jen během rozpracovaného zápisu) */
+  prevReopen: function (v) { if (!needMeal()) return; var ep = S.episodes.filter(function (x) { return x.id === v; })[0]; if (!ep || !ep.manual) return; ep.manual.peak = null; ep.manual.lowAsked = false; ep.manual.low = null; ep.peak = NF.epPeak(S, ep); ep.rise = NF.epRise(S, ep); S.meal.prevDone = (S.meal.prevDone || []).filter(function (x) { return x !== v; }); },
   /* odpověď „ano, pod 4“ nezmizí v toastu: na Dnes zůstane karta s pokynem lékaře, dokud ji pacient nepotvrdí (19. 10. 2026) */
   hypoAnswer: function (v) { var p = v.split(':'); var r = NF.answerHypoWatch(S, p[0], p[1]); if (!r.ok) return fail(r.error); if (r.low) S.lowNotice = { at: S.clock }; else toast('Zapsáno.'); },
   lowNoticeSeen: function () { S.lowNotice = null; },
@@ -307,12 +321,14 @@ var A = {
     var rows = NF.parseSensorCsv(v); var r = NF.importReadings(S, rows); if (!r.ok) return fail(r.error);
     toast('Nahráno ' + r.readings + ' měření; doplněn průběh u ' + NF.plural(r.filled, 'jídla', 'jídel', 'jídel') + (r.nights ? ' a ' + NF.plural(r.nights, 'noc', 'noci', 'nocí') : '') + '.');
   },
-  fixInsulinOpen: function (v) { S.fixInsulin = S.fixInsulin === v ? null : v; S.fixInsulinOther = false; S.fixInsulinUnits = null; },
-  fixInsulinOther: function (v) { S.fixInsulinOther = !S.fixInsulinOther; var ep = S.episodes.filter(function (x) { return x.id === v; })[0]; S.fixInsulinUnits = ep ? ep.insulin.prescribed : 0; },
-  fixInsulinUnits: function (v) { S.fixInsulinUnits = Math.max(0, Math.min(60, (S.fixInsulinUnits || 0) + Number(v))); },
+  fixInsulinOpen: function (v) { S.fixInsulin = S.fixInsulin === v ? null : v; S.fixInsulinOther = false; S.fixInsulinUnits = null; S.fixInsulinPick = null; },
+  /* volba opravy se jen vybere; uloží ji samostatné „Uložit opravu“ (LF-23, 19. 10. 2026) */
+  fixInsulinPick: function (v) { var p = v.split(':'); if (['as', 'other', 'none', 'unknown'].indexOf(p[1]) < 0) return; S.fixInsulinPick = p[1]; S.fixInsulinOther = p[1] === 'other'; if (p[1] === 'other' && S.fixInsulinUnits == null) { var ep = S.episodes.filter(function (x) { return x.id === p[0]; })[0]; S.fixInsulinUnits = ep ? ep.insulin.prescribed : 1; } },
+  fixInsulinOther: function (v) { S.fixInsulinOther = !S.fixInsulinOther; S.fixInsulinPick = S.fixInsulinOther ? 'other' : null; var ep = S.episodes.filter(function (x) { return x.id === v; })[0]; S.fixInsulinUnits = ep ? ep.insulin.prescribed : 1; },
+  fixInsulinUnits: function (v) { S.fixInsulinUnits = Math.max(1, Math.min(60, (S.fixInsulinUnits || 0) + Number(v))); },
   fixInsulin: function (v) {
     var p = v.split(':'); var r = NF.correctInsulin(S, p[0], p[1], p[1] === 'other' ? S.fixInsulinUnits : undefined); if (!r.ok) return fail(r.error);
-    S.fixInsulin = null; S.fixInsulinOther = false; toast('Inzulin je opravený. Zápis se učí dál, do návrhu k dávce už nejde.');
+    S.fixInsulin = null; S.fixInsulinOther = false; S.fixInsulinPick = null; toast('Inzulin je opravený. Zápis se učí dál, do návrhu k dávce už nejde.');
   },
   openFood: function (v) { S.page = 'foods'; S.foodsSeg = 'all'; S.foodOpen = v; },
   milestoneClose: function (v) { NF.closeMilestone(S, v); },
@@ -344,6 +360,8 @@ var A = {
   propSingle: function (v) { S.review.single = S.review.single || {}; S.review.single[v] = true; },
   propSwapTo: function (v) { var p = v.split(':'); S.review.swapTo = S.review.swapTo || {}; S.review.swapTo[p[0]] = p[1]; },
   acuteOpen: function () { drawer = 'acute'; },
+  /* Bezpečí z kroků jídla jedním klepnutím: list přes obrazovku, rozpracovaný zápis zůstává (LF-11, 19. 10. 2026). */
+  safetyOpen: function () { if (!drawer) drawerOpener = global.document && global.document.activeElement; drawer = 'safety'; },
   propUnits: function (v) { if (reviewLocked()) return; var p = v.split(':'); var pr = S.review.proposals.filter(function (x) { return x.id === p[0]; })[0]; if (!pr || !pr.dose) return; S.review.newDoses[pr.dose].units = Math.max(1, Math.min(60, S.review.newDoses[pr.dose].units + Number(p[1]))); },
   propOther: function (v) { S.review.other = S.review.other === v ? null : v; },
   propDecide: function (v) {
@@ -424,6 +442,13 @@ if (global.document && global.document.addEventListener) {
   global.document.addEventListener('click', function (ev) {
     var b = ev.target.closest && ev.target.closest('[data-action]');
     if (!b || b.disabled) return;
+    /* Okamžik potvrzení po uložení jídla (19. 10. 2026): tlačítko se na chvíli promění ve fajfku „Uloženo“, pak návrat na Dnes.
+       Jen v prohlížeči při klepnutí; průchod a testy volají akci přímo. */
+    if (b.dataset.action === 'mealFinish' && b.classList && b.classList.contains('primary') && global.setTimeout && !b.classList.contains('done')) {
+      var val = b.dataset.value; b.classList.add('done'); b.disabled = true; b.innerHTML = NF.icon('check') + ' Uloženo';
+      var ms = global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches ? 350 : 600;
+      global.setTimeout(function () { act('mealFinish', val); }, ms); return;
+    }
     act(b.dataset.action, b.dataset.value);
   });
   global.document.addEventListener('input', function (ev) {

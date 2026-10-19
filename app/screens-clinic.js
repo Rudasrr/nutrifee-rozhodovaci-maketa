@@ -128,10 +128,11 @@ function reviewInstructions(S, r) {
 var TILE_WORD = { 'c-ok': '✓ v cíli', 'c-warn': '! blízko cíle', 'c-bad': '✕ mimo cíl', 'c-none': '– bez dat' };
 var TILE_WORD_ADV = { 'c-ok': '✓ ano', 'c-none': '– zatím ne' };
 /* slovo stavu podle dlaždice (19. 10. 2026: „blízko cíle“ u HbA1c nebo dnů nemoci nedávalo smysl) */
-var TILE_WORD_BY = { usual: { 'c-warn': '! pod 80 %', 'c-bad': '✕ pod 60 %' }, ins: { 'c-warn': '! pod 80 %', 'c-bad': '✕ pod 60 %' }, hba: { 'c-ok': '✓ klesá', 'c-warn': '– beze změny', 'c-bad': '! stoupá' }, ill: { 'c-ok': '✓ do 7 dní', 'c-warn': '! přes 7 dní' } };
+var TILE_WORD_BY = { usual: { 'c-warn': '! pod 80 %', 'c-bad': '✕ pod 60 %' }, ins: { 'c-warn': '! pod 80 %', 'c-bad': '✕ pod 60 %' }, hba: { 'c-ok': '✓ klesá', 'c-warn': '– beze změny', 'c-bad': '! stoupá' }, ill: { 'c-none': 'do 7 dní', 'c-warn': '! přes 7 dní' } };
+/* Jeden nosič stavu (řemeslo 9, 19. 10. 2026): popisek → číslo → jeden řádek „✓ v cíli“ ve barvě stavu; bez tečky. Dlaždice bez cíle (Mimo učení) je neutrální. */
 function tileBtn(S, key, k, v, d, cls, open, extra) {
   var w = (TILE_WORD_BY[key] && TILE_WORD_BY[key][cls]) || (key === 'adv' ? TILE_WORD_ADV : TILE_WORD)[cls] || '';
-  return '<button type="button" class="tile ' + cls + (open ? ' open' : '') + '" data-action="reviewTile" data-value="' + key + '" aria-expanded="' + (open ? 'true' : 'false') + '"><div class="k"><i aria-hidden="true"></i>' + e(k) + (w ? ' <span class="st">· ' + e(w) + '</span>' : '') + '</div><div class="v">' + v + '</div>' + (extra || '') + '<div class="d">' + e(d) + '</div></button>';
+  return '<button type="button" class="tile ' + cls + (open ? ' open' : '') + '" data-action="reviewTile" data-value="' + key + '" aria-expanded="' + (open ? 'true' : 'false') + '"><div class="k">' + e(k) + '</div><div class="v">' + v + '</div>' + (w ? '<div class="st">' + e(w) + '</div>' : '') + (extra || '') + '<div class="d">' + e(d) + '</div></button>';
 }
 function leadSentence(S, s) {
   var parts = [];
@@ -186,7 +187,7 @@ function reviewSummary(S, p, r) {
     tileBtn(S, 'ins', 'Inzulin podle plánu', s.asPct == null ? '—' : s.asPct + ' <small>%</small>', s.other + '× jinak · ' + s.none + '× bez inzulinu · ' + s.unknown + '× neví', s.asPct == null ? 'c-none' : s.asPct >= 80 ? 'c-ok' : s.asPct >= 60 ? 'c-warn' : 'c-bad', r.tile === 'ins') +
     tileBtn(S, 'adv', 'S radou bývalo níž?', s.advice.works === 'yes' ? 'ano' : s.advice.works === 'few' ? 'zatím nelze říct' : 'ne', 'přijato ' + s.advice.accepted.n + '× · nepřijato ' + s.advice.declined.n + '× · bez odpovědi ' + s.advice.noAnswer.n + '×', s.advice.works === 'yes' ? 'c-ok' : 'c-none', r.tile === 'adv') +
     (s.hba1c ? tileBtn(S, 'hba', 'HbA1c', s.hba1c[0] + ' → ' + s.hba1c[1], 'mmol/mol · ' + NF.fmtShort(p.issuedAt) + ' → ' + NF.fmtShort(r.startedAt), s.hba1c[1] < s.hba1c[0] ? 'c-ok' : s.hba1c[1] > s.hba1c[0] ? 'c-bad' : 'c-warn', r.tile === 'hba') : '') +
-    tileBtn(S, 'ill', 'Mimo učení', s.illDays + (s.incomplete ? '<small>+' + s.incomplete + '</small>' : ''), NF.plural(s.illDays, 'den', 'dny', 'dní') + ' nemoci · ' + NF.plural(s.incomplete, 'zápis', 'zápisy', 'zápisů') + ' bez dat', s.illDays > 7 ? 'c-warn' : 'c-ok', r.tile === 'ill');
+    tileBtn(S, 'ill', 'Mimo učení', s.illDays + (s.incomplete ? '<small>+' + s.incomplete + '</small>' : ''), NF.plural(s.illDays, 'den', 'dny', 'dní') + ' nemoci · ' + NF.plural(s.incomplete, 'zápis', 'zápisy', 'zápisů') + ' bez dat', s.illDays > 7 ? 'c-warn' : 'c-none', r.tile === 'ill');
   var out = '<div class="tiles">' + tiles + '</div><p class="small muted mt-1 mb-2">Dlaždice vycházejí z: ' + appr(S, 'C-CILE') + ' ' + appr(S, 'S-SEMAFOR') + ' ' + appr(S, 'D-CISTA') + ' ' + appr(S, 'S-SOUHRN') + '</p>';
   if (r.tile) out += card(tileDetail(S, p, r, r.tile), 'tint');
   out += card('<p><b>Co se dělo:</b> ' + e(leadSentence(S, s)) + ' <span class="small muted">' + appr(S, 'S-SOUHRN') + '</span></p>', 'tint');
@@ -244,6 +245,8 @@ function podklady(S, p, r) {
   return out;
 }
 
+/* Značka hotového oddílu návrhové karty: fajfka místo čísla (řemeslo 16, 19. 10. 2026). */
+function secMark(ok) { return ok ? '<span class="mk">' + NF.icon('check') + '</span>' : ''; }
 /* Větev postupu podle toho, co lékař ověřil. */
 V.proposalBranch = function (S, pr) {
   /* Tři stavy u každého bodu: neověřeno (undefined) → čeká; sedí (true); nesedí (false) → větev podle bodu. */
@@ -265,7 +268,9 @@ function reviewProposals(S, p, r) {
   singles.forEach(function (pr, i) {
     var dec = r.decisions[pr.id], now = !dec && next && pr.id === next.id;
     var cls = dec ? 'done' : now ? 'current' : 'locked'; /* 'current', ne 'now' – kolize s pacientskou kartou .now (18. 10. 2026) */
-    out += '<section class="prop ' + cls + '"><button type="button" class="bar" data-action="' + (dec && !r.planIssued ? 'propReopen' : 'noop') + '" data-value="' + pr.id + '"><span class="n">' + (dec ? NF.icon('check') : i + 1) + '</span><h3>' + e(pr.title) + '</h3><span class="state">' + (dec ? e(decisionLabel(dec)) + (r.planIssued ? '' : ' · změnit') : now ? 'rozhodujete teď' : 'čeká') + '</span></button>';
+    var barIn = '<span class="n">' + (dec ? NF.icon('check') : i + 1) + '</span>', st = '<span class="state">' + (dec ? e(decisionLabel(dec)) + (r.planIssued ? '' : ' · změnit') : now ? 'rozhodujete teď' : 'čeká') + '</span>';
+    /* A12: záhlaví, které nic nedělá, není tlačítko; znovuotevření rozhodnutého je nadpis s tlačítkem uvnitř */
+    out += '<section class="prop ' + cls + '">' + (dec && !r.planIssued ? '<h3 class="bar-h"><button type="button" class="bar" data-action="propReopen" data-value="' + pr.id + '" aria-expanded="false">' + barIn + '<span class="t">' + e(pr.title) + '</span>' + st + '</button></h3>' : '<div class="bar">' + barIn + '<h3>' + e(pr.title) + '</h3>' + st + '</div>');
     if (now) out += proposalBody(S, p, r, pr);
     out += '</section>';
   });
@@ -293,8 +298,10 @@ function proposalBody(S, p, r, pr) {
   var allYes = pr.verify.every(function (_, i) { return v[i] === true; });
   var done = pr.verify.filter(function (_, i) { return v[i] === true || v[i] === false; }).length;
   var other = r.other === pr.id;
+  /* body ověření bez čísel; „Sedí“ zeleně jen u řádku, kde ho lékař vybral (řemeslo 16) */
+  var verifyRows = pr.verify.map(function (t, i) { return '<div class="verify' + (v[i] === false ? ' off' : '') + '"><span>' + e(t) + '</span><span class="choice-row">' + choice((v[i] === true ? NF.icon('check') + ' ' : '') + 'Sedí', 'propVerify', pr.id + ':' + i + ':yes', v[i] === true, 'sm yes') + choice((v[i] === false ? NF.icon('x') + ' ' : '') + 'Nesedí', 'propVerify', pr.id + ':' + i + ':no', v[i] === false, 'sm no') + '</span></div>'; }).join('');
   var actLabel = function (b) { return b.action === 'up' ? 'zvýšit' : b.action === 'down' ? 'snížit' : b.action === 'swap' ? 'vyměnit' : b.action === 'edit' ? 'upravit' : 'ponechat'; };
-  var actCls = function (b) { return b.action === 'up' || b.action === 'down' ? 'warn' : b.action === 'swap' ? 'info' : ''; };
+  var actCls = function (b) { return b.action === 'up' || b.action === 'down' ? 'act' : b.action === 'swap' ? 'info' : ''; };
   var others = pr.branches.filter(function (b) { return !(br && !wait && b === br); });
   /* 19. 10. 2026: čísla jako dlaždice, oddíly 1–3 jako nadpisy, jen aktivní větev postupu, rozhodnutí v podbarveném pruhu */
   return '<div class="body">' +
@@ -302,13 +309,14 @@ function proposalBody(S, p, r, pr) {
     (pr.breakdown && pr.breakdown.length ? '<div class="why-tiles">' + pr.breakdown.slice(0, 3).map(function (b) { return '<div class="why-tile"><b>' + b.above + ' z ' + b.n + '</b><span>' + e(b.food) + ' · nad cílem</span></div>'; }).join('') + '</div>' : '') +
     (pr.context ? '<div class="why-row"><b>Celkové vyrovnání:</b> ' + e(pr.context) + '</div>' : '') +
     (pr.weak.length ? '<details class="more"><summary>Co návrh oslabuje (' + pr.weak.length + ')</summary><p class="small muted mt-2 mb-0">' + e(pr.weak.join(' · ')) + '</p>' + (pr.excluded && pr.excluded.length ? '<ul class="plain small">' + pr.excluded.map(function (x) { return '<li>' + e(NF.fmtDateTime(x.at)) + ' · ' + e(x.why || 'bez důvodu') + '</li>'; }).join('') + '</ul>' : '') + '</details>' : '') +
-    '<div class="grid2 mt-3"><div class="box"><div class="sec-h"><span class="n">1</span>Ověřte s pacientem<span class="prog">' + done + ' z ' + pr.verify.length + '</span></div>' + (pr.verify.length > 1 ? '<div class="actions mb-2">' + btn('Vše sedí', 'propVerifyAll', pr.id, allYes ? 'sm' : 'sm primary') + '<span class="small muted">jednotlivé „Nesedí“ přepněte níže</span></div>' : '') + pr.verify.map(function (t, i) { return '<div class="verify' + (v[i] === false ? ' off' : '') + '"><span>' + (i + 1) + '. ' + e(t) + '</span><span class="choice-row">' + choice((v[i] === true ? NF.icon('check') + ' ' : '') + 'Sedí', 'propVerify', pr.id + ':' + i + ':yes', v[i] === true, 'sm yes') + choice((v[i] === false ? NF.icon('x') + ' ' : '') + 'Nesedí', 'propVerify', pr.id + ':' + i + ':no', v[i] === false, 'sm no') + '</span></div>'; }).join('') + '</div>' +
-    '<div class="box"><div class="sec-h"><span class="n">2</span>Váš schválený postup říká</div><div class="branch">' +
+    '<div class="grid2 mt-3"><div class="box"><h4 class="sec-h">' + secMark(done === pr.verify.length) + 'Ověřit s pacientem<span class="prog">' + done + ' ' + NF.z(pr.verify.length) + ' ' + pr.verify.length + '</span></h4>' + (pr.verify.length > 1 && !allYes ? '<div class="actions mb-2">' + btn('Vše sedí', 'propVerifyAll', pr.id, 'sm primary') + '<span class="small muted">jednotlivé „Nesedí“ přepněte níže</span></div>' : '') +
+    (allYes && pr.verify.length > 1 ? '<details class="more verify-sum"><summary>' + NF.icon('check', 'ok') + ' ' + pr.verify.length + ' ' + NF.z(pr.verify.length) + ' ' + pr.verify.length + ' sedí · upravit</summary>' + verifyRows + '</details>' : verifyRows) + '</div>' +
+    '<div class="box"><h4 class="sec-h">' + secMark(!wait) + 'Postup říká</h4><div class="branch">' +
     (wait ? '<div class="hi">' + tag('čeká') + '<span>Dokončete ověření (' + done + ' z ' + pr.verify.length + ') – postup pak ukáže větev.</span></div>' : free ? '<div class="active-branch">' + tag('bez postupu', 'warn') + '<span>' + e(br.text) + '</span></div>' : '<div class="active-branch">' + tag(actLabel(br), actCls(br)) + '<span>' + e(br.when) + ' → ' + e(br.text) + '</span></div>') +
     (others.length ? '<details class="more mt-2"><summary>Ostatní větve postupu (' + others.length + ')</summary>' + others.map(function (b) { return '<div>' + tag(actLabel(b), actCls(b)) + '<span>' + e(b.when) + ' → ' + e(b.text) + '</span></div>'; }).join('') + '</details>' : '') +
     (!wait && br.action === 'edit' ? reviewInstructions(S, r) : '') +
     (!wait && br.action === 'swap' && swapOpts.length ? '<div class="mt-3"><div class="k">Místo ní nabízet</div><div class="choice-row">' + swapOpts.map(function (l) { return choice(e(NF.LEVERS[l].label), 'propSwapTo', pr.id + ':' + l, swapTo === l, 'sm'); }).join('') + choice('Jen vypnout', 'propSwapTo', pr.id + ':none', swapTo === null && r.swapTo && r.swapTo[pr.id] === 'none', 'sm') + '</div>' + (swapTo && NF.HABIT_OF[swapTo] ? '<p class="small muted mt-2 mb-0">S touto radou přibude do plánu návyk „' + e(NF.LEVERS[swapTo].label) + '“.</p>' : '') + '</div>' : '') + '</div></div></div>' +
-    '<div class="decide"><div class="sec-h w-full mb-1"><span class="n">3</span>Rozhodnutí' + (pr.kind === 'dose' ? '<span class="prog">dnes ' + cur + ' j. · o kolik, volíte vy</span>' : '') + '</div>' +
+    '<div class="decide"><h4 class="sec-h w-full mb-1">Rozhodnout' + (pr.kind === 'dose' ? '<span class="prog">dnes ' + cur + ' j. · o kolik, volíte vy</span>' : '') + '</h4>' +
     (showStepper ? '<div class="stepper">' + btn(NF.icon('minus'), 'propUnits', pr.id + ':-1', '', ' aria-label="méně"') + '<span class="val">' + units + ' j.<small>dnes ' + cur + ' j.</small></span>' + btn(NF.icon('plus'), 'propUnits', pr.id + ':1', '', ' aria-label="více"') + '</div>' : '') +
     (showStepper && units !== cur ? '<span class="diff" aria-live="polite">' + (units > cur ? '+' : '−') + Math.abs(units - cur) + ' j. <small>(' + cur + ' → ' + units + ')</small></span>' : '') + /* rozdíl velkým písmem; aplikace ho nenavrhuje, jen ukazuje lékařovu volbu (19. 10. 2026) */
     btn(e(primary), 'propDecide', pr.id + ':' + (choiceVal || 'agree'), against ? '' : 'primary', wait || (showStepper && units === cur) ? ' disabled' : '') +
@@ -344,7 +352,6 @@ function reviewHandover(S, p, r) {
 }
 
 /* --- schvalovací registr --- */
-var ICONS = { kohorta: 'user', plan: 'clipboard', vypocty: 'sigma', rady: 'lightbulb', skore: 'pie', davka: 'syringe', pokyny: 'shield', zauceni: 'graduation', jidla: 'utensils', report: 'chart-bar', provoz: 'cog' };
 V.registry = function (S) {
   var f = S.reg || {}, q = (f.q || '').toLowerCase();
   var sum = NF.registrySummary(S);
@@ -357,14 +364,14 @@ V.registry = function (S) {
   var counts = { approved: 0, edited: 0, rejected: 0 }; NF.garantItems(S).forEach(function (r) { if (r.status !== 'approved' || NF.itemTouched(S, r.id)) counts[r.status]++; });
   var open = f.open ? NF.item(S, f.open) : null;
   var cur = f.touch ? 'touch:' + f.touch : f.status ? 'status:' + f.status : '';
-  var sumTile = function (k, v, d, cls, key) { return '<button type="button" class="tile ' + cls + (cur === key ? ' open' : '') + '" data-action="regFilter" data-value="' + key + '"><div class="k"><i></i>' + e(k) + '</div><div class="v">' + v + '</div><div class="d">' + e(d) + '</div></button>'; };
+  var sumTile = function (k, v, d, cls, key) { return '<button type="button" class="tile ' + cls + (cur === key ? ' open' : '') + '" data-action="regFilter" data-value="' + key + '"><div class="k">' + e(k) + '</div><div class="v">' + v + '</div><div class="d">' + e(d) + '</div></button>'; };
   var out = pagehead('Lékař-garant', 'Schvalovací registr · Rozhodnuto ' + sum.touched + ' z ' + sum.total, 'Vše, co aplikace počítá, radí a navrhuje, stojí na těchto ' + NF.garantItems(S).length + ' položkách. Maketa se chová, jako byste vše schválili; skutečný stav položky je „ke schválení“, dokud ji neschválíte, neupravíte nebo nezamítnete. Rozhodnutí lze kdykoli změnit, historie se uchovává; zamítnutá položka příběh nezastaví. Jde o neformální podklad pro debatu; pro ostrý provoz se pravidla podepisují znovu.',
     (NF.slots.syncStatus ? NF.slots.syncStatus(S) : '')) +
     '<div class="tiles dense">' + sumTile('Ke schválení', String(sum.remaining), 'čeká na vaše rozhodnutí', sum.remaining ? 'c-warn' : 'c-ok', 'touch:todo') + sumTile('Schváleno', String(sum.approved), 'beze změny', 'c-ok', 'status:approved') + sumTile('Upraveno', String(sum.edited), 'parametry nebo text', 'c-warn', 'status:edited') + sumTile('Zamítnuto', String(sum.rejected), 'aplikace položku nepoužívá', 'c-bad', 'status:rejected') + '</div>' + (sum.pending ? '<p class="small muted pull-up mb-3">' + NF.plural(sum.pending, 'položka má', 'položky mají', 'položek má') + ' komentář bez rozhodnutí.</p>' : '') +
     '<div class="filters"><input data-bind="reg.q" placeholder="Hledat v názvu, popisu, textu i komentářích…" value="' + e(f.q || '') + '">' + NF.CATS.map(function (c) { return choice(e(c[1]), 'regFilter', 'cat:' + c[0], f.cat === c[0], 'sm'); }).join('') + '</div>' +
     '<div class="filters">' + [['approved', 'schválené ' + counts.approved], ['edited', 'upravené ' + counts.edited], ['rejected', 'zamítnuté ' + counts.rejected]].map(function (x) { return choice(e(x[1]), 'regFilter', 'status:' + x[0], f.status === x[0], 'sm'); }).join('') + [['todo', 'ke schválení ' + sum.remaining], ['done', 'rozhodnuto ' + sum.touched], ['pending', 'jen komentář ' + sum.pending], ['commented', 's komentářem ' + sum.commented]].map(function (x) { return choice(e(x[1]), 'regFilter', 'touch:' + x[0], f.touch === x[0], 'sm'); }).join('') + '</div>' +
     '<div class="reg"><div class="card flat flush">' + (items.length ? items.map(function (r) {
-      return '<button type="button" class="reg-row ' + (open && open.id === r.id ? 'on' : '') + '" data-action="regOpen" data-value="' + r.id + '"><span class="ic" aria-hidden="true">' + NF.icon(ICONS[r.cat] || 'circle-dashed') + '</span><span><span class="t">' + e(r.title) + '</span><br><span class="s">' + e(r.id) + ' · ' + e(NF.catLabel(r.cat)) + '</span></span>' + (NF.itemTouched(S, r.id) ? tag(r.status === 'approved' ? 'schváleno' : r.status === 'edited' ? 'upraveno' : NF.STATUS[r.status], r.status === 'approved' ? 'ok' : r.status === 'edited' ? 'warn' : 'bad') : NF.itemCommented(S, r.id) ? tag('okomentováno · čeká', 'warn') : tag('ke schválení', '')) + '<span class="s">' + e(NF.fmtShort(r.decidedAt)) + '</span></button>';
+      return '<button type="button" class="reg-row ' + (open && open.id === r.id ? 'on' : '') + '" data-action="regOpen" data-value="' + r.id + '"' + (open && open.id === r.id ? ' aria-current="true"' : '') + '><span><span class="t">' + e(r.title) + '</span><br><span class="s">' + e(r.id) + ' · ' + e(NF.catLabel(r.cat)) + '</span></span>' + (NF.itemTouched(S, r.id) ? tag(r.status === 'approved' ? 'schváleno' : r.status === 'edited' ? 'upraveno' : NF.STATUS[r.status], r.status === 'approved' ? 'ok' : r.status === 'edited' ? 'warn' : 'bad') : NF.itemCommented(S, r.id) ? tag('okomentováno · čeká', 'warn') : tag('ke schválení', '')) + '<span class="s">' + e(NF.fmtShort(r.decidedAt)) + '</span></button>';
     }).join('') : '<p class="muted p-4">Nic neodpovídá filtru.</p>') + '</div>' +
     '<div class="reg-side">' + (open ? itemPanel(S, open) : card('<p class="muted">Vyberte položku. Uvidíte, co přesně dělá, jaké má parametry, a můžete ji schválit, upravit nebo zamítnout – s komentářem, nebo bez něj.</p>')) + '</div></div>';
   return out;
@@ -373,7 +380,7 @@ V.registry = function (S) {
    Stejná osnova v registru i v rozhodovacím kroku prezentace. Bez průvodce (produkce bez demo/) se ukáže souhrn a detail. */
 V.itemGuide = function (S, r, opts) {
   var g = r.guide, params = r.params || {}, keys = Object.keys(params), o = opts || {};
-  var sec = function (h, body) { return body ? '<div class="gsec"><h4>' + h + '</h4>' + body + '</div>' : ''; };
+  var sec = function (h, body) { return body ? '<div class="gsec"><h3>' + h + '</h3>' + body + '</div>' : ''; };
   var p = function (t) { return t ? '<p>' + e(t) + '</p>' : ''; };
   var paramsHtml = keys.length ? '<ul class="plain small gparams">' + keys.map(function (k) { return '<li>' + e(paramLabel(r, k)) + ': <b>' + e(String(params[k]).replace('.', ',')) + '</b></li>'; }).join('') + '</ul>' : '';
   var where = (r.usedBy ? '<p class="small">V aplikaci: ' + e(r.usedBy) + '.</p>' : '') + (NF.slots.itemWhere ? NF.slots.itemWhere(S, r.id) : '');
@@ -449,9 +456,9 @@ V.trace = function (S) {
   var ev = S.events.slice().reverse().slice(0, 80);
   return pagehead('Verze a stopa', 'Co aplikace udělala a proč', 'Každý výpočet, rada, návrh a rozhodnutí se vstupy a výstupy. Deterministické, bez generativní AI.',
     '') +
-    card('<div class="grid2"><div><h3>Plány</h3><ul class="plain small">' + (S.plans.length ? S.plans.map(function (p) { return '<li><b>' + e(p.id) + '</b> ' + tag(p.state === 'issued' ? 'platí' : 'starší', p.state === 'issued' ? 'ok' : '') + ' · ' + e(NF.fmtShort(p.issuedAt)) + ' · S/O/V ' + p.doses.breakfast.units + '/' + p.doses.lunch.units + '/' + p.doses.dinner.units + ' j. · bazál ' + p.doses.basal.units + ' j.</li>'; }).join('') : '<li class="muted">Žádný plán.</li>') + '</ul></div>' +
-      '<div><h3>Návyky</h3><ul class="plain small">' + (S.habits.length ? S.habits.map(function (h) { return '<li>' + e(h.title) + ' ' + tag(h.state) + ' · ' + e(h.planId) + '</li>'; }).join('') : '<li class="muted">Žádné.</li>') + '</ul></div></div>') +
-    card('<h3>Stopa (' + S.events.length + ' záznamů, posledních 80)</h3><div class="tablewrap"><table><thead><tr><th>Čas</th><th>Kdo</th><th>Událost</th><th>Podrobnost</th><th></th></tr></thead><tbody>' +
+    card('<div class="grid2"><div><h2>Plány</h2><ul class="plain small">' + (S.plans.length ? S.plans.map(function (p) { return '<li><b>' + e(p.id) + '</b> ' + tag(p.state === 'issued' ? 'platí' : 'starší', p.state === 'issued' ? 'ok' : '') + ' · ' + e(NF.fmtShort(p.issuedAt)) + ' · S/O/V ' + p.doses.breakfast.units + '/' + p.doses.lunch.units + '/' + p.doses.dinner.units + ' j. · bazál ' + p.doses.basal.units + ' j.</li>'; }).join('') : '<li class="muted">Žádný plán.</li>') + '</ul></div>' +
+      '<div><h2>Návyky</h2><ul class="plain small">' + (S.habits.length ? S.habits.map(function (h) { return '<li>' + e(h.title) + ' ' + tag(h.state) + ' · ' + e(h.planId) + '</li>'; }).join('') : '<li class="muted">Žádné.</li>') + '</ul></div></div>') +
+    card('<h2>Stopa (' + S.events.length + ' záznamů, posledních 80)</h2><div class="tablewrap" tabindex="0" role="region" aria-label="Stopa"><table><thead><tr><th>Čas</th><th>Kdo</th><th>Událost</th><th>Podrobnost</th><th><span class="sr-only">Data</span></th></tr></thead><tbody>' +
       ev.map(function (x, i) { var k = String(S.events.length - 1 - i); return '<tr><td class="nowrap">' + e(NF.fmtDateTime(x.at)) + '</td><td>' + e(x.who) + '</td><td><b>' + e(x.what) + '</b></td><td>' + e(x.detail) + '</td><td>' + (x.data ? btn(S.traceOpen === k ? 'skrýt' : 'data', 'traceOpen', k, 'sm quiet') : '') + '</td></tr>' + (S.traceOpen === k && x.data ? '<tr><td colspan="5"><pre class="small trace-pre">' + e(JSON.stringify(x.data, null, 2)) + '</pre></td></tr>' : ''); }).join('') + '</tbody></table></div>');
 };
 
