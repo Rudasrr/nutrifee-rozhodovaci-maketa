@@ -75,18 +75,23 @@ function tokenLabel(prop, value) {
   return names;
 }
 function rulesFor(el) {
-  var classes = Array.prototype.slice.call(el.classList).filter(function (c) { return !/^(on|chosen|active|open|now|done|ds-static)$/.test(c) || true; });
+  /* jen pravidla, jejichž selektor na prvek skutečně dopadá — i ve stavech hover / fokus / stisk / neaktivní (pseudotřídy se pro shodu odstraní) */
   var out = [], seen = {};
+  var strip = function (sel) { return sel.replace(/:(hover|active|focus-visible|focus|disabled)\b/g, '').replace(/::?(before|after)\b/g, ''); };
+  var test = function (sel) { return sel.split(',').some(function (part) { var x = strip(part).trim(); if (!x) return false; try { return el.matches(x); } catch (e) { return false; } }); };
+  var walk = function (rules, wrap) {
+    for (var r = 0; r < rules.length; r++) {
+      var rule = rules[r];
+      if (rule.cssRules && rule.conditionText) { walk(rule.cssRules, '@media ' + rule.conditionText); continue; }
+      if (!rule.selectorText || !test(rule.selectorText)) continue;
+      var txt = wrap ? wrap + ' { ' + rule.cssText + ' }' : rule.cssText;
+      if (!seen[txt]) { seen[txt] = 1; out.push(txt); }
+    }
+  };
   for (var i = 0; i < document.styleSheets.length; i++) {
     var ss = document.styleSheets[i], h = ss.href || ''; if (!/design\.css/.test(h)) continue;
     var rules; try { rules = ss.cssRules; } catch (e) { continue; }
-    for (var r = 0; r < rules.length; r++) {
-      var rule = rules[r]; if (!rule.selectorText) continue;
-      var sel = rule.selectorText, hit = false;
-      try { hit = el.matches(sel); } catch (e2) { hit = false; }
-      if (!hit) classes.forEach(function (c) { if (new RegExp('\\.' + c.replace(/[-]/g, '\\-') + '(?![\\w-])').test(sel)) hit = true; });
-      if (hit && !seen[rule.cssText]) { seen[rule.cssText] = 1; out.push(rule.cssText); }
-    }
+    walk(rules, '');
   }
   return out;
 }
@@ -150,7 +155,7 @@ if ('IntersectionObserver' in window) {
   document.querySelectorAll('.ds-sec').forEach(function (s) { io.observe(s); });
 }
 /* verze podle makety: načteme jádro jen kvůli NF.SCHEMA? Ne — katalog nenačítá skripty makety. Verzi dopíše publikace do data-version. */
-var ver = document.body.getAttribute('data-version'); if (ver) $('#ds-version').textContent = 'verze ' + ver;
+var ver = document.body.getAttribute('data-version'); if (ver) $('#ds-version').textContent = 'verze ' + ver; /* data-version = NF.SCHEMA makety, hlídá test */
 
 readTokens(); renderColors(); renderSpace();
 if (!tokens.length) { var b = $('#tok-colors'); if (b) b.innerHTML = '<p class="muted">Tokeny se nepodařilo načíst (stránka musí běžet ze serveru nebo ze stejné složky jako app/tokens.css).</p>'; }

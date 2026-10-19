@@ -164,6 +164,7 @@ var A = {
     NF.instructionCatalog().forEach(function (i) { if (i.default) S.draft.instructions.push({ id: i.id, value: i.value }); });
   },
   dose: function (v) { var p = v.split(':'); NF.setDose(S, p[0], Number(p[1])); },
+  basalTime: function (v) { if (S.draft && /^\d\d:\d\d$/.test(v)) S.draft.doses.basal.time = v; }, /* čas bazálu voličem (15, odst. 4.3) */
   target: function (v) { var p = v.split(':'); if (S.draft) NF.setTarget(S.draft.targets, p[0], Number(p[1])); },
   revTarget: function (v) { var p = v.split(':'); if (S.review) NF.setTarget(S.review.newTargets, p[0], Number(p[1])); },
   revInstrToggle: function (v) {

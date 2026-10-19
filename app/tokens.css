@@ -49,6 +49,8 @@
   --nf-basal-2:#2A4659;
   --nf-basal-text:#C9DCE6;
   --nf-focus:#10212E;
+  --nf-focus-on-dark:#FFFFFF;    /* fokus na petrolejové a tmavých plochách */
+  --nf-primary-soft-hover:#CBE8EC;
 
   /* ---------- písmo ---------- */
   --nf-font-display:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;   /* titulky, čísla, značka (700–800) */
@@ -65,7 +67,7 @@
   --nf-tap:48px;              /* nejmenší cíl dotyku pacienta */
   --nf-tap-desk:40px;         /* nejmenší cíl kliknutí v ordinaci (myš) */
   --nf-tap-lg:56px;           /* primární akce pacienta */
-  --nf-icon:22px;--nf-icon-lg:26px;--nf-icon-circle:40px;
+  --nf-icon-sm:20px;--nf-icon:22px;--nf-icon-lg:26px;--nf-icon-circle-sm:36px;--nf-icon-circle:40px;--nf-icon-circle-lg:48px;--nf-icon-circle-xl:56px;
   --nf-phone:480px;           /* šířka sloupce pacienta */
 
   /* ---------- stíny ---------- */
@@ -78,7 +80,7 @@
   --nf-phone-frame:#0B0F0E;               /* rám náhledu telefonu u sestry */
 
   /* ---------- pohyb ---------- */
-  --nf-t-fast:.15s;--nf-t:.25s;--nf-ease:cubic-bezier(.2,.7,.2,1);
+  --nf-t-fast:.15s;--nf-t:.25s;--nf-t-slow:.4s;--nf-ease:cubic-bezier(.2,.7,.2,1);--nf-ease-move:cubic-bezier(.4,0,.2,1);
 
   /* ---------- mapování starších názvů (design.css je zatím používá; nové komponenty berou --nf-*) ---------- */
   --ink:var(--nf-ink);--muted:var(--nf-muted);--brand:var(--nf-primary);--brand2:var(--nf-primary-strong);--brandbg:var(--nf-primary-soft);
