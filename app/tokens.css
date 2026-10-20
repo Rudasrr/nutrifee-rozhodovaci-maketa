@@ -75,6 +75,10 @@
   --nf-tap-desk:40px;         /* nejmenší cíl kliknutí v ordinaci (myš) */
   --nf-tap-lg:56px;           /* primární akce pacienta */
   --nf-icon-sm:20px;--nf-icon:22px;--nf-icon-lg:26px;--nf-icon-circle-sm:36px;--nf-icon-circle:40px;--nf-icon-circle-lg:48px;--nf-icon-circle-xl:56px;
+  /* token dávky (Podpis A, 20. 10. 2026): pilulka s klíčem a číslem; malá varianta v pásu dne a tabulkách */
+  --nf-dose-h:44px;--nf-dose-h-sm:32px;--nf-dose-border:2px;--nf-dose-border-sm:1.5px;
+  /* tkanina zápisů (Podpis C, 20. 10. 2026): den = sloupec, čtyři tečky (snídaně · oběd · večeře · bazál) */
+  --nf-weave-dot:6px;--nf-weave-row:16px;--nf-weave-dot-md:8px;--nf-weave-gap:2px;--nf-weave-dot-lg:14px;--nf-weave-gap-lg:6px;--nf-weave-ring:1.5px;
   --nf-phone:480px;           /* šířka sloupce pacienta */
   --nf-ctx-w:380px;           /* kontextový sloupec ordinace od 1600 px */
 
@@ -95,6 +99,7 @@
 
   /* ---------- pohyb ---------- */
   --nf-t-success:.6s;          /* okamžik potvrzení po uložení */
+  --nf-t-dose:.22s;            /* nová dávka od lékaře najede zdola (jediná animace předání plánu) */
   --nf-t-fast:.15s;--nf-t:.25s;--nf-t-slow:.4s;--nf-ease:cubic-bezier(.2,.7,.2,1);--nf-ease-move:cubic-bezier(.4,0,.2,1);
 
   /* ---------- mapování starších názvů (design.css je zatím používá; nové komponenty berou --nf-*) ---------- */

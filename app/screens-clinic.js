@@ -190,6 +190,10 @@ function reviewSummary(S, p, r) {
     tileBtn(S, 'ill', 'Mimo učení', s.illDays + (s.incomplete ? '<small>+' + s.incomplete + '</small>' : ''), NF.plural(s.illDays, 'den', 'dny', 'dní') + ' nemoci · ' + NF.plural(s.incomplete, 'zápis', 'zápisy', 'zápisů') + ' bez dat', s.illDays > 7 ? 'c-warn' : 'c-none', r.tile === 'ill');
   var out = '<div class="tiles">' + tiles + '</div><p class="small muted mt-1 mb-2">Dlaždice vycházejí z: ' + appr(S, 'C-CILE') + ' ' + appr(S, 'S-SEMAFOR') + ' ' + appr(S, 'D-CISTA') + ' ' + appr(S, 'S-SOUHRN') + '</p>';
   if (r.tile) out += card(tileDetail(S, p, r, r.tile), 'tint');
+  /* tkanina zápisů celého období (Podpis C, 20. 10. 2026): za dvě sekundy obraz, jak pacient zapisoval – jen činy, žádná glukóza */
+  var wv = NF.weave(S, p.effectiveFrom || p.issuedAt, NF.addDays(r.startedAt, -1));
+  if (wv.days.length) out += card('<div class="card-head"><h2 class="card-title">Zápisy za období</h2><span class="muted">' + e(NF.fmtShort(wv.days[0].date + 'T12:00:00')) + ' – ' + e(NF.fmtShort(wv.days[wv.days.length - 1].date + 'T12:00:00')) + ' · ' + NF.plural(wv.days.length, 'den', 'dny', 'dní') + '</span></div>' + V.weave(wv, false) +
+    '<p class="small muted mt-2 mb-0">Jen činy pacienta (zápis, vynechání se zápisem, potvrzení bazálu), žádné hodnoty glukózy. Dny nemoci tlumeně.</p>', 'weave-card');
   out += card('<p><b>Co se dělo:</b> ' + e(leadSentence(S, s)) + ' <span class="small muted">' + appr(S, 'S-SOUHRN') + '</span></p>', 'tint');
   out += '<h2 class="eyebrow mt-6">Podklady · jen když chcete víc</h2>' + podklady(S, p, r);
   out += nextbar('Další krok: návrhy na příští plán (' + r.proposals.length + ')', 'NutriFee připravila návrhy s důvodem a postupem ověření. Rozhodujete jeden po druhém.', btn('Pokračovat k návrhům →', 'reviewStep', '2', 'primary'));
@@ -299,7 +303,11 @@ function proposalBody(S, p, r, pr) {
   var done = pr.verify.filter(function (_, i) { return v[i] === true || v[i] === false; }).length;
   var other = r.other === pr.id;
   /* body ověření bez čísel; „Sedí“ zeleně jen u řádku, kde ho lékař vybral (řemeslo 16) */
-  var verifyRows = pr.verify.map(function (t, i) { return '<div class="verify' + (v[i] === false ? ' off' : '') + '"><span>' + e(t) + '</span><span class="choice-row">' + choice((v[i] === true ? NF.icon('check') + ' ' : '') + 'Sedí', 'propVerify', pr.id + ':' + i + ':yes', v[i] === true, 'sm yes') + choice((v[i] === false ? NF.icon('x') + ' ' : '') + 'Nesedí', 'propVerify', pr.id + ':' + i + ':no', v[i] === false, 'sm no') + '</span></div>'; }).join('');
+  /* LF-06 (20. 10. 2026): u bodu číslo z dat; bod, kterému data odporují, má štítek a „Vše sedí“ ho nepřepne */
+  var fact = function (i) { var f = pr.facts && pr.facts[i]; return f ? '<span class="v-fact">' + e(f.text) + '</span>' + (f.against ? tag('data říkají jinak', 'warn') : '') : ''; };
+  var againstOpen = pr.verify.some(function (_, i) { return NF.verifyAgainst(pr, i) && v[i] === undefined; });
+  var allOthersYes = pr.verify.every(function (_, i) { return NF.verifyAgainst(pr, i) || v[i] === true; });
+  var verifyRows = pr.verify.map(function (t, i) { return '<div class="verify' + (v[i] === false ? ' off' : '') + (NF.verifyAgainst(pr, i) ? ' against' : '') + '"><span class="v-text">' + e(t) + fact(i) + '</span><span class="choice-row">' + choice((v[i] === true ? NF.icon('check') + ' ' : '') + 'Sedí', 'propVerify', pr.id + ':' + i + ':yes', v[i] === true, 'sm yes') + choice((v[i] === false ? NF.icon('x') + ' ' : '') + 'Nesedí', 'propVerify', pr.id + ':' + i + ':no', v[i] === false, 'sm no') + '</span></div>'; }).join('');
   var actLabel = function (b) { return b.action === 'up' ? 'zvýšit' : b.action === 'down' ? 'snížit' : b.action === 'swap' ? 'vyměnit' : b.action === 'edit' ? 'upravit' : 'ponechat'; };
   var actCls = function (b) { return b.action === 'up' || b.action === 'down' ? 'act' : b.action === 'swap' ? 'info' : ''; };
   var others = pr.branches.filter(function (b) { return !(br && !wait && b === br); });
@@ -309,7 +317,7 @@ function proposalBody(S, p, r, pr) {
     (pr.breakdown && pr.breakdown.length ? '<div class="why-tiles">' + pr.breakdown.slice(0, 3).map(function (b) { return '<div class="why-tile"><b>' + b.above + ' z ' + b.n + '</b><span>' + e(b.food) + ' · nad cílem</span></div>'; }).join('') + '</div>' : '') +
     (pr.context ? '<div class="why-row"><b>Celkové vyrovnání:</b> ' + e(pr.context) + '</div>' : '') +
     (pr.weak.length ? '<details class="more"><summary>Co návrh oslabuje (' + pr.weak.length + ')</summary><p class="small muted mt-2 mb-0">' + e(pr.weak.join(' · ')) + '</p>' + (pr.excluded && pr.excluded.length ? '<ul class="plain small">' + pr.excluded.map(function (x) { return '<li>' + e(NF.fmtDateTime(x.at)) + ' · ' + e(x.why || 'bez důvodu') + '</li>'; }).join('') + '</ul>' : '') + '</details>' : '') +
-    '<div class="grid2 mt-3"><div class="box"><h4 class="sec-h">' + secMark(done === pr.verify.length) + 'Ověřit s pacientem<span class="prog">' + done + ' ' + NF.z(pr.verify.length) + ' ' + pr.verify.length + '</span></h4>' + (pr.verify.length > 1 && !allYes ? '<div class="actions mb-2">' + btn('Vše sedí', 'propVerifyAll', pr.id, 'sm primary') + '<span class="small muted">jednotlivé „Nesedí“ přepněte níže</span></div>' : '') +
+    '<div class="grid2 mt-3"><div class="box verify-box"><h4 class="sec-h">' + secMark(done === pr.verify.length) + 'Ověřit s pacientem<span class="prog">' + done + ' ' + NF.z(pr.verify.length) + ' ' + pr.verify.length + '</span></h4>' + (pr.verify.length > 1 && !allOthersYes ? '<div class="actions mb-2">' + btn('Vše sedí', 'propVerifyAll', pr.id, 'sm') + '<span class="small muted">' + (pr.facts && pr.facts.some(function (f) { return f && f.against; }) ? 'bod se štítkem „data říkají jinak“ nepřepne – ten posuďte sami' : 'jednotlivé „Nesedí“ přepněte níže') + '</span></div>' : againstOpen ? '<p class="small muted mb-2">Zbývá bod se štítkem „data říkají jinak“ – posuďte ho sami.</p>' : '') +
     (allYes && pr.verify.length > 1 ? '<details class="more verify-sum"><summary>' + NF.icon('check', 'ok') + ' ' + pr.verify.length + ' ' + NF.z(pr.verify.length) + ' ' + pr.verify.length + ' sedí · upravit</summary>' + verifyRows + '</details>' : verifyRows) + '</div>' +
     '<div class="box"><h4 class="sec-h">' + secMark(!wait) + 'Postup říká</h4><div class="branch">' +
     (wait ? '<div class="hi">' + tag('čeká') + '<span>Dokončete ověření (' + done + ' z ' + pr.verify.length + ') – postup pak ukáže větev.</span></div>' : free ? '<div class="active-branch">' + tag('bez postupu', 'warn') + '<span>' + e(br.text) + '</span></div>' : '<div class="active-branch">' + tag(actLabel(br), actCls(br)) + '<span>' + e(br.when) + ' → ' + e(br.text) + '</span></div>') +
@@ -424,7 +432,7 @@ function itemPostup(S, r, editing) {
   var pendOff = (S.reg && S.reg.off) || {};
   return Object.keys(r.postup).map(function (key) {
     var p = r.postup[key];
-    return '<div class="box mt-3"><div class="k">' + e(p.title || key) + '</div><ol class="plain small bullets">' + (p.verify || []).map(function (v) { return '<li>' + e(v) + '</li>'; }).join('') + '</ol><div class="branch">' + (p.branches || []).map(function (b, i) {
+    return '<div class="box mt-3"><div class="k">' + e(p.title || key) + '</div><ol class="plain small bullets">' + (p.verify || []).map(function (v, i) { return '<li>' + e(v) + (p.fakta && p.fakta[i] ? ' <span class="muted">· u bodu číslo z dat</span>' : '') + '</li>'; }).join('') + '</ol><div class="branch">' + (p.branches || []).map(function (b, i) {
       var id = key + ':' + i, off = pendOff[id] != null ? pendOff[id] : !!b.off;
       return '<div class="' + (off ? 'off' : '') + '">' + tag(b.action === 'up' ? 'zvýšit' : b.action === 'down' ? 'snížit' : b.action === 'swap' ? 'vyměnit' : b.action === 'edit' ? 'upravit' : 'ponechat', off ? 'bad' : b.action === 'up' || b.action === 'down' ? 'warn' : b.action === 'swap' ? 'info' : '') + '<span' + (off ? ' class="struck"' : '') + '>' + e(b.when) + ' → ' + e(b.text) + '</span>' + (editing ? btn(off ? 'Vrátit' : 'Vyřadit', 'regBranch', id, 'sm quiet') : off ? tag('vyřazeno', 'bad') : '') + '</div>';
     }).join('') + '</div></div>';

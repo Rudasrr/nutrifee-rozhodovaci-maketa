@@ -330,11 +330,12 @@ var A = {
     var p = v.split(':'); var r = NF.correctInsulin(S, p[0], p[1], p[1] === 'other' ? S.fixInsulinUnits : undefined); if (!r.ok) return fail(r.error);
     S.fixInsulin = null; S.fixInsulinOther = false; S.fixInsulinPick = null; toast('Inzulin je opravený. Zápis se učí dál, do návrhu k dávce už nejde.');
   },
-  openFood: function (v) { S.page = 'foods'; S.foodsSeg = 'all'; S.foodOpen = v; },
+  openFood: function (v) { S.page = 'food'; S.foodsSeg = 'all'; S.foodOpen = v; },
   milestoneClose: function (v) { NF.closeMilestone(S, v); },
   weekClose: function (v) { NF.closeWeek(S, v); },
   foodsSeg: function (v) { S.foodsSeg = v; S.foodOpen = null; },
-  foodOpen: function (v) { S.foodOpen = S.foodOpen === v ? null : v; },
+  foodOpen: function (v) { S.page = 'food'; S.foodOpen = v; }, /* detail jídla je samostatná obrazovka (20. 10. 2026) */
+  foodBack: function () { S.page = 'foods'; S.foodOpen = null; },
   previewTile: function (v) { S.previewTile = S.previewTile === v ? null : v; },
   toggleQuestion: function (v) {
     var i = S.questions.findIndex(function (q) { return q.text === v; });

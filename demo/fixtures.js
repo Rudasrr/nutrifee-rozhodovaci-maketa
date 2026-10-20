@@ -145,6 +145,7 @@ D.decideSingles = function (S, B) {
   r.proposals.forEach(function (pr) {
     if (r.decisions[pr.id] || !NF.proposalIsSingle(S, pr)) return;
     NF.verifyAll(S, pr.id);
+    pr.verify.forEach(function (_, i) { if (r.verify[pr.id][i] === undefined) r.verify[pr.id][i] = true; }); /* bod „data říkají jinak“ posoudí v ukázce lékař sám jako „sedí“ (LF-06) */
     if (B.response === 'impractical' && pr.lever && (/^Vyměnit/.test(pr.title) || /-RADY$/.test(pr.id))) r.verify[pr.id][0] = false;
     var br = NF.screens.proposalBranch(S, pr), dec = { choice: br && (br.action === 'up' || br.action === 'down' || br.action === 'swap') ? 'agree' : 'keep', branch: br && br.action };
     if (pr.kind === 'dose' && dec.choice === 'agree') { r.newDoses[pr.dose].units += br.action === 'up' ? 2 : -2; dec.units = r.newDoses[pr.dose].units; }
@@ -218,7 +219,7 @@ var CH = [
   { id: 'firstResult', act: 2, title: 'Pacient — před obědem: nejvyšší hodnota po snídani', role: 'patient', page: 'meal', at: '2026-10-06T12:10:00',
     setup: function (S) { freshMeal(S, 'lunch'); },
     apply: function (S) { NF.setManualPeak(S, 'E1', 12); NF.setManualLow(S, 'E1', 'no'); S.meal = null; } },
-  { id: 'week', act: 2, title: 'Pacient — po týdnu: co už aplikace ví', role: 'patient', page: 'foods', at: '2026-10-12T19:00:00',
+  { id: 'week', act: 2, title: 'Pacient — po týdnu: co už aplikace ví', role: 'patient', page: 'food', at: '2026-10-12T19:00:00',
     setup: function (S) {
       [['E2', 'Chléb se sýrem a zeleninou', '2026-10-07T07:05:00', 'as'], ['E3', 'Ovesná kaše s mlékem a banánem', '2026-10-08T07:10:00', 'as'], ['E4', 'Ovesná kaše s mlékem a banánem', '2026-10-09T07:00:00', 'as'], ['E5', 'Chléb se sýrem a zeleninou', '2026-10-10T07:05:00', 'as'], ['E6', 'Ovesná kaše s mlékem a banánem', '2026-10-11T07:00:00', 'as'], ['E7', 'Chléb se sýrem a zeleninou', '2026-10-12T07:05:00', 'as']]
         .forEach(function (x) { ep(S, { id: x[0], food: x[1], at: x[2], insulin: x[3] }); });

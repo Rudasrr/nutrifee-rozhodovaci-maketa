@@ -287,7 +287,7 @@ test('Přístupnost E (6. 10. 2026): barvy a velikosti v CSS, stupnice s textov�
   const m = markup();
   assert.match(m, /class="rows" role="img" aria-label="Stupnice glukózy 4 až 16 mmol\/l, hranice cíle 10[,0]* mmol\/l\. Bez rady [\d,]+ až [\d,]+ mmol\/l/);
   assert.match(m, /<div class="axis-words"><span>v cíli<\/span><span>nad cílem<\/span><\/div>/);
-  assert.match(m, /data-action="foodsSeg" data-value="known" aria-pressed="true"/);
+  act('foodBack'); assert.match(markup(), /data-action="foodsSeg" data-value="known" aria-pressed="true"/);
   act('page', 'today'); const td = markup();
   assert.match(td, /role="switch" aria-checked="false" data-action="illness" data-value="on"/);
   assert.ok(td.indexOf('class="sick"') < td.indexOf('class="card path"'), 'přepínač nemoci je nad Cestou ke kontrole');
@@ -887,7 +887,7 @@ test('Návrh k dávce 6. 10. 2026: okno od změny dávky, ≥ 8 jídel, rozpad p
   const r = S().review, pr = r.proposals.find(p => p.kind === 'dose' && p.dose !== 'basal'); assert.ok(pr);
   assert.ok(Array.isArray(pr.breakdown) && pr.breakdown.length >= 1, 'rozpad po jídlech'); assert.match(pr.why, /za \d+ dní/); assert.match(pr.why, /medián vrcholu/);
   assert.match(pr.context, /čas v cíli/); assert.match(pr.context, /HbA1c/);
-  assert.ok(pr.verify.some(v => /Celkové vyrovnání/.test(v))); assert.ok(pr.branches.some(b => /celkově v cíli/.test(b.text)));
+  assert.ok(pr.verify.some(v => /Vyrovnání celkově nedosahuje cíle/.test(v))); assert.ok(pr.branches.some(b => /celkově v cíli/.test(b.text)));
   assert.match(markup(), /class="why-tile"><b>\d+ z \d+<\/b><span>[^<]+ · nad cílem/); assert.match(markup(), /Celkové vyrovnání:/);
   assert.equal(NF.param(S(), 'D-PRAND', 'minJidel', 0), 8); assert.equal(NF.param(S(), 'D-PRAND', 'dny', 0), 28);
   /* jediný pokles pod 3,0 u kteréhokoli zápisu jídla spustí návrh „pod cílem“ s předností */
@@ -1268,7 +1268,7 @@ test('Druhá dávka kritiky (19. 10. 2026): CSS jen z tokenů, mřížka čipů,
   const noMedia = css.replace(/@media \(prefers-contrast:more\)[^\n]*/g, '');
   assert.equal(/#[0-9a-fA-F]{3,8}\b/.test(noMedia), false, 'pevná barva v design.css mimo vysoký kontrast');
   assert.equal(/var\(--[a-z0-9-]+,\s*#/.test(css), false, 'žádné záložní barvy ve var()');
-  const legacy = [...new Set([...css.matchAll(/var\((--(?!nf-)[a-z0-9-]+)/g)].map(x => x[1]))].filter(v => !['--c', '--c-tx', '--goal', '--sx-as', '--sx-before', '--sx-other', '--barh', '--pct', '--f', '--from', '--to', '--at', '--rl'].includes(v));
+  const legacy = [...new Set([...css.matchAll(/var\((--(?!nf-)[a-z0-9-]+)/g)].map(x => x[1]))].filter(v => !['--c', '--c-tx', '--goal', '--sx-as', '--sx-before', '--sx-other', '--barh', '--pct', '--f', '--from', '--to', '--at', '--rl', '--days'].includes(v));
   assert.deepEqual(legacy, [], 'design.css bez starých názvů proměnných');
   chapter('firstMeal'); let m = markup(); assert.match(m, /class="chips glu"/); assert.match(m, /class="choice chip low"/); assert.match(m, /nemám hodnotu/);
   chapter('week'); act('page', 'today'); m = markup(); assert.match(m, /class="dnode now"><button type="button" data-action="startMeal"/); assert.doesNotMatch(m, /<b>Bazál potvrzen/, 'potvrzený bazál nese pás dne');
@@ -1403,7 +1403,7 @@ test('Zbytek prověrky (SCHEMA 61): fokus po kroku, zásuvka inert, toast, nadpi
   assert.match(markup(), /Opraveno: bez inzulinu · \d\d:\d\d/);
   /* A11 + řemeslo 13: nadpisy karet h2, dekorativní kolečka pryč */
   chapter('week'); act('role', 'patient'); act('page', 'today'); m = markup(); assert.match(m, /<h2 class="card-title">/); assert.doesNotMatch(m, /data-icon="(heart|flag|award|calendar)"/);
-  act('page', 'foods'); m = markup(); assert.match(m, /<section class="card food"><h2 class="food-h"><button type="button" class="h"/);
+  act('page', 'foods'); m = markup(); assert.match(m, /<ul class="food-list"[^>]*><li><button type="button" class="food-row" data-action="foodOpen"/);
   /* řemeslo 9: známé jídlo s reakcí nese jen štítek reakce; bez pilulky „X z N v cíli“ */
   const kf = food('Ovesná kaše s mlékem a banánem').id; if (S().foodOpen !== kf) act('foodOpen', kf); m = markup();
   assert.doesNotMatch(m, /class="in tag/); assert.doesNotMatch(m, /<span class="tag known">[\s\S]{0,400}?<span class="tag (ok|over|warn)">/, 'dva štítky pro jeden fakt');
@@ -1415,13 +1415,56 @@ test('Zbytek prověrky (SCHEMA 61): fokus po kroku, zásuvka inert, toast, nadpi
   /* LF-21: změněná dávka „nová“ v tabulce a v kroku 1 prvních tří jídel */
   const P1 = { id: 'P1', doses: { breakfast: { units: 8 }, lunch: { units: 10 }, dinner: { units: 8 }, basal: { units: 18, time: '21:00' } } };
   const P2 = { id: 'P2', previousId: 'P1', doses: { breakfast: { units: 10 }, lunch: { units: 10 }, dinner: { units: 8 }, basal: { units: 18, time: '21:00' } } };
-  assert.match(plain(NF.screens.dosesTable(P2, P1)), /nová<\/span> <span class="muted struck">8<\/span> <b>10 j\.<\/b>/);
+  assert.match(plain(NF.screens.dosesTable(P2, P1)), /class="dose was sm"[^>]*aria-label="dřív 8 jednotek">.*?<b>8<\/b>.*?class="dose new sm"[^>]*aria-label="10 jednotek, nová">.*?<b>10<\/b>/);
   const fakeS = { plans: [P1, P2], episodes: [] }; const realPlanById = NF.planById; NF.planById = (st, id) => st.plans.find(x => x.id === id);
   assert.deepEqual(JSON.parse(JSON.stringify(NF.screens.newDose(fakeS, P2, 'breakfast'))), { was: 8 }); assert.equal(NF.screens.newDose(fakeS, P2, 'lunch'), null);
   fakeS.episodes = [1, 2, 3].map(i => ({ planId: 'P2', meal: 'breakfast' })); assert.equal(NF.screens.newDose(fakeS, P2, 'breakfast'), null, 'po třech jídlech už ne');
   NF.planById = realPlanById;
   /* produkce bez prezentační vrstvy: štítek DEMO i na převzetí */
   boot({ withDemo: false }); assert.match(markup(), /class="demo-band"/);
+});
+
+test('Rozhodnutí 20. 10. 2026 (SCHEMA 62): LF-06 body ověření s daty, token dávky, tkanina zápisů, detail jídla jako obrazovka', () => {
+  /* LF-06: body v jednom smyslu, číslo z dat, bod s rozporem nepřepne „Vše sedí“, větev dál trojstavem */
+  const reg = NF.item(S(), 'D-POSTUP');
+  Object.keys(reg.postup).forEach(k => { const p = reg.postup[k]; assert.ok(Array.isArray(p.fakta) && p.fakta.length === p.verify.length, k + ': fakta ke každému bodu'); assert.equal(p.verify.some(v => /je mimo cíl/.test(v)), false, k + ': bod v opačném smyslu'); });
+  chapter('reviewProposals'); act('role', 'doctor');
+  const r = S().review, pr = r.proposals.find(p => p.kind === 'dose' && p.id === NF.nextProposal(S()).id);
+  assert.ok(pr && pr.facts && pr.facts.length === pr.verify.length);
+  const ai = pr.facts.findIndex(f => f && f.against); assert.ok(ai >= 0, 'čas v cíli nad cílem odporuje bodu o vyrovnání');
+  assert.match(pr.facts[ai].text, /čas v cíli \d+ % \(cíl \d+ %\)/);
+  let m = markup(); assert.match(m, /class="v-fact">/); assert.match(m, /data říkají jinak/);
+  assert.match(m, /<button type="button" class="btn sm" data-action="propVerifyAll"/, 'Vše sedí jako obrysové tlačítko');
+  act('propVerifyAll', pr.id);
+  assert.equal(r.verify[pr.id][ai], undefined, 'Vše sedí bod s rozporem nepřepne');
+  assert.ok(pr.verify.every((_, i) => i === ai || r.verify[pr.id][i] === true));
+  assert.equal(NF.screens.proposalBranch(S(), pr).action, 'wait', 'postup čeká na lékařovo posouzení');
+  act('propVerify', pr.id + ':' + ai + ':no'); assert.match(NF.screens.proposalBranch(S(), pr).text, /celkově v cíli/);
+  act('propVerify', pr.id + ':' + ai + ':yes'); assert.equal(NF.screens.proposalBranch(S(), pr).action, 'up');
+  act('propVerifyAll', pr.id); assert.equal(r.verify[pr.id][ai], true, 'lékařova volba u bodu s rozporem zůstane');
+  /* Podpis A: token dávky všude, kde pacient dávku vidí; žádný rozdíl „+2“ u pacienta */
+  const tok = NF.screens.dose(8); assert.match(tok, /class="dose"/); assert.match(tok, /data-icon="key-round"/); assert.match(tok, /<b>8<\/b><span class="u">j\.<\/span>/); assert.doesNotMatch(tok, /klíč/);
+  assert.match(NF.screens.dose(8, 'done'), /data-icon="check"[\s\S]*píchnuto/); assert.match(NF.screens.dose(10, 'new'), /nová/);
+  chapter('firstMeal'); m = markup(); assert.match(m, /<div class="insulin">[\s\S]*?class="dose"/, 'krok 1');
+  chapter('handover'); act('role', 'patient'); act('takeoverPage', '2'); assert.match(markup(), /class="dose sm"/, 'převzetí');
+  everyScreen((mk, where) => { if (/\/patient$/.test(where)) assert.doesNotMatch(mk, /[+−-]\d+\s*j\./, where + ': rozdíl dávky u pacienta'); });
+  /* Podpis C: tkanina – pacient 7 dní v Cestě ke kontrole místo dlaždic, lékař celé období; jen činy */
+  chapter('week'); act('role', 'patient'); act('page', 'today'); m = markup();
+  const path_ = m.match(/<section class="card path">[\s\S]*?<\/section>/)[0];
+  assert.match(path_, /class="weave lg" style="--days:7"/); assert.doesNotMatch(path_, /class="row3"/); assert.doesNotMatch(path_, /mmol|v cíli|v řadě|série/);
+  const wv = NF.weave(S(), '2026-10-06', S().clock); assert.ok(wv.days.every(d => d.cells.length === 4 && d.cells.every(c => ['done', 'skipped', 'missing', 'future'].includes(c))));
+  assert.ok(wv.days[0].cells[0] === 'done', 'první snídaně zapsána');
+  const S0 = S(); S0.illnessLog = [{ from: '2026-10-08T08:00:00', to: '2026-10-09T20:00:00' }]; assert.equal(NF.weave(S0, '2026-10-06', S0.clock).totals.ill, 2);
+  chapter('reviewProposals'); act('role', 'doctor'); act('reviewStep', '1'); m = markup();
+  assert.match(m, /<section class="card weave-card">[\s\S]*?class="weave" style="--days:92"/, 'lékař 92 dní');
+  /* Vaše jídla: řádky a detail jako samostatná obrazovka se Zpět */
+  assert.ok(NF.PAGES.includes('food'));
+  chapter('week'); act('role', 'patient'); act('page', 'foods'); m = markup();
+  assert.match(m, /<button type="button" class="food-row" data-action="foodOpen" data-value="[^"]+"><div class="emoji[\s\S]*?<span class="name">[\s\S]*?<span class="chev"/);
+  const kf = food('Ovesná kaše s mlékem a banánem').id; act('foodOpen', kf); assert.equal(S().page, 'food'); m = markup();
+  assert.match(m, /data-action="foodBack"[^>]*>[\s\S]*?Zpět na jídla/); assert.match(m, /<h1>Ovesná kaše s mlékem a banánem<\/h1>/); assert.match(m, /class="card food"[\s\S]*class="peak/);
+  assert.match(m, /<nav class="tabbar"[\s\S]*?class="active" aria-current="page"[^>]*>[\s\S]*?Jídla/);
+  act('foodBack'); assert.equal(S().page, 'foods'); assert.match(markup(), /class="food-list"/);
 });
 
 test('V publikovaných souborech nejsou skutečná jména', () => {

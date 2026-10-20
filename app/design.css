@@ -247,7 +247,9 @@ ol.bullets{list-style:decimal}
 .verify .choice.yes.chosen{background:var(--nf-ok-bg);color:var(--nf-ok-text);border-color:var(--nf-ok)}
 .verify .choice.no.chosen{background:var(--nf-over-bg);color:var(--nf-over-text);border-color:var(--nf-over)}
 .verify.off{background:var(--nf-over-bg);border-radius:var(--nf-r-sm);padding:var(--nf-s2);margin:0 calc(-1 * var(--nf-s2))}
-.verify.off>span:first-child{font-weight:var(--nf-w-strong)}
+.verify .v-text{display:flex;flex-wrap:wrap;align-items:center;gap:var(--nf-s1) var(--nf-s2)}
+.verify .v-text>.v-fact{flex-basis:100%;font-size:var(--nf-fs-sm);color:var(--nf-muted);font-variant-numeric:tabular-nums} /* číslo z dat pod bodem (LF-06) */
+.verify.off>.v-text{font-weight:var(--nf-w-strong)}
 .decide{display:flex;align-items:center;gap:var(--nf-s4);flex-wrap:wrap;background:var(--nf-primary-tint);border-radius:var(--nf-r-md);padding:var(--nf-s4);margin-top:var(--nf-s3)}
 .decide .lbl{font-weight:var(--nf-w-strong)}
 .decide .diff{font-family:var(--nf-font-display);font-size:var(--nf-fs-xl);font-weight:var(--nf-w-display-strong);color:var(--nf-ink);white-space:nowrap}.decide .diff small{font-family:var(--nf-font-text);font-size:var(--nf-fs-xs);font-weight:var(--nf-w-text);color:var(--nf-muted)}
@@ -325,6 +327,21 @@ svg.ico.ok{color:var(--nf-ok-text)}
 .insulin .ic svg.ico{width:var(--nf-icon-lg);height:var(--nf-icon-lg)}
 .insulin .ic.ok{color:var(--nf-ok-text);background:var(--nf-ok-bg)}
 .insulin b{font-size:var(--nf-fs-md)}.insulin small{display:block;color:var(--nf-muted)}
+/* token dávky (Podpis A, 20. 10. 2026): pilulka · klíč · číslo · „j.“; stavy připomínáme (obrys) · píchnuto · nová od lékaře · dřívější (přeškrtnutá). Nikdy rozdíl ani směr. */
+.dose,.kv span.dose{display:inline-flex;align-items:center;gap:var(--nf-s1);min-height:var(--nf-dose-h);padding:0 var(--nf-s4) 0 var(--nf-s3);border-radius:var(--nf-r-pill);border:var(--nf-dose-border) solid var(--nf-border-control);background:var(--nf-surface);color:var(--nf-ink);font-family:var(--nf-font-display);white-space:nowrap;vertical-align:middle;flex:none}
+.dose svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm);color:var(--nf-primary-strong)}
+.dose b{font-size:var(--nf-fs-xl);font-weight:var(--nf-w-display-strong);line-height:1;letter-spacing:var(--nf-track-tight)}
+.dose .u,.kv .dose .u{font-size:var(--nf-fs-sm);font-weight:var(--nf-w-text);color:var(--nf-muted)}
+.dose .st,.kv .dose .st{font-family:var(--nf-font-text);font-size:var(--nf-fs-xs);font-weight:var(--nf-w-strong);margin-left:var(--nf-s1)}
+.dose.done,.kv span.dose.done{background:var(--nf-ok-bg);border-color:transparent}.dose.done svg.ico,.dose.done .st{color:var(--nf-ok-text)}
+.dose.new,.kv span.dose.new{background:var(--nf-primary-soft);border-color:transparent}.dose.new .st{color:var(--nf-primary-strong)}
+.dose.was,.kv span.dose.was{border-color:var(--nf-line-strong);background:transparent;color:var(--nf-muted)}.dose.was svg.ico{color:var(--nf-muted)}.dose.was b{text-decoration:line-through;text-decoration-thickness:2px;font-weight:var(--nf-w-display)}
+.dose.sm,.kv span.dose.sm{min-height:var(--nf-dose-h-sm);padding:0 var(--nf-s3) 0 var(--nf-s2);border-width:var(--nf-dose-border-sm)}.dose.sm b{font-size:var(--nf-fs-lg)}.dose.sm svg.ico{width:16px;height:16px}
+.dose-pair{display:inline-flex;align-items:center;gap:var(--nf-s2);flex-wrap:wrap;justify-content:flex-end}
+.insulin .dose{margin-left:auto}
+.page-newplan .dose.new{animation:nf-dose-in var(--nf-t-dose) var(--nf-ease) both}
+@keyframes nf-dose-in{from{transform:translateY(var(--nf-s2));opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.page-newplan .dose.new{animation:none}}
 .habit{display:flex;align-items:center;gap:var(--nf-s3);padding:var(--nf-s2) 0;border-top:1px solid var(--nf-line)}
 .habit:first-of-type{border-top:0}
 .habit .mark{width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;color:var(--nf-on-primary);background:var(--nf-ok)}
@@ -367,6 +384,29 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 /* zpětná vazba: cesta ke kontrole, pás dne */
 .path .bar{height:10px;border-radius:6px;background:var(--nf-bg-2);overflow:hidden;margin:var(--nf-s2) 0 var(--nf-s1)}
 .path .bar span{display:block;height:100%;width:var(--pct);background:var(--nf-primary);border-radius:6px}
+/* tkanina zápisů (Podpis C, 20. 10. 2026): den = sloupec, čtyři tečky; jen činy, žádná glukóza ani série */
+.weave{display:grid;grid-template-columns:auto repeat(var(--days),minmax(0,1fr));column-gap:var(--nf-weave-gap);align-items:start;margin-top:var(--nf-s2)}
+.weave .wlabels,.weave .wcol{display:grid;grid-auto-rows:var(--nf-weave-dot);row-gap:var(--nf-weave-gap);justify-items:center}
+.weave .wlabels{justify-items:end;padding-right:var(--nf-s2);font-size:var(--nf-fs-2xs);line-height:var(--nf-weave-dot);color:var(--nf-muted);display:none}
+.weave i{display:block;width:var(--nf-weave-dot);height:var(--nf-weave-dot);border-radius:50%}
+.weave i.done,.weave-legend i.done{background:var(--nf-ok)}
+.weave i.skipped,.weave-legend i.skipped{box-shadow:inset 0 0 0 var(--nf-weave-ring) var(--nf-muted)}
+.weave i.missing,.weave-legend i.missing{background:var(--nf-line)}
+.weave .wcol.ill i{opacity:.4}
+.weave .wcol.today{border-radius:var(--nf-r-pill);box-shadow:0 0 0 var(--nf-weave-gap) var(--nf-primary-soft);background:var(--nf-primary-soft)}
+.weave.lg{column-gap:var(--nf-weave-gap-lg)}
+.weave.lg .wlabels,.weave.lg .wcol{grid-auto-rows:var(--nf-weave-dot-lg);row-gap:var(--nf-weave-gap-lg)}
+.weave.lg .wlabels{display:grid;font-size:var(--nf-fs-xs);line-height:var(--nf-weave-dot-lg)}
+.weave.lg i{width:var(--nf-weave-dot-lg);height:var(--nf-weave-dot-lg)}
+.weave.lg .wcol.today{border-radius:var(--nf-r-md);padding-bottom:var(--nf-s1)}
+.weave .wmark{display:grid;place-items:center;color:var(--nf-muted)}.weave .wmark svg.ico{width:var(--nf-weave-dot-lg);height:var(--nf-weave-dot-lg)}
+.weave .wday{font-size:var(--nf-fs-xs);color:var(--nf-muted);line-height:var(--nf-weave-dot-lg);white-space:nowrap}.weave .wcol.today .wday{color:var(--nf-ink);font-weight:var(--nf-w-strong)}
+.weave-legend{display:flex;flex-wrap:wrap;gap:var(--nf-s1) var(--nf-s4);margin:var(--nf-s2) 0 0;font-size:var(--nf-fs-xs);color:var(--nf-muted)}
+.weave-legend span{display:inline-flex;align-items:center;gap:var(--nf-s1)}.weave-legend i{display:inline-block;width:var(--nf-s3);height:var(--nf-s3);border-radius:50%}.weave-legend svg.ico{width:var(--nf-s4);height:var(--nf-s4)}
+.weave-h{font-size:var(--nf-fs-md);margin:var(--nf-s4) 0 0}
+.weave-card .weave .wlabels,.weave-card .weave .wcol{grid-auto-rows:var(--nf-weave-row);row-gap:0;align-items:center}
+.weave-card .weave .wlabels{display:grid;line-height:var(--nf-weave-row)}
+.weave-card .weave i{width:var(--nf-weave-dot-md);max-width:100%;height:auto;aspect-ratio:1} /* na úzké ordinaci se tečka zmenší se sloupcem */
 .path .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--nf-s2);margin-top:var(--nf-s3)}
 .path .row3 div{text-align:center;background:var(--nf-surface-2);border-radius:var(--nf-r-md);padding:var(--nf-s2) var(--nf-s1)}
 .path .row3 b{display:block;font-family:var(--nf-font-display);font-size:var(--nf-fs-xl);letter-spacing:var(--nf-track-tight)}
@@ -382,7 +422,7 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .dnode.now .dot{background:var(--nf-primary);border-color:var(--nf-primary);color:var(--nf-on-primary);box-shadow:0 0 0 4px var(--nf-primary-soft)}
 .dnode.now b{color:var(--nf-primary-strong)}
 .dnode.next .dot{border-color:var(--nf-primary);color:var(--nf-primary-strong)}
-.dnode .dose-sub{font-size:var(--nf-fs-sm);font-weight:var(--nf-w-display-strong);color:var(--nf-ink);white-space:nowrap}
+.dnode .dose{margin-top:var(--nf-s1)}
 .dnode.missed .dot{border-color:var(--nf-over);color:var(--nf-over-text)}
 .dnode.skipped .dot{border-color:var(--nf-line-strong);color:var(--nf-muted)}
 .dnode.wait .dot{border-style:dashed;color:var(--nf-muted)}
@@ -399,6 +439,7 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .emoji svg{position:absolute;inset:-5px;width:62px;height:62px;transform:rotate(-90deg)}
 .emoji svg circle{fill:none;stroke-width:4;stroke-linecap:round}
 .emoji svg.ico.fico{position:static;width:var(--nf-icon-lg);height:var(--nf-icon-lg);transform:none}
+.emoji .ck svg.ico{position:static;transform:none} /* fajfka uvnitř zeleného kolečka, ne podle prstence */
 .emoji .ck{position:absolute;right:-4px;bottom:-4px;width:20px;height:20px;border-radius:50%;background:var(--nf-ok);color:var(--nf-on-primary);display:grid;place-items:center;border:2px solid var(--nf-surface)}
 .learn{font-size:var(--nf-fs-2xs);color:var(--nf-muted);margin-top:var(--nf-s1)}
 .food .sum{margin-top:var(--nf-s3);font-size:var(--nf-fs-xs)}
@@ -406,6 +447,18 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .detail{margin-top:var(--nf-s3);padding-top:var(--nf-s3);border-top:1px solid var(--nf-line);display:grid;gap:var(--nf-s3);font-size:var(--nf-fs-xs)}
 .tip{background:var(--nf-surface-2);border-radius:var(--nf-r-md);padding:var(--nf-s3)}
 .tip b{display:block;font-size:var(--nf-fs-sm);color:var(--nf-ink);margin-bottom:2px}
+/* Vaše jídla jako řádky seznamu (20. 10. 2026): prstenec · název · štítek reakce · šipka; detail na samostatné obrazovce */
+.list-card{padding:var(--nf-s1) var(--nf-s4)}
+.food-list{list-style:none;margin:0;padding:0}
+.food-list>li+li{border-top:1px solid var(--nf-line)}
+.food-row{display:flex;align-items:center;gap:var(--nf-s3);width:100%;min-height:72px;padding:var(--nf-s3) 0;border:0;background:transparent;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.food-row:focus-visible{outline:3px solid var(--nf-focus);outline-offset:2px;border-radius:var(--nf-r-sm)}
+.food-row .emoji{width:40px;height:40px}.food-row .emoji svg{inset:-4px;width:48px;height:48px}.food-row .emoji svg.ico.fico{width:var(--nf-icon-sm);height:var(--nf-icon-sm)}.food-row .emoji .ck{width:16px;height:16px;right:-5px;bottom:-5px}.food-row .emoji .ck svg.ico{width:10px;height:10px}
+.fr-main{display:flex;flex-direction:column;gap:var(--nf-s1);min-width:0;flex:1}
+.food-row .name{font-family:var(--nf-font-display);font-weight:var(--nf-w-display);font-size:var(--nf-fs-md);line-height:1.25;color:var(--nf-ink)}
+.food-row .badges{margin-top:0}
+.food-row .chev{color:var(--nf-muted);flex:none}.food-row .chev svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm)}
+.badges.mt-0{margin-top:0}
 .food-grid{display:grid;gap:var(--nf-s2);margin:var(--nf-s3) 0}
 .food-opt{display:flex;align-items:center;gap:var(--nf-s3);text-align:left;min-height:var(--nf-tap);border:2px solid var(--nf-border-control);border-radius:var(--nf-r-md);background:var(--nf-surface);padding:var(--nf-s3) var(--nf-s4);font-weight:var(--nf-w-strong)}
 .food-opt.chosen,.food-opt[aria-pressed="true"]{border-color:var(--nf-primary);background:var(--nf-primary-soft)}
