@@ -355,6 +355,7 @@ var A = {
     r.step = n; S.error = '';
   },
   reviewTile: function (v) { if (!S.review) return; S.review.tile = S.review.tile === v ? null : v; },
+  reviewMeds: function (v) { if (reviewLocked()) return; var r = NF.setReviewMeds(S, v); if (!r.ok) return fail('Vyberte, zda se léky měnily.'); },
   propVerify: function (v) { if (reviewLocked()) return; var p = v.split(':'); S.review.verify[p[0]] = S.review.verify[p[0]] || {}; S.review.verify[p[0]][p[1]] = p[2] === 'yes'; },
   propVerifyAll: function (v) { if (reviewLocked()) return; NF.verifyAll(S, v); },
   propKeepAll: function () { if (reviewLocked()) return; if (S.role !== 'doctor') return fail('Rozhoduje lékař.'); NF.keepAll(S); },

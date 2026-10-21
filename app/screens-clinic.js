@@ -187,7 +187,7 @@ function sensorImportPart(S) {
     '<p class="small">Export z portálu výrobce senzoru nahraje sestra na kontrole (csv; xlsx uložený jako csv). Doplní průběh k zápisům, noci pro bazál a čas v cíli; čte se jen v tomto počítači.</p>' +
     '<details class="more"><summary>Jak export získat (3 kroky)</summary><ol class="small bullets mt-2"><li>Přihlaste se do portálu výrobce senzoru účtem pacienta (pacient má přihlášení u sebe v telefonu).</li><li>Stáhněte export glukózy za období od minulé kontroly (csv; xlsx uložte jako csv).</li><li>Vyberte soubor tlačítkem níže. Nic se nikam neodesílá.</li></ol></details>' +
     /* S06 (21. 10. 2026): po nahrání výsledek nahoře a výběr souboru až pod „Nahrát jiný soubor“, aby nestálo „Soubor nevybrán“ */
-    (si ? hint('<b>Export nahrán ' + e(NF.fmtShort(si.at)) + ':</b> ' + NF.plural(si.readings, 'měření', 'měření', 'měření') + ' ' + (NF.day(si.from) === NF.day(si.to) ? 'z ' + e(NF.fmtShort(si.from)) : 'od ' + e(NF.fmtShort(si.from)) + ' do ' + e(NF.fmtShort(si.to))) + ', doplněno ' + NF.plural(si.filled, 'jídlo', 'jídla', 'jídel') + (si.nights ? ' a ' + NF.plural(si.nights, 'noc', 'noci', 'nocí') : '') + '.', 'ok') : '') +
+    (si ? hint('<b>Export nahrán ' + e(NF.fmtShort(si.at)) + ':</b> ' + NF.plural(si.readings, 'měření', 'měření', 'měření') + ' ' + (NF.day(si.from) === NF.day(si.to) ? 'z ' + e(NF.fmtShort(si.from)) : 'od ' + e(NF.fmtShort(si.from)) + ' do ' + e(NF.fmtShort(si.to))) + ', doplněno ' + NF.plural(si.filled, 'jídlo', 'jídla', 'jídel') + (si.nights ? ' a ' + NF.plural(si.nights, 'noc', 'noci', 'nocí') : '') + '.' + (si.agree && si.agree.n ? ' Opsané nejvyšší hodnoty se s exportem shodovaly u <b>' + si.agree.ok + ' ' + NF.z(si.agree.n) + ' ' + NF.plural(si.agree.n, 'jídla', 'jídel', 'jídel') + '</b> (do ' + e(NF.mmol1(si.tol)) + ' mmol/l).' : '') + /* 21. 10. 2026: doklad pro studii */ '', 'ok') : '') +
     (si ? '<details class="more"><summary>Nahrát jiný soubor</summary>' : '') +
     '<label class="field"><span>Soubor s exportem</span><input type="file" accept=".csv,text/csv,.txt" data-action="importFile"></label>' + (NF.slots.importDemo ? NF.slots.importDemo(S) : '') +
     (si ? '</details>' : '') +
@@ -223,6 +223,10 @@ function reviewSummary(S, p, r) {
   if (wv.days.length) out += card('<div class="card-head"><h2 class="card-title">Zápisy za období</h2><span class="muted">' + e(NF.fmtShort(wv.days[0].date + 'T12:00:00')) + ' – ' + e(NF.fmtShort(wv.days[wv.days.length - 1].date + 'T12:00:00')) + ' · ' + NF.plural(wv.days.length, 'den', 'dny', 'dní') + '</span></div>' + V.weave(wv, false) +
     '<p class="small muted mt-2 mb-0">Jen činy pacienta (zápis, vynechání se zápisem, potvrzení bazálu), žádné hodnoty glukózy. Dny nemoci tlumeně.</p>', 'weave-card');
   out += card('<p><b>Co se dělo:</b> ' + e(leadSentence(S, s)) + ' <span class="small muted">' + appr(S, 'S-SOUHRN') + '</span></p>', 'tint');
+  /* 21. 10. 2026: léky mimo inzulin od minulé kontroly – jen záznam do stopy, aby šla analýza studie očistit (15 odst. 1) */
+  out += card('<div class="card-head"><h2 class="card-title">Léky mimo inzulin od minulé kontroly</h2><span class="muted">tablety, GLP-1, jiné</span></div>' +
+    '<div class="timechips" role="group" aria-label="Léky mimo inzulin">' + choice('Beze změny', 'reviewMeds', 'same', r.meds === 'same', 'sm') + choice('Měnily se', 'reviewMeds', 'changed', r.meds === 'changed', 'sm') + '</div>' +
+    '<p class="small muted mt-2 mb-0">' + (r.meds === 'changed' ? 'Zapsáno do stopy. Zápisy z období po změně léků se ve studii hodnotí zvlášť.' : r.meds === 'same' ? 'Zapsáno do stopy.' : 'Jen záznam do stopy; dávky inzulinu to nemění.') + '</p>', 'meds');
   out += '<h2 class="eyebrow mt-6">Podklady · jen když chcete víc</h2>' + podklady(S, p, r);
   out += nextbar('Další krok: návrhy na příští plán (' + r.proposals.length + ')', 'NutriFee připravila návrhy s důvodem a postupem ověření. Rozhodujete jeden po druhém.', btn('Pokračovat k návrhům →', 'reviewStep', '2', 'primary'));
   return out;
@@ -517,7 +521,7 @@ NF.EVENT_LABEL = {
   'bazal.potvrzen': 'Bazál potvrzen', 'hypo.sledovani': 'Sledování poklesu zahájeno', 'hypo.odpoved': 'Odpověď na pokles pod 4',
   'nemoc.zacatek': 'Nemoc zapnuta', 'nemoc.konec': 'Nemoc ukončena', 'senzor.import': 'Export ze senzoru nahrán',
   'plan.vydan': 'Plán vydán', 'plan.predan': 'Plán předán', 'plan.prevzat': 'Plán převzat', 'zauceni.done': 'Zaučení dokončeno', 'zauceni.failed': 'Zaučení se nezdařilo', 'zauceni.zmena': 'Výsledek zaučení změněn',
-  'kontrola.zahajena': 'Kontrola zahájena', 'navrh.rozhodnut': 'Návrh rozhodnut', 'registr.rozhodnuti': 'Rozhodnutí o položce registru', 'registr.komentar': 'Komentář k položce registru',
+  'kontrola.zahajena': 'Kontrola zahájena', 'kontrola.leky': 'Léky mimo inzulin ověřeny', 'navrh.rozhodnut': 'Návrh rozhodnut', 'registr.rozhodnuti': 'Rozhodnutí o položce registru', 'registr.komentar': 'Komentář k položce registru',
   'vysledek.zobrazen': 'Výsledek zobrazen pacientovi', 'tyden.zobrazen': 'Týdenní shrnutí zobrazeno', 'milnik': 'Milník', 'chyba.vykresleni': 'Chyba zobrazení', 'chyba.akce': 'Chyba akce'
 };
 NF.HABIT_STATE = { active: 'platí', done: 'skončil s plánem', prepared: 'čeká na zaučení' };
@@ -544,6 +548,7 @@ function traceDetail(S, x) {
     case 'navrh.rozhodnut': { var p = m.split(' → '); return propTitle(S, p[0]) + ' – ' + (CHOICE_LABEL[p[1]] || p[1] || '') + (d.units != null ? ' · ' + d.units + ' j.' : '') + (d.reason ? ' (' + d.reason + ')' : ''); }
     case 'registr.rozhodnuti': { var q = m.split(' → '), it = NF.item(S, q[0]), st = (q[1] || '').split(' · ')[0]; return (it ? it.title : 'položka') + ' – ' + (NF.STATUS[st] || st) + (q[1] && q[1].indexOf(' · ') >= 0 ? ' · ' + q[1].slice(q[1].indexOf(' · ') + 3) : ''); }
     case 'registr.komentar': { var it2 = NF.item(S, m.split(' · ')[0]); return (it2 ? it2.title : 'položka') + (m.indexOf(' · ') >= 0 ? ' · ' + m.slice(m.indexOf(' · ') + 3) : ''); }
+    case 'kontrola.leky': return m;
     case 'kontrola.zahajena': return 'plán ' + m + (d.proposals ? ' · ' + NF.plural(d.proposals.length, 'návrh', 'návrhy', 'návrhů') : '');
     case 'plan.vydan': case 'plan.predan': case 'plan.prevzat': return 'plán ' + m;
     case 'bazal.potvrzen': return (d.confirmed === 'as' ? 'podle plánu' : d.confirmed === 'other' ? 'jinak' : d.confirmed === 'none' ? 'bez bazálu' : 'neví') + (d.units != null ? ' · ' + d.units + ' j.' : '');

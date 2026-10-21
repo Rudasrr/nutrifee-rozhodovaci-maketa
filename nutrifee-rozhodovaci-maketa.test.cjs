@@ -1573,6 +1573,31 @@ test('Katalog: sekce Prezentační vrstva čte demo/demo.css a ukazuje živé pr
   assert.match(sec, /Dál ▶/); assert.equal(/style="(?!--)[^"]*#[0-9a-fA-F]/.test(sec), false, 'ukázky bez pevných barev');
   assert.match(fs.readFileSync(path.join(__dirname, 'design-system/catalog.js'), 'utf8'), /design\\\.css\|demo\\\.css/, 'inspektor bere pravidla i z demo.css');
 });
+test('Prověrka před e-mailem garantovi (SCHEMA 65, 21. 10. 2026): jedna míra „v cíli“ (vrchol), léky mimo inzulin na kontrole, shoda opsaných hodnot s exportem, týdenní nabídka vypnutá, věta pod tkaninou, vyprávění bez slibu „za dvě hodiny“', () => {
+  /* jedna míra: vrchol proti hornímu cíli; vzestup zůstává jen pro shodu zápisů */
+  assert.equal(NF.param(S(), 'R-REAKCE', 'kriterium', 'vzestup'), 'vrchol');
+  chapter('firstResult'); const e1 = S().episodes.find(x => x.id === 'E1'); e1.manual.before = 8; NF.setManualPeak(S(), 'E1', 10.5);
+  assert.ok(NF.epRise(S(), e1) <= 3, 'vzestup by byl v cíli'); assert.equal(NF.epInTarget(S(), e1), false, 'vrchol 10,5 je nad horním cílem');
+  NF.setManualPeak(S(), 'E1', 9.5); assert.equal(NF.epInTarget(S(), e1), true);
+  /* shoda opsaných hodnot s exportem: opsáno 9,5, export má vrchol 9,6 → shoda do 1 mmol/l */
+  const csv = 'Device Timestamp,Historic Glucose mmol/L\n06-10-2026 07:05,6.8\n06-10-2026 07:35,8.1\n06-10-2026 08:05,9.6\n06-10-2026 08:35,9.0\n06-10-2026 09:05,8.2\n';
+  const res = NF.importReadings(S(), NF.parseSensorCsv(csv)); assert.equal(res.ok, true); assert.equal(res.agree.n, 1); assert.equal(res.agree.ok, 1);
+  assert.equal(S().sensorImport.agree.n, 1); assert.equal(S().sensorImport.agree.ok, 1); assert.equal(S().sensorImport.tol, 1);
+  assert.ok(S().events.some(t => t.what === 'senzor.import' && t.data && t.data.agree && t.data.agree.ok === 1), 'shoda ve stopě');
+  /* léky mimo inzulin od minulé kontroly: dvě volby, záznam do stopy, bez štítku registru (položka se nabízí jen v zařazení) */
+  chapter('reviewSummary'); act('role', 'doctor'); if (!S().review) act('startReview'); let m = markup();
+  assert.match(m, /Léky mimo inzulin od minulé kontroly/); assert.match(m, /data-action="reviewMeds" data-value="same"/); assert.match(m, /data-action="reviewMeds" data-value="changed"/);
+  if (S().sensorImport && S().sensorImport.agree && S().sensorImport.agree.n) assert.match(m, /Opsané nejvyšší hodnoty se s exportem shodovaly u <b>\d+ ze? \d+ jíd(la|el)<\/b>/, 'shoda v podkladech kontroly');
+  act('reviewMeds', 'changed'); assert.equal(S().review.meds, 'changed'); assert.ok(S().events.some(t => t.what === 'kontrola.leky' && t.detail === 'měnily se'));
+  assert.match(markup(), /hodnotí zvlášť/);
+  act('page', 'trace'); assert.match(markup(), /Léky mimo inzulin ověřeny/);
+  /* týdenní nabídka je parametr a pro studii vypnutá */
+  assert.equal(NF.param(S(), 'S-TYDEN', 'nabidka', 1), 0); assert.doesNotMatch(NF.item(S(), 'S-TYDEN').summary, /jedna nabídka na příští týden/);
+  /* tkanina: mezery nejsou chyba; vyprávění neslibuje výsledek za dvě hodiny */
+  chapter('firstResult'); act('role', 'patient'); act('page', 'plan'); assert.match(markup(), /Mezery nejsou chyba\. Lékař uvidí celé období najednou\./);
+  const tour = fs.readFileSync(path.join(__dirname, 'demo/tour-content.js'), 'utf8'); assert.doesNotMatch(tour, /Za dvě hodiny uvidíte/); assert.doesNotMatch(tour, /za dvě hodiny výsledek/);
+});
+
 test('V publikovaných souborech nejsou skutečná jména', () => {
   const bad = /MUDr\.|Ing\. ?[A-Z]|prof\. |doc\. |a kol\.|et al\.|nemocnic|FN [A-Z]|Standards of Care|iPhone|Apple/;
   for (const f of ['nutrifee-rozhodovaci-maketa.html', 'README.md', ...CORE, ...DEMO]) assert.equal(bad.test(fs.readFileSync(path.join(__dirname, f), 'utf8')), false, f);

@@ -31,9 +31,9 @@ D.guide = {
   },
   'R-REAKCE': {
     proc: 'Pacient potřebuje vidět, kam se po jeho jídle glukóza dostane – z jeho vlastních dat, ne z tabulek. Bez poctivé definice „co se počítá“ by učení stálo na špatných zápisech.',
-    jak: 'Míra reakce je vzestup: nejvyšší hodnota 0–{okno_min} minut po jídle minus hodnota před jídlem. V cíli = vzestup nejvýš {vzestup_max|1} mmol/l. Jídlo je „známé“, až když se aspoň {minKnown} započítané zápisy z posledních {maxUceni} shodují (rozdíl vzestupů do {shoda_mmol|1} mmol/l); 1. zápis je „první dojem“, 2. „zatím to vypadá“, jen když se shoduje. Když se nový zápis rozchází s dřívějšími o {rozchod_mmol|1} mmol/l a víc, aplikace se jednou zeptá, zda šlo o stejné jídlo; po {maxUceni} zápisech bez shody je jídlo „nestálé“ a lékař ho vidí v podkladech. Započítaný zápis má úplná data ze senzoru, inzulin potvrzený podle plánu, je mimo nemoc a mimo „neobvyklý den“, s obvyklou porcí a při stejné dávce. Rozmezí vrcholů: do {minQuantile} zápisů nejnižší–nejvyšší hodnota, potom 10.–90. percentil. Popisuje minulost, nepředpovídá.',
+    jak: 'Míra „v cíli“ je nejvyšší hodnota (vrchol) 0–{okno_min} minut po jídle proti hornímu cíli pacienta – stejné číslo, jaké vidí na Dnes a jaké vstupuje do návrhu k dávce. Vzestup (vrchol minus hodnota před jídlem) slouží jen ke shodě zápisů při učení a lékař ho vidí v podkladech; kritérium „vzestup nejvýš {vzestup_max|1} mmol/l“ je připravené, ale vypnuté. Jídlo je „známé“, až když se aspoň {minKnown} započítané zápisy z posledních {maxUceni} shodují (rozdíl vzestupů do {shoda_mmol|1} mmol/l); 1. zápis je „první dojem“, 2. „zatím to vypadá“, jen když se shoduje. Když se nový zápis rozchází s dřívějšími o {rozchod_mmol|1} mmol/l a víc, aplikace se jednou zeptá, zda šlo o stejné jídlo; po {maxUceni} zápisech bez shody je jídlo „nestálé“ a lékař ho vidí v podkladech. Započítaný zápis má úplná data ze senzoru, inzulin potvrzený podle plánu, je mimo nemoc a mimo „neobvyklý den“, s obvyklou porcí a při stejné dávce. Rozmezí vrcholů: do {minQuantile} zápisů nejnižší–nejvyšší hodnota, potom 10.–90. percentil. Popisuje minulost, nepředpovídá.',
     kde: 'Karty jídel (stupnice s rozmezím), krok 3 před jídlem, report lékaře (tabulka jídel).',
-    co: 'Míru „vzestup“ s oknem {okno_min} minut, hranici {vzestup_max|1} mmol/l pro „v cíli“, „známé“ až při {minKnown} shodných zápisech z {maxUceni} a způsob výpočtu rozmezí.',
+    co: 'Že „v cíli“ je vrchol proti hornímu cíli pacienta s oknem {okno_min} minut, že shoda zápisů se měří vzestupem, „známé“ až při {minKnown} shodných zápisech z {maxUceni} a způsob výpočtu rozmezí.',
     dopad: 'Při zamítnutí aplikace reakci na jídlo nevyhodnocuje vůbec: karty jídel neukážou rozmezí ani stupeň a před jídlem se neradí.'
   },
   'Z-GLUKOZA': {
@@ -192,9 +192,9 @@ D.guide = {
   },
   'S-TYDEN': {
     proc: 'Mezi kontrolami není žádný rytmus, kde by pacient viděl postup. Týdenní shrnutí je jediné místo pro „co zkusit příští týden“ z vlastních dat.',
-    jak: 'Každých 7 dní od vydání plánu karta „Váš N. týden“: zapsáno X z 21 jídel · kolik v obvyklé porci · co pomohlo (rada: k z n v cíli) · případný milník · jedna nabídka na příští týden z vlastních dat. Jen u pacienta, nejde do reportu.',
+    jak: 'Každých 7 dní od vydání plánu karta „Váš N. týden“: zapsáno X z 21 jídel · kolik v obvyklé porci · co pomohlo (rada: k z n v cíli) · případný milník. Nabídka na příští týden je připravená, ale pro studii vypnutá: rada má přicházet jen před jídlem, aby šel změřit její účinek. Jen u pacienta, nejde do reportu.',
     kde: 'Dnes (pacient), jednou týdně od vydání plánu, dokud ji nezavře.',
-    co: 'Obsah shrnutí a to, že nabídka přenáší zkušenost z jednoho jídla na jiné.',
+    co: 'Obsah shrnutí a to, že nabídka na příští týden zůstává pro studii vypnutá.',
     dopad: 'Při zamítnutí se týdenní shrnutí neukazuje.'
   },
   'R-ZMIZELA': {

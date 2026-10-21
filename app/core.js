@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 64;
+NF.SCHEMA = 65;
 NF.PAGES = ['today', 'foods', 'food', 'plan', 'safety', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
@@ -347,7 +347,7 @@ NF.setTarget = function (t, key, delta) {
 /* Meze parametrů registru (min, max): garant krokuje jen uvnitř nich (C6, 6. 10. 2026). */
 NF.PARAM_BOUNDS = {
   'C-CILE': { low: [3.0, 5.0], high: [7.0, 14.0], fastingHigh: [5.0, 10.0], tirGoal: [40, 90] },
-  'R-REAKCE': { minKnown: [1, 10], okno_min: [60, 240], okno_tucne_min: [0, 300], vzestup_max: [1, 6], nestale_mmol: [1, 8], shoda_mmol: [1, 8], rozchod_mmol: [1, 8], maxUceni: [3, 12] }, 'Z-IMPORT': { dny: [1, 30], po_jidle_min: [120, 300], pacient_tydne: [0, 1] }, 'Z-GLUKOZA': { pripominka_min: [60, 240] }, 'B-HYPO': { poklesy: [1, 5], dny: [3, 14], pripominka_min: [30, 120], dalsi_slot_h: [2, 5] }, 'R-SKORE': { mirna: [0.5, 1], stredni: [0.1, 0.9], odKolika: [2, 6], oknoZapisu: [3, 12], ustaleneOd: [3, 12] },
+  'R-REAKCE': { minKnown: [1, 10], okno_min: [60, 240], okno_tucne_min: [0, 300], vzestup_max: [1, 6], nestale_mmol: [1, 8], shoda_mmol: [1, 8], rozchod_mmol: [1, 8], maxUceni: [3, 12] }, 'Z-IMPORT': { dny: [1, 30], po_jidle_min: [120, 300], pacient_tydne: [0, 1], shoda_mmol: [0.5, 3] }, 'S-TYDEN': { nabidka: [0, 1] }, 'Z-GLUKOZA': { pripominka_min: [60, 240] }, 'B-HYPO': { poklesy: [1, 5], dny: [3, 14], pripominka_min: [30, 120], dalsi_slot_h: [2, 5] }, 'R-SKORE': { mirna: [0.5, 1], stredni: [0.1, 0.9], odKolika: [2, 6], oknoZapisu: [3, 12], ustaleneOd: [3, 12] },
   'R-PODOBNOST': { minJidel: [1, 6], minZapisu: [2, 20], shoda: [0.5, 1], vaha: [0, 5], maxNaJidlo: [1, 10] }, 'S-SILNA': { silnych: [2, 6], dvaNad_mmol: [1, 6], maxJidel: [1, 10] },
   'D-PRAND': { dny: [7, 120], minJidel: [3, 30], podil: [0.5, 1], radyPrve: [0, 10], hypo: [1, 10], medianNad: [0, 3], hypoPodil: [0, 0.5] },
   'D-BAZAL': { dny: [7, 120], nociPod: [1, 10], minNoci: [3, 30] }, 'D-CISTA': { pred_min: [0, 60], po_min: [0, 60] },
@@ -555,7 +555,7 @@ NF.peakOf = function (points, win) {
 NF.riseOf = function (points, win) { var pk = NF.peakOf(points, win), p0 = (points || []).filter(function (p) { return p.mmol != null; })[0]; return pk == null || !p0 ? null : NF.r1(pk - p0.mmol); };
 /* Okno vrcholu: u smažených/tučných jídel delší (R30), vrchol přichází později. */
 NF.windowFor = function (S, food) { var t = NF.param(S, 'R-REAKCE', 'okno_tucne_min', 0); return t > 0 && food && food.tags && food.tags.prep === 'smazene' ? t : NF.param(S, 'R-REAKCE', 'okno_min', 120); };
-/* V cíli pro učení: podle R-REAKCE.kriterium buď vzestup ≤ vzestup_max (výchozí), nebo vrchol ≤ horní cíl. */
+/* V cíli pro učení: podle R-REAKCE.kriterium buď vrchol ≤ horní cíl (výchozí od 21. 10. 2026 – jedna míra pro pacienta všude), nebo vzestup ≤ vzestup_max (připraveno). Shoda zápisů se měří dál vzestupem. */
 NF.epInTarget = function (S, ep, food) {
   food = food || NF.foodById(S, ep.foodId); var win = NF.windowFor(S, food);
   if (NF.param(S, 'R-REAKCE', 'kriterium', 'vzestup') === 'vzestup') { var r = NF.epRise(S, ep, food); return r != null && r <= NF.param(S, 'R-REAKCE', 'vzestup_max', 3); }
@@ -1123,20 +1123,22 @@ NF.parseSensorTime = function (s) {
 };
 NF.importReadings = function (S, readings) {
   var win = NF.param(S, 'R-REAKCE', 'okno_min', 120), after = NF.param(S, 'Z-IMPORT', 'po_jidle_min', 180), filled = 0, nights = 0;
+  var tol = NF.param(S, 'Z-IMPORT', 'shoda_mmol', 1), agree = { n: 0, ok: 0 }; /* 21. 10. 2026: shoda opsané nejvyšší hodnoty s exportem – doklad pro studii */
   if (!readings.length) return { ok: false, error: 'V souboru nejsou žádná měření.' };
   S.episodes.forEach(function (ep) {
     if (NF.hasImport(ep)) return;
     var pts = readings.filter(function (r) { var d = NF.minutesDiff(ep.at, r.at); return d >= -5 && d <= after; }).map(function (r) { return { min: Math.max(0, NF.minutesDiff(ep.at, r.at)), at: r.at, mmol: r.mmol }; });
     if (pts.length < 4 || !pts.some(function (p) { return p.min <= 10; }) || !pts.some(function (p) { return p.min >= win; })) return;
     if (!pts.some(function (p) { return p.min === 0; })) pts[0].min = 0;
+    if (ep.manual && ep.manual.peak != null) { var mp = NF.peakOf(pts, win); if (mp != null) { agree.n++; if (Math.abs(mp - ep.manual.peak) <= tol) agree.ok++; } }
     ep.points = pts; ep.importedAt = S.clock; ep.peak = NF.epPeak(S, ep); ep.rise = NF.epRise(S, ep); ep.at2h = NF.at2h(ep.points); filled++;
   });
   var byDay = {}; readings.forEach(function (r) { var d = r.at.slice(0, 10), h = Number(r.at.slice(11, 13)); if (h < 6) { byDay[d] = byDay[d] || { min: r.mmol, fasting: null }; byDay[d].min = Math.min(byDay[d].min, r.mmol); } if (h === 6 && byDay[d] && byDay[d].fasting == null) byDay[d].fasting = r.mmol; });
   Object.keys(byDay).forEach(function (d) { if (byDay[d].fasting != null && !S.nights.some(function (n) { return n.date === d; })) { S.nights.push({ date: d, fasting: byDay[d].fasting, min: byDay[d].min }); nights++; } });
-  S.sensorImport = { at: S.clock, readings: readings.length, from: readings[0].at, to: readings[readings.length - 1].at, filled: filled, nights: nights };
+  S.sensorImport = { at: S.clock, readings: readings.length, from: readings[0].at, to: readings[readings.length - 1].at, filled: filled, nights: nights, agree: agree, tol: tol };
   var sum = NF.sensorSummaryFrom(S, readings); if (sum && (!S.sensorSummary || sum.days >= (S.sensorSummary.days || 14))) S.sensorSummary = sum;
-  NF.log(S, 'senzor.import', readings.length + ' měření', { filled: filled, nights: nights, from: readings[0].at, to: readings[readings.length - 1].at, item: 'Z-IMPORT' });
-  return { ok: true, readings: readings.length, filled: filled, nights: nights };
+  NF.log(S, 'senzor.import', readings.length + ' měření', { filled: filled, nights: nights, agree: agree, tol: tol, from: readings[0].at, to: readings[readings.length - 1].at, item: 'Z-IMPORT' });
+  return { ok: true, readings: readings.length, filled: filled, nights: nights, agree: agree };
 };
 /* Je čas nahrát export: týdně (Z-IMPORT.dny) a vždy před kontrolou, když některý zápis nemá průběh. */
 NF.importDue = function (S) {
@@ -1254,7 +1256,7 @@ NF.weekSummary = function (S) {
   }); });
   var best = Object.keys(lv).sort(function (a, b) { return (lv[b].inT / lv[b].n - lv[a].inT / lv[a].n) || (lv[b].n - lv[a].n); })[0];
   var sugg = null;
-  if (best && lv[best].inT >= 2) {
+  if (best && lv[best].inT >= 2 && NF.param(S, 'S-TYDEN', 'nabidka', 0) > 0) { /* 21. 10. 2026: pro studii vypnuto, rada jen před jídlem */
     var seen = {};
     eps.forEach(function (e) {
       if (seen[e.foodId] || sugg) return; seen[e.foodId] = 1;
@@ -1527,6 +1529,12 @@ NF.startReview = function (S, catalog) {
   var props = NF.proposals(S, p.id, catalog);
   S.review = { planId: p.id, startedAt: S.clock, step: 1, index: 0, summary: NF.summary(S, p.id), proposals: props, decisions: {}, verify: {}, newDoses: NF.clone(p.doses), newInstructions: NF.clone(p.instructions || []), newTargets: NF.clone(p.targets || NF.defaultTargets(S)) };
   NF.log(S, 'kontrola.zahajena', p.id, { summary: S.review.summary, proposals: props.map(function (x) { return { id: x.id, title: x.title, item: x.item }; }) });
+  return { ok: true };
+};
+/* Léky mimo inzulin (tablety, GLP-1, jiné) od minulé kontroly: beze změny / měnily se. Jen záznam do stopy pro očištění analýzy (21. 10. 2026). */
+NF.setReviewMeds = function (S, v) {
+  var r = S.review; if (!r || (v !== 'same' && v !== 'changed')) return { ok: false };
+  r.meds = v; NF.log(S, 'kontrola.leky', v === 'changed' ? 'měnily se' : 'beze změny', { planId: r.planId, item: 'K-KRITERIA' });
   return { ok: true };
 };
 NF.decideProposal = function (S, id, decision) {
