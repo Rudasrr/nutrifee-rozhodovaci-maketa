@@ -18,7 +18,7 @@ NF.data.instructions = [
   { id: 'I-MENE', title: 'Méně jídla než obvykle', text: 'Když sníte méně, než na kolik máte inzulin, změřte glukózu za {v} a při poklesu postupujte jako u nízké glukózy.', value: 60, unit: 'min', step: 15, default: true },
   { id: 'I-NEMOC-BAZAL', title: 'Nemoc: inzulin na noc (bazál)', text: 'Bazál si píchejte dál ve stejný čas, i když nejíte. Pijte a měřte glukózu každé {v}.', value: 3, unit: 'h', step: 1, default: true },
   { id: 'I-NEMOC-JIDLO', title: 'Nemoc: inzulin k jídlu', text: 'Když jídlo vynecháte, inzulin k němu nepíchejte. Když jíte, píchněte podle plánu. Při zvracení nebo glukóze nad {v} déle než 3 hodiny volejte ordinaci.', value: 15, unit: 'mmol/l', step: 0.5, default: true },
-  { id: 'I-VYSOKA', title: 'Vysoká glukóza', text: 'Když je glukóza nad {v} déle než 3 hodiny, volejte ordinaci.', value: 15, unit: 'mmol/l', step: 0.5, default: false },
+  { id: 'I-VYSOKA', title: 'Vysoká glukóza', text: 'Když je glukóza nad {v} déle než 3 hodiny, volejte ordinaci.', value: 15, unit: 'mmol/l', step: 0.5, default: true },
   { id: 'I-KONTAKT', title: 'Kdy a kam volat', text: 'V ordinační době volejte ordinaci, jinak pohotovost. Při bezvědomí, křečích nebo dušnosti záchranná služba.', value: true, default: true }
 ];
 })(typeof window !== 'undefined' ? window : globalThis);

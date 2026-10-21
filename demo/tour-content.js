@@ -31,13 +31,13 @@ T.chapters = {
     ]
   },
   doses: {
-    intro: { t: 'Dávky voličem, návyky předvybrané, pokyny připravené', co: 'NutriFee předvyplnila startovní sadu návyků, stejnou pro všechny pacienty, a základní osobní pokyny. Dávky jsou prázdné: zadává je lékař.', vsimni: 'Tlačítko Pokračovat je zamčené, dokud nejsou všechny čtyři dávky zadané.', proc: 'Pevná dávka je základ celého návrhu: určuje ji lékař, aplikace ji jen zobrazí, připomene a zeptá se na podání. Směr ani výši nevymýšlí.' },
+    intro: { t: 'Dávky voličem, návyky předvybrané, pokyny v plánu', co: 'NutriFee předvyplnila startovní sadu návyků, stejnou pro všechny pacienty; pokyny pro pacienta jsou v plánu automaticky ze schváleného registru. Dávky jsou prázdné: zadává je lékař.', vsimni: 'Tlačítko Pokračovat je zamčené, dokud nejsou všechny čtyři dávky zadané.', proc: 'Pevná dávka je základ celého návrhu: určuje ji lékař, aplikace ji jen zobrazí, připomene a zeptá se na podání. Směr ani výši nevymýšlí.' },
     steps: [
       { do: [{ sel: '.dose-grid' }], t: 'Dávky inzulinu voličem', co: 'Ke snídani 8, k obědu 10, k večeři 8 j. – a odděleně, tmavě, bazál 18 j. na noc ve 21:00. Lékař je nastaví tlačítky −/+.', vsimni: 'Aplikace dávky jen zobrazí pacientovi a připomene. Nikdy je nepočítá.', proc: 'Dávka je věc lékaře. Aplikace k ní sbírá kontext: byla podaná, včas, v předepsané výši?' },
       { do: [{ sel: '[data-bind="draft.medicationChecked"]', bind: 'draft.medicationChecked', val: true }], t: 'Ověření dávek s pacientem', co: 'Lékař s pacientem ověřil dávky a zaškrtl, zda bere i tablety nebo GLP-1. Je to jen záznam; na kontrole se ověří, že se léky neměnily.', quick: true },
       { do: [{ sel: '.habit-opt.on' }], t: 'Startovní sada návyků', co: 'Zapisovat hlavní jídla · držet obvyklou porci · potvrzovat inzulin · bazál večer. Předvybrané, se štítkem „startovní sada“.', vsimni: 'U každého návyku je věta „proč“ – tu uvidí i pacient.', proc: 'Stejný start pro všechny umožní porovnat pacienty napříč studií. Personalizace přijde z dat na první kontrole.' },
-      { do: [{ sel: '.instr' }], t: 'Osobní pokyny s hodnotami', co: 'Nízká glukóza pod 3,9 · méně jídla → změřte za 60 min · nemoc → měřte každé 3 h · kdy volat. Hodnoty i cíle glukózy (3,9–10,0, ráno do 7,2, čas v cíli 70 %) lékař mění voličem.', vsimni: '„Snězte víc“ nikdy neřekne aplikace; pokyn „méně jídla než obvykle“ je od lékaře.', proc: 'Při nízké glukóze rozhoduje pokyn lékaře, ne aplikace.' },
-      { do: [{ sel: '[data-bind="draft.instructionsChecked"]', bind: 'draft.instructionsChecked', val: true }, { sel: '.nextbar .btn.primary', act: 'wizardGo', val: '2' }], t: 'Krok 3: shrnutí před vydáním', co: 'Vše je připravené, spodní lišta se odemkla a lékař pokračuje k vydání.' }
+      { do: [{ sel: '.instr-card' }], t: 'Pokyny pro pacienta jsou v plánu', co: 'Sedm pokynů ze schváleného registru (nízká glukóza pod 4 · méně jídla → změřte za 60 min · nemoc zvlášť pro bazál a pro inzulin k jídlu · kdy volat) je v plánu automaticky, sbalené. Lékař nic nevybírá ani nepíše; vydáním plánu je podepisuje a hodnotu mění jen výjimečně. Cíle glukózy (3,9–10,0, ráno do 7,2, čas v cíli 70 %) mění voličem.', vsimni: '„Snězte víc“ nikdy neřekne aplikace; pokyn „méně jídla než obvykle“ pacient uvidí jako pokyn svého lékaře.', proc: 'Co dělat při nízké glukóze nesmí říkat software sám. Říká to plán podepsaný lékařem; znění schválil garant při vývoji.' },
+      { do: [{ sel: '.nextbar .btn.primary', act: 'wizardGo', val: '2' }], t: 'Krok 3: shrnutí před vydáním', co: 'Vše je připravené, spodní lišta je odemčená a lékař pokračuje k vydání.' }
     ]
   },
   issue: {
@@ -207,9 +207,7 @@ T.chapters = {
       { do: [{ fn: function (S) { D.decideSingles(S, S.branches || D.defaults); } }], watch: '.prop.group',
         t: 'Zbývající návrhy', co: 'Lékař rozhodl i ostatní návrhy, kde se něco mění (rady k obědu před dávkou).', proc: 'Návrh „vyměnit radu“ má skutečný účinek: plán nese vypnuté a nahrazené rady a jádro je podle toho nabízí.' },
       { do: [{ sel: '[data-action="propKeepAll"]', act: 'propKeepAll' }], watch: '.nextbar',
-        t: 'Beze změny jedním klepnutím', co: 'Návrhy, které nic nemění (zachovat radu), jsou jedna karta. Jedno potvrzení, každá položka se přesto zapíše do stopy zvlášť.', proc: 'Lékař rozhoduje jen o tom, co se mění. Kontrola je tak zhruba 10 kliknutí místo 30.' },
-      { do: [{ fn: function (S) { D.decideSingles(S, S.branches || D.defaults); } }], watch: '.nextbar',
-        t: 'Pokyny po změně dávky zvlášť', co: 'Když se změnila dávka, pokyny se nepotvrzují hromadně: lékař je projde zvlášť, protože s dávkou se mění i pokyn „méně jídla než obvykle“. Spodní lišta se odemkla.', proc: 'Hromadné potvrzení nesmí schovat položku, kterou změna dávky skutečně mění.' }
+        t: 'Beze změny jedním klepnutím', co: 'Návrhy, které nic nemění (zachovat radu, pokyny pro pacienta beze změny), jsou jedna karta. Jedno potvrzení, každá položka se přesto zapíše do stopy zvlášť. Spodní lišta se odemkla.', proc: 'Lékař rozhoduje jen o tom, co se mění. Kontrola je tak zhruba 10 kliknutí místo 30.' }
     ]
   },
   reviewConfirm: {

@@ -9,6 +9,13 @@ D.sceneItems = [
    "K-KRITERIA",
    "R-NAVYKY",
    "R-POKYNY",
+   "I-NEVIM",
+   "I-HYPO",
+   "I-MENE",
+   "I-NEMOC-BAZAL",
+   "I-NEMOC-JIDLO",
+   "I-VYSOKA",
+   "I-KONTAKT",
    "C-CILE"
   ]
  },
@@ -16,6 +23,13 @@ D.sceneItems = [
   "title": "Lékař – dávky, startovní návyky a pokyny", "items": [
    "R-NAVYKY",
    "R-POKYNY",
+   "I-NEVIM",
+   "I-HYPO",
+   "I-MENE",
+   "I-NEMOC-BAZAL",
+   "I-NEMOC-JIDLO",
+   "I-VYSOKA",
+   "I-KONTAKT",
    "C-CILE"
   ]
  },
@@ -23,7 +37,15 @@ D.sceneItems = [
   "title": "Lékař – vydání plánu", "items": []
  },
  {
-  "title": "Sestra – zaučení s náhledem telefonu", "items": []
+  "title": "Sestra – zaučení s náhledem telefonu", "items": [
+   "I-HYPO",
+   "I-KONTAKT",
+   "I-MENE",
+   "I-NEVIM",
+   "I-VYSOKA",
+   "I-NEMOC-BAZAL",
+   "I-NEMOC-JIDLO"
+  ]
  },
  {
   "title": "Pacient – převzetí plánu a jedna otázka", "items": []
@@ -99,6 +121,13 @@ D.sceneItems = [
    "S-SILNA",
    "R-SKORE",
    "R-REAKCE",
+   "I-NEVIM",
+   "I-HYPO",
+   "I-MENE",
+   "I-NEMOC-BAZAL",
+   "I-NEMOC-JIDLO",
+   "I-VYSOKA",
+   "I-KONTAKT",
    "D-POSTUP",
    "D-PRAND"
   ]
@@ -106,8 +135,7 @@ D.sceneItems = [
  {
   "title": "Lékař – krok 2: návrhy s důvodem a postupem", "items": [
    "D-POSTUP",
-   "D-PRAND",
-   "R-POKYNY"
+   "D-PRAND"
   ]
  },
  {
@@ -123,7 +151,15 @@ D.sceneItems = [
   "title": "Lékař – verze a stopa: důkaz, jak to počítá", "items": []
  },
  {
-  "title": "Dodatek · zaučení se nezdařilo", "items": []
+  "title": "Dodatek · zaučení se nezdařilo", "items": [
+   "I-HYPO",
+   "I-KONTAKT",
+   "I-MENE",
+   "I-NEVIM",
+   "I-VYSOKA",
+   "I-NEMOC-BAZAL",
+   "I-NEMOC-JIDLO"
+  ]
  },
  {
   "title": "Dodatek · bez zaučení plán nezačne platit", "items": []

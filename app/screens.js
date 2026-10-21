@@ -318,12 +318,12 @@ function instructionsList(S, p, compact, order) {
   var cat = NF.instructionCatalog();
   var list = ((p && p.instructions) || []).slice();
   if (order) list.sort(function (x, y) { var ix = order.indexOf(x.id), iy = order.indexOf(y.id); return (ix < 0 ? 99 : ix) - (iy < 0 ? 99 : iy); }); /* nejnaléhavější pokyny první (18. 10. 2026) */
-  if (!list.length) return '<p class="small muted">Lékař zatím pokyny nezadal.</p>';
+  if (!list.length) return '<p class="small muted">V plánu zatím nejsou žádné pokyny.</p>';
   if (compact) return '<ul class="plain">' + list.map(function (i) { var c = cat.filter(function (x) { return x.id === i.id; })[0] || { title: i.id }; return '<li>' + e(c.title) + '</li>'; }).join('') + '</ul>'; /* převzetí plánu: jen názvy, celé znění v Bezpečí (19. 10. 2026) */
   return '<ul class="plain doc-list">' + list.map(function (i) {
     var c = cat.filter(function (x) { return x.id === i.id; })[0] || { title: i.id, text: '' };
     var txt = (c.text || '').replace('{v}', '<b>' + e(String(i.value).replace('.', ',')) + (c.unit ? ' ' + e(c.unit) : '') + '</b>');
-    return '<li><b>' + e(c.title) + '</b><blockquote class="doc-q">„' + txt + '“</blockquote></li>';
+    return '<li><b>' + e(c.title) + '</b> ' + appr(S, i.id) + '<blockquote class="doc-q">„' + txt + '“</blockquote></li>'; /* každý pokyn je položka registru (21. 10. 2026) */
   }).join('') + '</ul><p class="doc-sign">– váš lékař' + (p ? ' · plán ' + e(p.id) + ' · ' + e(NF.fmtShort(p.issuedAt)) : '') + '</p>';
 }
 V.instructionsList = instructionsList;

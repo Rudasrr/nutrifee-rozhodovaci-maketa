@@ -128,11 +128,60 @@ D.guide = {
     dopad: 'Při zamítnutí celé položky návrhové karty nemají větve: lékař vidí důvod a ověření, ale postup mu neřekne nic a rozhoduje sám.'
   },
   'R-POKYNY': {
-    proc: 'Co dělat při nízké glukóze, při menší porci po píchnutí, při nemoci nebo při nejistotě s inzulinem, nesmí říkat aplikace. Říká to lékař – připravenou větou, do které dosadí hodnotu.',
-    jak: 'Katalog vět: nízká glukóza (hranice pevně 4 mmol/l, bez voliče) · nevím, jestli byl inzulin píchnutý (změřit za 60 min, znovu nepíchat) · méně jídla než obvykle (změřit za 60 min) · nemoc zvlášť pro bazál (píchat dál, měřit každé 3 h) a pro inzulin k jídlu (jen když pacient jí; při zvracení nebo nad 15 volat) · vysoká glukóza (nad 15 déle než 3 h volat) · kdy a kam volat. Lékař při zařazení pokyny zapne a ostatní hodnoty nastaví voličem; na kontrole je může upravit. Pacient je má v Bezpečí, při nemoci nahoře na Dnes a přímo v kartách, kde aplikace neradí.',
-    kde: 'Zařazení (krok 2), Bezpečí (pacient), Dnes při nemoci, krok 1 a 3 před jídlem (pod „Nevím“ a u menší porce), kontrola (návrh „Osobní pokyny stále platí?“).',
-    co: 'Znění vět, výchozí hodnoty a pevnou hranici nízké glukózy 4 mmol/l. Věty jsou návrh autora makety; garant je může přepsat v registru.',
-    dopad: 'Při zamítnutí pacient nemá v Bezpečí žádné pokyny a aplikace v situacích, kdy neradí, nemá na co odkázat.'
+    proc: 'Co dělat při nízké glukóze, při menší porci po píchnutí, při nemoci nebo při nejistotě s inzulinem, nesmí říkat software sám. Říká to plán podepsaný lékařem. Aby lékař při každém zařazení nic nevybíral ani nepsal, jsou pokyny součástí plánu automaticky.',
+    jak: 'Sedm pokynů je v plánu od začátku, každý jako vlastní položka registru s výchozí hodnotou: nízká glukóza (hranice pevně 4 mmol/l, bez voliče) · nevím, jestli byl inzulin píchnutý · méně jídla než obvykle · nemoc zvlášť pro bazál a pro inzulin k jídlu · vysoká glukóza · kdy a kam volat. Lékař při vydání plánu pokyny vidí sbalené, podepisuje plán jako celek a hodnotu mění jen výjimečně u konkrétního pacienta (výjimky jsou vidět v plánu i na kontrole). Pacient pokyn vidí jako pokyn svého lékaře ve chvíli, kdy ho potřebuje, a všechny v Bezpečí.',
+    kde: 'Zařazení (krok 2, sbalená karta), vydání plánu, kontrola (návrh „Pokyny pro pacienta beze změny?“), Bezpečí (pacient).',
+    co: 'Že pokyny jsou součást plánu automaticky a lékař podepisuje plán jako celek; znění a hodnoty jednotlivých pokynů schvalujete u každého zvlášť.',
+    dopad: 'Při zamítnutí pokyny nejsou součástí plánu; pacient nemá v Bezpečí žádné pokyny a aplikace v situacích, kdy neradí, nemá na co odkázat.'
+  },
+  'I-HYPO': {
+    proc: 'Nízká glukóza je u pevných dávek nejnebezpečnější situace a aplikace sama nesmí říkat, co jíst. Pokyn s podpisem lékaře to říká za ni.',
+    jak: 'Pacient uvidí: „Když glukóza klesne pod 4, snězte 15 g rychlých sacharidů (asi 1,5 dl džusu) a změřte za 15 min.“ Hranice je pevně 4 mmol/l, stejné číslo jako čipy, otázky a eskalace; bez voliče.',
+    kde: 'Krok 1 před jídlem (hned pod čipem „pod 4“), Dnes (karta po odpovědi „ano, pod 4“), Bezpečí.',
+    co: 'Znění pokynu a množství sacharidů; hranici 4 mmol/l neměníte (je společná pro celou aplikaci).',
+    dopad: 'Při zamítnutí pacient po klepnutí na „pod 4“ nevidí žádný pokyn a v Bezpečí chybí.'
+  },
+  'I-MENE': {
+    proc: 'Menší porce po už píchnutém inzulinu je jediná situace, kterou aplikace sama vyvolá a která může vést k nízké glukóze. Aplikace nesmí říct „snězte víc“; místo toho ukáže tento pokyn.',
+    jak: 'Pacient uvidí: „Když sníte méně, než na kolik máte inzulin, změřte glukózu za {v} min a při poklesu postupujte jako u nízké glukózy.“ Za {v} minut se aplikace na Dnes zeptá „klesla pod 4?“ (položka B-HYPO).',
+    kde: 'Krok 3 před jídlem (menší porce po píchnutí), Dnes (vynechané jídlo s inzulinem), Bezpečí.',
+    co: 'Znění pokynu a výchozí interval {v} minut.',
+    dopad: 'Při zamítnutí pacient po menší porci nevidí žádný pokyn; otázka na pokles zůstává.'
+  },
+  'I-NEVIM': {
+    proc: 'Dvojí dávka je nebezpečnější než vynechaná. Když pacient neví, jestli si píchl, musí dostat jasný pokyn: nepíchat znovu a měřit.',
+    jak: 'Pacient uvidí: „Když nevíte, jestli byl inzulin už píchnutý, znovu ho nepíchejte. Změřte glukózu za {v} min a řiďte se pokynem pro vysokou nebo nízkou glukózu.“ Zápis s „nevím“ se do učení nepočítá.',
+    kde: 'Krok 1 před jídlem (hned pod odpovědí „Nevím“), Bezpečí (pacient).',
+    co: 'Znění pokynu a výchozí interval {v} minut.',
+    dopad: 'Při zamítnutí pacient po „Nevím“ nevidí žádný pokyn.'
+  },
+  'I-NEMOC-BAZAL': {
+    proc: 'Při nemoci se bazál píchá dál, i když pacient nejí. Jeden společný text pro nemoc sváděl bazál vynechat, proto je pokyn pro bazál zvlášť.',
+    jak: 'Pacient uvidí: „Bazál si píchejte dál ve stejný čas, i když nejíte. Pijte a měřte glukózu každé {v} h.“ Po zapnutí „Není mi dobře“ je nahoře na Dnes vedle pokynu k inzulinu k jídlu.',
+    kde: 'Dnes při nemoci (nahoře vedle druhého pokynu pro nemoc), Bezpečí.',
+    co: 'Znění pokynu a výchozí interval měření {v} hodin.',
+    dopad: 'Při zamítnutí pacient při nemoci nevidí pokyn k bazálu.'
+  },
+  'I-NEMOC-JIDLO': {
+    proc: 'Inzulin k jídlu se při nemoci řídí opačně než bazál: jen když pacient jí. A pacient potřebuje hranici, od které volá sám.',
+    jak: 'Pacient uvidí: „Když jídlo vynecháte, inzulin k němu nepíchejte. Když jíte, píchněte podle plánu. Při zvracení nebo glukóze nad {v} déle než 3 hodiny volejte ordinaci.“',
+    kde: 'Dnes při nemoci (nahoře vedle druhého pokynu pro nemoc), Bezpečí.',
+    co: 'Znění pokynu a výchozí hranici {v} mmol/l, od které pacient volá.',
+    dopad: 'Při zamítnutí pacient při nemoci nevidí pokyn k inzulinu k jídlu.'
+  },
+  'I-VYSOKA': {
+    proc: 'Aplikace živou glukózu nesleduje; na vysokou hodnotu upozorňuje aplikace senzoru. Pacient proto potřebuje hranici, od které volá ordinaci sám.',
+    jak: 'Pacient uvidí: „Když je glukóza nad {v} déle než 3 hodiny, volejte ordinaci.“',
+    kde: 'Bezpečí (pacient), seznam pokynů v plánu (lékař).',
+    co: 'Znění pokynu a výchozí hranici {v} mmol/l, od které pacient volá ordinaci.',
+    dopad: 'Při zamítnutí pacient nemá v Bezpečí pokyn pro vysokou glukózu.'
+  },
+  'I-KONTAKT': {
+    proc: 'Jediná cesta k lékaři mimo kontrolu je, že volá pacient; aplikace nikam nevolá ani nic neposílá. Pacient musí vědět kdy a kam.',
+    jak: 'Pacient uvidí: „V ordinační době volejte ordinaci, jinak pohotovost. Při bezvědomí, křečích nebo dušnosti záchranná služba.“ Na kartu „zavolejte do ordinace“ po dvou poklesech pod 4 za 7 dní navazuje tlačítkem do Bezpečí.',
+    kde: 'Bezpečí, Dnes (výzva zavolat po dvou poklesech), zaučení (bod „ví kam volat“).',
+    co: 'Znění pokynu: kdy volat ordinaci, kdy pohotovost a kdy záchrannou službu.',
+    dopad: 'Při zamítnutí pacient nemá v Bezpečí kontakt a výzva „zavolejte do ordinace“ nemá kam odkázat.'
   },
   'Z-BODY': {
     proc: 'Zaučení bez pohledu na to, co pacient skutečně umí, je jen odškrtávání. Body zaučení se skládají z návyků v plánu, protože s návykem souvisí to, co má pacient umět.',

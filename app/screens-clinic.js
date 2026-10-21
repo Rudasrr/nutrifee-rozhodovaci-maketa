@@ -3,7 +3,7 @@
 (function (global) {
 'use strict';
 var NF = global.NutriFee, V = NF.screens, e = NF.esc;
-var btn = V.btn, choice = V.choice, hint = V.hint, kv = V.kv, card = V.card, tag = V.tag, appr = V.appr;
+var btn = V.btn, choice = V.choice, off = V.off, hint = V.hint, kv = V.kv, card = V.card, tag = V.tag, appr = V.appr;
 /* Sazba v ordinaci (21. 10. 2026): prázdná hodnota česká pomlčka, čas bez úvodní nuly („9:35“). */
 var EMPTY = '–';
 function dateTime(iso) { return iso ? NF.fmtShort(iso) + ' ' + NF.fmtClock(iso) : EMPTY; }
@@ -89,14 +89,18 @@ V.enroll = function (S) {
         var on = d.habits.indexOf(h.id) >= 0;
         return '<button type="button" class="habit-opt ' + (on ? 'on' : '') + '" data-action="toggleHabit" data-value="' + h.id + '" aria-pressed="' + on + '"><span class="dot">' + (on ? NF.icon('check') : '') + '</span><span><b>' + e(h.title) + '</b>' + (h.default ? ' ' + tag('startovní sada', 'info') : '') + '<small>Pacient uvidí: „' + e(h.why) + '“</small></span></button>'; /* text návyku oslovuje pacienta; lékaři je uveden jako citace (21. 10. 2026) */
       }).join('') + '</div>');
-    out += card('<h2>3 · Osobní pokyny pro pacienta</h2><p class="muted">Připravené věty, hodnoty volíte. Pacient je uvidí v Bezpečí a při nemoci nahoře na Dnes. ' + appr(S, 'R-POKYNY') + '</p>' +
+    /* Pokyny jsou v plánu automaticky ze schváleného registru (21. 10. 2026): lékař podepisuje plán jako celek, hodnotu mění jen výjimečně. */
+    var active = ic.filter(function (c) { return d.instructions.some(function (x) { return x.id === c.id; }); }), exc = NF.instructionExceptions(S, d.instructions);
+    out += card('<h2>3 · Pokyny pro pacienta a cíle glukózy</h2><p class="muted">' + NF.plural(active.length, 'pokyn', 'pokyny', 'pokynů') + ' ze schváleného registru s výchozími hodnotami (nízká glukóza, méně jídla, nemoc, nevím u inzulinu, vysoká glukóza, kdy volat). Pacient je uvidí v Bezpečí a ve chvíli, kdy je potřebuje, jako pokyn od vás. Vydáním plánu je podepisujete; hodnotu měňte jen výjimečně. ' + appr(S, 'R-POKYNY') + '</p>' +
+      (exc.length ? '<p class="small">Výjimky u tohoto pacienta: ' + e(exc.join(', ')) + '.</p>' : '') +
+      '<details class="more instr-card"><summary>Zobrazit pokyny nebo změnit hodnotu</summary>' +
       ic.map(function (c) {
-        var ex = d.instructions.filter(function (x) { return x.id === c.id; })[0];
-        return '<div class="instr"><label class="check p-0"><input type="checkbox" data-action="instrToggle" data-value="' + c.id + '"' + (ex ? ' checked' : '') + '><span><b>' + e(c.title) + '</b><br><span class="small muted">' + (c.text || '').replace('{v}', '<b>' + (ex ? e(String(ex.value).replace('.', ',')) : e(String(c.value).replace('.', ','))) + (c.unit ? ' ' + e(c.unit) : '') + '</b>') + '</span></span></label>' +
+        var ex = d.instructions.filter(function (x) { return x.id === c.id; })[0], usable = !NF.item(S, c.id) || NF.usable(S, c.id);
+        if (!usable) return '<div class="instr">' + off(S, c.id) + '</div>';
+        return '<div class="instr"><label class="check p-0"><input type="checkbox" data-action="instrToggle" data-value="' + c.id + '"' + (ex ? ' checked' : '') + '><span><b>' + e(c.title) + '</b> ' + appr(S, c.id) + '<br><span class="small muted">' + (c.text || '').replace('{v}', '<b>' + (ex ? e(String(ex.value).replace('.', ',')) : e(String(NF.instructionValue(S, c)).replace('.', ','))) + (c.unit ? ' ' + e(c.unit) : '') + '</b>') + '</span></span></label>' +
           (ex && c.fixed ? '<span class="small muted">pevně ' + e(String(c.value).replace('.', ',')) + ' ' + e(c.unit || '') + '</span>' : ex && typeof c.value === 'number' ? '<div class="stepper">' + btn(NF.icon('minus'), 'instrValue', c.id + ':-1', '', ' aria-label="méně"') + '<span class="val">' + e(String(ex.value).replace('.', ',')) + '<small>' + e(c.unit || '') + '</small></span>' + btn(NF.icon('plus'), 'instrValue', c.id + ':1', '', ' aria-label="více"') + '</div>' : '<span></span>') + '</div>';
-      }).join('') +
-      '<h3 class="mt-4">Cíle glukózy</h3><p class="muted small">Výchozí hodnoty z registru; u pacienta je můžete upravit. Z nich vychází semafor v reportu a návrhy k dávce. ' + appr(S, 'C-CILE') + '</p>' + targetsGrid(d.targets, 'target') +
-      '<label class="check mt-3"><input type="checkbox" data-bind="draft.instructionsChecked"' + (d.instructionsChecked ? ' checked' : '') + '><span>Pokyny jsou s pacientem probrané.</span></label>');
+      }).join('') + '</details>' +
+      '<h3 class="mt-4">Cíle glukózy</h3><p class="muted small">Výchozí hodnoty z registru; u pacienta je můžete upravit. Z nich vychází semafor v reportu a návrhy k dávce. ' + appr(S, 'C-CILE') + '</p>' + targetsGrid(d.targets, 'target'));
     var bl = NF.planBlockers(S);
     out += nextbar('Další krok: vydání plánu', bl.length ? 'Chybí: ' + e(bl.join(', ')) + '.' : 'Vše je připravené.', btn('Pokračovat →', 'wizardGo', '2', 'primary', bl.length ? ' disabled' : ''));
     return out;
@@ -105,7 +109,7 @@ V.enroll = function (S) {
   out += card('<h2>Shrnutí před vydáním</h2><div class="grid2"><div>' + kv('Plán', e(d.planId)) + kv('Platnost do', e(NF.fmtShort(d.validUntil))) +
     kv('Snídaně', d.doses.breakfast.units + ' j.') + kv('Oběd', d.doses.lunch.units + ' j.') + kv('Večeře', d.doses.dinner.units + ' j.') + kv('Bazál na noc', d.doses.basal.units + ' j. ve ' + e(d.doses.basal.time)) + /* každá dávka na vlastním řádku (19. 10. 2026) */
     targetsKv(d.targets) + '<h3 class="mt-4">Návyky</h3><ul class="plain small">' + d.habits.map(function (id) { var h = hc2.filter(function (x) { return x.id === id; })[0]; return '<li>' + e(h ? h.title : id) + '</li>'; }).join('') + '</ul></div>' +
-    '<div><h3 class="mt-0">Osobní pokyny</h3>' + V.instructionsList(S, d, true) + '</div></div>') + /* N04/N05: dávky, cíle a návyky vlevo, pokyny vpravo; nadpisy skupin s odstupem */
+    '<div><h3 class="mt-0">Pokyny pro pacienta</h3>' + V.instructionsList(S, d, true) + '<p class="small muted">Ze schváleného registru; vydáním plánu je podepisujete.</p></div></div>') + /* N04/N05: dávky, cíle a návyky vlevo, pokyny vpravo; nadpisy skupin s odstupem */
     hint('<b>Co se stane po vydání:</b> plán se předá sestře k zaučení. Návyky začnou pacientovi platit až po zaučení a jedné závěrečné otázce. Vy už mezi kontrolami nic neděláte.', 'neutral');
   /* potvrzení jednou větou, co se stane (15a; rozhodnutí vlastníka 19. 10. 2026) */
   out += nextbar('Vydáte plán ' + e(d.planId) + ': snídaně ' + d.doses.breakfast.units + ' j. · oběd ' + d.doses.lunch.units + ' j. · večeře ' + d.doses.dinner.units + ' j. · bazál ' + d.doses.basal.units + ' j. ve ' + e(d.doses.basal.time), 'Nevratný krok. Plán uvidí sestra a pacient; pacient dávky při převzetí potvrdí.', btn('Vydat plán a předat sestře', 'issuePlan', null, 'primary'));
@@ -126,7 +130,7 @@ function targetsGrid(t, action) {
 /* Úprava pokynů při kontrole: stejný katalog jako při zařazení, vázaný na r.newInstructions. */
 function reviewInstructions(S, r) {
   var ic = NF.instructionCatalog();
-  return '<div class="box mt-3"><div class="k">Pokyny pro příští období</div>' + ic.map(function (c) {
+  return '<div class="box mt-3"><div class="k">Pokyny pro příští období</div><p class="small muted">Výchozí hodnoty ze schváleného registru; změna jen jako výjimka u tohoto pacienta.</p>' + ic.map(function (c) {
     var ex = r.newInstructions.filter(function (x) { return x.id === c.id; })[0];
     return '<div class="instr"><label class="check p-0"><input type="checkbox" data-action="revInstrToggle" data-value="' + c.id + '"' + (ex ? ' checked' : '') + '><span><b>' + e(c.title) + '</b></span></label>' +
       (ex && c.fixed ? '<span class="small muted">pevně ' + e(String(c.value).replace('.', ',')) + ' ' + e(c.unit || '') + '</span>' : ex && typeof c.value === 'number' ? '<div class="stepper">' + btn(NF.icon('minus'), 'revInstrValue', c.id + ':-1', '', ' aria-label="méně"') + '<span class="val">' + e(String(ex.value).replace('.', ',')) + '<small>' + e(c.unit || '') + '</small></span>' + btn(NF.icon('plus'), 'revInstrValue', c.id + ':1', '', ' aria-label="více"') + '</div>' : '<span></span>') + '</div>';
@@ -274,7 +278,7 @@ function podklady(S, p, r) {
     '<div class="tablewrap mt-3"><table><thead><tr><th>Rada</th><th>Nabídnuto</th><th>Přijato</th><th>Odmítnuto</th><th>Důvody</th></tr></thead><tbody>' + Object.keys(a.byLever).map(function (l) { var b = a.byLever[l]; return '<tr><td>' + e(NF.LEVERS[l].label) + '</td><td>' + b.offered + '</td><td>' + b.accepted + '</td><td>' + b.declined + '</td><td>' + Object.keys(b.reasons).map(function (k) { return e(NF.reasonLabel(k)) + ' ' + b.reasons[k] + '×'; }).join(', ') + '</td></tr>'; }).join('') + '</tbody></table></div></div></details>';
   out += '<details class="part"><summary>Plán, dávky a jejich potvrzení<span class="mini">' + (s.asPct == null ? 'zatím bez zápisů' : s.asPct + ' % podle plánu') + '</span></summary><div class="body">' + tileDetail(S, p, r, 'ins') + V.dosesTable(p) + '</div></details>';
   out += '<details class="part"><summary>Senzor<span class="mini">' + (s.sensor ? 'čas v cíli ' + s.sensor.tir + ' % · dostupnost ' + s.sensor.availability + ' %' : 'chybí') + '</span></summary><div class="body">' + tileDetail(S, p, r, 'tir') + '</div></details>';
-  out += '<details class="part"><summary>Osobní pokyny<span class="mini">' + (p.instructions || []).length + '</span></summary><div class="body">' + V.instructionsList(S, p, false) + '</div></details>';
+  out += '<details class="part"><summary>Pokyny pro pacienta<span class="mini">' + (p.instructions || []).length + '</span></summary><div class="body">' + V.instructionsList(S, p, false) + '</div></details>';
   var ts = NF.trainingSummary(S);
   out += '<details class="part"' + (ts.state === 'failed' ? ' open' : '') + '><summary>Zaučení u sestry<span class="mini">' + e(ts.state === 'done' ? 'hotovo' : ts.state === 'failed' ? 'nezdařilo se' : 'čeká') + '</span></summary><div class="body"><p>' + e(ts.text) + '</p>' + (ts.state === 'failed' ? hint('Návyky pacientovi neplatí; zápisy jsou jen záznam. Domluvte nové zaučení.', 'warn') : '') + '</div></details>';
   out += '<details class="part"><summary>Otázky pacienta<span class="mini">' + S.questions.length + '</span></summary><div class="body">' + (S.questions.length ? '<ul class="plain">' + S.questions.map(function (q) { return '<li>„' + e(q.text) + '“</li>'; }).join('') + '</ul>' : '<p class="muted">Pacient si žádnou otázku neuložil.</p>') + '</div></details>';
@@ -468,7 +472,7 @@ function itemPanel(S, r) {
     '<details class="more mt-3"><summary>Historie rozhodnutí (' + hist.length + ')</summary><ul class="plain hist">' + (hist.length ? hist.map(function (h) { return '<li>' + e(dateTime(h.at)) + ' · ' + e(whoLabel(S, h.by)) + ': ' + (h.kind === 'comment' ? 'komentář (stav beze změny)' : e(NF.STATUS[h.from.status] || h.from.status) + ' → <b>' + e(NF.STATUS[h.to.status]) + '</b>') + (JSON.stringify(h.from.params) !== JSON.stringify(h.to.params) ? ' · ' + e(Object.keys(h.to.params || {}).filter(function (k) { return JSON.stringify((h.from.params || {})[k]) !== JSON.stringify(h.to.params[k]); }).map(function (k) { return paramLabel(r, k) + ' ' + String((h.from.params || {})[k]).replace('.', ',') + ' → ' + String(h.to.params[k]).replace('.', ','); }).join(', ')) : '') + (h.comment ? ' · „' + e(h.comment) + '“' : '') + '</li>'; }).join('') : '<li class="muted">Zatím beze změny od výchozího schválení.</li>') + '</ul></details>');
 }
 /* Položky, které chrání pacienta: zamítnutí v registru chce potvrzení jednou větou, co přestane fungovat (rozhodnutí vlastníka 19. 10. 2026). */
-V.SAFETY_ITEMS = { 'B-HYPO': 'pacient po menší porci nedostane otázku na pokles pod 4 a při opakovaných poklesech výzvu zavolat do ordinace.', 'R-POKYNY': 'pacient neuvidí osobní pokyny lékaře (nízká glukóza, méně jídla, nemoc, kdy volat).', 'P-NEMOC': 'pacient nebude moci označit nemoc a rady k jídlu se během nemoci nezastaví.' };
+V.SAFETY_ITEMS = { 'B-HYPO': 'pacient po menší porci nedostane otázku na pokles pod 4 a při opakovaných poklesech výzvu zavolat do ordinace.', 'R-POKYNY': 'pokyny přestanou být součástí plánu a pacient je neuvidí (nízká glukóza, méně jídla, nemoc, kdy volat).', 'P-NEMOC': 'pacient nebude moci označit nemoc a rady k jídlu se během nemoci nezastaví.' };
 /* Český název parametru s jednotkou (F4): z položky, jinak klíč. */
 function paramLabel(r, k) { return (r.labels && r.labels[k]) || k; }
 /* Texty položky: jedna věta (text) nebo pojmenované šablony (texts). Zástupné hodnoty {…} zůstávají vidět. */

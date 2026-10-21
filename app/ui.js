@@ -173,7 +173,6 @@ var A = {
     S.draft = NF.newDraft(S);
     /* Startovní sada je stejná pro všechny: NutriFee navrhne, lékař škrtá nebo přidává (15 odst. 4). Dávky nepředvyplňujeme. */
     catalog().forEach(function (h) { if (h.default && NF.usable(S, h.item)) S.draft.habits.push(h.id); });
-    NF.instructionCatalog().forEach(function (i) { if (i.default) S.draft.instructions.push({ id: i.id, value: i.value }); });
   },
   dose: function (v) { var p = v.split(':'); NF.setDose(S, p[0], Number(p[1])); },
   basalTime: function (v) { if (S.draft && /^\d\d:\d\d$/.test(v)) S.draft.doses.basal.time = v; }, /* čas bazálu voličem (15, odst. 4.3) */
@@ -182,7 +181,7 @@ var A = {
   revInstrToggle: function (v) {
     var c = NF.instructionCatalog().filter(function (x) { return x.id === v; })[0], r = S.review; if (!r) return;
     var has = r.newInstructions.some(function (x) { return x.id === v; });
-    r.newInstructions = has ? r.newInstructions.filter(function (x) { return x.id !== v; }) : r.newInstructions.concat([{ id: v, value: c ? c.value : true }]);
+    r.newInstructions = has ? r.newInstructions.filter(function (x) { return x.id !== v; }) : r.newInstructions.concat([{ id: v, value: c ? NF.instructionValue(S, c) : true }]);
   },
   revInstrValue: function (v) {
     var p = v.split(':'), c = NF.instructionCatalog().filter(function (x) { return x.id === p[0]; })[0], r = S.review; if (!r) return;
@@ -193,7 +192,7 @@ var A = {
   instrToggle: function (v) {
     var c = NF.instructionCatalog().filter(function (x) { return x.id === v; })[0];
     var has = S.draft && S.draft.instructions.some(function (x) { return x.id === v; });
-    NF.setInstruction(S, v, has ? null : (c ? c.value : true));
+    NF.setInstruction(S, v, has ? null : (c ? NF.instructionValue(S, c) : true));
   },
   instrValue: function (v) {
     var p = v.split(':'), c = NF.instructionCatalog().filter(function (x) { return x.id === p[0]; })[0];

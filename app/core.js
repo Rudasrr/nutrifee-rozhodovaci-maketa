@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 65;
+NF.SCHEMA = 66;
 NF.PAGES = ['today', 'foods', 'food', 'plan', 'safety', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
@@ -140,6 +140,20 @@ NF.seed = function (S, at, by) { NF.seedRegistry(S, at, by); S.foods = NF.data &
 NF.garantItems = function (S) { return S.registry.items.filter(function (r) { return r.scope !== 'provozni'; }); };
 NF.habitCatalog = function () { return (NF.data && NF.data.habits) || []; };
 NF.instructionCatalog = function () { return (NF.data && NF.data.instructions) || []; };
+/* Pokyny jsou součást plánu automaticky (rozhodnutí vlastníka 21. 10. 2026): každý pokyn je položka registru schválená garantem při vývoji,
+   výchozí hodnota je parametr položky (`v`), lékař podepisuje plán jako celek a hodnotu mění jen výjimečně. Zamítnutý pokyn do plánu nejde. */
+NF.instructionDefaults = function (S) {
+  return { 'I-MENE': NF.param(S, 'I-MENE', 'v', 60), 'I-NEVIM': NF.param(S, 'I-NEVIM', 'v', 60), 'I-NEMOC-BAZAL': NF.param(S, 'I-NEMOC-BAZAL', 'v', 3), 'I-NEMOC-JIDLO': NF.param(S, 'I-NEMOC-JIDLO', 'v', 15), 'I-VYSOKA': NF.param(S, 'I-VYSOKA', 'v', 15) };
+};
+NF.instructionValue = function (S, c) { var d = NF.instructionDefaults(S); return c.fixed || typeof c.value !== 'number' ? c.value : (d[c.id] != null ? d[c.id] : c.value); };
+NF.defaultInstructions = function (S) {
+  return NF.instructionCatalog().filter(function (c) { var r = NF.item(S, c.id); return !r || r.status !== 'rejected'; }).map(function (c) { return { id: c.id, value: NF.instructionValue(S, c) }; });
+};
+NF.instructionExceptions = function (S, list) {
+  var cat = NF.instructionCatalog(), out = [];
+  cat.forEach(function (c) { var ex = (list || []).filter(function (x) { return x.id === c.id; })[0]; if (!ex) { if (!NF.item(S, c.id) || NF.usable(S, c.id)) out.push(c.title + ': vypnuto'); return; } if (typeof c.value === 'number' && ex.value !== NF.instructionValue(S, c)) out.push(c.title + ': ' + String(ex.value).replace('.', ',') + ' ' + (c.unit || '')); });
+  return out;
+};
 
 /* ---------- úložiště ---------- */
 NF.storageOK = true;
@@ -182,7 +196,7 @@ NF.muteHooks = function (fn) { NF.hooks.muted++; try { return fn(); } finally { 
    status: approved | edited | rejected. Použitelná je approved nebo edited. */
 NF.CATS = [
   ['kohorta', 'Kohorta a zařazení'], ['plan', 'Startovní plán a návyky'], ['vypocty', 'Výpočty a prahy'],
-  ['rady', 'Rady a texty'], ['skore', 'Reakce těla'], ['davka', 'Signály k dávce'], ['pokyny', 'Osobní pokyny'],
+  ['rady', 'Rady a texty'], ['skore', 'Reakce těla'], ['davka', 'Signály k dávce'], ['pokyny', 'Pokyny pro pacienta'],
   ['zauceni', 'Zaučení'], ['jidla', 'Jídla a štítky'], ['report', 'Report a souhrny'], ['rezim', 'Bezpečnost a režim']
 ];
 NF.catLabel = function (c) { var x = NF.CATS.filter(function (k) { return k[0] === c; })[0]; return x ? x[1] : c; };
@@ -331,8 +345,8 @@ NF.newDraft = function (S) {
   return {
     planId: 'P' + (S.plans.length + 1), version: 'v1',
     doses: { basal: { units: 0, time: '21:00' }, breakfast: { units: 0 }, lunch: { units: 0 }, dinner: { units: 0 } }, /* 0 = „nastavte“; výši dávky aplikace nikdy nepředvyplňuje (6. 10. 2026) */
-    habits: [], instructions: [], targets: NF.defaultTargets(S), advice: { off: [], prefer: [] },
-    medicationChecked: false, instructionsChecked: false, validUntil: NF.addDays(S.clock, 92), decisions: []
+    habits: [], instructions: NF.defaultInstructions(S), targets: NF.defaultTargets(S), advice: { off: [], prefer: [] }, /* pokyny v plánu automaticky (21. 10. 2026) */
+    medicationChecked: false, instructionsChecked: true, validUntil: NF.addDays(S.clock, 92), decisions: []
   };
 };
 NF.TARGET_STEPS = { low: [0.1, 3.0, 5.0], high: [0.5, 7.0, 14.0], fastingHigh: [0.1, 5.0, 10.0], tirGoal: [5, 40, 90] };
@@ -377,8 +391,6 @@ NF.planBlockers = function (S) {
   if (['breakfast', 'lunch', 'dinner', 'basal'].some(function (k) { return !d.doses[k] || !(d.doses[k].units >= 1); })) chybi.push('všechny čtyři dávky (nejméně 1 j.)');
   if (!d.medicationChecked) chybi.push('ověření dávek s pacientem');
   if (!d.habits.length) chybi.push('aspoň jeden návyk');
-  if (!d.instructions.length) chybi.push('osobní pokyny');
-  if (!d.instructionsChecked) chybi.push('potvrzení, že pokyny byly probrány');
   return chybi;
 };
 NF.activePlan = function (S) { return S.plans.filter(function (p) { return p.id === S.activePlanId; })[0] || null; };
@@ -1496,9 +1508,10 @@ NF.proposals = function (S, planId, catalog) {
         weak: [], verify: ['Pacient má radu běžně po ruce'], branches: [{ when: 'bod 1 sedí', action: 'keep', text: 'ponechat' }], item: 'R-NAVYKY' });
     }
   });
-  out.push({ id: 'PR-POKYNY', kind: 'instructions', cat: 'pokyny', priority: 6, group: 'keep', title: 'Osobní pokyny stále platí?',
-    why: 'Pokyny z ' + NF.fmtShort(p.issuedAt) + ': ' + NF.plural((p.instructions || []).length, 'pokyn', 'pokyny', 'pokynů') + '.' + (out.some(function (x) { return x.kind === 'dose'; }) ? ' Po změně dávky se mění i pokyn „méně jídla než obvykle“.' : ''), /* S19: věta jen tehdy, když je co měnit */
-    weak: [], verify: ['Kontakty, hranice hodnot i cíle glukózy odpovídají'], branches: [{ when: 'bod 1 sedí', action: 'keep', text: 'ponechat' }, { when: 'bod 1 nesedí', action: 'edit', text: 'upravit pokyny a cíle' }], item: 'R-POKYNY' });
+  var exc = NF.instructionExceptions(S, p.instructions);
+  out.push({ id: 'PR-POKYNY', kind: 'instructions', cat: 'pokyny', priority: 6, group: 'keep', title: 'Pokyny pro pacienta beze změny?',
+    why: 'Pokyny jsou v plánu ze schváleného registru s výchozími hodnotami' + (exc.length ? '; výjimky u tohoto pacienta: ' + exc.join(', ') + '.' : ', bez výjimek.'), /* 21. 10. 2026: pokyny automaticky v plánu, lékař podepisuje plán jako celek */
+    weak: [], verify: ['Pokyny i cíle glukózy pacientovi dál odpovídají'], branches: [{ when: 'bod 1 sedí', action: 'keep', text: 'ponechat' }, { when: 'bod 1 nesedí', action: 'edit', text: 'upravit pokyny a cíle' }], item: 'R-POKYNY' });
   if (!NF.usable(S, 'D-POSTUP')) out.forEach(function (pr) { if (pr.postup) { pr.branches = []; pr.postup = null; pr.weak = pr.weak.filter(function (w) { return w.indexOf('D-POSTUP') < 0; }); pr.weak.push('postup posouzení dávky (D-POSTUP) není schválen – větev nelze ukázat, rozhodněte sami'); } });
   out.sort(function (a, b) { return a.priority - b.priority; });
   return out;
@@ -1517,8 +1530,6 @@ NF.verifyAgainst = function (pr, i) { return !!(pr.facts && pr.facts[i] && pr.fa
 NF.verifyAll = function (S, id) { var r = S.review, pr = r && r.proposals.filter(function (x) { return x.id === id; })[0]; if (!pr) return; var v = r.verify[id] = r.verify[id] || {}; pr.verify.forEach(function (_, i) { if (!NF.verifyAgainst(pr, i)) v[i] = true; }); };
 NF.keepAll = function (S) {
   var r = S.review; if (!r) return { ok: false };
-  var p = NF.activePlan(S), doseChanged = !!p && Object.keys(r.newDoses).some(function (k) { return p.doses[k] && r.newDoses[k].units !== p.doses[k].units; });
-  if (doseChanged) { r.single = r.single || {}; r.single['PR-POKYNY'] = true; } /* po změně dávky se pokyny potvrzují zvlášť */
   r.proposals.forEach(function (pr) { if (pr.group && !r.decisions[pr.id] && !NF.proposalIsSingle(S, pr)) { NF.verifyAll(S, pr.id); NF.decideProposal(S, pr.id, { choice: 'keep', branch: 'keep' }); } });
   return { ok: true };
 };
