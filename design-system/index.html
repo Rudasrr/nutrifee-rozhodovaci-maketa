@@ -9,12 +9,13 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%231A6E85'/%3E%3Cpath d='M11 29V11l18 18V11' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="../app/tokens.css">
 <link rel="stylesheet" href="../app/design.css">
+<link rel="stylesheet" href="../demo/demo.css">
 <link rel="stylesheet" href="catalog.css">
 </head>
-<body class="ds" data-version="63">
+<body class="ds" data-version="64">
 <a class="skip" href="#main">Přeskočit na obsah</a>
 <header class="ds-head">
-  <div class="ds-brand"><span class="brandmark" aria-hidden="true">N</span><div><b>NutriFee · designový systém</b><small>Živý katalog. Čte přímo <code>app/tokens.css</code> a <code>app/design.css</code> makety, proto se od ní nemůže rozejít.</small></div></div>
+  <div class="ds-brand"><span class="brandmark" aria-hidden="true">N</span><div><b>NutriFee · designový systém</b><small>Živý katalog. Čte přímo <code>app/tokens.css</code>, <code>app/design.css</code> a <code>demo/demo.css</code> makety, proto se od ní nemůže rozejít.</small></div></div>
   <div class="ds-meta"><span class="demo-flag">DEMO · syntetická data · není určeno pro léčbu</span><span id="ds-version" class="ds-pill">verze —</span></div>
 </header>
 <div class="ds-shell">
@@ -27,6 +28,9 @@
   <a href="#c-jidlo">· Jídlo a učení</a>
   <a href="#c-podpis">· Dávka, tkanina, seznam jídel</a>
   <a href="#c-navrh">· Návrhová karta</a>
+  <a href="#vrstva">Prezentační vrstva</a>
+  <a href="#c-vrstva">· Panel a tlačítko Dál</a>
+  <a href="#c-vrstva-souhrn">· Souhrn rozhodnutí</a>
   <a href="#obrazovky">Obrazovky</a>
   <a href="#predani">Předání vývojáři</a>
   <p class="ds-navnote">Klepněte na kterýkoli prvek v náhledu: vpravo uvidíte jeho třídy, tokeny a CSS a můžete je zkopírovat.</p>
@@ -245,6 +249,61 @@
       <div class="card flat flush"><button type="button" class="reg-row"><span><span class="t">Nízká glukóza: sledování a eskalace</span><br><span class="s">B-HYPO · Osobní pokyny</span></span><span class="tag">ke schválení</span><span class="muted">›</span></button><button type="button" class="reg-row"><span><span class="t">Cíle glukózy</span><br><span class="s">C-CILE · Startovní plán a úkoly</span></span><span class="tag ok"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" data-icon="check"><path d="M20 6 9 17l-5-5"/></svg>schváleno</span><span class="muted">›</span></button></div>
       <div style="position:relative;height:64px;margin-top:12px"><div class="toast" style="position:absolute;bottom:8px">Schváleno. Rozhodnutí můžete kdykoli změnit.</div></div>
     </div></article>
+
+<section id="vrstva" class="ds-sec">
+  <h1>Prezentační vrstva</h1>
+  <p class="ds-lead">Fialová vrstva ovládá ukázku pro lékaře-garanta; do produkčního sestavení nepatří (<code>demo/demo.css</code>, tokeny <code>--nf-demo-*</code> v <code>app/tokens.css</code>). Fialová znamená vždy „ukázka“, nikdy stav aplikace: tyrkysová tlačítka patří aplikaci a klepe je ukázka, fialová ovládá garant. Náhledy níže jsou skutečné třídy vrstvy; v maketě je panel přilepený vpravo (pod 1100 px jako spodní list), tady stojí v toku stránky.</p>
+
+  <article class="comp" id="c-vrstva"><header><h2>Lišta a panel „Ovládání ukázky“ s tlačítkem Dál</h2><p>Lišta <code>.pres-bar</code> nese štítek DEMO, kde v ukázce jsme a počet položek ke schválení. Panel <code>.tour-panel</code>: hlavička <code>.tour-head</code> s legendou ⓘ, vyprávění „co se děje · čeho si všímat · proč“ (<code>.tour-rows</code>), dole přilepená patička <code>.tour-foot</code> s řádkem stavu, řádkem „Dál: …“ a jediným tlačítkem vpřed <b>Dál ▶</b>. Když čeká rozhodnutí, je Dál ztlumené (<code>.is-blocked</code>, <code>aria-disabled</code>) a nad ním odkaz k první nerozhodnuté položce. Sbalený panel <code>.tour-min</code> má nadpis kroku a tytéž akce.</p></header>
+    <div class="preview ds-demo">
+      <div class="pres-bar"><span class="flag">DEMO · syntetická data · není určeno pro léčbu</span><span class="where">Scénář 1 ze 6 · scéna 3 z 25: <b>Lékař – dávky, návyky a pokyny</b></span><button type="button" class="btn bar-todo">Ke schválení · zbývá 18</button><button type="button" class="btn">Přehled scén</button></div>
+      <div class="ds-demo-row">
+        <aside class="tour-panel tour-pending" aria-label="Ovládání ukázky (ukázka)"><div class="tour-head"><span class="tour-head-t">Ovládání ukázky</span><span class="tour-info" tabindex="0" role="note" aria-label="Fialová tlačítka ovládají ukázku, tyrkysová jsou tlačítka budoucí aplikace.">i</span><button type="button" class="tour-icon" aria-label="Sbalit panel">▾</button></div>
+          <div class="tour-body"><p class="tour-kicker">Krok 1 z 3</p><p class="tour-where">Na obrazovce: Lékař · Zařazení a plán, krok 2 ze 3</p><h2>Krok 2: dávky, návyky a pokyny</h2>
+            <dl class="tour-rows"><div><dt>Co se děje</dt><dd>Lékař zadá dávky voličem. Aplikace je jen zobrazí a připomíná.</dd></div><div><dt>Čeho si všímat</dt><dd>Pole dávek jsou prázdná, nic se nepředvyplňuje.</dd></div><div><dt>Proč</dt><dd>Dávku určuje jen lékař.</dd></div></dl></div>
+          <div class="tour-foot"><button type="button" class="tour-status-link">Rozhodněte 1 položku výše ↑</button><p class="tour-next">Dál: Krok 3: startovní plán</p><div class="tour-actions"><button type="button" class="btn">← Zpět</button><button type="button" class="btn primary is-blocked" aria-disabled="true">Dál ▶</button></div><p class="tour-progress-l" aria-hidden="true">Průběh: Scénář 1 ze 6 · scéna 3 z 25</p><div class="tour-progress" role="img" aria-label="Průběh"><span style="--n:1;--pct:100%"></span><span style="--n:5;--pct:45%"></span><span style="--n:4;--pct:0%"></span><span style="--n:3;--pct:0%"></span><span style="--n:3;--pct:0%"></span><span style="--n:2;--pct:0%"></span><span style="--n:7;--pct:0%"></span><span class="appx" style="--n:5;--pct:0%"></span></div></div></aside>
+        <div class="ds-demo-col">
+          <div class="tour-panel tour-min" role="region" aria-label="Sbalený panel (ukázka)"><span class="tour-min-t">Krok 2: dávky, návyky a pokyny</span><button type="button" class="btn">Rozbalit</button><button type="button" class="btn" aria-label="Zpět">←</button><button type="button" class="btn primary">Dál ▶</button></div>
+          <p class="small muted">Na úvodu nese tlačítko text „Začít ukázku ▶“, ve finále „Potvrdit souhrn“, po potvrzení „Projít varianty v dodatku ▶“. Jiné názvy pro krok vpřed nepoužíváme.</p>
+        </div>
+      </div>
+    </div></article>
+
+  <article class="comp" id="c-vrstva-stitek"><header><h2>Štítek „ke schválení“ a rozhodnutí v kroku</h2><p>Položka registru, která čeká na garanta, nese na obrazovce aplikace štítek <code>.appr.pend</code> (čárkovaný kroužek, slovo „ke schválení“). V panelu se nabídne jako <code>.gitem</code> s průvodcem a třemi rovnocennými volbami <code>.gchoices</code>: Schválit · Upravit · Zamítnout jsou obrysové, plná je jen zvolená (<code>.on</code>, <code>aria-pressed</code>); zamítnutí plné červené. Primární je jen Dál.</p></header>
+    <div class="preview ds-demo">
+      <div class="badges"><button type="button" class="appr pend"><span aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-dasharray="4 4"/></svg></span> Cíle glukózy <span class="st">· ke schválení</span></button></div>
+      <div class="tour-panel ds-demo-panel" role="region" aria-label="Rozhodnutí v panelu (ukázka)"><div class="tour-body"><div class="garant decide"><p class="gtitle"><b>Ke schválení teď (1)</b></p><p class="small">Rozhodněte, než budete pokračovat. Změnit lze kdykoli.</p>
+        <div class="gitem"><button type="button" class="gh" aria-expanded="true"><span class="t">Cíle glukózy</span><span class="tag">ke schválení</span><span class="chev" aria-hidden="true">⌃</span></button><div class="gb"><p class="small">Schvalujete: dolní cíl 4, horní cíl po jídle 10 mmol/l.</p><label class="field"><span>Komentář (nepovinný)</span><input value="" placeholder="co změnit, proč, nebo jen poznámka"></label><div class="gchoices"><button type="button" class="btn sm gchoice on" aria-pressed="true">✓ Schválit</button><button type="button" class="btn sm gchoice" aria-pressed="false">Upravit</button><button type="button" class="btn sm gchoice gno" aria-pressed="false">Zamítnout</button></div><button type="button" class="tour-link">Uložit jen komentář</button></div></div>
+      </div></div></div>
+    </div></article>
+
+  <article class="comp" id="c-vrstva-zvyrazneni"><header><h2>Zvýraznění místa v příběhu</h2><p><code>.tour-focus</code> = prvek, který ukázka právě klepne (plný fialový obrys a pulz, při stisku <code>.tour-press</code>). <code>.tour-watch</code> = „čeho si všímat“ (tečkovaný fialový obrys, dvakrát rozzáří). Obojí je fialové, aby nikdy nečetlo jako stav: zelený stav pod fialovým obrysem zůstává zeleným. Zvýraznění zůstává do dalšího kroku; pohyb vypne <code>prefers-reduced-motion</code>.</p></header>
+    <div class="preview ds-demo">
+      <div class="ds-demo-row">
+        <section class="card tour-watch ds-demo-card"><p class="eyebrow">Podmínky zařazení</p><p class="m-0"><span class="tag ok"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" data-icon="check"><path d="M20 6 9 17l-5-5"/></svg>všechny potvrzené</span></p></section>
+        <div class="ds-demo-card"><button type="button" class="btn primary tour-focus">Pokračovat na dávky</button></div>
+      </div>
+    </div></article>
+
+  <article class="comp" id="c-vrstva-bublina"><header><h2>Bublina při klepnutí do zamčené obrazovky</h2><p>V příběhu je obrazovka aplikace zamčená (<code>body.pres-locked main{pointer-events:none}</code>), klepnutí do ní nic nezmění. Místo toho se u místa klepnutí na 3 s ukáže <code>.lock-bubble</code> v trvalé živé oblasti (<code>role="status"</code>, <code>aria-live="polite"</code>): „Tohle za vás klepne ukázka. Pokračujte v panelu vpravo.“ (pod 1100 px „…v panelu dole.“). Šířka <code>--nf-demo-bubble-w</code>, bublina klepnutí nechytá.</p></header>
+    <div class="preview ds-demo">
+      <div class="lock-bubble on">Tohle za vás klepne ukázka. Pokračujte v panelu vpravo.</div>
+    </div></article>
+
+  <article class="comp" id="c-vrstva-souhrn"><header><h2>Souhrn rozhodnutí na celou šířku</h2><p>Finále hlavní linie: místo obrazovky aplikace stránka <code>.gsum-page</code> „Vaše rozhodnutí“. Nahoře čtyři čísla <code>.gcounts</code> (schváleno · upraveno · zamítnuto · nerozhodnuto), pod nimi tabulka <code>.gsum-table</code> položka · stav · komentář · Změnit, nerozhodnuté první. Jen klinické položky; provozní garant nevidí. „Změnit“ rozbalí řádek s průvodcem a volbami. Panel vpravo nese jen „Potvrdit souhrn“. Pod 760 px se řádky skládají do karet.</p></header>
+    <div class="preview ds-demo">
+      <div class="gsum-page"><p class="gsum-kicker">Závěr hlavní linie · souhrn rozhodnutí</p><h1>Vaše rozhodnutí</h1><p class="gsum-lead">Všech 21 pravidel aplikace, o kterých jste v ukázce rozhodovali. Zkontrolujte je, případně změňte a souhrn potvrďte v panelu vpravo.</p>
+        <div class="gsum-counts"><div class="gcounts"><div><b>16</b><span>schváleno</span></div><div><b>1</b><span>upraveno</span></div><div><b>1</b><span>zamítnuto</span></div><div><b>3</b><span>nerozhodnuto</span></div></div></div>
+        <table class="gsum-table"><caption class="sr-only">Ukázka souhrnu rozhodnutí</caption><thead><tr><th scope="col">Položka</th><th scope="col">Stav</th><th scope="col">Komentář</th><th scope="col"><span class="sr-only">Změnit</span></th></tr></thead>
+          <tbody><tr class="gsum-group"><th colspan="4" scope="colgroup">Nerozhodnuto (3)</th></tr>
+            <tr class="gsum-row"><th scope="row"><span class="t">Čistá data pro návrhy k dávce</span><span class="s">D-CISTA · Signály k dávce</span></th><td class="gsum-st"><span class="gsum-l">Stav</span><span class="tag">nerozhodnuto</span></td><td class="gsum-c"><span class="gsum-l">Komentář</span><span class="muted">bez komentáře</span></td><td class="gsum-act"><button type="button" class="btn sm" aria-expanded="false">Rozhodnout</button></td></tr></tbody>
+          <tbody><tr class="gsum-group"><th colspan="4" scope="colgroup">Rozhodnuto (18)</th></tr>
+            <tr class="gsum-row"><th scope="row"><span class="t">Stupeň reakce</span><span class="s">R-SKORE · Reakce těla</span></th><td class="gsum-st"><span class="gsum-l">Stav</span><span class="tag warn"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" data-icon="alert"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>schváleno s úpravou</span></td><td class="gsum-c"><span class="gsum-l">Komentář</span>„barevně až od 6 zápisů“</td><td class="gsum-act"><button type="button" class="btn sm" aria-expanded="false">Změnit</button></td></tr>
+            <tr class="gsum-row"><th scope="row"><span class="t">Rada: doplněk k jídlu</span><span class="s">R-DOPLNEK · Rady a texty</span></th><td class="gsum-st"><span class="gsum-l">Stav</span><span class="tag bad"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" data-icon="alert"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>zamítnuto</span></td><td class="gsum-c"><span class="gsum-l">Komentář</span><span class="muted">bez komentáře</span></td><td class="gsum-act"><button type="button" class="btn sm" aria-expanded="false">Změnit</button></td></tr>
+            <tr class="gsum-row"><th scope="row"><span class="t">Cíle glukózy</span><span class="s">C-CILE · Startovní plán a návyky</span></th><td class="gsum-st"><span class="gsum-l">Stav</span><span class="tag ok"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" data-icon="check"><path d="M20 6 9 17l-5-5"/></svg>schváleno</span></td><td class="gsum-c"><span class="gsum-l">Komentář</span><span class="muted">bez komentáře</span></td><td class="gsum-act"><button type="button" class="btn sm" aria-expanded="false">Změnit</button></td></tr></tbody></table>
+      </div>
+    </div></article>
+</section>
 
 <section id="obrazovky" class="ds-sec">
   <h1>Obrazovky</h1>

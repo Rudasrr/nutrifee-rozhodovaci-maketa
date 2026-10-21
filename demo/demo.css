@@ -15,12 +15,12 @@
 .pres-bar .bar-wide{display:inline-flex}
 
 /* ovládání ukázky vypadá jinak než tlačítka aplikace: fialové pilulky s obrysem vs. tyrkysové plochy */
-.tour-panel .btn,.pres-bar .btn,.pres-drawer .btn{border-radius:var(--nf-r-pill);border:2px solid var(--nf-demo-strong);background:var(--nf-surface);color:var(--nf-demo-strong);box-shadow:none;font-weight:var(--nf-w-display-strong)}
-.tour-panel .btn.primary,.pres-bar .btn.primary,.pres-drawer .btn.primary{background:var(--nf-demo-strong);color:var(--nf-on-primary);border-color:var(--nf-demo-strong)}
-.tour-panel .btn.danger,.pres-drawer .btn.danger,.pres-bar .btn.danger{border-color:var(--nf-low-text);color:var(--nf-low-text);background:var(--nf-surface)}
+.tour-panel .btn,.pres-bar .btn,.pres-drawer .btn,.gsum-page .btn{border-radius:var(--nf-r-pill);border:2px solid var(--nf-demo-strong);background:var(--nf-surface);color:var(--nf-demo-strong);box-shadow:none;font-weight:var(--nf-w-display-strong)}
+.tour-panel .btn.primary,.pres-bar .btn.primary,.pres-drawer .btn.primary,.gsum-page .btn.primary{background:var(--nf-demo-strong);color:var(--nf-on-primary);border-color:var(--nf-demo-strong)}
+.tour-panel .btn.danger,.pres-drawer .btn.danger,.pres-bar .btn.danger,.gsum-page .btn.danger{border-color:var(--nf-low-text);color:var(--nf-low-text);background:var(--nf-surface)}
 .tour-panel .btn[disabled]{opacity:.45}
 .tour-panel .btn.is-blocked{opacity:.55}
-.tour-panel .btn:focus-visible,.pres-bar .btn:focus-visible,.pres-drawer .btn:focus-visible,.tour-link:focus-visible,.tour-status-link:focus-visible,.tour-icon:focus-visible,.tour-info:focus-visible{outline:3px solid var(--nf-demo-focus);outline-offset:2px}
+.tour-panel .btn:focus-visible,.pres-bar .btn:focus-visible,.pres-drawer .btn:focus-visible,.gsum-page .btn:focus-visible,.tour-link:focus-visible,.tour-status-link:focus-visible,.tour-icon:focus-visible,.tour-info:focus-visible{outline:3px solid var(--nf-demo-focus);outline-offset:2px}
 
 /* ---------- rámeček telefonu pro pacienta ---------- */
 body.pres-patient #main{display:flex;justify-content:center;align-items:flex-start;padding:var(--nf-s5) var(--nf-s4) var(--nf-s8);background:var(--nf-demo-stage);min-height:calc(100vh - var(--barh,64px))}
@@ -101,9 +101,9 @@ body.pres-patient #main .error{position:absolute;top:70px;left:50%;transform:tra
 .garant .field{margin-top:var(--nf-s2)}
 /* Schválit · Upravit · Zamítnout: tři rovnocenná tlačítka, plné jen vybrané (rozhodnutí 12) */
 .gchoices{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--nf-s2);margin-top:var(--nf-s2)}
-.tour-panel .gchoices .btn{width:100%;min-height:var(--nf-tap-desk);padding:var(--nf-s1) var(--nf-s2);font-size:var(--nf-fs-2xs)}
-.tour-panel .gchoices .btn.on{background:var(--nf-demo-strong);color:var(--nf-on-primary)}
-.tour-panel .gchoices .btn.gno.on{background:var(--nf-low-text);border-color:var(--nf-low-text)}
+.tour-panel .gchoices .btn,.gsum-page .gchoices .btn{width:100%;min-height:var(--nf-tap-desk);padding:var(--nf-s1) var(--nf-s2);font-size:var(--nf-fs-2xs)}
+.tour-panel .gchoices .btn.on,.gsum-page .gchoices .btn.on{background:var(--nf-demo-strong);color:var(--nf-on-primary)}
+.tour-panel .gchoices .btn.gno.on,.gsum-page .gchoices .btn.gno.on{background:var(--nf-low-text);border-color:var(--nf-low-text)}
 .gcounts{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--nf-s1);margin:var(--nf-s2) 0}
 .gcounts div{background:var(--nf-surface);border:1px solid var(--nf-demo-line);border-radius:var(--nf-r-sm);padding:var(--nf-s2) var(--nf-s1);text-align:center}
 .gcounts b{display:block;font-size:var(--nf-fs-lg);line-height:1.1;color:var(--nf-ink)}
@@ -178,6 +178,7 @@ body.pres-nurse .phone-preview{zoom:.85}
 .drawerpanel:has(.pres-drawer)>.close:focus-visible{outline:3px solid var(--nf-demo-focus);outline-offset:-4px}
 /* S4: rozbalovací odkazy ve vrstvě ukázky fialové (šipka bere currentColor) */
 .tour-panel details.more>summary,.pres-drawer details.more>summary,.intro details.more>summary{color:var(--nf-demo-strong)}
+.gsum-page details.more>summary{color:var(--nf-demo-strong)}
 .drawerpanel hr{border:0;border-top:1px solid var(--nf-line);margin:var(--nf-s4) 0}
 .drawerpanel .buttonlist{display:grid;gap:var(--nf-s1);margin:var(--nf-s2) 0}
 .drawerpanel .buttonlist .btn{justify-content:flex-start;text-align:left;font-size:var(--nf-fs-xs);min-height:var(--nf-tap-desk)}
@@ -194,7 +195,7 @@ body.pres-nurse .phone-preview{zoom:.85}
 .pres-drawer .pres-tools{margin-top:var(--nf-s5)}
 .pres-drawer .pres-confirm{margin-top:var(--nf-s2);background:var(--nf-low-bg);border-radius:var(--nf-r-sm);padding:var(--nf-s2) var(--nf-s3)}
 
-@media (prefers-reduced-motion:reduce){.tour-focus,.tour-watch,.garant .gitem.gflash{animation:none}.tour-progress span::after{transition:none}}
+@media (prefers-reduced-motion:reduce){.tour-focus,.tour-watch,.garant .gitem.gflash{animation:none}.tour-progress span::after,.lock-bubble{transition:none}}
 @media print{.pres-bar,.tour-panel,.drawer{display:none!important}#main::before{content:"DEMO · syntetická data · není určeno pro léčbu";display:block;border:2px solid var(--nf-demo-strong);color:var(--nf-demo-strong);border-radius:var(--nf-r-sm);padding:var(--nf-s2) var(--nf-s3);margin:0 0 var(--nf-s4);font-weight:var(--nf-w-strong);font-size:var(--nf-fs-2xs)}}
 
 /* ---------- stav ukládání rozhodnutí garanta ---------- */
@@ -233,6 +234,11 @@ body.pres-nurse .phone-preview{zoom:.85}
 /* v příběhu ovládá garant jen panel: obrazovka vlevo nereaguje na klepnutí (8. 10. 2026) */
 body.pres-locked main{pointer-events:none}
 body.pres-locked main .tour-focus{pointer-events:none}
+/* S4 (21. 10. 2026): klepnutí do zamčené obrazovky ukáže na 3 s bublinu u místa klepnutí (presenter.js); bublina sama klepnutí nechytá */
+.lock-bubble{position:fixed;z-index:60;left:clamp(var(--nf-s3),calc(var(--x,50vw) - var(--nf-demo-bubble-w) / 2),calc(100vw - var(--nf-demo-bubble-w) - var(--nf-s3)));top:calc(var(--y,50vh) + var(--nf-s4));width:var(--nf-demo-bubble-w);box-sizing:border-box;padding:var(--nf-s2) var(--nf-s3);border-radius:var(--nf-r-md);background:var(--nf-demo-strong);color:var(--nf-on-primary);box-shadow:var(--nf-demo-shadow);font-size:var(--nf-fs-xs);line-height:var(--nf-lh);font-weight:var(--nf-w-strong);pointer-events:none;opacity:0;transform:translateY(var(--nf-s1));transition:opacity var(--nf-t) var(--nf-ease),transform var(--nf-t) var(--nf-ease)}
+.lock-bubble.above{top:auto;bottom:calc(100vh - var(--y,50vh) + var(--nf-s4))}
+.lock-bubble.on{opacity:1;transform:none}
+.lock-bubble:empty{padding:0}
 /* V1/S10 (21. 10. 2026): tlačítka aplikace se už neodbarvují – tyrkysová musí zůstat tyrkysová a nic nesmí vypadat zakázaně; zamčení ukazuje panel */
 
 /* ---------- úvodní obrazovka ukázky (demo/intro.js) ---------- */
@@ -264,3 +270,59 @@ body.pres-locked main .tour-focus{pointer-events:none}
 @media (max-width:600px){.intro{padding:var(--nf-s3) var(--nf-s4) 48vh}}
 /* V9: pruh lékaře pod přilepenou lištou ukázky nesmí uříznout štítek */
 @media (min-width:1001px){.rail{top:var(--barh,0px);height:calc(100vh - var(--barh,0px))}}
+
+/* ---------- souhrn rozhodnutí na celou šířku (V4, 21. 10. 2026; presenter.js summaryPage) ----------
+   Stránka vrstvy ukázky, ne obrazovka aplikace: fialové ovládání, stav slovem a ikonou (štítky jádra). Panel vpravo jí nechává místo. */
+.gsum-page{max-width:var(--nf-demo-page-w);padding:var(--nf-s6) var(--nf-s8) var(--nf-s8);box-sizing:border-box}
+.gsum-kicker{margin:0;font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong);color:var(--nf-demo-strong)}
+.gsum-page h1{font-size:var(--nf-fs-h1-desk);line-height:var(--nf-lh-tight);margin:var(--nf-s1) 0 var(--nf-s2);color:var(--nf-ink)}
+.gsum-lead{font-size:var(--nf-fs-md);line-height:var(--nf-lh);max-width:72ch;margin:0 0 var(--nf-s4)}
+.gsum-counts .gcounts{gap:var(--nf-s3);margin:0 0 var(--nf-s4)}
+.gsum-counts .gcounts div{background:var(--nf-surface);border:0;border-radius:var(--nf-r-md);box-shadow:var(--nf-sh-card);padding:var(--nf-s3) var(--nf-s4);text-align:left}
+.gsum-counts .gcounts b{font-size:var(--nf-fs-num-sm);font-weight:var(--nf-w-display-strong);line-height:1.1}
+.gsum-counts .gcounts span{font-size:var(--nf-fs-xs);font-weight:var(--nf-w-strong)}
+.gsum-state,.gsum-msg{margin:0 0 var(--nf-s3);padding:var(--nf-s2) var(--nf-s3);border-radius:var(--nf-r-sm);background:var(--nf-demo-bg);color:var(--nf-demo-strong);font-size:var(--nf-fs-xs);font-weight:var(--nf-w-strong)}
+.gsum-state.again{background:var(--nf-low-bg);color:var(--nf-low-text)}
+.gsum-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--nf-surface);border-radius:var(--nf-r-lg);box-shadow:var(--nf-sh-card);overflow:hidden;font-size:var(--nf-fs-desk)}
+.gsum-table thead th{text-align:left;font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong);color:var(--nf-muted);padding:var(--nf-s3) var(--nf-s4) var(--nf-s2);border-bottom:1px solid var(--nf-line)}
+.gsum-table .gsum-group th{text-align:left;padding:var(--nf-s3) var(--nf-s4) var(--nf-s2);background:var(--nf-demo-surface);color:var(--nf-demo-strong);font-size:var(--nf-fs-xs);font-weight:var(--nf-w-display-strong);border-bottom:1px solid var(--nf-demo-line)}
+.gsum-row th,.gsum-row td{padding:var(--nf-s3) var(--nf-s4);border-bottom:1px solid var(--nf-line);vertical-align:middle;text-align:left}
+.gsum-row th{font-weight:var(--nf-w-text);width:38%}
+.gsum-row .t{display:block;font-weight:var(--nf-w-strong);color:var(--nf-ink)}
+.gsum-row .s{display:block;font-size:var(--nf-fs-2xs);color:var(--nf-muted);margin-top:var(--nf-s1)}
+.gsum-st{white-space:nowrap}
+.gsum-c{color:var(--nf-text);font-size:var(--nf-fs-xs)}
+.gsum-row .gsum-act{text-align:right;white-space:nowrap}
+.gsum-table tbody tr:last-child>*{border-bottom:0} /* jádro ruší linku jen u td posledního řádku; tady u celého řádku */
+.gsum-table tbody+tbody .gsum-group th{border-top:1px solid var(--nf-line)}
+.gsum-page .gsum-act .btn{width:auto;min-height:var(--nf-tap-desk);padding:var(--nf-s1) var(--nf-s4);font-size:var(--nf-fs-xs)}
+.gsum-row.open th,.gsum-row.open td{background:var(--nf-demo-surface);border-bottom-color:transparent}
+.gsum-l{display:none}
+.gsum-detail td{padding:0 var(--nf-s4) var(--nf-s4);background:var(--nf-demo-surface);border-bottom:1px solid var(--nf-demo-line)}
+.gsum-detail .garant.decide{margin:0}
+.gsum-detail .gitem{margin:0;padding-top:var(--nf-s2)}
+.gsum-page .guide h4{color:var(--nf-demo-strong)}
+.gsum-page .gchoices{display:flex;flex-wrap:wrap}
+.gsum-page .gchoices .btn{width:auto;min-width:calc(var(--nf-tap-desk) * 3)}
+.gsum-foot{margin:var(--nf-s3) 0 0;color:var(--nf-muted)}
+/* místo pro panel: od 1101 px vpravo, pod 1100 px dole (rozbalený list) */
+@media (min-width:1101px){body.pres-panel .gsum-page{padding-right:calc(var(--nf-demo-panel-w) + var(--nf-s5) + var(--nf-s6));max-width:calc(var(--nf-demo-page-w) + var(--nf-demo-panel-w))}}
+@media (max-width:1100px){.gsum-page{padding-bottom:calc(var(--nf-tap) * 3)}body.pres-panel .gsum-page{padding-bottom:52vh}}
+/* úzké obrazovky: řádek tabulky jako karta (položka nahoře, stav a komentář pod ní, Změnit na celou šířku) */
+@media (max-width:760px){
+  .gsum-page{padding:var(--nf-s4) var(--nf-s4) calc(var(--nf-tap) * 3)}
+  .gsum-counts .gcounts{grid-template-columns:repeat(2,1fr);gap:var(--nf-s2)}
+  .gsum-table,.gsum-table tbody,.gsum-table tr,.gsum-table th,.gsum-table td{display:block;width:auto}
+  .gsum-table thead{display:none}
+  .gsum-row{padding:var(--nf-s3) var(--nf-s4);border-bottom:1px solid var(--nf-line)}
+  .gsum-row th,.gsum-row td{padding:0;border:0;width:auto;text-align:left}
+  .gsum-row td{margin-top:var(--nf-s2)}
+  .gsum-st .gsum-l{display:none} /* štítek stavu nese slovo sám */
+  .gsum-l{display:block;font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-strong);color:var(--nf-muted);margin-bottom:var(--nf-s1)}
+  .gsum-page .gsum-act .btn{width:100%}
+  .gsum-row.open{background:var(--nf-demo-surface);border-bottom:0}
+  .gsum-detail td{padding:0 var(--nf-s3) var(--nf-s3)}
+  .gsum-page .gchoices{display:grid}
+  .gsum-page .gchoices .btn{min-width:0}
+}
+@media (max-width:600px){body.pres-panel .gsum-page{padding-bottom:48vh}}

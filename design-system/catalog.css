@@ -65,3 +65,15 @@ code{font:600 .92em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(-
 .ds-css{margin:10px 0 0;background:var(--nf-ink);color:#E6F1F4;border-radius:var(--nf-r-md);padding:12px 14px;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;word-break:break-word;max-height:360px;overflow:auto}
 .ds-css:empty{display:none}
 @media (max-width:1180px){.ds-shell{grid-template-columns:1fr}.ds-nav{position:static;flex-direction:row;flex-wrap:wrap}.ds-navnote{display:none}.ds-inspector{position:fixed;left:12px;right:12px;bottom:12px;top:auto;max-height:46vh;z-index:6;box-shadow:var(--nf-sh-raised)}.ds-typerow{grid-template-columns:1fr}}
+/* Prezentační vrstva (21. 10. 2026): náhledy čtou demo/demo.css; panel a bublina jsou v maketě přilepené k oknu, tady stojí v toku stránky. Jen tokeny --nf-* / --nf-demo-*. */
+.ds-demo .pres-bar{position:static;border-radius:var(--nf-r-md);margin-bottom:var(--nf-s4)}
+.ds-demo .tour-panel{position:relative;top:auto;right:auto;bottom:auto;left:auto;z-index:auto;width:var(--nf-demo-panel-w);max-width:100%;max-height:none;overflow:visible;border-width:2px;border-radius:var(--nf-r-lg)}
+.ds-demo .tour-panel.tour-min{width:auto;max-width:100%}
+.ds-demo .tour-foot,.ds-demo .tour-head{position:static}
+.ds-demo .tour-head{border-radius:var(--nf-r-lg) var(--nf-r-lg) 0 0}
+.ds-demo .lock-bubble{position:relative;top:auto;bottom:auto;left:auto}
+.ds-demo .gsum-page{padding:0;max-width:none}
+.ds-demo .badges{margin-bottom:var(--nf-s4)}
+.ds-demo-row{display:flex;flex-wrap:wrap;gap:var(--nf-s5);align-items:flex-start}
+.ds-demo-col{flex:1 1 calc(var(--nf-demo-panel-w) * .75);display:grid;gap:var(--nf-s3);min-width:0}
+.ds-demo-card{flex:1 1 calc(var(--nf-demo-panel-w) * .6);margin:var(--nf-s3)}

@@ -40,7 +40,7 @@ D.garantMerge = function (list) {
 };
 /* Odhlášení: deník garanta zmizí z tohoto prohlížeče (na serveru zůstává) a příběh začne od začátku. */
 D.garantClear = function () { glog = []; saveGlog(); if (D.progressClear) D.progressClear(); land(D.playScene(0)); };
-function land(n) { runId++; busy = false; panelMsg = ''; ended = false; moreOpen = false; var s = S(); n.notes = s.notes || ''; n.tourRole = n.role; n.tourPage = n.page; focusSel = null; watchSel = null; running = null; NF.migrated = null; NF.setState(n); try { global.scrollTo(0, 0); } catch (err) { } try { if (n.sceneIndex != null) noteProgress(n.sceneIndex); } catch (err2) { } }
+function land(n) { runId++; busy = false; showTrace = false; panelMsg = ''; ended = false; moreOpen = false; var s = S(); n.notes = s.notes || ''; n.tourRole = n.role; n.tourPage = n.page; focusSel = null; watchSel = null; running = null; NF.migrated = null; NF.setState(n); try { global.scrollTo(0, 0); } catch (err) { } try { if (n.sceneIndex != null) noteProgress(n.sceneIndex); } catch (err2) { } }
 /* Kde v příběhu právě jsme vs. kam uživatel sám odešel (registr, jiná záložka). */
 function markTour() { var s = S(); s.tourRole = s.role; s.tourPage = s.page; }
 function away(s) { return !busy && running == null && !!(s.tourRole && (s.role !== s.tourRole || s.page !== s.tourPage)); } /* běžící krok, který přepne roli, není „mimo příběh“ (19. 10. 2026: panel na okamžik ukazoval „Mimo příběh“) */
@@ -73,6 +73,7 @@ NF.demoActions.garantDecide = function (v) {
   var r = NF.decideItem(s, id, status, comment, null, opts); if (!r.ok) { s.error = r.error; return; }
   if (r.decision) { r.decision.chosen = status; saveGlog(); }
   if (s.form) s.form['gc_' + id] = '';
+  if (summaryActive(s)) s.gOpen = null; /* stránka souhrnu: po rozhodnutí se řádek zavře a nový stav je vidět v tabulce */
   say(status === 'rejected' ? 'Zamítnuto. Příběh pokračuje; na místě položky uvidíte, že tahle část nefunguje.' : status === 'edited' ? 'Schváleno s úpravou: váš komentář je v historii položky.' : 'Schváleno a zapsáno do historie.');
 };
 /* Upravit (S6): s komentářem = schválit s výhradou (stav „s úpravou“); bez komentáře u položky s parametry otevře úpravu v registru. */
@@ -199,7 +200,7 @@ NF.demoActions.tourNext = function () {
   returnTo = null;
   var pn = pendingNow(S());
   if (pn.ids.length) { NF.demoActions.tourJumpPending(); return; } /* místo bubliny odroluje k první nerozhodnuté položce (rozhodnutí 12) */
-  if (pn.summary) { say('Nejdřív potvrďte souhrn rozhodnutí výše.'); return; }
+  if (pn.summary) { say('Nejdřív potvrďte souhrn rozhodnutí.'); return; }
   panelMsg = ''; moreOpen = false;
   var st = steps(), s = S(), i = s.tourStep || 0;
   if (i >= st.length) {
@@ -291,16 +292,21 @@ function itemStatus(s, r) {
 /* Jedna položka v rozhodovacím kroku: celý pětidílný průvodce + rozhodnutí.
    Schválit · Upravit · Zamítnout jsou tři rovnocenná tlačítka; plné je jen to, které garant zvolil (rozhodnutí 12, 19. 10. 2026). */
 var inPanel = false;
-function gitem(s, r, isOpen) {
-  var st = itemStatus(s, r), cur = gStatus(r.id), canEdit = editable(r);
+/* Tělo rozbalené položky: průvodce, komentář a tři rovnocenná rozhodnutí. Sdílí ho panel (gitem) i stránka souhrnu (V4). */
+function gbody(s, r) {
+  var cur = gStatus(r.id), canEdit = editable(r);
   var choice = function (label, action, value, key, cls) { return '<button type="button" class="btn sm gchoice' + (cls ? ' ' + cls : '') + (cur === key ? ' on' : '') + '" data-action="' + action + '" data-value="' + e(value) + '" aria-pressed="' + (cur === key ? 'true' : 'false') + '">' + (cur === key ? '✓ ' : '') + e(label) + '</button>'; };
-  var guide = ''; inPanel = true; try { guide = isOpen ? NF.screens.itemGuide(s, r) : ''; } finally { inPanel = false; }
+  var guide = ''; inPanel = true; try { guide = NF.screens.itemGuide(s, r); } finally { inPanel = false; }
+  return '<div class="gb">' + (storyTouched(s, r.id) ? '<p class="gnote">Ve scéně jste viděli modelovou úpravu této položky; vaše rozhodnutí je samostatné.</p>' : '') + guide +
+    '<label class="field"><span>Komentář ' + (canEdit ? '(nepovinný)' : '(povinný jen u Upravit)') + '</span><input data-bind="form.gc_' + e(r.id) + '" value="' + e((s.form && s.form['gc_' + r.id]) || '') + '" placeholder="co změnit, proč, nebo jen poznámka"></label>' +
+    (canEdit ? '' : '<p class="small muted">Položka nemá parametry: Upravit znamená schválit s výhradou, kterou napíšete do komentáře.</p>') +
+    '<div class="gchoices">' + choice('Schválit', 'garantDecide', r.id + ':approved', 'approved') + choice('Upravit', 'garantEdit', r.id, 'edited') + choice('Zamítnout', 'garantDecide', r.id + ':rejected', 'rejected', 'gno') + '</div>' +
+    '<button type="button" class="tour-link" data-action="garantComment" data-value="' + e(r.id) + '">Uložit jen komentář</button></div>';
+}
+function gitem(s, r, isOpen) {
+  var st = itemStatus(s, r);
   return '<div class="gitem' + (flashId === r.id ? ' gflash' : '') + '" data-gitem="' + e(r.id) + '"><button type="button" class="gh" data-action="garantOpen" data-value="' + e(r.id) + '" aria-expanded="' + (isOpen ? 'true' : 'false') + '"><span class="t">' + e(r.title) + '</span>' + NF.screens.tag(st[0], st[1]) + '<span class="chev" aria-hidden="true">' + (isOpen ? '⌃' : '⌄') + '</span></button>' +
-    (isOpen ? '<div class="gb">' + (storyTouched(s, r.id) ? '<p class="gnote">Ve scéně jste viděli modelovou úpravu této položky; vaše rozhodnutí je samostatné.</p>' : '') + guide +
-      '<label class="field"><span>Komentář ' + (canEdit ? '(nepovinný)' : '(povinný jen u Upravit)') + '</span><input data-bind="form.gc_' + e(r.id) + '" value="' + e((s.form && s.form['gc_' + r.id]) || '') + '" placeholder="co změnit, proč, nebo jen poznámka"></label>' +
-      (canEdit ? '' : '<p class="small muted">Položka nemá parametry: Upravit znamená schválit s výhradou, kterou napíšete do komentáře.</p>') +
-      '<div class="gchoices">' + choice('Schválit', 'garantDecide', r.id + ':approved', 'approved') + choice('Upravit', 'garantEdit', r.id, 'edited') + choice('Zamítnout', 'garantDecide', r.id + ':rejected', 'rejected', 'gno') + '</div>' +
-      '<button type="button" class="tour-link" data-action="garantComment" data-value="' + e(r.id) + '">Uložit jen komentář</button></div>' : '') + '</div>';
+    (isOpen ? gbody(s, r) : '') + '</div>';
 }
 /* Schvalování přímo v kroku (8. 10. 2026): položky scény, které právě působí na obrazovce, se nabídnou hned s celým průvodcem;
    na posledním kroku scény i zbývající nerozhodnuté položky scény. Rozhodnutí nikdy nebrání pokračování. */
@@ -351,19 +357,52 @@ function noteProgress(idx) {
 D.progress = function () { return { max: prog.max || 0, done: prog.done || null, total: D.scenes.length, mainEnd: mainSceneOf('trace') + 1 }; };
 D.progressClear = function () { prog = { max: 0, done: null, doneAt: null }; saveProg(); };
 function counts(sum) {
-  return '<div class="gcounts">' + [[sum.approved, 'schváleno'], [sum.edited, 's úpravou'], [sum.rejected, 'zamítnuto'], [sum.remaining, 'ke schválení']].map(function (x) { return '<div><b>' + x[0] + '</b><span>' + x[1] + '</span></div>'; }).join('') + '</div>';
+  return '<div class="gcounts">' + [[sum.approved, 'schváleno'], [sum.edited, 'upraveno'], [sum.rejected, 'zamítnuto'], [sum.remaining, 'nerozhodnuto']].map(function (x) { return '<div><b>' + x[0] + '</b><span>' + x[1] + '</span></div>'; }).join('') + '</div>';
 }
-/* Souhrn ve finále (V4): počty nahoře, nerozhodnuté položky první, potom ostatní po kategoriích. */
-function summaryBlock(s) {
-  var items = NF.garantItems(s), sum = gSummary(s);
-  var open = s.gOpen && items.some(function (r) { return r.id === s.gOpen; }) ? s.gOpen : null;
+/* ---------- souhrn na celou šířku (V4, rozhodnutí vlastníka 21. 10. 2026) ----------
+   Závěrečná kontrola se neodehrává v úzkém panelu: ve finále hlavní linie (scéna „Verze a stopa“ po posledním kroku) nahradí obrazovku aplikace
+   stránka „Vaše rozhodnutí“ – čtyři čísla, tabulka položka · stav · komentář · Změnit, nerozhodnuté první. Jen klinické položky (NF.garantItems).
+   Stránka není zamčená (garant v ní rozhoduje); panel nese jen potvrzení souhrnu. Odkaz vrátí obrazovku stopy a panel zpět na souhrn. */
+var showTrace = false;
+function finaleNow(s) { var sc = D.scenes[sceneIdx(s)]; return !!(sc && !sc.appendix && D.chapters[sc.ch].id === 'trace' && (s.tourStep || 0) >= steps().length); }
+function summaryActive(s) { return !!(s && s.registry && s.role === 'doctor' && s.page === 'trace' && !showTrace && !away(s) && finaleNow(s)); }
+D.summaryActive = function (s) { return summaryActive(s || S()); };
+NF.demoActions.gsumTrace = function () { showTrace = !showTrace; S().gOpen = null; };
+function gComment(id) { for (var k = glog.length - 1; k >= 0; k--) if (glog[k].item === id && glog[k].comment) return glog[k].comment; return ''; }
+function summaryRow(s, r, open) {
+  var st = gStatus(r.id), tg = st ? itemStatus(s, r) : ['nerozhodnuto', ''], c = gComment(r.id), did = 'gsum-d-' + r.id;
+  return '<tr class="gsum-row' + (open ? ' open' : '') + '" data-gsum-row="' + e(r.id) + '"><th scope="row"><span class="t">' + e(r.title) + '</span><span class="s">' + e(r.id + ' · ' + NF.catLabel(r.cat)) + '</span></th>' +
+    '<td class="gsum-st"><span class="gsum-l">Stav</span>' + NF.screens.tag(tg[0], tg[1]) + '</td>' +
+    '<td class="gsum-c"><span class="gsum-l">Komentář</span>' + (c ? '„' + e(c) + '“' : '<span class="muted">bez komentáře</span>') + '</td>' +
+    '<td class="gsum-act"><button type="button" class="btn sm" data-action="garantOpen" data-value="' + e(r.id) + '" aria-expanded="' + (open ? 'true' : 'false') + '"' + (open ? ' aria-controls="' + e(did) + '"' : '') + '>' + (open ? 'Zavřít' : st ? 'Změnit' : 'Rozhodnout') + '</button></td></tr>' +
+    (open ? '<tr class="gsum-detail" id="' + e(did) + '"><td colspan="4"><div class="garant decide"><div class="gitem gsum-item" data-gitem="' + e(r.id) + '">' + gbody(s, r) + '</div></div></td></tr>' : '');
+}
+function summaryPage(s) {
+  var items = NF.garantItems(s), sum = gSummary(s), open = s.gOpen, pan = D.narrow() ? 'v panelu dole' : 'v panelu vpravo';
   var todo = items.filter(function (r) { return !gTouched(r.id); }), done = items.filter(function (r) { return gTouched(r.id); });
-  var byCat = {}; done.forEach(function (r) { (byCat[r.cat] = byCat[r.cat] || []).push(r); });
-  return '<div class="garant decide summary"><p class="gtitle"><b>Souhrn vašich rozhodnutí</b> · ' + sum.total + ' položek</p>' + counts(sum) +
-    '<p class="small">Zkontrolujte, případně změňte (rozbalením položky) a potvrďte. Vše je průběžně uložené; potvrzení říká autorovi makety, že jste ukázku prošli celou.</p>' +
-    (todo.length ? '<p class="gcat"><b>Ke schválení (' + todo.length + ')</b></p><p class="small muted">Můžete je nechat tak; i to je informace pro autora makety.</p>' + todo.map(function (r) { return gitem(s, r, open === r.id); }).join('') : '') +
-    Object.keys(byCat).map(function (c) { return '<p class="gcat"><b>' + e(NF.catLabel(c)) + '</b></p>' + byCat[c].map(function (r) { return gitem(s, r, open === r.id); }).join(''); }).join('') +
-    '<div class="actions mt-3">' + btn(prog.done ? 'Potvrdit souhrn znovu' : 'Potvrdit souhrn', 'garantConfirmSummary', null, 'primary') + '</div></div>';
+  var cats = []; done.forEach(function (r) { if (cats.indexOf(r.cat) < 0) cats.push(r.cat); });
+  done = cats.reduce(function (a, c) { return a.concat(done.filter(function (r) { return r.cat === c; })); }, []);
+  var group = function (label, list) { return list.length ? '<tbody><tr class="gsum-group"><th colspan="4" scope="colgroup">' + e(label) + ' (' + list.length + ')</th></tr>' + list.map(function (r) { return summaryRow(s, r, open === r.id); }).join('') + '</tbody>' : ''; };
+  var changedSince = prog.done && s.registry.history.some(function (h) { return h.kind !== 'comment' && h.rt && h.rt > prog.done; });
+  return '<div class="gsum-page" id="gsum"><p class="gsum-kicker">Závěr hlavní linie · souhrn rozhodnutí</p><h1>Vaše rozhodnutí</h1>' +
+    '<p class="gsum-lead">Všech ' + sum.total + ' pravidel aplikace, o kterých jste v ukázce rozhodovali. Zkontrolujte je, případně změňte a souhrn potvrďte ' + pan + '. Jde o neformální podklad, ne podpis.</p>' +
+    '<div class="gsum-counts">' + counts(sum) + '</div>' +
+    (prog.done ? '<p class="gsum-state' + (changedSince ? ' again' : '') + '">' + (changedSince ? 'Od potvrzení ' + e(prog.doneAt || '') + ' jste rozhodnutí změnili; potvrďte souhrn znovu.' : '✓ Souhrn potvrzen ' + e(prog.doneAt || '') + '. Rozhodnutí můžete dál měnit.') + '</p>' : '') +
+    (panelMsg && isHidden(s) ? '<p class="gsum-msg" role="status">' + e(panelMsg) + '</p>' : '') + /* hláška je v panelu; při sbaleném panelu ji ukážeme tady */
+    '<table class="gsum-table"><caption class="sr-only">Vaše rozhodnutí k pravidlům aplikace, nerozhodnutá první</caption><thead><tr><th scope="col">Položka</th><th scope="col">Stav</th><th scope="col">Komentář</th><th scope="col"><span class="sr-only">Změnit</span></th></tr></thead>' +
+    group('Nerozhodnuto', todo) + group('Rozhodnuto', done) + '</table>' +
+    '<p class="gsum-foot small"><button type="button" class="tour-link" data-action="gsumTrace">Zobrazit obrazovku Verze a stopa</button> – záznam každého výpočtu, rady a rozhodnutí, o kterém mluvil poslední krok.</p></div>';
+}
+var prevPage = NF.slots.pageOverride;
+NF.slots.pageOverride = function (s) { if (summaryActive(s)) return summaryPage(s); return prevPage ? prevPage(s) : ''; };
+/* Panel ve finále: jen potvrzení souhrnu (stránka je vlevo, na užší obrazovce nahoře). */
+function summarySide(s, changedSince) {
+  var sum = gSummary(s), where = D.narrow() ? 'nahoře' : 'vlevo';
+  return '<div class="garant decide gsum-side">' + (changedSince ? '<p class="tour-status tour-block">Od potvrzení jste rozhodnutí změnili; potvrďte souhrn znovu.</p>' : '') +
+    '<p class="gtitle"><b>Souhrn vašich rozhodnutí</b> · rozhodnuto ' + sum.touched + ' z ' + sum.total + '</p>' +
+    (showTrace ? '<p class="small">Teď vidíte obrazovku Verze a stopa.</p><div class="actions">' + btn('Zpět na souhrn', 'gsumTrace') + '</div>' :
+      '<p class="small">Tabulka ' + where + ' ukazuje všechna pravidla, nerozhodnutá první; tam je můžete změnit. Potvrzení říká autorovi makety, že jste ukázku prošli celou.</p>') +
+    (changedSince ? '<div class="actions">' + btn('Potvrdit souhrn znovu', 'garantConfirmSummary') + '</div>' : '') + '</div>';
 }
 /* Závěrečná obrazovka (rozhodnutí 12): po potvrzení souhrnu poděkování, počty, co bude dál a dvě volby. */
 function thanksBlock(s, changedSince) {
@@ -371,8 +410,7 @@ function thanksBlock(s, changedSince) {
   return '<div class="tour-thanks"><h3>Děkujeme, máme vaše rozhodnutí</h3>' + counts(sum) +
     '<p class="small">Souhrn potvrzen ' + e(prog.doneAt || '') + (changedSince ? '. Od té doby jste rozhodnutí změnili, potvrďte ho prosím znovu.' : '.') + '</p>' +
     '<p class="small"><b>Co bude dál:</b> autor makety vaše rozhodnutí a komentáře zapracuje a ozve se vám. Jde o neformální podklad; pro ostrý provoz se pravidla podepisují znovu.</p>' +
-    '<p class="small">Můžete skončit, nebo projít dodatek s ' + ap + ' variantami, asi 4 minuty. Rozhodnutí lze dál měnit v registru.</p>' +
-    '<details class="more"><summary>Zobrazit souhrn a změnit rozhodnutí</summary>' + summaryBlock(s) + '</details></div>';
+    '<p class="small">Můžete skončit, nebo projít dodatek s ' + ap + ' variantami, asi 4 minuty. Souhrn zůstává ' + (D.narrow() ? 'nahoře' : 'vlevo') + ' a rozhodnutí v něm můžete dál měnit.</p></div>';
 }
 NF.demoActions.garantConfirmSummary = function () {
   var s = S(), sum = gSummary(s), now = new Date();
@@ -403,6 +441,7 @@ var PAGE_NOM = { intro: 'Úvod', registry: 'Schvalovací registr', trace: 'Verze
 D.pageNames = PAGE_NOM;
 function whereNow(s) {
   if (s.page === 'intro') return ''; /* S12: úvod není obrazovka lékaře */
+  if (summaryActive(s)) return 'Na obrazovce: souhrn vašich rozhodnutí';
   var role = { patient: 'Pacient', doctor: 'Lékař', nurse: 'Sestra' }[s.role] || s.role, page = PAGE_NOM[s.page] || 'obrazovka aplikace', sub = '';
   if (s.page === 'enroll') sub = ', krok ' + ((s.wizardStep || 0) + 1) + ' ze 3';
   else if (s.page === 'review' && s.review && s.review.step) sub = ', krok ' + s.review.step + ' ze 4';
@@ -470,21 +509,21 @@ function panel(s) {
   var nextOff = busy || last;
   var nextAttr = nextOff ? ' disabled' : (nPend || pn.summary) ? ' aria-disabled="true"' : '';
   var nextBtn = thanks ? btn('Skončit', 'tourFinish') + btn('Projít varianty v dodatku ▶', 'tourNext', null, 'primary', busy ? ' disabled' : '') :
+    finale && pn.summary ? btn('Potvrdit souhrn', 'garantConfirmSummary', null, 'primary', busy ? ' disabled' : '') : /* V4: ve finále je jedinou akcí panelu potvrzení souhrnu */
     last ? btn('Skončit', 'tourFinish', null, 'primary') : btn(e(label), 'tourNext', null, 'primary' + (nPend || pn.summary ? ' is-blocked' : ''), nextAttr);
   var jump = nPend && !busy ? '<button type="button" class="tour-status-link" data-action="tourJumpPending">Rozhodněte ' + nPend + ' ' + plural(nPend, 'položku', 'položky', 'položek') + (isHidden(s) ? ' v panelu' : ' výše ↑') + '</button>' : '';
-  if (hidden) return '<div class="tour-panel tour-min" role="region" aria-label="Ovládání ukázky"><span class="tour-min-t">' + e(shown.t || sceneTitle(s)) + '</span>' + btn('Rozbalit', 'tourToggle') + btn('←', 'tourBack', null, '', busy ? ' disabled' : ' aria-label="Zpět"') + (jump || nextBtn) + '</div>';
-  var collapse = (nPend > 0 && i > 0 || thanks) && !busy && !moreOpen; /* když čeká rozhodnutí (nebo je hotovo), vyprávění jen nadpisem a jednou větou */
+  if (hidden) return '<div class="tour-panel tour-min" role="region" aria-label="Ovládání ukázky"><span class="tour-min-t">' + e(finale ? 'Souhrn vašich rozhodnutí' : (shown.t || sceneTitle(s))) + '</span>' + btn('Rozbalit', 'tourToggle') + btn('←', 'tourBack', null, '', busy ? ' disabled' : ' aria-label="Zpět"') + (jump || nextBtn) + '</div>';
+  var collapse = (nPend > 0 && i > 0 || finale) && !busy && !moreOpen; /* když čeká rozhodnutí (nebo je hotovo), vyprávění jen nadpisem a jednou větou */
   var narration = collapse ? '<p class="tour-lead">' + e(firstSentence(shown.co || shown.vsimni || '')) + '</p><button type="button" class="tour-link" data-action="tourMore" aria-expanded="false">Více k tomuto kroku</button>' :
-    '<dl class="tour-rows">' + rows(shown) + '</dl>' + ((nPend > 0 || thanks) && moreOpen ? '<button type="button" class="tour-link" data-action="tourMore" aria-expanded="true">Méně</button>' : '');
-  var body = narration + (i === 0 ? actOverview(s, idx) + sceneIntroHint(s, ids) : '') + (finale ? (thanks ? thanksBlock(s, false) : (changedSince ? '<p class="tour-status tour-block">Od potvrzení jste rozhodnutí změnili; potvrďte souhrn znovu.</p>' : '') + summaryBlock(s)) : approvalsBlock(s, idx, i, st));
-  var sub = busy ? '' : nextStep ? 'Dál: ' + nextStep.t : upcoming ? (toAppendix ? 'Dál: dodatek s ' + appendixScenes().length + ' variantami, asi 4 minuty' : 'Dál: scéna „' + (upcoming.title || D.chapters[upcoming.ch].title) + '“') : last ? 'Konec dodatku. Rozhodnutí můžete dál měnit v registru.' : '';
+    '<dl class="tour-rows">' + rows(shown) + '</dl>' + ((nPend > 0 || finale) && moreOpen ? '<button type="button" class="tour-link" data-action="tourMore" aria-expanded="true">Méně</button>' : '');
+  var body = narration + (i === 0 ? actOverview(s, idx) + sceneIntroHint(s, ids) : '') + (finale ? (thanks ? thanksBlock(s, false) : summarySide(s, changedSince)) : approvalsBlock(s, idx, i, st));
+  var sub = busy ? '' : nextStep ? 'Dál: ' + nextStep.t : upcoming ? (toAppendix ? (finale && pn.summary ? 'Po potvrzení: dodatek s ' : 'Dál: dodatek s ') + appendixScenes().length + ' variantami, asi 4 minuty' : 'Dál: scéna „' + (upcoming.title || D.chapters[upcoming.ch].title) + '“') : last ? 'Konec dodatku. Rozhodnutí můžete dál měnit v registru.' : '';
   var kicker = finale ? 'Souhrn rozhodnutí' : running != null ? 'Krok ' + (running + 1) + ' z ' + st.length : i === 0 ? (idx === 0 ? 'Začátek ukázky' : 'Začátek scény') : 'Krok ' + i + ' z ' + st.length;
   return '<aside class="tour-panel' + (finale ? ' tour-decide' : '') + (nPend ? ' tour-pending' : '') + '" aria-label="Ovládání ukázky">' + head(true) +
     '<div class="tour-body" aria-live="polite"><p class="tour-kicker">' + e(kicker) + '</p>' + (whereNow(s) ? '<p class="tour-where">' + e(whereNow(s)) + '</p>' : '') + '<h2>' + e(shown.t || sceneTitle(s)) + '</h2>' + body +
     (idx === 1 ? '<p class="tour-hint">Ovládejte ukázku jen fialovými tlačítky v tomto panelu. Tyrkysová tlačítka ' + (D.narrow() ? 'nahoře' : 'vlevo') + ' jsou skutečná tlačítka budoucí aplikace; ukázka je klepe za vás.</p>' : '') + /* S12: od scény 2; úvod to říká sám */
     (returnTo && !busy ? '<p class="tour-next">Přišli jste sem z registru (položka ' + e(returnTo.item) + ').</p>' : '') + '</div>' +
     '<div class="tour-foot">' + (panelMsg ? '<p class="tour-status" role="status">' + e(panelMsg) + '</p>' : '') + jump +
-    (pn.summary && !busy && !nPend ? '<p class="tour-status tour-block">Nejdřív potvrďte souhrn výše.</p>' : '') +
     (sub ? '<p class="tour-next">' + e(sub) + '</p>' : '') +
     '<div class="tour-actions">' + (returnTo && !busy ? btn('← Zpět do registru', 'regReturn') : '') + btn('← Zpět', 'tourBack', null, '', busy || (idx === 0 && i === 0) ? ' disabled' : '') + nextBtn + '</div>' +
     progressBar(s, i, st) + '</div></aside>';
@@ -507,12 +546,13 @@ D.returnTo = function () { return returnTo; };
 NF.demoActions.garantOpen = function (v) { var s = S(); s.gOpen = s.gOpen === v ? null : v; };
 NF.demoActions.openAsideItem = function (v) { var s = S(); s.role = 'doctor'; s.page = 'registry'; s.reg = s.reg || {}; s.reg.open = v; s.reg.editing = false; s.reg.params = null; NF.closeDrawer(); };
 function decorate() {
-  if (doc.body) { var s0 = S(), hidden = isHidden(s0), locked = !away(s0) && !hidden; lastLayout = layoutKey(); doc.body.className = doc.body.className.replace(/\bpres-\w+/g, '').trim() + ' pres-' + s0.role + (locked ? ' pres-locked' : '') + (hidden ? '' : ' pres-panel'); } /* pres-panel = panel vyprávění je rozbalený (demo.css mu dělá místo) */
+  var s0 = S(), gsum = summaryActive(s0);
+  if (doc.body) { var hidden = isHidden(s0), locked = !away(s0) && !hidden && !gsum; lastLayout = layoutKey(); doc.body.className = doc.body.className.replace(/\bpres-\w+/g, '').trim() + ' pres-' + s0.role + (locked ? ' pres-locked' : '') + (hidden ? '' : ' pres-panel') + (gsum ? ' pres-summary' : ''); } /* stránka souhrnu není zamčená: garant v ní rozhoduje (V4) */ /* pres-panel = panel vyprávění je rozbalený (demo.css mu dělá místo) */
   if (!animated()) return;
   var old = doc.querySelectorAll('.tour-focus,.tour-watch,.tour-press');
   for (var k = 0; k < old.length; k++) old[k].classList.remove('tour-focus', 'tour-watch', 'tour-press');
-  var f = find(focusSel); if (f) f.classList.add('tour-focus');
-  var w = !busy ? find(watchSel) : null; if (w) w.classList.add('tour-watch');
+  var f = gsum ? null : find(focusSel); if (f) f.classList.add('tour-focus'); /* cíl posledního kroku („table“ stopy) na stránce souhrnu neplatí */
+  var w = !busy && !gsum ? find(watchSel) : null; if (w) w.classList.add('tour-watch');
   var p = find(pressSel); if (p) p.classList.add('tour-press');
 }
 var prevAfter = NF.slots.afterRender;
@@ -533,6 +573,38 @@ NF.slots.afterRender = function (s) { if (prevAfter) prevAfter(s); decorate(); m
 var lastLayout = '';
 function layoutKey() { return (D.narrow() ? 'n' : 'w') + (isHidden() ? 'h' : 's'); }
 if (global.addEventListener) global.addEventListener('resize', function () { measureBar(); if (layoutKey() !== lastLayout) NF.render(); }); /* texty a sbalení panelu podle šířky */
+
+/* ---------- bublina při klepnutí do zamčené obrazovky (S4, 21. 10. 2026) ----------
+   Zamčení zůstává, jak bylo: main má v příběhu pointer-events:none, klepnutí do něj žádnou akci aplikace nespustí (cílem je #app nebo body).
+   Tady ho jen poznáme podle souřadnic a na 3 s ukážeme fialovou bublinu v trvalé živé oblasti mimo #app (morph ji nepřepíše). */
+var bubbleTimer = null, BUBBLE_MS = 3000;
+D.lockBubbleText = function () { return 'Tohle za vás klepne ukázka. Pokračujte v panelu ' + (D.narrow() ? 'dole' : 'vpravo') + '.'; };
+function bubbleEl() {
+  var el = doc && doc.getElementById ? doc.getElementById('lock-bubble') : null;
+  if (!el && doc && doc.createElement && doc.body && doc.body.appendChild) {
+    el = doc.createElement('div'); el.id = 'lock-bubble'; el.className = 'lock-bubble';
+    el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); el.setAttribute('aria-atomic', 'true'); doc.body.appendChild(el);
+  }
+  return el;
+}
+function hideBubble() { var el = bubbleEl(); bubbleTimer = null; if (!el) return; el.innerHTML = ''; if (el.classList) el.classList.remove('on', 'above'); }
+D.lockedTap = function (ev) {
+  var b = doc && doc.body; if (!ev || !b || !/(^|\s)pres-locked(\s|$)/.test(b.className || '')) return false;
+  var t = ev.target; if (t && t.closest && t.closest('.tour-panel,.pres-bar,#overlay,.lock-bubble')) return false;
+  var m = doc.querySelector ? doc.querySelector('main') : null; if (!m || !m.getBoundingClientRect) return false;
+  var rc = m.getBoundingClientRect(), x = ev.clientX, y = ev.clientY;
+  if (!(x >= rc.left && x <= rc.right && y >= rc.top && y <= rc.bottom)) return false;
+  var el = bubbleEl(); if (!el) return false;
+  var vh = global.innerHeight || 0;
+  el.innerHTML = e(NF.nbspText(D.lockBubbleText()));
+  if (el.style && el.style.setProperty) { el.style.setProperty('--x', Math.round(x) + 'px'); el.style.setProperty('--y', Math.round(y) + 'px'); }
+  if (el.classList) { el.classList.add('on'); el.classList.toggle('above', !!(vh && y > vh * 0.6)); }
+  if (bubbleTimer && global.clearTimeout) global.clearTimeout(bubbleTimer);
+  bubbleTimer = global.setTimeout(hideBubble, BUBBLE_MS);
+  return true;
+};
+bubbleEl(); /* živá oblast musí existovat dřív, než do ní něco napíšeme */
+if (doc && doc.addEventListener) doc.addEventListener('click', function (ev) { if (ev.detail === 0) return; D.lockedTap(ev); }); /* klávesnicí vyvolaný klik (detail 0) bublinu neukazuje */
 
 /* ---------- panel prezentujícího ---------- */
 function branchPicker(s, key) {

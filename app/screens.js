@@ -46,6 +46,18 @@ function reactionTag(r) { return r ? tag(r.label, r.cls) : ''; }
 /* Jeden nosič faktu (řemeslo 9, 19. 10. 2026): známé jídlo s reakcí má jen štítek reakce (slovo + ikona); „známé“ říká fajfka na prstenci. */
 function foodBadges(conf) { return conf.level === 'known' && conf.reaction ? reactionTag(conf.reaction) : levelTag(conf.level, conf); }
 V.foodBadges = foodBadges;
+/* Řádek výsledku hledání (21. 10. 2026, vlastník): druhý řádek jen když nese informaci; „neznámé“ je výchozí stav a nepíše se. */
+function foodOptLine(c) {
+  if (c.level === 'known') return c.reaction ? '<span class="badges">' + reactionTag(c.reaction) + '</span>' : '<small>známe</small>';
+  if (c.level === 'similar') return '<small>podobné známým</small>';
+  if (c.level === 'learning') return '<small>učíme se · ' + c.st.n + ' ' + NF.z(c.min || 4) + ' ' + (c.min || 4) + '</small>';
+  if (c.level === 'unstable') return '<small>pokaždé jinak</small>';
+  return '';
+}
+function markMatch(name, q) {
+  var i = q ? name.toLowerCase().indexOf(String(q).trim().toLowerCase()) : -1, n = q ? String(q).trim().length : 0;
+  return i < 0 || !n ? e(name) : e(name.slice(0, i)) + '<mark>' + e(name.slice(i, i + n)) + '</mark>' + e(name.slice(i + n));
+}
 V.levelTag = levelTag; V.reactionTag = reactionTag;
 
 /* Ikona jídla (SVG podle druhu nebo zdroje sacharidů; nové jídlo jen názvem = talíř) + prstenec učení 1/2/3.
@@ -769,10 +781,11 @@ V.meal = function (S) {
       (snack ? hint('<b>Svačina je bez inzulinu k jídlu.</b> Nepotvrzujete dávku ani porci; jen zapište, co jíte. Učíme se z ní zvlášť a lékař uvidí, kolik toho jíte mimo hlavní jídla.', 'neutral') : '') +
       '<p class="sr-only" role="status">' + (m.q ? e(results.length ? 'Nalezeno: ' + NF.plural(results.length, 'jídlo', 'jídla', 'jídel') : 'Žádné jídlo neodpovídá.') : '') + '</p>' +
       card('<label class="field"><span>' + (list.length ? 'Jiné jídlo' : 'Jídlo') + ' – napište pár písmen</span><input data-bind="meal.q" value="' + e(m.q || '') + '" placeholder="např. řízek, kaše, guláš" autocomplete="off"></label>' +
-        (list.length ? '<div class="small muted mt-1 mb-2">' + (m.q ? 'Nalezeno' : 'Naposledy') + '</div><div class="food-grid">' + list.map(function (f) {
+        (list.length ? '<div class="small muted mt-1 mb-2">' + (m.q ? 'Nalezeno' : 'Naposledy') + '</div><ul class="food-grid' + (m.q ? ' q' : '') + '">' + list.map(function (f) {
           var c = NF.confidence(S, f.id, m.meal);
-          return '<button type="button" class="food-opt ' + (chosen && chosen.id === f.id ? 'chosen' : '') + '" data-action="mealFood" data-value="' + e(f.id) + '" aria-pressed="' + (chosen && chosen.id === f.id ? 'true' : 'false') + '">' + foodIcon(S, f, c) + '<span>' + e(f.name) + '<small>' + (c.level === 'known' ? 'známe · ' + c.st.inTarget + ' ' + NF.z(c.st.n) + ' ' + c.st.n + ' v cíli' : c.level === 'similar' ? 'podobné známým' : 'zapsáno ' + c.st.eaten + '×') + '</small><span class="badges">' + foodBadges(c) + '</span></span></button>'; /* štítky pod názvem, ne vedle (21. 10. 2026) */
-        }).join('') + '</div>' : (m.q && !like && !m.newFood ? '<p class="small muted">Nic takového neznáme.</p>' : '')) +
+          var on = !!(chosen && chosen.id === f.id);
+          return '<li><button type="button" class="food-opt' + (on ? ' chosen' : '') + '" data-action="mealFood" data-value="' + e(f.id) + '" aria-pressed="' + on + '">' + foodIcon(S, f, c) + '<span class="name">' + markMatch(f.name, m.q) + foodOptLine(c) + '</span>' + (on ? '<span class="sel" aria-hidden="true">' + NF.icon('check') + '</span>' : '') + '</button></li>';
+        }).join('') + '</ul>' : (m.q && !like && !m.newFood ? '<p class="small muted">Nic takového neznáme.</p>' : '')) +
         (like ? '<div class="hint neutral"><b>Je to stejné jídlo jako „' + e(like.name) + '“ ve vašem seznamu?</b><div class="actions split">' + btn('Ano, je to ono', 'mealUseExisting', like.id, 'sm primary') + btn('Ne, přidat jako nové jídlo', 'mealNotSame', null, 'sm') + '</div></div>' : '') +
         (m.q && !chosen && !m.newFood && !like ? '<div class="actions">' + btn(NF.icon('plus') + ' Přidat „' + e(m.q) + '“ do seznamu', 'mealNewFood') + '</div>' : '')) +
       (m.newFood ? customBuilder(S, m) : '');

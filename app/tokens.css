@@ -121,5 +121,7 @@
   --nf-demo-shadow:0 18px 50px rgba(43,24,74,.20);
   --nf-demo-stage:var(--nf-bg-2); /* podklad za rámečkem telefonu */
   --nf-demo-panel-w:380px;
-  --nf-demo-phone-w:402px;--nf-demo-phone-h:874px;--nf-demo-phone-r:52px;--nf-demo-phone-edge:12px
+  --nf-demo-phone-w:402px;--nf-demo-phone-h:874px;--nf-demo-phone-r:52px;--nf-demo-phone-edge:12px;
+  --nf-demo-bubble-w:280px;   /* bublina „Tohle za vás klepne ukázka“ (S4, 21. 10. 2026) */
+  --nf-demo-page-w:1080px     /* stránka souhrnu rozhodnutí na celou šířku (V4, 21. 10. 2026) */
 }

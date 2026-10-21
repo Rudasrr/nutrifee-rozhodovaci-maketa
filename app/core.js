@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 63;
+NF.SCHEMA = 64;
 NF.PAGES = ['today', 'foods', 'food', 'plan', 'safety', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
@@ -183,7 +183,7 @@ NF.muteHooks = function (fn) { NF.hooks.muted++; try { return fn(); } finally { 
 NF.CATS = [
   ['kohorta', 'Kohorta a zařazení'], ['plan', 'Startovní plán a návyky'], ['vypocty', 'Výpočty a prahy'],
   ['rady', 'Rady a texty'], ['skore', 'Reakce těla'], ['davka', 'Signály k dávce'], ['pokyny', 'Osobní pokyny'],
-  ['zauceni', 'Zaučení'], ['jidla', 'Jídla a štítky'], ['report', 'Report a souhrny'], ['provoz', 'Provoz']
+  ['zauceni', 'Zaučení'], ['jidla', 'Jídla a štítky'], ['report', 'Report a souhrny'], ['rezim', 'Bezpečnost a režim']
 ];
 NF.catLabel = function (c) { var x = NF.CATS.filter(function (k) { return k[0] === c; })[0]; return x ? x[1] : c; };
 NF.STATUS = { approved: 'schváleno', edited: 'upraveno', rejected: 'zamítnuto' }; /* jedno slovo „✎ upraveno“ (15, odst. 12; 21. 10. 2026) */

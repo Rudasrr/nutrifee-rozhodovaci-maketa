@@ -1,5 +1,5 @@
 /* Katalog designového systému NutriFee: tokeny ze souboru tokens.css za běhu, inspektor komponent, kopírování CSS a zadání.
-   Bez závislostí, bez sítě. Čte jen stylesheety, které stránka načetla (../app/tokens.css, ../app/design.css). */
+   Bez závislostí, bez sítě. Čte jen stylesheety, které stránka načetla (../app/tokens.css, ../app/design.css, ../demo/demo.css). */
 (function () {
 'use strict';
 var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -41,7 +41,7 @@ function lum(hex) {
 function contrast(a, b) { var la = lum(a), lb = lum(b); return ((Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05)).toFixed(1); }
 
 /* ---------- vykreslení tokenů ---------- */
-var GROUPS = [['Plocha', /^--nf-(bg|surface|line)/], ['Text', /^--nf-(ink|text|muted|on-primary|focus)/], ['Akce', /^--nf-primary/], ['Stavy', /^--nf-(ok|over|low|info|demo|basal)/]];
+var GROUPS = [['Plocha', /^--nf-(bg|surface|line)/], ['Text', /^--nf-(ink|text|muted|on-primary|focus)/], ['Akce', /^--nf-primary/], ['Stavy', /^--nf-(ok|over|low|info|basal)/], ['Prezentační vrstva', /^--nf-demo/]];
 function renderColors() {
   var box = $('#tok-colors'); if (!box) return; var html = '';
   GROUPS.forEach(function (g) {
@@ -89,7 +89,7 @@ function rulesFor(el) {
     }
   };
   for (var i = 0; i < document.styleSheets.length; i++) {
-    var ss = document.styleSheets[i], h = ss.href || ''; if (!/design\.css/.test(h)) continue;
+    var ss = document.styleSheets[i], h = ss.href || ''; if (!/design\.css|demo\.css/.test(h)) continue; /* komponenty jádra i prezentační vrstvy */
     var rules; try { rules = ss.cssRules; } catch (e) { continue; }
     walk(rules, '');
   }

@@ -136,13 +136,14 @@ function reviewInstructions(S, r) {
 /* --- kontrola: 4 kroky --- */
 /* Semafor dlaždice: barva + znak + slovo (E7), aby stav nebyl jen barvou. */
 var TILE_WORD = { 'c-ok': '✓ v cíli', 'c-warn': '! blízko cíle', 'c-bad': '✕ mimo cíl', 'c-none': '– bez dat' };
-var TILE_WORD_ADV = {}; /* S29: hodnota „ano / podobně / ne“ je sama slovem stavu; druhý řádek by ji jen opakoval */
+var TILE_WORD_ADV = {}; /* stav rad podle s.advice.works, viz advWord */
 /* slovo stavu podle dlaždice (19. 10. 2026: „blízko cíle“ u HbA1c nebo dnů nemoci nedávalo smysl).
    21. 10. 2026: „v cíli“ jen u glukózy (S03); porce a inzulin „80 % a víc“, mimo učení „v normě“ (N10). */
 var TILE_WORD_BY = { usual: { 'c-ok': '✓ 80 % a víc', 'c-warn': '! pod 80 %', 'c-bad': '✕ pod 60 %' }, ins: { 'c-ok': '✓ 80 % a víc', 'c-warn': '! pod 80 %', 'c-bad': '✕ pod 60 %' }, hba: { 'c-ok': '✓ klesá', 'c-warn': '– beze změny', 'c-bad': '! stoupá' }, ill: { 'c-none': '– v normě (do 7 dní)', 'c-warn': '! přes 7 dní' } };
 /* Jeden nosič stavu (řemeslo 9, 19. 10. 2026): popisek → číslo → jeden řádek „✓ v cíli“ ve barvě stavu; bez tečky. Dlaždice bez cíle (Mimo učení) je neutrální. */
+function advWord(S) { var r = S.review, w = r && r.summary && r.summary.advice ? r.summary.advice.works : null; return { yes: '✓ s radou bývalo níž', same: '– s radou podobně', few: '– zatím nelze říct' }[w] || (w ? '– s radou nebylo níž' : ''); }
 function tileBtn(S, key, k, v, d, cls, open, extra) {
-  var w = (TILE_WORD_BY[key] && TILE_WORD_BY[key][cls]) || (key === 'adv' ? TILE_WORD_ADV : TILE_WORD)[cls] || '';
+  var w = key === 'adv' ? advWord(S) : (TILE_WORD_BY[key] && TILE_WORD_BY[key][cls]) || TILE_WORD[cls] || '';
   return '<button type="button" class="tile ' + cls + (open ? ' open' : '') + '" data-action="reviewTile" data-value="' + key + '" aria-expanded="' + (open ? 'true' : 'false') + '"><div class="k">' + e(k) + '</div><div class="v">' + v + '</div>' + (w ? '<div class="st">' + e(w) + '</div>' : '') + (extra || '') + '<div class="d">' + e(d) + '</div></button>';
 }
 function leadSentence(S, s) {
@@ -207,13 +208,15 @@ function reviewSummary(S, p, r) {
   /* S24: legenda ve třech stejných sloupcích s barevným klíčem; cíl na vlastním řádku (.d) */
   var tirBar = ss ? '<div class="tir" role="img" aria-label="' + e('Pod cílem ' + ss.below + ' %, v cíli ' + ss.tir + ' %, nad cílem ' + ss.above + ' %') + '"><span class="lo" style="--pct:' + ss.below + '%"></span><span class="in" style="--pct:' + ss.tir + '%"></span><span class="hi" style="--pct:' + ss.above + '%"></span></div>' +
     '<div class="tir-legend" aria-hidden="true"><span><i class="sw lo"></i>pod <b>' + ss.below + ' %</b></span><span><i class="sw in"></i>v cíli <b>' + ss.tir + ' %</b></span><span><i class="sw hi"></i>nad <b>' + ss.above + ' %</b></span></div>' : '';
+  var advN = s.advice.accepted.n + s.advice.declined.n + s.advice.noAnswer.n;
+  /* 21. 10. 2026 (vlastník): každá dlaždice popisek → číslo → stav → podrobnost; HbA1c dnešní hodnota velká, dřívější pod ní; rady číslem, „s radou bývalo níž“ v řádku stavu; mřížka 3 × 2 */
   var tiles = tileBtn(S, 'tir', 'Čas v cíli', ss ? ss.tir + ' <small>%</small>' : EMPTY, ss ? 'cíl > ' + t.tirGoal + ' %' : 'souhrn ze senzoru chybí', 'c-' + s.tirState, r.tile === 'tir', tirBar) +
     tileBtn(S, 'usual', 'Obvyklá porce', s.usualPct == null ? EMPTY : s.usualPct + ' <small>%</small>', s.usual + ' ' + NF.z(s.meals) + ' ' + s.meals + ' jídel · ' + (s.meals - s.usual) + '× jinak' + (s.snacks ? ' · ' + NF.plural(s.snacks, 'svačina', 'svačiny', 'svačin') : ''), s.usualPct == null ? 'c-none' : s.usualPct >= 80 ? 'c-ok' : s.usualPct >= 60 ? 'c-warn' : 'c-bad', r.tile === 'usual') +
     tileBtn(S, 'ins', 'Inzulin podle plánu', s.asPct == null ? EMPTY : s.asPct + ' <small>%</small>', s.other + '× jinak · ' + s.none + '× bez inzulinu · ' + s.unknown + '× neví', s.asPct == null ? 'c-none' : s.asPct >= 80 ? 'c-ok' : s.asPct >= 60 ? 'c-warn' : 'c-bad', r.tile === 'ins') +
-    tileBtn(S, 'adv', 'S radou bývalo níž?', s.advice.works === 'yes' ? 'ano' : s.advice.works === 'few' ? 'zatím nelze říct' : s.advice.works === 'same' ? 'podobně' : 'ne','přijato ' + s.advice.accepted.n + '× · nepřijato ' + s.advice.declined.n + '× · bez odpovědi ' + s.advice.noAnswer.n + '×', s.advice.works === 'yes' ? 'c-ok' : 'c-none', r.tile === 'adv') +
-    (s.hba1c ? tileBtn(S, 'hba', 'HbA1c', s.hba1c[0] + ' → ' + s.hba1c[1], 'mmol/mol · ' + NF.fmtShort(p.issuedAt) + ' → ' + NF.fmtShort(r.startedAt), s.hba1c[1] < s.hba1c[0] ? 'c-ok' : s.hba1c[1] > s.hba1c[0] ? 'c-bad' : 'c-warn', r.tile === 'hba') : '') +
+    tileBtn(S, 'adv', 'Přijaté rady', advN ? s.advice.accepted.n + ' <small>' + NF.z(advN) + ' ' + advN + '</small>' : EMPTY, 'nepřijato ' + s.advice.declined.n + '× · bez odpovědi ' + s.advice.noAnswer.n + '×', s.advice.works === 'yes' ? 'c-ok' : 'c-none', r.tile === 'adv') +
+    (s.hba1c ? tileBtn(S, 'hba', 'HbA1c', s.hba1c[1] + ' <small>mmol/mol</small>', 'dříve ' + s.hba1c[0] + ' (' + NF.fmtShort(p.issuedAt) + ')' + (s.hba1c[1] !== s.hba1c[0] ? ' · o ' + Math.abs(s.hba1c[1] - s.hba1c[0]) + (s.hba1c[1] < s.hba1c[0] ? ' níž' : ' výš') : ''), s.hba1c[1] < s.hba1c[0] ? 'c-ok' : s.hba1c[1] > s.hba1c[0] ? 'c-bad' : 'c-warn', r.tile === 'hba') : '') +
     tileBtn(S, 'ill', 'Mimo učení', s.illDays + (s.incomplete ? '<small>+' + s.incomplete + '</small>' : ''), NF.plural(s.illDays, 'den', 'dny', 'dní') + ' nemoci · ' + NF.plural(s.incomplete, 'zápis', 'zápisy', 'zápisů') + ' bez dat', s.illDays > 7 ? 'c-warn' : 'c-none', r.tile === 'ill');
-  var out = '<div class="tiles">' + tiles + '</div><p class="small muted mt-1 mb-2">Dlaždice vycházejí z: ' + appr(S, 'C-CILE') + ' ' + appr(S, 'S-SEMAFOR') + ' ' + appr(S, 'D-CISTA') + ' ' + appr(S, 'S-SOUHRN') + '</p>';
+  var out = '<div class="tiles report">' + tiles + '</div><p class="small muted mt-1 mb-2">Dlaždice vycházejí z: ' + appr(S, 'C-CILE') + ' ' + appr(S, 'S-SEMAFOR') + ' ' + appr(S, 'D-CISTA') + ' ' + appr(S, 'S-SOUHRN') + '</p>';
   if (r.tile) out += card(tileDetail(S, p, r, r.tile), 'tint');
   /* tkanina zápisů celého období (Podpis C, 20. 10. 2026): za dvě sekundy obraz, jak pacient zapisoval – jen činy, žádná glukóza */
   var wv = NF.weave(S, p.effectiveFrom || p.issuedAt, NF.addDays(r.startedAt, -1));

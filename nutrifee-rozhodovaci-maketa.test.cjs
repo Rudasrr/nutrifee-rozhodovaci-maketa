@@ -224,7 +224,7 @@ test('Zámek průchodu (8. 10. 2026): bez rozhodnutí nabídnutých položek se 
   /* finále: souhrn musí být potvrzen */
   const fin = D.scenes.findIndex(x => !x.appendix && D.chapters[x.ch].id === 'trace'); act('goScene', String(fin)); act('closeDrawer');
   const stf = D.tour.stepsFor('trace', S().branches); for (let k = 0; k < stf.length; k++) next();
-  assert.equal(D.pendingNow(S()).summary, true); assert.match(markup(), /Nejdřív potvrďte souhrn/); app.act('tourNext'); assert.equal(S().sceneIndex, fin, 'bez potvrzení souhrnu se do dodatku nejde');
+  assert.equal(D.pendingNow(S()).summary, true); assert.match(markup(), /data-action="garantConfirmSummary"/, 've finále je akcí panelu potvrzení souhrnu (V4)'); app.act('tourNext'); assert.equal(S().sceneIndex, fin, 'bez potvrzení souhrnu se do dodatku nejde');
   act('garantConfirmSummary'); assert.equal(D.pendingNow(S()).summary, false); app.act('tourNext'); assert.equal(S().sceneIndex, fin + 1, 'po potvrzení dál');
   /* fokus: po kroku zůstává selektor posledního cíle */
   const src = fs.readFileSync(path.join(__dirname, 'demo/presenter.js'), 'utf8'); assert.match(src, /focusSel = failed \? null : lastFocus\(step\)/); assert.match(src, /pres-locked/);
@@ -1010,7 +1010,7 @@ test('Průchod pro garanta (8. 10. 2026): schvalování hned v kroku, kdy polož
   /* souhrn na konci hlavní linie: všechny položky, potvrzení, záznam pro správce */
   const fin = D.scenes.findIndex(x => !x.appendix && D.chapters[x.ch].id === 'trace'); act('goScene', String(fin)); act('closeDrawer');
   const stf = D.tour.stepsFor('trace', S().branches); for (let k = 0; k < stf.length; k++) next();
-  m = markup(); assert.match(m, /Souhrn vašich rozhodnutí/); assert.match(m, /Potvrdit souhrn/); assert.equal((m.match(/class="gitem"/g) || []).length, 21, 'souhrn ukazuje všech 21 položek garanta');
+  m = markup(); assert.match(m, /Souhrn vašich rozhodnutí/); assert.match(m, /Potvrdit souhrn/); assert.equal((m.match(/data-gsum-row=/g) || []).length, 21, 'souhrn ukazuje všech 21 položek garanta');
   const before = D.sync.pending(); act('garantConfirmSummary'); assert.equal(D.sync.pending(), before + 1);
   const q = JSON.parse(store.get('nutrifee-sync-queue')); const last = q[q.length - 1]; assert.equal(last.kind, 'summary'); assert.equal(last.item, 'SOUHRN'); assert.equal(last.params.total, 21); assert.ok(last.params.rejectedIds);
   assert.match(markup(), /Souhrn potvrzen/); assert.ok(D.progress().done);
@@ -1323,7 +1323,7 @@ test('Úprava z příběhu (19. 10. 2026, K2) se garantovi nepřipisuje: souhrn 
   const fin = D.scenes.findIndex(x => !x.appendix && D.chapters[x.ch].id === 'trace'); act('goScene', String(fin)); act('closeDrawer');
   assert.equal(NF.item(S(), 'R-PORADI').status, 'edited', 'příběh položku modelově upravil'); assert.equal(D.garantLog().length, 0);
   S().tourStep = D.tour.stepsFor('trace', S().branches).length; NF.render();
-  let m = markup(); assert.match(m, /Souhrn vašich rozhodnutí/); assert.match(m, /<b>0<\/b><span>s úpravou<\/span>/, 'bez rozhodnutí garanta souhrn neukáže úpravu');
+  let m = markup(); assert.match(m, /Souhrn vašich rozhodnutí/); assert.match(m, /<b>0<\/b><span>upraveno<\/span>/, 'bez rozhodnutí garanta souhrn neukáže úpravu');
   assert.equal(D.garantSummary(S()).edited, 0); assert.equal(NF.itemTouched(S(), 'R-PORADI'), false); assert.equal(NF.registrySummary(S()).touched, 0);
   act('garantOpen', 'R-PORADI'); assert.match(markup(), /modelovou úpravu této položky; vaše rozhodnutí je samostatné/);
   act('garantDecide', 'R-PORADI:approved'); const g = D.garantSummary(S()); assert.equal(g.approved, 1); assert.equal(g.edited, 0);
@@ -1509,6 +1509,69 @@ test('Závěrečná kontrola 21. 10. 2026 – prezentační vrstva: pomlčky, n�
   assert.match(css, /\.tour-panel details\.more>summary,\.pres-drawer details\.more>summary,\.intro details\.more>summary\{color:var\(--nf-demo-strong\)\}/);
   assert.match(css, /\.pres-bar \.where\{[^}]*text-overflow:ellipsis/); assert.match(css, /\.intro-grid\{[^}]*align-items:start/);
   assert.match(css, /\.gate input:focus-visible\{outline:2px/);
+});
+test('Souhrn rozhodnutí na celou šířku (V4, 21. 10. 2026): stránka vlevo, čtyři čísla, nerozhodnuté první, jen klinické položky; panel jen potvrzení', () => {
+  const fin = D.scenes.findIndex(x => !x.appendix && D.chapters[x.ch].id === 'trace'); act('goScene', String(fin)); act('closeDrawer');
+  let m = markup(); assert.equal(/class="gsum-page"/.test(m), false, 'před posledním krokem je obrazovka stopy');
+  ['K-KRITERIA', 'R-REAKCE'].forEach(id => act('garantDecide', id + ':approved')); act('garantDecide', 'B-HYPO:rejected');
+  S().tourStep = D.tour.stepsFor('trace', S().branches).length; NF.render(); m = markup();
+  const main = m.slice(m.indexOf('<main'));
+  assert.match(main, /<div class="gsum-page" id="gsum">/, 'souhrn je v obsahu vlevo'); assert.match(main, /<h1>Vaše rozhodnutí<\/h1>/); assert.equal(D.summaryActive(S()), true);
+  assert.match(main, /<b>2<\/b><span>schváleno<\/span><\/div><div><b>0<\/b><span>upraveno<\/span><\/div><div><b>1<\/b><span>zamítnuto<\/span><\/div><div><b>18<\/b><span>nerozhodnuto<\/span>/, 'čtyři čísla nahoře');
+  const rows = [...main.matchAll(/data-gsum-row="([^"]+)"/g)].map(x => x[1]);
+  assert.deepEqual([...rows].sort(), [...NF.garantItems(S()).map(r => r.id)].sort(), 'jen klinické položky, každá jednou');
+  assert.ok(S().registry.items.some(r => r.scope === 'provozni'), 'registr má provozní položky'); S().registry.items.filter(r => r.scope === 'provozni').forEach(r => assert.equal(rows.includes(r.id), false, r.id + ' garant nevidí'));
+  const firstDone = rows.findIndex(id => NF.itemTouched(S(), id)); assert.ok(firstDone > 0 && rows.slice(firstDone).every(id => NF.itemTouched(S(), id)), 'nerozhodnuté první');
+  assert.match(main, /Nerozhodnuto \(18\)/); assert.match(main, /Rozhodnuto \(3\)/); assert.match(main, /<th scope="col">Komentář<\/th>/);
+  assert.match(main, /data-action="garantOpen" data-value="B-HYPO" aria-expanded="false">Změnit</); assert.match(main, /data-action="garantOpen" data-value="D-CISTA" aria-expanded="false">Rozhodnout</);
+  /* panel: bez seznamu položek, jedinou akcí je potvrzení souhrnu */
+  const panel = m.slice(m.indexOf('<aside'), m.indexOf('</aside>'));
+  assert.equal(/class="gitem/.test(panel), false, 'v panelu není seznam položek'); assert.match(panel, /class="btn primary" data-action="garantConfirmSummary">Potvrdit souhrn</); assert.equal(/data-action="tourNext"/.test(panel), false);
+  /* změna rozhodnutí přímo na stránce: řádek se rozbalí s průvodcem a třemi rovnocennými volbami, po rozhodnutí se zavře */
+  bind('form.gc_D-CISTA', 'doplnit výjimku'); act('garantOpen', 'D-CISTA'); m = markup();
+  assert.match(m, /<tr class="gsum-detail" id="gsum-d-D-CISTA">/); assert.match(m, /data-action="garantDecide" data-value="D-CISTA:approved"/); assert.match(m, /Co schvalujete/);
+  act('garantDecide', 'D-CISTA:approved'); m = markup(); assert.equal(S().gOpen, null); assert.match(m, /„doplnit výjimku“/, 'komentář v tabulce'); assert.match(m, /Rozhodnuto \(4\)/);
+  /* stránka není zamčená; odkaz vrátí obrazovku stopy (zamčenou) a panel nabídne návrat */
+  assert.match(fs.readFileSync(path.join(__dirname, 'demo/presenter.js'), 'utf8'), /locked = !away\(s0\) && !hidden && !gsum/);
+  act('gsumTrace'); m = markup(); assert.equal(/class="gsum-page"/.test(m), false); assert.match(m, /data-action="gsumTrace">Zpět na souhrn/); act('gsumTrace'); assert.match(markup(), /class="gsum-page"/);
+  /* po potvrzení: děkovná karta v panelu, souhrn zůstává vlevo */
+  act('garantConfirmSummary'); m = markup(); assert.match(m, /Děkujeme, máme vaše rozhodnutí/); assert.match(m, /class="gsum-state">✓ Souhrn potvrzen/); assert.match(m, /class="gsum-page"/);
+  /* rozvržení: místo pro panel od 1101 px, pod 760 px řádky jako karty, jen tokeny */
+  const css = fs.readFileSync(path.join(__dirname, 'demo/demo.css'), 'utf8'), block = css.slice(css.indexOf('/* ---------- souhrn rozhodnutí na celou šířku'));
+  assert.match(block, /@media \(min-width:1101px\)\{body\.pres-panel \.gsum-page\{padding-right:calc\(var\(--nf-demo-panel-w\)/); assert.match(block, /@media \(max-width:760px\)\{[\s\S]*\.gsum-table thead\{display:none\}/);
+  assert.equal(/#[0-9a-fA-F]{3,8}\b|rgba?\(/.test(block), false, 'souhrn bez pevných barev'); assert.deepEqual(block.replace(/@media[^{]*\{/g, '').match(/\b(?!1px)\d+px\b/g) || [], [], 'souhrn bez pevných rozměrů (kromě vlasové linky 1px)');
+});
+
+test('Bublina při klepnutí do zamčené obrazovky (S4, 21. 10. 2026): nápověda na 3 s, aplikace se nezmění, mimo zamčení nic', () => {
+  act('goScene', '3'); act('closeDrawer'); app.act('tourNext');
+  const before = JSON.stringify(S());
+  const main = { getBoundingClientRect() { return { left: 0, top: 60, right: 900, bottom: 800 }; } };
+  ctx.document.querySelector = sel => (sel === 'main' ? main : null);
+  const tap = (x, y, cls) => ({ target: { closest: sel => (cls && sel.split(',').some(q => q.trim() === cls) ? {} : null) }, clientX: x, clientY: y, detail: 1 });
+  ctx.document.body = { className: 'pres-doctor pres-panel' };
+  assert.equal(D.lockedTap(tap(100, 200)), false, 'bez zamčení se bublina neukáže');
+  ctx.document.body = { className: 'pres-doctor pres-locked pres-panel' };
+  assert.equal(D.lockedTap(tap(100, 200, '.tour-panel')), false, 'klepnutí do panelu bublinu neukáže');
+  assert.equal(D.lockedTap(tap(1000, 200)), false, 'mimo obrazovku aplikace nic');
+  assert.equal(D.lockedTap(tap(100, 200)), true);
+  const bub = elements.get('lock-bubble'); assert.match(plain(bub.innerHTML), /^Tohle za vás klepne ukázka\. Pokračujte v panelu (vpravo|dole)\.$/);
+  assert.match(D.lockBubbleText(), /panelu (vpravo|dole)\./);
+  assert.equal(JSON.stringify(S()), before, 'klepnutí v aplikaci nic nezměnilo');
+  const src = fs.readFileSync(path.join(__dirname, 'demo/presenter.js'), 'utf8');
+  assert.match(src, /BUBBLE_MS = 3000/); assert.match(src, /setAttribute\('aria-live', 'polite'\)/); assert.match(src, /'Tohle za vás klepne ukázka\. Pokračujte v panelu ' \+ \(D\.narrow\(\) \? 'dole' : 'vpravo'\)/);
+  const css = fs.readFileSync(path.join(__dirname, 'demo/demo.css'), 'utf8');
+  assert.match(css, /body\.pres-locked main\{pointer-events:none\}/, 'zamčení zůstává'); assert.match(css, /\.lock-bubble\{[^}]*pointer-events:none/); assert.match(css, /\.lock-bubble\{[^}]*width:var\(--nf-demo-bubble-w\)/);
+  /* pokyn „Ovládejte jen fialovými tlačítky“ jen ve scénách 1–2 */
+  for (let i = 2; i < D.scenes.length; i++) { act('goScene', String(i)); act('closeDrawer'); assert.equal(/class="tour-hint"/.test(markup()), false, 'scéna ' + (i + 1)); }
+});
+
+test('Katalog: sekce Prezentační vrstva čte demo/demo.css a ukazuje živé prvky vrstvy', () => {
+  const cat = fs.readFileSync(path.join(__dirname, 'design-system/index.html'), 'utf8');
+  assert.match(cat, /<link rel="stylesheet" href="\.\.\/demo\/demo\.css">/); assert.match(cat, /href="#c-vrstva"/);
+  const sec = cat.slice(cat.indexOf('id="vrstva"'), cat.indexOf('id="obrazovky"'));
+  for (const cls of ['tour-panel', 'tour-head', 'tour-foot', 'tour-actions', 'appr pend', 'tour-watch', 'tour-focus', 'lock-bubble', 'gsum-page', 'gsum-table', 'gcounts', 'gchoices']) assert.ok(sec.includes(cls), 'katalog: ' + cls);
+  assert.match(sec, /Dál ▶/); assert.equal(/style="(?!--)[^"]*#[0-9a-fA-F]/.test(sec), false, 'ukázky bez pevných barev');
+  assert.match(fs.readFileSync(path.join(__dirname, 'design-system/catalog.js'), 'utf8'), /design\\\.css\|demo\\\.css/, 'inspektor bere pravidla i z demo.css');
 });
 test('V publikovaných souborech nejsou skutečná jména', () => {
   const bad = /MUDr\.|Ing\. ?[A-Z]|prof\. |doc\. |a kol\.|et al\.|nemocnic|FN [A-Z]|Standards of Care|iPhone|Apple/;

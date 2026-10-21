@@ -228,7 +228,7 @@ T.chapters = {
   },
   trace: {
     intro: { t: 'Co jsme viděli a co potřebujeme od vás', co: 'Dávku určuje jen lékař. Pacient drží obvyklou porci, aplikace se učí z jeho jídel. Lékař na kontrole jen schvaluje; každé pravidlo je položka registru a stopa ji dokládá. Provozní pravidla (formát exportu ze senzoru, texty obrazovek, zaučení) schválil vlastník aplikace a v registru je nenajdete. K maketě patří i návrh účelu určení a osnova ochrany dat; pošleme je zvlášť.', vsimni: 'Stopa: každý výpočet, rada, návrh a rozhodnutí se vstupy a výstupy.', proc: 'Důkaz, že do výpočtů nezasahuje generativní AI a vše je dohledatelné.' },
-    steps: [{ do: [{ sel: 'table' }], t: 'Stopa a výzva', co: 'Řádky „rada.zobrazena“, „navrh.rozhodnut“, „registr.rozhodnuti“; tlačítko „data“ rozbalí přesné vstupy.', vsimni: 'Od vás potřebujeme: rozhodnout položky registru (potvrdit, upravit, zamítnout, okomentovat). Rozhodnutí se ukládají průběžně, nic nemusíte posílat, a kdykoli je můžete změnit. Jsou neformální – pro ostrý provoz se vše podepisuje znovu.', dusledek: 'Hlavní linie končí. Dál je dodatek: zaučení se nezdařilo, pacient rady nepřijal, „nemám to doma“.' }]
+    steps: [{ do: [{ sel: 'table' }], t: 'Stopa a výzva', co: 'Každý krok aplikace má ve stopě řádek: „Rada zobrazena“, „Návrh rozhodnut“, „Rozhodnutí o položce registru“. Tlačítko „Data“ rozbalí přesné vstupy.', vsimni: 'Od vás potřebujeme: rozhodnout položky registru (potvrdit, upravit, zamítnout, okomentovat). Rozhodnutí se ukládají průběžně, nic nemusíte posílat, a kdykoli je můžete změnit. Jsou neformální – pro ostrý provoz se vše podepisuje znovu.', dusledek: 'Hlavní linie končí. Dál je dodatek: zaučení se nezdařilo, pacient rady nepřijal, „nemám to doma“.' }]
   }
 };
 

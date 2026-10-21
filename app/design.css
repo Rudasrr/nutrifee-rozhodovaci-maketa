@@ -195,9 +195,10 @@ ol.bullets{list-style:decimal}
 /* ---------- dlaždice souhrnu ---------- */
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:var(--nf-s3);margin-bottom:var(--nf-s3)}
 .tiles.dense{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.tiles.report{grid-template-columns:repeat(3,minmax(0,1fr))}@media (max-width:640px){.tiles.report{grid-template-columns:repeat(2,minmax(0,1fr))}} /* souhrn kontroly 3 × 2, bez osiřelého řádku */
 .tile{padding:var(--nf-s3) var(--nf-s4);text-align:left;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;align-self:stretch} /* řádky dlaždic zarovnané nahoru (S23) */
 .tile .k{font-size:var(--nf-fs-2xs);color:var(--nf-muted);font-weight:var(--nf-w-strong);display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--nf-s2)}
-.tile .st{font-size:var(--nf-fs-2xs);white-space:nowrap;font-weight:var(--nf-w-display-strong);color:var(--c-tx,var(--nf-ok-text));margin-bottom:var(--nf-s1)}.tile.c-warn .st{--c-tx:var(--nf-over-text)}.tile.c-bad .st{--c-tx:var(--nf-low-text)}.tile.c-none .st{--c-tx:var(--nf-muted)}
+.tile .st{font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong);color:var(--c-tx,var(--nf-ok-text));margin-bottom:var(--nf-s1)}.tile.c-warn .st{--c-tx:var(--nf-over-text)}.tile.c-bad .st{--c-tx:var(--nf-low-text)}.tile.c-none .st{--c-tx:var(--nf-muted)}
 .tile .v{font-family:var(--nf-font-display);font-size:var(--nf-fs-2xl);font-weight:var(--nf-w-display-strong);letter-spacing:-.03em;line-height:1.1;margin:var(--nf-s2) 0 2px}
 .tile .v small{font-size:var(--nf-fs-xs);color:var(--nf-muted);font-weight:600;margin-left:var(--nf-s1)}
 .tile .d{font-size:var(--nf-fs-2xs);color:var(--nf-muted)}
@@ -481,13 +482,19 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .food-row .badges{margin-top:0}
 .food-row .chev{color:var(--nf-muted);flex:none}.food-row .chev svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm)}
 .badges.mt-0{margin-top:0}
-.food-grid{display:grid;gap:var(--nf-s2);margin:var(--nf-s3) 0}
-.food-opt{display:flex;align-items:center;gap:var(--nf-s3);text-align:left;min-height:var(--nf-tap);border:2px solid var(--nf-border-control);border-radius:var(--nf-r-md);background:var(--nf-surface);padding:var(--nf-s3) var(--nf-s4);font-weight:var(--nf-w-strong)}
-.food-opt.chosen,.food-opt[aria-pressed="true"]{border-color:var(--nf-primary);background:var(--nf-primary-soft)}
-.food-opt small{font-weight:var(--nf-w-text);color:var(--nf-muted);display:block;font-size:var(--nf-fs-2xs)}
-.food-opt .badges{margin-top:var(--nf-s1)}.food-opt .tag{white-space:nowrap}
-.food-opt .emoji{width:44px;height:44px}.food-opt .emoji svg{inset:-4px;width:52px;height:52px}
-.food-opt svg.ico.fico{width:var(--nf-icon-lg);height:var(--nf-icon-lg);color:var(--nf-primary-strong)}
+.food-grid{list-style:none;margin:var(--nf-s1) 0 var(--nf-s3);padding:0} /* výsledky hledání jako řádky v kartě, jako Vaše jídla (21. 10. 2026) */
+.food-grid>li+li{border-top:1px solid var(--nf-line)}
+.food-opt{display:flex;align-items:center;gap:var(--nf-s3);width:100%;min-height:64px;text-align:left;border:0;border-radius:var(--nf-r-sm);background:transparent;padding:var(--nf-s2) var(--nf-s2);color:inherit;font:inherit}
+.food-opt.chosen,.food-opt[aria-pressed="true"]{background:var(--nf-primary-soft)}
+.food-opt .name{flex:1;min-width:0;font-family:var(--nf-font-display);font-weight:var(--nf-w-display);font-size:var(--nf-fs-md);line-height:1.25;color:var(--nf-ink)}
+.food-grid.q .food-opt .name{font-weight:var(--nf-w-text)}.food-opt .name mark{background:none;color:inherit;font-weight:var(--nf-w-display-strong)} /* při hledání tučně jen shoda */
+.food-opt small{display:block;margin-top:2px;font-family:var(--nf-font-text);font-weight:var(--nf-w-text);color:var(--nf-muted);font-size:var(--nf-fs-2xs)}
+.food-opt .badges{display:block;margin-top:var(--nf-s1)}.food-opt .tag{white-space:nowrap}
+.food-opt .sel{flex:none;color:var(--nf-primary-strong)}.food-opt .sel svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm)}
+.food-opt .emoji{width:40px;height:40px;flex:none}.food-opt .emoji svg{inset:-4px;width:48px;height:48px}
+.food-opt svg.ico.fico{width:var(--nf-icon-sm);height:var(--nf-icon-sm);color:var(--nf-primary-strong)}
+.food-opt .emoji .ck{width:16px;height:16px;right:-5px;bottom:-5px}.food-opt .emoji .ck svg.ico{width:10px;height:10px}
+.food-opt:focus-visible{outline:3px solid var(--nf-focus);outline-offset:2px}
 .choice.plate{flex:1;flex-direction:column;display:flex;align-items:center;gap:var(--nf-s1);padding:var(--nf-s3) var(--nf-s2);min-height:84px;font-size:var(--nf-fs-xs)}
 .plate-ico{width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;flex:none}
 .plate-ico .rim{stroke-width:1.6}.plate-ico .inner{stroke-opacity:.35}
@@ -750,14 +757,14 @@ svg.ico{width:var(--nf-icon);height:var(--nf-icon);flex:none;fill:none;stroke:cu
 
 /* ---------- stisk a přechody (krátké, vysvětlující; ne dekorace) ---------- */
 .btn,.choice,.segmented button,.tabbar button,.food-opt,.habit-opt,.tile,.reg-row,.rail button.nav{transition:background-color var(--nf-t-fast) var(--nf-ease),border-color var(--nf-t-fast) var(--nf-ease),color var(--nf-t-fast) var(--nf-ease),box-shadow var(--nf-t-fast) var(--nf-ease),transform 120ms var(--nf-ease)}
-.btn:active,.choice:active,.food-opt:active{transform:scale(.98)}
+.btn:active,.choice:active{transform:scale(.98)}
 
 /* ---------- média ---------- */
 @media (hover:hover){
   .btn:hover{background:var(--nf-primary-soft-hover)}.btn.primary:hover{background:var(--nf-primary-strong)}.btn.quiet:hover,.btn.acute:hover,.btn.link:hover{background:transparent;color:var(--nf-primary-strong)}
   .choice:hover{border-color:var(--nf-primary)}
   .tile:hover,.food .h:hover{box-shadow:var(--nf-sh-raised)}
-  .rail button.nav:hover,.tabbar button:hover .ic,.reg-row:hover{background:var(--nf-surface-2)}
+  .rail button.nav:hover,.tabbar button:hover .ic,.reg-row:hover,.food-opt:not(.chosen):hover{background:var(--nf-surface-2)}
   .rail button.nav.active:hover,.reg-row.on:hover,.tabbar button.active:hover .ic{background:var(--nf-primary-soft)}
 }
 /* ordinace na širokém monitoru: pruh · pracovní sloupec do 880 px · kontext jen ke čtení (rozhodnutí vlastníka 19. 10. 2026) */
