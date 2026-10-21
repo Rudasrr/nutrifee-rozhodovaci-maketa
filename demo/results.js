@@ -18,21 +18,21 @@ function load() {
     .catch(function (x) { err = String(x && x.message || x); })
     .then(function () { loading = false; rerender(); });
 }
-function fmt(iso) { if (!iso) return '—'; var d = new Date(iso); if (isNaN(d.getTime())) return String(iso); return d.getDate() + '. ' + (d.getMonth() + 1) + '. ' + d.getFullYear() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+function fmt(iso) { if (!iso) return '–'; var d = new Date(iso); if (isNaN(d.getTime())) return String(iso); return d.getDate() + '. ' + (d.getMonth() + 1) + '. ' + d.getFullYear() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
 var LABEL = { approved: ['schváleno', 'ok'], edited: ['schváleno s úpravou', 'warn'], rejected: ['zamítnuto', 'bad'] };
 function statusTag(st) { var l = LABEL[st] || ['ke schválení', '']; return '<span class="tag ' + l[1] + '">' + l[0] + '</span>'; }
 function stat(v, k) { return '<div class="box stat"><b>' + e(String(v)) + '</b><span class="small muted">' + e(k) + '</span></div>'; }
 function who(r) { return r.user_email ? e(r.user_email) : (r.decided_by ? e(r.decided_by) : ''); }
 function params(r) { if (!r.params) return ''; var p = r.params; return Object.keys(p).map(function (k) { return e(k) + ' = ' + e(String(p[k])); }).join(' · '); }
-/* Kam se garant dostal a zda potvrdil souhrn — z řádků kind progress/summary, poslední stav na účet. */
+/* Kam se garant dostal a zda potvrdil souhrn – z řádků kind progress/summary, poslední stav na účet. */
 function progressBlock(evs) {
   if (!evs.length) return '<div class="box mt-3 mb-3"><b>Průchod maketou</b><div class="small muted">Zatím žádný záznam: garant maketu ještě neotevřel po přihlášení.</div></div>';
   var byUser = {};
   evs.forEach(function (r) { var k = r.user_email || r.decided_by || '?'; var u = byUser[k] = byUser[k] || { prog: null, sum: null }; if (r.kind === 'progress' && (!u.prog || String(r.at) > String(u.prog.at))) u.prog = r; if (r.kind === 'summary' && (!u.sum || String(r.at) > String(u.sum.at))) u.sum = r; });
   return '<div class="box mt-3 mb-3"><b>Průchod maketou</b>' + Object.keys(byUser).map(function (k) {
     var u = byUser[k], p = u.prog && u.prog.params || {}, sm = u.sum && u.sum.params || null;
-    var full = sm ? 'ano — souhrn potvrzen ' + fmt(u.sum.at) : (p.scene && p.mainEnd && p.scene >= p.mainEnd ? 'došel na konec hlavní linie, souhrn zatím nepotvrdil' : 'zatím ne');
-    return '<div class="small mt-2"><b>' + e(k) + '</b><br>nejdál: ' + (p.scene ? 'scéna ' + e(String(p.scene)) + ' z ' + e(String(p.total || '?')) + (p.title ? ' („' + e(p.title) + '“)' : '') + ' · ' + fmt(u.prog.at) : '—') + '<br>prošel celou maketu: ' + full +
+    var full = sm ? 'ano – souhrn potvrzen ' + fmt(u.sum.at) : (p.scene && p.mainEnd && p.scene >= p.mainEnd ? 'došel na konec hlavní linie, souhrn zatím nepotvrdil' : 'zatím ne');
+    return '<div class="small mt-2"><b>' + e(k) + '</b><br>nejdál: ' + (p.scene ? 'scéna ' + e(String(p.scene)) + ' z ' + e(String(p.total || '?')) + (p.title ? ' („' + e(p.title) + '“)' : '') + ' · ' + fmt(u.prog.at) : '–') + '<br>prošel celou maketu: ' + full +
       (sm ? '<br>v souhrnu: schváleno ' + e(String(sm.approved)) + ' · s úpravou ' + e(String(sm.edited)) + ' · zamítnuto ' + e(String(sm.rejected)) + ' · ke schválení ' + e(String(sm.pending)) + (sm.rejectedIds && sm.rejectedIds.length ? ' · zamítnuté: ' + e(sm.rejectedIds.join(', ')) : '') : '') + '</div>';
   }).join('') + '</div>';
 }
@@ -71,7 +71,7 @@ function panelInner(s) {
   return out;
 }
 var prevDrawer = NF.slots.drawer;
-NF.slots.drawer = function (s, name) { if (name === 'results') return panel(s); return prevDrawer ? prevDrawer(s, name) : ''; };
+NF.slots.drawer = function (s, name) { if (name === 'results') return NF.nbsp(panel(s)); return prevDrawer ? prevDrawer(s, name) : ''; };
 NF.demoActions = NF.demoActions || {};
 NF.demoActions.openResults = function () { if (!D.auth || D.auth.role() !== 'admin') return; NF.openDrawer('results'); if (!rows) load(); };
 NF.demoActions.resultsReload = function () { load(); };

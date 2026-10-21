@@ -36,7 +36,7 @@
   --nf-ok-text:#1E7A52;       /* na bílé 5,3:1 */
   --nf-over:#EC7F4F;          /* nad cílem, upozornění, „brzy“ = korálově oranžová (není chyba); jen výplně a pruhy */
   --nf-over-bg:#FDEBE2;
-  --nf-over-text:#A64923;     /* na bílé 6,0:1, na --nf-over-bg 5,1:1 */
+  --nf-over-text:#94520F;     /* text „nad cílem“: oranžovohnědá (odstín ~31°), odlišitelná od červené pro pokles pod 4; na bílé 6,0:1, na --nf-over-bg 5,2:1 (21. 10. 2026) */
   --nf-low:#D9453D;           /* chyby, kritická upozornění, pokles pod 4, mimo rozsah, zamítnuto = červená (výplně s bílou ikonou 4,4:1) */
   --nf-low-bg:#FCE8E6;
   --nf-low-text:#A93226;      /* na bílé 6,0:1 */

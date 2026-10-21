@@ -1,8 +1,8 @@
-/* Ukládání rozhodnutí garanta mimo zařízení (7. 10. 2026). Součást prezentační vrstvy — jádro aplikace síť nevolá.
+/* Ukládání rozhodnutí garanta mimo zařízení (7. 10. 2026). Součást prezentační vrstvy – jádro aplikace síť nevolá.
    Každé rozhodnutí nebo komentář k položce registru se hned zařadí do fronty (localStorage) a vloží jako řádek do tabulky Supabase (D.syncConfig)
    pod přihlášením uživatele (demo/auth.js); bez přihlášení se nic neposílá. Co se neodešle (výpadek), zůstává ve frontě a odešle se při dalším pokusu; lišta ukazuje stav.
    Po přihlášení se dřívější zápisy téhož uživatele načtou ze serveru zpět do deníku garanta (restore → D.garantMerge).
-   Posílají se jen rozhodnutí garanta (položka, stav, parametry/texty po úpravě, komentář, čas, scéna, verze, účet přihlášeného) — žádná data příběhu. */
+   Posílají se jen rozhodnutí garanta (položka, stav, parametry/texty po úpravě, komentář, čas, scéna, verze, účet přihlášeného) – žádná data příběhu. */
 (function (global) {
 'use strict';
 var NF = global.NutriFee, D = global.NutriFeeDemo, e = NF.esc;

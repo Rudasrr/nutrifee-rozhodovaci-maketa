@@ -1,11 +1,11 @@
-/* Generováno skriptem navrhy-designu/04-pohledy-2026-10-05/scene-items.cjs — needitovat ručně. Pro každou scénu položky registru, které se během ní objeví na obrazovce. */
+/* Generováno skriptem navrhy-designu/04-pohledy-2026-10-05/scene-items.cjs – needitovat ručně. Pro každou scénu položky registru, které se během ní objeví na obrazovce. */
 (function (global) { var D = global.NutriFeeDemo = global.NutriFeeDemo || {};
 D.sceneItems = [
  {
-  "title": "Úvod — k čemu NutriFee je a jak ukázku ovládat", "items": []
+  "title": "Úvod – k čemu NutriFee je a jak ukázku ovládat", "items": []
  },
  {
-  "title": "Lékař — karta a podmínky zařazení", "items": [
+  "title": "Lékař – karta a podmínky zařazení", "items": [
    "K-KRITERIA",
    "R-NAVYKY",
    "R-POKYNY",
@@ -13,40 +13,40 @@ D.sceneItems = [
   ]
  },
  {
-  "title": "Lékař — dávky, startovní návyky a pokyny", "items": [
+  "title": "Lékař – dávky, startovní návyky a pokyny", "items": [
    "R-NAVYKY",
    "R-POKYNY",
    "C-CILE"
   ]
  },
  {
-  "title": "Lékař — vydání plánu", "items": []
+  "title": "Lékař – vydání plánu", "items": []
  },
  {
-  "title": "Sestra — zaučení s náhledem telefonu", "items": []
+  "title": "Sestra – zaučení s náhledem telefonu", "items": []
  },
  {
-  "title": "Pacient — převzetí plánu a jedna otázka", "items": []
+  "title": "Pacient – převzetí plánu a jedna otázka", "items": []
  },
  {
-  "title": "Pacient — první snídaně ve třech krocích", "items": [
+  "title": "Pacient – první snídaně ve třech krocích", "items": [
    "Z-GLUKOZA"
   ]
  },
  {
-  "title": "Pacient — před obědem: nejvyšší hodnota po snídani", "items": [
+  "title": "Pacient – před obědem: nejvyšší hodnota po snídani", "items": [
    "Z-GLUKOZA",
    "B-HYPO"
   ]
  },
  {
-  "title": "Pacient — po týdnu: co už aplikace ví", "items": []
+  "title": "Pacient – po týdnu: co už aplikace ví", "items": []
  },
  {
-  "title": "Pacient — otevřel aplikaci až v 10:00", "items": []
+  "title": "Pacient – otevřel aplikaci až v 10:00", "items": []
  },
  {
-  "title": "Pacient — před píchnutím: porce zpět k obvyklé a doplněk", "items": [
+  "title": "Pacient – před píchnutím: porce zpět k obvyklé a doplněk", "items": [
    "R-PORCE",
    "R-DOPLNEK",
    "R-PORADI",
@@ -54,44 +54,44 @@ D.sceneItems = [
   ]
  },
  {
-  "title": "Pacient — po píchnutí: co aplikace smí a nesmí", "items": [
+  "title": "Pacient – po píchnutí: co aplikace smí a nesmí", "items": [
    "R-PORCE",
    "R-PORADI",
    "R-PROCHAZKA"
   ]
  },
  {
-  "title": "Pacient — nové jídlo jen názvem", "items": [
+  "title": "Pacient – nové jídlo jen názvem", "items": [
    "R-DOPLNEK",
    "R-PORADI",
    "R-PROCHAZKA"
   ]
  },
  {
-  "title": "Pacient — není mi dobře", "items": []
+  "title": "Pacient – není mi dobře", "items": []
  },
  {
-  "title": "Pacient — jídlo během nemoci", "items": []
+  "title": "Pacient – jídlo během nemoci", "items": []
  },
  {
-  "title": "Pacient — už je mi lépe", "items": []
+  "title": "Pacient – už je mi lépe", "items": []
  },
  {
-  "title": "Během studie — garant upraví pravidlo po podnětu", "items": []
+  "title": "Během studie – garant upraví pravidlo po podnětu", "items": []
  },
  {
-  "title": "Pacient — rada s novým textem", "items": [
+  "title": "Pacient – rada s novým textem", "items": [
    "R-PORADI",
    "R-PROCHAZKA"
   ]
  },
  {
-  "title": "Pacient — den před kontrolou", "items": [
+  "title": "Pacient – den před kontrolou", "items": [
    "C-CILE"
   ]
  },
  {
-  "title": "Lékař — kontrola, krok 1: souhrn", "items": [
+  "title": "Lékař – kontrola, krok 1: souhrn", "items": [
    "C-CILE",
    "S-SEMAFOR",
    "D-CISTA",
@@ -104,23 +104,23 @@ D.sceneItems = [
   ]
  },
  {
-  "title": "Lékař — krok 2: návrhy s důvodem a postupem", "items": [
+  "title": "Lékař – krok 2: návrhy s důvodem a postupem", "items": [
    "D-POSTUP",
    "D-PRAND",
    "R-POKYNY"
   ]
  },
  {
-  "title": "Lékař — krok 3: potvrzení a vydání plánu P2", "items": []
+  "title": "Lékař – krok 3: potvrzení a vydání plánu P2", "items": []
  },
  {
-  "title": "Lékař — krok 4: předání pacientovi", "items": []
+  "title": "Lékař – krok 4: předání pacientovi", "items": []
  },
  {
-  "title": "Pacient — nový plán a co se změnilo", "items": []
+  "title": "Pacient – nový plán a co se změnilo", "items": []
  },
  {
-  "title": "Lékař — verze a stopa: důkaz, jak to počítá", "items": []
+  "title": "Lékař – verze a stopa: důkaz, jak to počítá", "items": []
  },
  {
   "title": "Dodatek · zaučení se nezdařilo", "items": []

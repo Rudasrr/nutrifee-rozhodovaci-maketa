@@ -1,7 +1,7 @@
 /* Přihlášení k maketě (7. 10. 2026, prezentační vrstva). Supabase Auth, e-mail + heslo.
-   Bez přihlášení se maketa nezobrazí — jen přihlašovací stránka. Role podle app_metadata.role účtu v Supabase:
+   Bez přihlášení se maketa nezobrazí – jen přihlašovací stránka. Role podle app_metadata.role účtu v Supabase:
    „admin“ = správce (vidí výsledky všech, demo/results.js), „garant“ = garant (rozhoduje a komentuje, vidí jen své zápisy).
-   Účet bez jedné z těchto rolí k maketě přístup nemá (projekt Supabase může mít i jiné uživatele) — po přihlášení je hned odhlášen s vysvětlením.
+   Účet bez jedné z těchto rolí k maketě přístup nemá (projekt Supabase může mít i jiné uživatele) – po přihlášení je hned odhlášen s vysvětlením.
    Hesla ověřuje server Supabase; v kódu není nic tajného (veřejný klíč + pravidla RLS). Jádro app/ o přihlášení neví.
    Přihlášení drží localStorage (nutrifee-auth); token se obnovuje sám, po neúspěchu se uživatel odhlásí. */
 (function (global) {
@@ -73,20 +73,21 @@ function login() {
 /* ---------- přihlašovací stránka místo aplikace ---------- */
 function gate() {
   var dis = form.busy ? ' disabled' : '';
-  return '<div class="gate"><div class="gate-card card">' +
+  var N = '\u00a0';
+  return NF.nbsp('<div class="gate"><div class="gate-card card">' + /* N18: sazba jako v jádře */
     '<div class="gate-brand"><span class="brandmark">N</span>NutriFee</div>' +
-    '<span class="demo-flag">DEMO · syntetická data · není určeno pro léčbu</span>' +
+    '<span class="demo-flag">DEMO · syntetická' + N + 'data · není' + N + 'určeno' + N + 'pro' + N + 'léčbu</span>' + /* N1: láme se jen po „·“ */
     '<h1>Maketa ke schválení</h1>' +
     '<p class="muted">Přihlaste se e-mailem a heslem, které jste dostali od autora makety. Vaše rozhodnutí a komentáře k položkám registru se ukládají pod tímto přihlášením; nic jiného se neposílá. Jde o neformální rozhodnutí k maketě, ne o podpis pro ostrý provoz.</p>' +
-    '<p class="small muted">Vyhraďte si asi 15 minut a 4 minuty na dodatek. Ukázku můžete přerušit; rozhodnutí se ukládají a po přihlášení se načtou zpět.</p>' +
-    '<p class="small gate-device">Ukázka je navržená pro počítač. Na telefonu ji projdete, ale obrazovky lékaře jsou široké.</p>' +
+    '<p class="small muted">Hlavní část zabere asi 15 minut, dodatek s variantami další 4. Ukázku můžete přerušit; rozhodnutí se ukládají a po přihlášení se načtou zpět.</p>' +
+    '<p class="small muted gate-device">Ukázka je navržená pro počítač. Na telefonu ji projdete, ale obrazovky lékaře jsou široké.</p>' +
     (form.info ? '<div class="error soft" role="status">' + e(form.info) + '</div>' : '') +
     '<label class="field"><span>E-mail</span><input id="auth-email" type="email" autocomplete="username" data-auth="email" value="' + e(form.email) + '"' + dis + '></label>' +
     '<label class="field"><span>Heslo</span><input id="auth-pass" type="password" autocomplete="current-password" data-auth="pass" value="' + e(form.pass) + '"' + dis + '></label>' +
     (form.error ? '<div class="error" role="alert">' + e(form.error) + '</div>' : '') +
-    '<div class="actions">' + NF.screens.btn(form.busy ? 'Přihlašuji…' : 'Přihlásit', 'authLogin', null, 'primary', dis) + '</div>' +
+    '<div class="actions mb-3">' + NF.screens.btn(form.busy ? 'Přihlašuji…' : 'Přihlásit', 'authLogin', null, 'primary', dis) + '</div>' +
     '<p class="small muted">Nemáte přihlašovací údaje? Napište autorovi makety.</p>' +
-    '</div></div>';
+    '</div></div>');
 }
 var coreRender = NF.render;
 NF.render = function () {

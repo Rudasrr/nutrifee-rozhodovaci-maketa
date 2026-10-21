@@ -6,7 +6,8 @@
 .pres-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:var(--nf-s2) var(--nf-s3);flex-wrap:wrap;padding:var(--nf-s2) var(--nf-s4);background:var(--nf-demo-bg);border-bottom:1px solid var(--nf-demo-line);font-size:var(--nf-fs-2xs);color:var(--nf-demo-strong)}
 .pres-bar .flag{background:var(--nf-surface);color:var(--nf-demo-strong);border:1px solid var(--nf-demo-line);border-radius:var(--nf-r-sm);padding:var(--nf-s1) var(--nf-s2);font-weight:var(--nf-w-display-strong);font-size:var(--nf-fs-2xs)}
 .pres-bar .flag-short{display:none}
-.pres-bar .where{flex:1;min-width:220px;color:var(--nf-text)}
+/* S11: název scény na jeden řádek, celý v title */
+.pres-bar .where{flex:1;min-width:0;color:var(--nf-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pres-bar .btn{min-height:36px;padding:var(--nf-s1) var(--nf-s3);font-size:var(--nf-fs-2xs)}
 .pres-bar .btn.ok{background:var(--nf-ok-bg);color:var(--nf-ok-text);border-color:var(--nf-ok-bg)}
 .pres-bar .bar-more{display:none}
@@ -70,6 +71,8 @@ body.pres-patient #main .error{position:absolute;top:70px;left:50%;transform:tra
 .tour-progress span{flex:var(--n,1) 1 0;position:relative;border-radius:3px;background:var(--nf-demo-line);overflow:hidden}
 .tour-progress span::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--pct,0%);background:var(--nf-demo-strong);transition:width var(--nf-t-slow) var(--nf-ease)}
 .tour-progress span.appx{opacity:.6}
+.tour-progress-l{margin:var(--nf-s2) 0 0;font-size:var(--nf-fs-2xs);color:var(--nf-muted)} /* N26: popisek k ukazateli */
+.tour-progress-l+.tour-progress{margin-top:var(--nf-s1)}
 
 /* sbalený panel */
 .tour-panel.tour-min{display:flex;align-items:center;gap:var(--nf-s2);flex-wrap:wrap;width:auto;max-width:min(560px,calc(100vw - 40px));padding:var(--nf-s2) var(--nf-s3);overflow:visible}
@@ -120,8 +123,14 @@ body.pres-panel .ctx{display:none}
 body.pres-panel .app.wide{grid-template-columns:224px minmax(0,1fr)}
 body.pres-panel .app.wide .nextbar{right:calc(var(--nf-demo-panel-w) + 40px)}
 body.pres-nurse .phone-preview{zoom:.85}
-/* 1100–1560 px (D2 z prověrky rozvržení): panel je překryvná zásuvka, plocha se nezužuje a registr zůstává ve dvou sloupcích */
-@media (max-width:1560px){body.pres-panel.pres-doctor .desk,body.pres-panel.pres-nurse .desk{padding-right:var(--nf-s8)}}
+/* 1280–1560 px (V2, 21. 10. 2026): panel má vyhrazený sloupec i tady; registr sjede na jeden sloupec */
+@media (max-width:1560px){
+  body.pres-panel.pres-doctor .desk,body.pres-panel.pres-nurse .desk{padding-right:calc(var(--nf-demo-panel-w) + 40px)}
+  body.pres-panel .reg{grid-template-columns:1fr}
+  body.pres-panel .reg-side{position:static;max-height:none}
+}
+/* 1101–1279 px: na scénách lékaře a sestry se panel otevírá sbalený (presenter.js); rozbalený jen překrývá */
+@media (max-width:1279px){body.pres-panel.pres-doctor .desk,body.pres-panel.pres-nurse .desk{padding-right:var(--nf-s8)}}
 /* pod 1100 px: panel dole přes celou šířku */
 @media (max-width:1100px){
   .tour-panel{left:var(--nf-s2);right:var(--nf-s2);bottom:var(--nf-s2);top:auto;width:auto;max-height:50vh}
@@ -132,19 +141,25 @@ body.pres-nurse .phone-preview{zoom:.85}
 
 /* ---------- telefon (pod 600 px; K3/K4 minimum) ---------- */
 @media (max-width:600px){
-  .pres-bar{flex-wrap:nowrap;gap:var(--nf-s2);padding:var(--nf-s1) var(--nf-s2)}
-  .pres-bar .flag-long,.pres-bar .where,.pres-bar .bar-wide{display:none}
-  .pres-bar .flag-short,.pres-bar .t-short{display:inline}
+  .pres-bar{flex-wrap:wrap;gap:var(--nf-s1) var(--nf-s2);padding:var(--nf-s1) var(--nf-s2)}
+  /* V9/V3: plný štítek DEMO i na telefonu, na vlastním řádku */
+  .pres-bar .flag{flex-basis:100%;text-align:center;padding:2px var(--nf-s2)}
+  .pres-bar .where,.pres-bar .bar-wide{display:none}
+  .pres-bar .t-short{display:inline}
   .pres-bar .t-long{display:none}
   .pres-bar .bar-todo{flex:1;width:auto}
   .pres-bar .bar-more{display:inline-flex;width:auto;min-width:var(--nf-tap);font-size:var(--nf-fs-lg)}
-  .tour-panel{left:0;right:0;bottom:0;border-radius:var(--nf-r-lg) var(--nf-r-lg) 0 0;border-width:2px 0 0;max-height:62vh}
+  .tour-panel{left:0;right:0;bottom:0;border-radius:var(--nf-r-lg) var(--nf-r-lg) 0 0;border-width:2px 0 0;max-height:45vh}
   .tour-panel.tour-min{left:0;right:0;bottom:0;border-radius:var(--nf-r-lg) var(--nf-r-lg) 0 0}
   .tour-head{border-radius:0}
   .gcounts{grid-template-columns:repeat(2,1fr)}
   body.pres-patient #main{padding:0}
   body.pres-patient #main{background:var(--nf-bg);min-height:0}
-  body.pres-panel.pres-doctor .desk,body.pres-panel.pres-nurse .desk{padding:var(--nf-s3) var(--nf-s3) 64vh}
+  body.pres-panel.pres-doctor .desk,body.pres-panel.pres-nurse .desk{padding:var(--nf-s3) var(--nf-s3) 48vh}
+  /* V3: pruh lékaře a sestry jako jeden řádek; štítek DEMO je v liště ukázky */
+  body.pres-doctor .rail button.nav,body.pres-nurse .rail button.nav{width:auto}
+  body.pres-doctor .rail .who,body.pres-nurse .rail .who{display:none}
+  .pres-drawer h2,.pres-drawer h2+p{padding-right:calc(var(--nf-tap) + var(--nf-s2))}
 }
 
 /* ---------- zvýraznění kroku: vždy fialově, aby nikdy nečetlo jako stav (V6) ---------- */
@@ -152,10 +167,17 @@ body.pres-nurse .phone-preview{zoom:.85}
 .tour-press{transform:scale(.96);filter:brightness(.93)}
 .tour-watch{outline:3px dotted var(--nf-demo-focus)!important;outline-offset:5px;border-radius:var(--nf-r-md);animation:tourGlow 1.6s ease-out 2}
 .tour-focus,.tour-watch{scroll-margin-top:90px}
+/* přilepená spodní lišta ordinace zůstává přilepená i zvýrazněná (jinak by ji position:relative vložilo do toku a stránka by přetekla do šířky) */
+.nextbar.tour-focus,.nextbar.tour-watch{position:fixed;z-index:20;outline-offset:-4px;border-radius:0}
 @keyframes tourPulse{0%,100%{box-shadow:0 0 0 0 var(--nf-demo-glow)}50%{box-shadow:0 0 0 10px transparent}}
 @keyframes tourGlow{0%{box-shadow:0 0 0 0 var(--nf-demo-glow)}100%{box-shadow:0 0 0 16px transparent}}
 
 /* ---------- přehled scén (zásuvka) ---------- */
+/* S3: zavírací × v zásuvce ukázky fialové, fokus uvnitř tlačítka */
+.drawerpanel:has(.pres-drawer)>.close{color:var(--nf-demo-strong)}
+.drawerpanel:has(.pres-drawer)>.close:focus-visible{outline:3px solid var(--nf-demo-focus);outline-offset:-4px}
+/* S4: rozbalovací odkazy ve vrstvě ukázky fialové (šipka bere currentColor) */
+.tour-panel details.more>summary,.pres-drawer details.more>summary,.intro details.more>summary{color:var(--nf-demo-strong)}
 .drawerpanel hr{border:0;border-top:1px solid var(--nf-line);margin:var(--nf-s4) 0}
 .drawerpanel .buttonlist{display:grid;gap:var(--nf-s1);margin:var(--nf-s2) 0}
 .drawerpanel .buttonlist .btn{justify-content:flex-start;text-align:left;font-size:var(--nf-fs-xs);min-height:var(--nf-tap-desk)}
@@ -188,7 +210,8 @@ body.pres-nurse .phone-preview{zoom:.85}
 .gate .field{display:block;margin:var(--nf-s3) 0}
 .gate .field span{display:block;font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-strong);color:var(--nf-muted);margin-bottom:var(--nf-s1)}
 .gate input{width:100%;box-sizing:border-box;min-height:var(--nf-tap);font:inherit;font-size:var(--nf-fs-md);padding:var(--nf-s2) var(--nf-s3);border:1px solid var(--nf-border-control);border-radius:var(--nf-r-sm);background:var(--nf-surface)}
-.gate input:focus{outline:3px solid var(--nf-focus);outline-offset:2px}
+.gate input:focus{outline:none}
+.gate input:focus-visible{outline:2px solid var(--nf-focus);outline-offset:0;border-color:var(--nf-focus)} /* N16: jeden tenký rámeček */
 .gate .error.soft{background:var(--nf-primary-tint);color:inherit;border-color:var(--nf-line)}
 .gate .gate-device{display:none}
 @media (max-width:700px){.gate .gate-device{display:block}.gate-card{padding:var(--nf-s5)}}
@@ -210,8 +233,7 @@ body.pres-nurse .phone-preview{zoom:.85}
 /* v příběhu ovládá garant jen panel: obrazovka vlevo nereaguje na klepnutí (8. 10. 2026) */
 body.pres-locked main{pointer-events:none}
 body.pres-locked main .tour-focus{pointer-events:none}
-/* tlačítka aplikace nekonkurují „Dál ▶“, dokud je obrazovka zamčená (K3); klepnutí ukázky se zvýrazní fialově */
-body.pres-locked main .btn.primary:not(.tour-focus):not(.tour-press){filter:saturate(.35);opacity:.75}
+/* V1/S10 (21. 10. 2026): tlačítka aplikace se už neodbarvují – tyrkysová musí zůstat tyrkysová a nic nesmí vypadat zakázaně; zamčení ukazuje panel */
 
 /* ---------- úvodní obrazovka ukázky (demo/intro.js) ---------- */
 .intro{max-width:1100px;margin:0;padding:var(--nf-s6) var(--nf-s8) var(--nf-s8)}
@@ -222,7 +244,7 @@ body.pres-locked main .btn.primary:not(.tour-focus):not(.tour-press){filter:satu
 .intro-strip li{display:flex;gap:var(--nf-s2);align-items:flex-start;background:var(--nf-surface);border-radius:var(--nf-r-md);box-shadow:var(--nf-sh-card);padding:var(--nf-s3);font-size:var(--nf-fs-xs);line-height:var(--nf-lh)}
 .intro-strip .n{flex:none;display:inline-grid;place-items:center;width:28px;height:28px;border-radius:var(--nf-r-pill);background:var(--nf-demo-strong);color:var(--nf-on-primary);font-weight:var(--nf-w-display-strong)}
 .intro-time{font-size:var(--nf-fs-xs);color:var(--nf-muted);margin:var(--nf-s2) 0 var(--nf-s3)}
-.intro-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:var(--nf-s3);margin-top:var(--nf-s3)}
+.intro-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:var(--nf-s3);margin-top:var(--nf-s3);align-items:start}
 .intro-grid h2{font-size:var(--nf-fs-lg);margin:0 0 var(--nf-s2)}
 .intro-grid .card{padding:var(--nf-s4);margin-bottom:0}
 .intro-steps,.intro-acts{margin:0;padding-left:20px;font-size:var(--nf-fs-xs);line-height:var(--nf-lh)}
@@ -233,8 +255,12 @@ body.pres-locked main .btn.primary:not(.tour-focus):not(.tour-press){filter:satu
 .intro-legend{display:flex;gap:var(--nf-s2);flex-wrap:wrap;align-items:center;margin-top:var(--nf-s2)}
 .intro-sample{pointer-events:none;min-height:34px;padding:var(--nf-s1) var(--nf-s3);font-size:var(--nf-fs-2xs);width:auto}
 .intro details{margin-top:var(--nf-s2)}
+/* S14: vložené štítky a pilulky netrhají řádkování */
+.intro .appr,.intro .pill,.intro .intro-sample{display:inline-block;min-height:0;padding:0 var(--nf-s2);line-height:1.5;vertical-align:baseline}
 @media (max-width:1100px){.intro-grid,.intro-strip{grid-template-columns:1fr}.intro{padding-bottom:52vh}}
 @media (max-width:700px){.intro-device{display:block}}
 /* úvod je jen text: na šířkách s překryvným panelem mu místo pro panel necháme */
 @media (min-width:1101px) and (max-width:1560px){body.pres-doctor .intro{padding-right:calc(var(--nf-demo-panel-w) + 40px)}}
-@media (max-width:600px){.intro{padding:var(--nf-s3) var(--nf-s4) 64vh}}
+@media (max-width:600px){.intro{padding:var(--nf-s3) var(--nf-s4) 48vh}}
+/* V9: pruh lékaře pod přilepenou lištou ukázky nesmí uříznout štítek */
+@media (min-width:1001px){.rail{top:var(--barh,0px);height:calc(100vh - var(--barh,0px))}}
