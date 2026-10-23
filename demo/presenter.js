@@ -477,7 +477,7 @@ function progressBar(s, i, st) {
   }).join('') + '</div>';
 }
 function head(collapsible) {
-  return '<div class="tour-head"><span class="tour-head-t">Ovládání ukázky</span><span class="tour-info" tabindex="0" role="note" title="Fialová tlačítka ovládají ukázku. Tyrkysová jsou tlačítka budoucí aplikace; ukázka je klepe za vás." aria-label="Fialová tlačítka ovládají ukázku, tyrkysová jsou tlačítka budoucí aplikace.">i</span>' +
+  return '<div class="tour-head"><span class="tour-head-t">Ovládání ukázky</span><span class="tour-info" tabindex="0" role="note" title="Fialová tlačítka ovládají ukázku. Petrolejová jsou tlačítka budoucí aplikace; ukázka je klepe za vás." aria-label="Fialová tlačítka ovládají ukázku, petrolejová jsou tlačítka budoucí aplikace.">i</span>' +
     (collapsible ? '<button type="button" class="tour-icon" data-action="tourToggle" aria-label="Sbalit panel" title="Sbalit panel">▾</button>' : '') + '</div>';
 }
 function panel(s) {
@@ -521,7 +521,7 @@ function panel(s) {
   var kicker = finale ? 'Souhrn rozhodnutí' : running != null ? 'Krok ' + (running + 1) + ' z ' + st.length : i === 0 ? (idx === 0 ? 'Začátek ukázky' : 'Začátek scény') : 'Krok ' + i + ' z ' + st.length;
   return '<aside class="tour-panel' + (finale ? ' tour-decide' : '') + (nPend ? ' tour-pending' : '') + '" aria-label="Ovládání ukázky">' + head(true) +
     '<div class="tour-body" aria-live="polite"><p class="tour-kicker">' + e(kicker) + '</p>' + (whereNow(s) ? '<p class="tour-where">' + e(whereNow(s)) + '</p>' : '') + '<h2>' + e(shown.t || sceneTitle(s)) + '</h2>' + body +
-    (idx === 1 ? '<p class="tour-hint">Ovládejte ukázku jen fialovými tlačítky v tomto panelu. Tyrkysová tlačítka ' + (D.narrow() ? 'nahoře' : 'vlevo') + ' jsou skutečná tlačítka budoucí aplikace; ukázka je klepe za vás.</p>' : '') + /* S12: od scény 2; úvod to říká sám */
+    (idx === 1 ? '<p class="tour-hint">Ovládejte ukázku jen fialovými tlačítky v tomto panelu. Petrolejová tlačítka ' + (D.narrow() ? 'nahoře' : 'vlevo') + ' jsou skutečná tlačítka budoucí aplikace; ukázka je klepe za vás.</p>' : '') + /* S12: od scény 2; úvod to říká sám */
     (returnTo && !busy ? '<p class="tour-next">Přišli jste sem z registru (položka ' + e(returnTo.item) + ').</p>' : '') + '</div>' +
     '<div class="tour-foot">' + (panelMsg ? '<p class="tour-status" role="status">' + e(panelMsg) + '</p>' : '') + jump +
     (sub ? '<p class="tour-next">' + e(sub) + '</p>' : '') +

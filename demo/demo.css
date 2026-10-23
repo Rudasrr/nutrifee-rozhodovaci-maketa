@@ -14,7 +14,7 @@
 .pres-bar .t-short{display:none}
 .pres-bar .bar-wide{display:inline-flex}
 
-/* ovládání ukázky vypadá jinak než tlačítka aplikace: fialové pilulky s obrysem vs. tyrkysové plochy */
+/* ovládání ukázky vypadá jinak než tlačítka aplikace: fialové pilulky s obrysem vs. petrolejové plochy */
 .tour-panel .btn,.pres-bar .btn,.pres-drawer .btn,.gsum-page .btn{border-radius:var(--nf-r-pill);border:2px solid var(--nf-demo-strong);background:var(--nf-surface);color:var(--nf-demo-strong);box-shadow:none;font-weight:var(--nf-w-display-strong)}
 .tour-panel .btn.primary,.pres-bar .btn.primary,.pres-drawer .btn.primary,.gsum-page .btn.primary{background:var(--nf-demo-strong);color:var(--nf-on-primary);border-color:var(--nf-demo-strong)}
 .tour-panel .btn.danger,.pres-drawer .btn.danger,.pres-bar .btn.danger,.gsum-page .btn.danger{border-color:var(--nf-low-text);color:var(--nf-low-text);background:var(--nf-surface)}
@@ -239,7 +239,7 @@ body.pres-locked main .tour-focus{pointer-events:none}
 .lock-bubble.above{top:auto;bottom:calc(100vh - var(--y,50vh) + var(--nf-s4))}
 .lock-bubble.on{opacity:1;transform:none}
 .lock-bubble:empty{padding:0}
-/* V1/S10 (21. 10. 2026): tlačítka aplikace se už neodbarvují – tyrkysová musí zůstat tyrkysová a nic nesmí vypadat zakázaně; zamčení ukazuje panel */
+/* V1/S10 (21. 10. 2026): tlačítka aplikace se už neodbarvují – petrolejová musí zůstat petrolejová a nic nesmí vypadat zakázaně; zamčení ukazuje panel */
 
 /* ---------- úvodní obrazovka ukázky (demo/intro.js) ---------- */
 .intro{max-width:1100px;margin:0;padding:var(--nf-s6) var(--nf-s8) var(--nf-s8)}

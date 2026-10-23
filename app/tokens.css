@@ -9,7 +9,7 @@
 
 :root{
   /* ---------- barvy: plocha ---------- */
-  --nf-bg:#F2F8F9;            /* podklad obrazovky pacienta i ordinace — velmi světlá chladná tyrkysová (reference) */
+  --nf-bg:#F2F8F9;            /* podklad obrazovky pacienta i ordinace — velmi světlá bledě petrolejová (reference) */
   --nf-bg-2:#E3F1F3;          /* o stupeň hlubší pro pruhy a vyznačené plochy */
   --nf-surface:#FFFFFF;       /* karta: bílá, bez okraje, jen měkký stín */
   --nf-surface-2:#F4F9FA;     /* vnořená plocha v kartě (boxy, segmentovaný přepínač) */

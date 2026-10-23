@@ -13,7 +13,7 @@ function intro(s) {
     '<p class="intro-device hint neutral">Ukázka je navržená pro počítač. Na telefonu ji projdete, ale obrazovky lékaře jsou široké.</p></div>' +
     /* S1 (19. 10. 2026): tři kroky nahoře, legenda barev hned v nich */
     '<ol class="intro-strip" aria-label="Jak ukázka probíhá">' +
-    '<li><span class="n" aria-hidden="true">1</span><span><b>Čtěte ' + app + '.</b> Aplikace běží sama; <span class="btn primary sm intro-sample" aria-hidden="true">tyrkysová</span> tlačítka klepe ukázka za vás.</span></li>' +
+    '<li><span class="n" aria-hidden="true">1</span><span><b>Čtěte ' + app + '.</b> Aplikace běží sama; <span class="btn primary sm intro-sample" aria-hidden="true">petrolejová</span> tlačítka klepe ukázka za vás.</span></li>' +
     '<li><span class="n" aria-hidden="true">2</span><span><b>Rozhodujte ' + (nar ? 'v panelu dole' : 'vpravo') + '.</b> Ve <span class="pill">fialovém</span> panelu schválíte, upravíte nebo zamítnete pravidla aplikace.</span></li>' +
     '<li><span class="n" aria-hidden="true">3</span><span><b>Na konci potvrďte souhrn</b> všech rozhodnutí.</span></li></ol>' +
     '<p class="intro-time">Hlavní část zabere asi 15 minut, dodatek s variantami další 4. Ukázku můžete kdykoli přerušit; rozhodnutí se průběžně ukládají a po přihlášení se načtou zpět.</p>' +
