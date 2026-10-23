@@ -125,6 +125,7 @@ function bind(key, value) {
   if (parts[0] === 'meal' && S.meal) { S.meal[parts[1]] = value; if (parts[1] === 'q') { S.meal.foodId = null; S.meal.newFood = null; } return; }
   if (parts[0] === 'draft' && S.draft) { S.draft[parts[1]] = value; return; }
   if (parts[0] === 'reg') { S.reg = S.reg || {}; S.reg[parts[1]] = value; return; }
+  if (parts[0] === 'support' && parts[1] === 'text') { S.support.text = String(value).slice(0, 500); S.support.sent = false; return; }
   if (key === 'notes') S.notes = value; /* jiné kořeny stavu z formuláře měnit nelze (P9) */
 }
 
@@ -168,6 +169,7 @@ var A = {
   /* ordinace */
   wizardGo: function (v) { S.wizardStep = Number(v); },
   eligibility: function (v) { NF.setEligibility(S, v, !S.enrollment.criteria[v]); },
+  baseline: function (v) { var p = String(v).split(':'); NF.setBaseline(S, p[0], p[1]); }, /* výchozí hodnoty ze senzoru při zařazení */
   startDraft: function () {
     if (S.draft) return;
     S.draft = NF.newDraft(S);
@@ -362,6 +364,9 @@ var A = {
   propSwapTo: function (v) { var p = v.split(':'); S.review.swapTo = S.review.swapTo || {}; S.review.swapTo[p[0]] = p[1]; },
   acuteOpen: function () { drawer = 'acute'; },
   /* Bezpečí z kroků jídla jedním klepnutím: list přes obrazovku, rozpracovaný zápis zůstává (LF-11, 19. 10. 2026). */
+  supportOpen: function () { if (S.role !== 'patient') return; drawer = null; S.page = 'support'; S.error = ''; S.support.sent = false; },
+  supportIssue: function (v) { if (!NF.SUPPORT_ISSUES.some(function (x) { return x[0] === v; })) return; S.support.issue = v; S.support.sent = false; },
+  supportSend: function () { if (!S.support.issue) return fail('Vyberte, co nefunguje.'); S.support.sent = true; toast('V ukázce se nic neposílá. V aplikaci by zpráva odešla technické podpoře.'); },
   safetyOpen: function () { if (!drawer) drawerOpener = global.document && global.document.activeElement; drawer = 'safety'; },
   propUnits: function (v) { if (reviewLocked()) return; var p = v.split(':'); var pr = S.review.proposals.filter(function (x) { return x.id === p[0]; })[0]; if (!pr || !pr.dose) return; S.review.newDoses[pr.dose].units = Math.max(1, Math.min(60, S.review.newDoses[pr.dose].units + Number(p[1]))); },
   propOther: function (v) { S.review.other = S.review.other === v ? null : v; },

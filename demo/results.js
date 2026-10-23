@@ -39,7 +39,7 @@ function progressBlock(evs) {
 function panel(s) { return panelInner(s) + '</div>'; }
 function panelInner(s) {
   var items = s.registry ? NF.garantItems(s) : []; /* jen položky garanta; provozní schvaluje vlastník */
-  var out = '<div class="pres-drawer"><h2>Výsledky garanta</h2><p class="muted">Co garant v maketě rozhodl a okomentoval: poslední stav každé položky registru a celá historie zápisů. Načteno ze serveru pod přihlášením správce; neformální rozhodnutí k maketě.</p>' +
+  var out = '<div class="pres-drawer"><h2>Výsledky garanta</h2><p class="muted">Co garant v maketě rozhodl a okomentoval: poslední stav každé položky registru a celá historie záznamů. Načteno ze serveru pod přihlášením správce; neformální rozhodnutí k maketě.</p>' +
     '<div class="actions mt-0">' + btn(loading ? 'Načítám…' : 'Obnovit', 'resultsReload', null, 'sm', loading ? ' disabled' : '') + btn('Zavřít', 'closeDrawer', null, 'sm quiet') + (loadedAt ? '<span class="small muted">načteno ' + e(fmt(loadedAt)) + '</span>' : '') + '</div>';
   if (err) out += '<div class="error" role="alert">Nepodařilo se načíst: ' + e(err) + '</div>';
   if (!rows) return out + (loading ? '' : '<p class="muted">Zatím nic nenačteno.</p>');
@@ -57,7 +57,7 @@ function panelInner(s) {
   });
   var unknown = Object.keys(byItem).filter(function (id) { return !items.some(function (it) { return it.id === id; }); });
   out += '<div class="grid2 stats">' + stat(decided + ' z ' + items.length, 'rozhodnuto') + stat(c.approved, 'schváleno') + stat(c.edited, 'upraveno') + stat(c.rejected, 'zamítnuto') + '</div>' +
-    '<p class="small muted">Komentářů: ' + comments + ' · zápisů celkem: ' + decs.length + ' · přihlášených, kdo zapisovali: ' + Object.keys(users).length + (last ? ' · poslední zápis ' + e(fmt(last)) : '') + (unknown.length ? ' · zápisy k neznámým položkám: ' + e(unknown.join(', ')) : '') + '</p>';
+    '<p class="small muted">Komentářů: ' + comments + ' · záznamů celkem: ' + decs.length + ' · přihlášených, kdo rozhodovali: ' + Object.keys(users).length + (last ? ' · poslední záznam ' + e(fmt(last)) : '') + (unknown.length ? ' · záznamy k neznámým položkám: ' + e(unknown.join(', ')) : '') + '</p>';
   if (!decs.length) return out + '<p class="muted">Zatím žádné rozhodnutí. Jakmile garant v maketě rozhodne nebo okomentuje první položku, objeví se tady.</p>';
   out += '<ul class="plain results">' + list.map(function (x) {
     var r = x.lastD, head = '<div class="res-head"><b>' + e(x.it.id) + ' · ' + e(x.it.title) + '</b>' + statusTag(r ? r.status : null) + '</div>';

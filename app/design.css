@@ -105,6 +105,7 @@ ol.bullets{list-style:decimal}
 .divider{height:1px;background:var(--nf-line);margin:var(--nf-s4) 0}
 .kv{display:grid;grid-template-columns:1fr auto;gap:var(--nf-s3);padding:var(--nf-s2) 0;border-bottom:1px solid var(--nf-line);font-size:var(--nf-fs-xs)}
 .kv:last-child{border-bottom:0}.kv span{color:var(--nf-muted)}.kv strong{text-align:right}
+.kv.contact{grid-template-columns:1fr;gap:2px}.kv.contact span{display:flex;align-items:center;gap:var(--nf-s2)}.kv.contact strong{text-align:left;padding-left:calc(var(--nf-icon-sm) + var(--nf-s2))}
 
 /* ---------- tlačítka a volby ---------- */
 .actions{display:flex;gap:var(--nf-s3);flex-wrap:wrap;align-items:center;margin-top:var(--nf-s4)}
@@ -195,7 +196,7 @@ ol.bullets{list-style:decimal}
 /* ---------- dlaždice souhrnu ---------- */
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:var(--nf-s3);margin-bottom:var(--nf-s3)}
 .tiles.dense{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
-.tiles.report{grid-template-columns:repeat(3,minmax(0,1fr))}@media (max-width:640px){.tiles.report{grid-template-columns:repeat(2,minmax(0,1fr))}} /* souhrn kontroly 3 × 2, bez osiřelého řádku */
+.tiles.report{grid-template-columns:repeat(3,minmax(0,1fr))}.tiles.report .tile.wide{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;align-items:baseline;column-gap:var(--nf-s3)}.tiles.report .tile.wide .v{margin:0;font-size:var(--nf-fs-lg)}.tiles.report .tile.wide .st{margin:0}@media (max-width:640px){.tiles.report{grid-template-columns:repeat(2,minmax(0,1fr))}} /* souhrn kontroly 3 × 2, bez osiřelého řádku */
 .tile{padding:var(--nf-s3) var(--nf-s4);text-align:left;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;align-self:stretch} /* řádky dlaždic zarovnané nahoru (S23) */
 .tile .k{font-size:var(--nf-fs-2xs);color:var(--nf-muted);font-weight:var(--nf-w-strong);display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--nf-s2)}
 .tile .st{font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong);color:var(--c-tx,var(--nf-ok-text));margin-bottom:var(--nf-s1)}.tile.c-warn .st{--c-tx:var(--nf-over-text)}.tile.c-bad .st{--c-tx:var(--nf-low-text)}.tile.c-none .st{--c-tx:var(--nf-muted)}

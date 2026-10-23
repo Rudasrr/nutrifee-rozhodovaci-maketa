@@ -115,8 +115,8 @@ function select(el) {
 }
 function toast(msg) { var t = $('#toast'); if (!t) return; t.innerHTML = '<div class="toast">' + msg + '</div>'; clearTimeout(toast.h); toast.h = setTimeout(function () { t.innerHTML = ''; }, 2200); }
 function copy(text, msg) {
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { toast(msg); }, function () { toast('Kopírování se nezdařilo — vyberte text ručně.'); });
-  else toast('Kopírování není k dispozici — vyberte text ručně.');
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { toast(msg); }, function () { toast('Kopírování se nezdařilo – vyberte text ručně.'); });
+  else toast('Kopírování není k dispozici – vyberte text ručně.');
 }
 function promptFor(el) {
   var st = getComputedStyle(el), lines = ['Komponenta NutriFee: <' + el.tagName.toLowerCase() + '> s třídami ' + ($('#insp-cls').textContent) + '.'];

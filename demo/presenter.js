@@ -36,7 +36,7 @@ D.garantMerge = function (list) {
   var add = (list || []).filter(function (d) { return d && d.sid && !have[d.sid] && NF.item(S(), d.item); });
   if (!add.length) return 0;
   glog = glog.concat(add).sort(function (a, b) { var x = String(a.rt || ''), y = String(b.rt || ''); return x < y ? -1 : x > y ? 1 : 0; });
-  saveGlog(); land(D.playScene(sceneIdx(S()))); say('Načteno ' + add.length + ' dřívějších zápisů z vašeho přihlášení.'); NF.render(); return add.length;
+  saveGlog(); land(D.playScene(sceneIdx(S()))); say('Načteno ' + add.length + ' dřívějších rozhodnutí z vašeho přihlášení.'); NF.render(); return add.length;
 };
 /* Odhlášení: deník garanta zmizí z tohoto prohlížeče (na serveru zůstává) a příběh začne od začátku. */
 D.garantClear = function () { glog = []; saveGlog(); if (D.progressClear) D.progressClear(); land(D.playScene(0)); };
@@ -253,7 +253,7 @@ NF.demoActions.tourToggle = function () {
 };
 
 function rows(x) {
-  return [['Co se děje', x.co], ['Čeho si všímat', x.vsimni], ['Proč', x.proc], ['Co z toho plyne', x.dusledek]].filter(function (r) { return r[1]; })
+  return [['Co se děje', val(x.co)], ['Čeho si všímat', val(x.vsimni)], ['Proč', val(x.proc)], ['Co z toho plyne', val(x.dusledek)]].filter(function (r) { return r[1]; })
     .map(function (r) { return '<div><dt>' + e(r[0]) + '</dt><dd>' + r[1] + '</dd></div>'; }).join('');
 }
 /* Položky registru, které jsou právě na obrazovce (štítky „✓ …“). Garant je může potvrdit, zamítnout nebo okomentovat přímo odtud. */
@@ -301,7 +301,7 @@ function gbody(s, r) {
     '<label class="field"><span>Komentář ' + (canEdit ? '(nepovinný)' : '(povinný jen u Upravit)') + '</span><input data-bind="form.gc_' + e(r.id) + '" value="' + e((s.form && s.form['gc_' + r.id]) || '') + '" placeholder="co změnit, proč, nebo jen poznámka"></label>' +
     (canEdit ? '' : '<p class="small muted">Položka nemá parametry: Upravit znamená schválit s výhradou, kterou napíšete do komentáře.</p>') +
     '<div class="gchoices">' + choice('Schválit', 'garantDecide', r.id + ':approved', 'approved') + choice('Upravit', 'garantEdit', r.id, 'edited') + choice('Zamítnout', 'garantDecide', r.id + ':rejected', 'rejected', 'gno') + '</div>' +
-    '<button type="button" class="tour-link" data-action="garantComment" data-value="' + e(r.id) + '">Uložit jen komentář</button></div>';
+    '<button type="button" class="tour-link" data-action="garantComment" data-value="' + e(r.id) + '">Uložit komentář</button></div>';
 }
 function gitem(s, r, isOpen) {
   var st = itemStatus(s, r);
@@ -492,7 +492,7 @@ function panel(s) {
   var hidden = isHidden(s);
   if (s.toast && !hidden) { panelMsg = s.toast; s.toast = ''; } /* S8: hlášky v příběhu patří do panelu, ne přes aplikaci */
   if (ended) {
-    return '<aside class="tour-panel tour-end" aria-live="polite" aria-label="Ovládání ukázky">' + head(false) + '<div class="tour-body"><h2>Ukázka skončila</h2><p>Děkujeme za váš čas. Vaše rozhodnutí jsou uložená; můžete okno zavřít.</p><p class="small">Rozhodnutí lze kdykoli změnit v registru (tlačítko „Ke schválení“ nahoře).</p></div>' +
+    return '<aside class="tour-panel tour-end" aria-live="polite" aria-label="Ovládání ukázky">' + head(false) + '<div class="tour-body"><h2>Ukázka skončila</h2><p>Děkujeme za váš čas. Vaše rozhodnutí jsou uložená; můžete okno zavřít.</p><p class="small">Rozhodnutí lze kdykoli změnit v registru (tlačítko „Ke schválení · zbývá …“, po dokončení „Vše rozhodnuto“, nahoře).</p></div>' +
       '<div class="tour-foot"><div class="tour-actions">' + btn('← Zpět do ukázky', 'tourUnfinish') + btn('Otevřít registr', 'openAside', 'registry', 'primary') + '</div></div></aside>';
   }
   var intro = (T.chapters[ch.id] || {}).intro || { t: ch.title, co: '' };
@@ -514,7 +514,7 @@ function panel(s) {
   var jump = nPend && !busy ? '<button type="button" class="tour-status-link" data-action="tourJumpPending">Rozhodněte ' + nPend + ' ' + plural(nPend, 'položku', 'položky', 'položek') + (isHidden(s) ? ' v panelu' : ' výše ↑') + '</button>' : '';
   if (hidden) return '<div class="tour-panel tour-min" role="region" aria-label="Ovládání ukázky"><span class="tour-min-t">' + e(finale ? 'Souhrn vašich rozhodnutí' : (shown.t || sceneTitle(s))) + '</span>' + btn('Rozbalit', 'tourToggle') + btn('←', 'tourBack', null, '', busy ? ' disabled' : ' aria-label="Zpět"') + (jump || nextBtn) + '</div>';
   var collapse = (nPend > 0 && i > 0 || finale) && !busy && !moreOpen; /* když čeká rozhodnutí (nebo je hotovo), vyprávění jen nadpisem a jednou větou */
-  var narration = collapse ? '<p class="tour-lead">' + e(firstSentence(shown.co || shown.vsimni || '')) + '</p><button type="button" class="tour-link" data-action="tourMore" aria-expanded="false">Více k tomuto kroku</button>' :
+  var narration = collapse ? '<p class="tour-lead">' + e(firstSentence(val(shown.co) || val(shown.vsimni) || '')) + '</p><button type="button" class="tour-link" data-action="tourMore" aria-expanded="false">Více k tomuto kroku</button>' :
     '<dl class="tour-rows">' + rows(shown) + '</dl>' + ((nPend > 0 || finale) && moreOpen ? '<button type="button" class="tour-link" data-action="tourMore" aria-expanded="true">Méně</button>' : '');
   var body = narration + (i === 0 ? actOverview(s, idx) + sceneIntroHint(s, ids) : '') + (finale ? (thanks ? thanksBlock(s, false) : summarySide(s, changedSince)) : approvalsBlock(s, idx, i, st));
   var sub = busy ? '' : nextStep ? 'Dál: ' + nextStep.t : upcoming ? (toAppendix ? (finale && pn.summary ? 'Po potvrzení: dodatek s ' : 'Dál: dodatek s ') + appendixScenes().length + ' variantami, asi 4 minuty' : 'Dál: scéna „' + (upcoming.title || D.chapters[upcoming.ch].title) + '“') : last ? 'Konec dodatku. Rozhodnutí můžete dál měnit v registru.' : '';

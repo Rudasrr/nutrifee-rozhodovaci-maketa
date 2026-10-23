@@ -12,7 +12,7 @@ D.guide = {
     proc: 'Celá aplikace stojí na jednom předpokladu: pacient má pevné dávky inzulinu ke třem hlavním jídlům a bazál večer. Jen tak dává smysl učit se, jak jeho tělo reaguje na stejné jídlo, a radit mu, aby jedl ke své dávce pokaždé podobně.',
     jak: 'Lékař při zařazení potvrdí čtyři podmínky: dospělý s diabetem 2. typu · inzulin v pevných dávkách · bazál 1× večer a prandiální inzulin ke třem jídlům · senzor glukózy. Tablety nebo GLP-1 navíc nevadí: zaznamenají se a na kontrole se ověří, že se neměnily. Premixované inzuliny ne, protože dávku nelze přiřadit k jednomu jídlu. Karta pacienta ukazuje, co z toho dokládá („z karty: splněno“), potvrzení je přesto lékařovo. Dokud některá podmínka chybí, nelze pokračovat.',
     kde: 'Zařazení a plán, krok 1 (lékař). Zelený štítek u potvrzených podmínek odkazuje na tuto položku.',
-    co: 'Že tyto čtyři podmínky jsou správné a úplné pro první studii, včetně toho, že tablety nebo GLP-1 navíc nevadí a premixované inzuliny ne. Vylučovací kritéria (těhotenství, těžké ledvinové nebo jaterní onemocnění, opakované těžké hypoglykemie, zrak, kognice) položka zatím neobsahuje. Chcete-li je doplnit, napište je do komentáře a zvolte Upravit.',
+    co: 'Že tyto čtyři podmínky jsou správné a úplné pro první studii, včetně toho, že tablety nebo GLP-1 navíc nevadí a premixované inzuliny ne. Vylučovací kritéria (těhotenství, těžké ledvinové nebo jaterní onemocnění, opakované těžké poklesy glukózy, zrak, kognice) položka zatím neobsahuje. Chcete-li je doplnit, napište je do komentáře a zvolte Upravit.',
     dopad: 'Při zamítnutí aplikace podmínky nekontroluje a zařazení projde bez nich. Pacient na premixu nebo s dávkou měněnou podle jídla by pak dostával rady, které u něj neplatí.'
   },
   'C-CILE': {
@@ -31,7 +31,7 @@ D.guide = {
   },
   'R-REAKCE': {
     proc: 'Pacient potřebuje vidět, kam se po jeho jídle glukóza dostane – z jeho vlastních dat, ne z tabulek. Bez poctivé definice „co se počítá“ by učení stálo na špatných zápisech.',
-    jak: 'Míra „v cíli“ je nejvyšší hodnota (vrchol) 0–{okno_min} minut po jídle proti hornímu cíli pacienta – stejné číslo, jaké vidí na Dnes a jaké vstupuje do návrhu k dávce. Vzestup (vrchol minus hodnota před jídlem) slouží jen ke shodě zápisů při učení a lékař ho vidí v podkladech; kritérium „vzestup nejvýš {vzestup_max|1} mmol/l“ je připravené, ale vypnuté. Jídlo je „známé“, až když se aspoň {minKnown} započítané zápisy z posledních {maxUceni} shodují (rozdíl vzestupů do {shoda_mmol|1} mmol/l); 1. zápis je „první dojem“, 2. „zatím to vypadá“, jen když se shoduje. Když se nový zápis rozchází s dřívějšími o {rozchod_mmol|1} mmol/l a víc, aplikace se jednou zeptá, zda šlo o stejné jídlo; po {maxUceni} zápisech bez shody je jídlo „nestálé“ a lékař ho vidí v podkladech. Započítaný zápis má úplná data ze senzoru, inzulin potvrzený podle plánu, je mimo nemoc a mimo „neobvyklý den“, s obvyklou porcí a při stejné dávce. Rozmezí vrcholů: do {minQuantile} zápisů nejnižší–nejvyšší hodnota, potom 10.–90. percentil. Popisuje minulost, nepředpovídá.',
+    jak: 'Míra „v cíli“ je nejvyšší hodnota (vrchol) 0–{okno_min} minut po jídle proti hornímu cíli pacienta – stejné číslo, jaké vidí na Dnes a jaké vstupuje do návrhu k dávce. Vzestup (vrchol minus hodnota před jídlem) slouží jen ke shodě zápisů při učení a lékař ho vidí v podkladech; kritérium „vzestup nejvýš {vzestup_max|1} mmol/l“ je připravené, ale vypnuté. Jídlo je „známé“, až když se aspoň {minKnown} započítané zápisy z posledních {maxUceni} shodují (rozdíl vzestupů do {shoda_mmol|1} mmol/l); 1. zápis je „první dojem“, 2. „zatím to vypadá“, jen když se shoduje. Když se nový zápis rozchází s dřívějšími o {rozchod_mmol|1} mmol/l a víc, aplikace se jednou zeptá, zda šlo o stejné jídlo; po {maxUceni} zápisech bez shody je jídlo „nestálé“ a lékař ho vidí v podkladech. Započítaný zápis má úplná data ze senzoru, inzulin potvrzený podle plánu, je mimo nemoc a mimo „neobvyklý den“, s obvyklou porcí a při stejné dávce. Rozmezí vrcholů: pod {minQuantile} zápisů nejnižší–nejvyšší hodnota, od {minQuantile} zápisů 10.–90. percentil. Popisuje minulost, nepředpovídá.',
     kde: 'Karty jídel (stupnice s rozmezím), krok 3 před jídlem, report lékaře (tabulka jídel).',
     co: 'Že „v cíli“ je vrchol proti hornímu cíli pacienta s oknem {okno_min} minut, že shoda zápisů se měří vzestupem, „známé“ až při {minKnown} shodných zápisech z {maxUceni} a způsob výpočtu rozmezí.',
     dopad: 'Při zamítnutí aplikace reakci na jídlo nevyhodnocuje vůbec: karty jídel neukážou rozmezí ani stupeň a před jídlem se neradí.'
@@ -39,12 +39,12 @@ D.guide = {
   'Z-GLUKOZA': {
     proc: 'Napojení na výrobce senzoru by vyžadovalo jeho svolení a certifikaci rozhraní. Pacient hodnoty ze senzoru vidí sám; opsat dvě čísla stačí, aby se aplikace učila a radila.',
     jak: 'V kroku 1 čipy po celých mmol/l (4–15, pod 4, nad 15, nemám) pro hodnotu teď; na nejvyšší hodnotu po minulém jídle se aplikace zeptá až v kroku 1 dalšího jídla a večer u bazálu, u zpětného zápisu rovnou na obě. Jeden pohled do senzoru na jídlo; samostatná karta po dvou hodinách není. Vzestup = nejvyšší − před jídlem. „Nemám“ zápis uloží, ale nepočítá do učení, dokud ho nedoplní export.',
-    kde: 'Krok 1 před jídlem (hodnota teď a nejvyšší po minulém jídle), večer u bazálu, karta „Jak to dopadlo“ s poznámkou „podle opsaných hodnot“.',
+    kde: 'Krok 1 před jídlem (hodnota teď a nejvyšší po minulém jídle), večer u bazálu, karta „Jak to dopadlo“ s poznámkou „Podle hodnot, které jste opsali; export ze senzoru je upřesní.“.',
     co: 'Že dvě opsané hodnoty jsou dostatečná míra (nejvyšší hodnota do {pripominka_min} minut, ne hodnota přesně ve 2. hodině) a že se na ni aplikace ptá až při dalším jídle.',
     dopad: 'Při zamítnutí by pacient hodnoty nezapisoval a učení i rady by čekaly na týdenní export.'
   },
   'B-HYPO': {
-    proc: 'Menší porce po podaném inzulinu a vynechané jídlo s inzulinem jsou nejčastější cesta k hypoglykemii u pevných dávek. Aplikace nesmí radit „sněz víc“ ani měnit dávku, ale nesmí ani mlčet.',
+    proc: 'Menší porce po podaném inzulinu a vynechané jídlo s inzulinem jsou nejčastější cesta k nízké glukóze u pevných dávek. Aplikace nesmí radit „sněz víc“ ani měnit dávku, ale nesmí ani mlčet.',
     jak: 'Po menší porci s podaným inzulinem nebo po vynechaném jídle s inzulinem pokyn lékaře hned a za {pripominka_min} min otázka „klesla pod 4?“ (po večeři až ráno v kroku 1 další snídaně: „klesla v noci pod 4?“, protože pokles po večeři bývá mezi 22. a 24. hodinou); u každého jídla vedle nejvyšší hodnoty i „pod 4 do 4 h?“ (ano/ne/nevím); {poklesy} poklesy za {dny} dní → „zavolejte do ordinace“ s odkazem na Bezpečí. Hranice 4 mmol/l je pevná. Opsané „pod 4“ vstupuje do návrhu „pod cílem“; report má část Bezpečnost.',
     kde: 'Dnes (karta sledování, výstraha), krok 1 (otázka k minulému jídlu), report lékaře (Bezpečnost), návrh k dávce.',
     co: 'Prahy {poklesy} poklesy / {dny} dní / {pripominka_min} min a znění pokynu, kdy má pacient volat.',
@@ -66,7 +66,7 @@ D.guide = {
   },
   'R-SKORE': {
     proc: 'Pacient má vědět, jak často po jídle zůstane v cíli – relativně ke svým vlastním jídlům, ne jako známku „dobré / špatné jídlo“.',
-    jak: 'Dva stupně: „většinou v cíli“, když je v cíli aspoň {mirna%} započítaných zápisů, jinak „častěji nad cílem“. Tři stupně ze šesti zápisů rozlišit nešlo. Stupeň se ukáže od {odKolika} započítaných zápisů; dál se počítá z posledních {oknoZapisu} a změní se, jen když by platil, i kdyby jeden zápis dopadl jinak. „Ustálené“ od {ustaleneOd} zápisů. „V cíli“ u jídla znamená vzestup nejvýš {R-REAKCE:vzestup_max|1} mmol/l (nejvyšší hodnota minus hodnota před jídlem).',
+    jak: 'Dva stupně: „většinou v cíli“, když je v cíli aspoň {mirna%} započítaných zápisů, jinak „častěji nad cílem“. Tři stupně ze šesti zápisů rozlišit nešlo. Stupeň se ukáže od {odKolika} započítaných zápisů; dál se počítá z posledních {oknoZapisu} a změní se, jen když by platil, i kdyby jeden zápis dopadl jinak. „Ustálené“ od {ustaleneOd} zápisů. „V cíli“ u jídla znamená totéž co u R-REAKCE: nejvyšší hodnota 0–{R-REAKCE:okno_min} minut po jídle nejvýš na horním cíli pacienta.',
     kde: 'Karty jídel (štítek), krok 3 před jídlem, report lékaře (sloupec Reakce).',
     co: 'Hranici {mirna%} v cíli, stupeň od {odKolika} zápisů a slova „většinou v cíli / častěji nad cílem“.',
     dopad: 'Při zamítnutí stupeň zmizí z karet i reportu; pacient vidí jen rozmezí a „X z N v cíli“. Rady před jídlem se dál řídí podílem v cíli.'
@@ -81,7 +81,7 @@ D.guide = {
   'R-DOPLNEK': {
     proc: 'Bílkovina nebo tuk přidané k jídlu zpomalí vzestup glukózy, aniž by se z jídla cokoli ubralo. Je to jediná rada, která jídlo mění, a proto musí být výslovně schválená.',
     jak: 'Text „Přidejte k jídlu jogurt nebo hrst ořechů. Z jídla nic neubírejte.“ (u databázových jídel konkrétní doplněk, u nových obecný). Jen před píchnutím a mimo nemoc. U jídla, kde pacient odpoví „Tentokrát ne · V jídle to není“, se už nenabízí; po {stahnout_po} pokusech bez účinku u téhož jídla se stáhne. Účinek se hodnotí stejným oknem jako jídlo (R-REAKCE).',
-    kde: 'Krok 3 před jídlem (pacient), karta jídla „co u vás pomohlo“, report lékaři.',
+    kde: 'Krok 3 před jídlem (pacient), karta jídla („Co můžete zkusit“), report lékaři (sloupec „Co pomohlo“).',
     co: 'Že doplněk jen přidává a nic nenahrazuje, kdy se smí nabízet a po kolika neúspěších se stáhne.',
     dopad: 'Při zamítnutí rada zmizí ze všech jídel; pacient, který ji dřív přijímal, dostane jednu neutrální větu (R-ZMIZELA).'
   },
@@ -178,7 +178,7 @@ D.guide = {
   },
   'I-KONTAKT': {
     proc: 'Jediná cesta k lékaři mimo kontrolu je, že volá pacient; aplikace nikam nevolá ani nic neposílá. Pacient musí vědět kdy a kam.',
-    jak: 'Pacient uvidí: „V ordinační době volejte ordinaci, jinak pohotovost. Při bezvědomí, křečích nebo dušnosti záchranná služba.“ Na kartu „zavolejte do ordinace“ po dvou poklesech pod 4 za 7 dní navazuje tlačítkem do Bezpečí.',
+    jak: 'Pacient uvidí: „V ordinační době volejte ordinaci, jinak pohotovost. Při bezvědomí, křečích nebo dušnosti záchranná služba.“ Na kartu „zavolejte do ordinace“ po {B-HYPO:poklesy} poklesech pod 4 za {B-HYPO:dny} dní navazuje tlačítkem do Bezpečí.',
     kde: 'Bezpečí, Dnes (výzva zavolat po dvou poklesech), zaučení (bod „ví kam volat“).',
     co: 'Znění pokynu: kdy volat ordinaci, kdy pohotovost a kdy záchrannou službu.',
     dopad: 'Při zamítnutí pacient nemá v Bezpečí kontakt a výzva „zavolejte do ordinace“ nemá kam odkázat.'
@@ -199,7 +199,7 @@ D.guide = {
   },
   'J-STITKY': {
     proc: 'Pacient hotová a domácí jídla nezná složením, ale jménem a rutinou. Aplikace se učí z reakce těla, k tomu složení nepotřebuje; složky s množstvím („hrst, pěst“) mají chybu 30–50 % a působí jako počítání.',
-    jak: 'Nové jídlo = název (našeptávač od pár písmen, „Zase to samé“ u posledních jídel) a nepovinné jedno klepnutí „Je to jako X“ ze svých známých jídel. Nic dalšího: žádný zdroj sacharidů, úprava, talíř, velikost. Porce (obvyklá/větší/menší) se ptáme až při jídle; první zápis ukotví obvyklou. Když se název podobá jídlu v seznamu, přijde dotaz „Není to totéž jídlo?“ (Ano, to je ono / Ne, je jiné). Co v jídle je, se aplikace dozví z odpovědí na rady: „Tentokrát ne · V jídle to není“ radu u jídla vypne.',
+    jak: 'Nové jídlo = název (našeptávač od pár písmen, „Zase to samé“ u posledních jídel) a nepovinné jedno klepnutí „Je to jako X“ ze svých známých jídel. Nic dalšího: žádný zdroj sacharidů, úprava, talíř, velikost. Porce (obvyklá/větší/menší) se ptáme až při jídle; první zápis ukotví obvyklou. Když se název podobá jídlu v seznamu, přijde dotaz „Je to stejné jídlo jako „X“ ve vašem seznamu?“ (Ano, je to ono / Ne, přidat jako nové jídlo). Co v jídle je, se aplikace dozví z odpovědí na rady: „Tentokrát ne · V jídle to není“ radu u jídla vypne.',
     kde: 'Před jídlem, krok 2 (pacient), když jídlo v seznamu není.',
     co: 'Že název stačí a že složení se nikde nezadává ani nevyptává.',
     dopad: 'Při zamítnutí nejde přidat nové jídlo; pacient vybírá jen ze seznamu a domácí jídlo nezapíše vůbec.'
@@ -234,7 +234,7 @@ D.guide = {
   },
   'S-CESTA': {
     proc: 'Dlouhodobý cíl musí být vidět: aplikace se učí pacientova jídla a na kontrole z toho lékař rozhodne. Pacient nic nepočítá.',
-    jak: 'Karta na Dnes a v Plánu: pruh dní do kontroly · známá jídla X z N (z jídel jedených aspoň 2×) · tento týden X z N jídel zapsáno a inzulin potvrzen · věta, co se na kontrole stane. Čísla jako „X z N“, nikdy procenta jako hodnocení.',
+    jak: 'Karta na Dnes a v Plánu: pruh dní do kontroly · „Vašich častých jídel známe X z N“ (jídla jedená aspoň 2×) · tkanina posledních 7 dní (zapsáno · vynecháno se zápisem · bez zápisu) · věta, co se na kontrole stane. Čísla jako „X z N“, nikdy procenta jako hodnocení.',
     kde: 'Dnes, Plán, převzetí plánu (pacient).',
     co: 'Obsah karty a dvě věty o cíli a o kontrole.',
     dopad: 'Při zamítnutí karta zmizí z Dnes i z Plánu.'
@@ -262,24 +262,24 @@ D.guide = {
   },
   'P-NEMOC': {
     proc: 'Při nemoci glukóza stoupá bez ohledu na jídlo. Zápisy z nemoci by zkreslily učení i návrhy k dávce a rady k jídlu by byly zavádějící. Nemoc ale musí hlásit a ukončit pacient – lékař mezi kontrolami nic nedělá.',
-    jak: 'Přepínač „Není mi dobře“ nahoře na Dnes. V nemoci: zápisy se štítkují a nepočítají, žádné rady k jídlu, nahoře pokyny lékaře pro nemoc, denní dotaz „už je vám lépe?“. Po {dny} dnech nemoci karta s pokynem lékaře k trvání nemoci; období delší než {dny} dny jsou v reportu v části Bezpečnost. Ukončuje pacient.',
-    kde: 'Dnes (přepínač, pokyny, karta po 3 dnech), krok 3 před jídlem (bez rad), kontrola (dlaždice „Mimo učení“, Bezpečnost).',
+    jak: 'Přepínač „Není mi dobře“ nahoře na Dnes. V nemoci: zápisy se štítkují a nepočítají, žádné rady k jídlu, nahoře pokyny lékaře pro nemoc, denní dotaz s tlačítkem „Už je mi lépe“. Po {dny} dnech nemoci karta s pokynem lékaře k trvání nemoci; období delší než {dny} dny jsou v reportu v části Bezpečnost. Ukončuje pacient.',
+    kde: 'Dnes (přepínač, pokyny, karta po {dny} dnech), krok 3 před jídlem (bez rad), kontrola (dlaždice „Mimo učení“, Bezpečnost).',
     co: 'Pravidlo „žádné rady k jídlu při nemoci“, práh {dny} dnů a to, že nemoc ukončuje pacient.',
     dopad: 'Při zamítnutí přepínač nemoci není; zápisy z nemoci vstupují do učení i do návrhů k dávce.'
   },
   'P-LEKAR': {
     proc: 'Zásada „nikdo pacienta průběžně nesleduje“ platí i pro lékaře. Práce mezi kontrolami by ho odradila a vytvořila falešný dojem dohledu.',
     jak: 'Všechny akce lékaře probíhají jen s pacientem v ordinaci: zařazení, kontrola, vydání plánu. Mezi kontrolami lékař nic nevidí ani nedostává upozornění; nemoc ukončuje pacient, výpadek dat končí sám. Jediná akce mimo kontrolu je registr garanta. (V ostrém provozu se data ukládají na zabezpečený server studie; to na zásadě nic nemění – lékař je čte až na kontrole.)',
-    kde: 'Celá aplikace; výslovně obrazovka „Pacient je zařazený“ (lékař) a věta „Zápisy nikdo průběžně nečte“ na Dnes (pacient).',
+    kde: 'Celá aplikace; výslovně obrazovka „Pacient je zařazený“ (lékař) a věta „Vaše zápisy uvidí lékař až s vámi na kontrole“ na Dnes (pacient) a odpověď na kontrolní otázku při převzetí plánu.',
     co: 'Zásadu samu a její důsledky: žádné upozornění lékaři mezi kontrolami, žádné průběžné čtení dat.',
     dopad: 'Položka je zásada, ne výpočet: zamítnutí v maketě nic nevypne, jen zapíše nesouhlas do historie – to je podnět k debatě, ne změna chování.'
   },
   'S-SILNA': {
     proc: 'Jídlo, po kterém pacient opakovaně skončí nad cílem, je informace pro lékaře – ale lékař nesmí na kontrole probírat dvacet jídel a jejich složení.',
-    jak: 'Jedna věta v podkladech kontroly: kolik jídel má opakovanou silnou reakci, kolik zápisů celkem a nejvýš {maxJidel} nejčastěji jedená (ostatní jen rozbalením). Práh: aspoň {silnych} zápisy nad cílem, nebo 2 zápisy s vzestupem aspoň o {dvaNad_mmol} mmol/l nad hranici. Silné reakce řeší aplikace s pacientem: páky (porce, pořadí, doplněk, procházka), jídlo se pasivně nenabízí. Pacientovi žádný zákaz ani „jezte méně“.',
-    kde: 'Kontrola, krok 1, podklady: „Silné reakce“.',
+    jak: 'Jedna věta v podkladech kontroly: kolik jídel je opakovaně nad cílem, kolik zápisů celkem a nejvýš {maxJidel} nejčastěji jedená (ostatní jen rozbalením). Práh: aspoň {silnych} zápisy nad cílem, nebo 2 zápisy s vzestupem aspoň o {dvaNad_mmol} mmol/l nad hranici. Jídla opakovaně nad cílem řeší aplikace s pacientem: rady (porce, pořadí, doplněk, procházka), jídlo se pasivně nenabízí. Pacientovi žádný zákaz ani „jezte méně“.',
+    kde: 'Kontrola, krok 1, podklady: „Jídla opakovaně nad cílem“.',
     co: 'Práh, počet jídel ve větě a to, že lékař o jídlech nerozhoduje – rozhoduje o dávce a plánu.',
-    dopad: 'Při zamítnutí lékař větu nedostane; silnou reakci najde jen v tabulce reakcí na jídla.'
+    dopad: 'Při zamítnutí lékař větu nedostane; jídlo opakovaně nad cílem najde jen v tabulce reakcí na jídla.'
   }
 };
 

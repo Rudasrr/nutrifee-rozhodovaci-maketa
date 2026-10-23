@@ -17,7 +17,8 @@ D.patientContext = [
   ['Diagnóza', 'Diabetes 2. typu, 9 let'],
   ['Léčba', 'Jen inzulin – bazál 1× večer, prandiální ke třem jídlům, pevné dávky'],
   ['Perorální antidiabetika', 'žádná'],
-  ['Senzor', 'CGM zaveden 28. 9. 2026'],
+  ['Senzor', 'kontinuální monitor glukózy (CGM) zaveden 28. 9. 2026'],
+  ['Senzor před zařazením', 'čas v cíli 58 % · pod 3,9 mmol/l 3 % · 28. 9. – 4. 10. 2026'],
   ['Poslední HbA1c', '62 mmol/mol (23. 9. 2026)'],
   ['Věk, hmotnost', '58 let · 92 kg']
 ];
@@ -181,8 +182,10 @@ function setup(S) {
   NF.seed(S, T0, 'DEMO-L01'); /* registr a jídla z jádra; modelové schválení garantem k T0 */
   S.registry.items.forEach(function (r) { r.guide = (D.guide && D.guide[r.id]) || null; }); /* pětidílný průvodce položkou (demo/guide.js) */
   S.patient.hba1c = D.hba1c.slice();
+  S.enrollment.baseline = { tir: D.cardBaseline.tir, below: D.cardBaseline.below }; /* z reportu senzoru před zařazením; lékař hodnoty při zařazení potvrdí nebo upraví voličem */
 }
 function enrolled(S) { NF.ELIGIBILITY.forEach(function (c) { NF.setEligibility(S, c[0], true); }); }
+D.cardBaseline = { tir: 58, below: 3 }; /* čas v cíli a čas pod 4 mmol/l ze senzoru týden před zařazením (28. 9. – 4. 10. 2026) */
 D.cardDoses = { basal: 18, breakfast: 8, lunch: 10, dinner: 8 }; /* dávky z karty modelového pacienta; v aplikaci je zadává lékař voličem */
 D.cardEligibility = ['adult', 'insulinOnly', 'regimen', 'cgm']; /* co karta pacienta dokládá; lékař přesto každou podmínku potvrdí */
 function draftReady(S) {
@@ -382,9 +385,9 @@ D.sceneFor = function (chapterIndex, B) {
 D.garantQuestions = [
   [], /* úvod */
   ['Stačí čtyři podmínky zařazení?', 'Je startovní sada návyků správná pro všechny?', 'Jsou připravené věty pokynů úplné?', 'Stačí hrubá denní doba (10:00 / 15:30 / 21:00) k rozlišení, že jídlo už minulo?'],
-  ['Je vrchol 0–120 min správná míra reakce?', 'Stačí celá čísla (čipy) místo přesných hodnot ze senzoru a dotaz na minulé jídlo až při dalším jídle?', 'Stačí 4 shodné zápisy (rozdíl do 2,5 mmol/l) pro „známé jídlo“ a dva stupně reakce místo tří?', 'Je správně, že pochvala je jen za snahu a návyk, nikdy za hodnotu glukózy?', 'Jsou milníky (jídlo poznáno, rada = návyk, týden bez mezery) ty správné?'],
+  ['Je vrchol 0–120 min správná míra reakce?', 'Stačí celá čísla (čipy) místo přesných hodnot ze senzoru a dotaz na minulé jídlo až při dalším jídle?', 'Stačí 4 shodné zápisy (rozdíl do 2,5 mmol/l) pro „známé jídlo“ a dva stupně reakce místo tří?', 'Je správně, že pochvala je jen za snahu a návyk, nikdy za hodnotu glukózy?', 'Jsou milníky (jídlo poznáno, rada zdomácněla, týden bez mezery) ty správné?'],
   ['Je pravidlo „z větší porce zpět k obvyklé i po píchnutí“ bezpečné?', 'Stačí podobnost určená pacientem („podobá se jídlu X“) bez složení?'],
-  ['Má aplikace při nemoci radit doplněk a pořadí?'],
+  ['Je správně, že při nemoci neradíme k jídlu vůbec (ani doplněk, pořadí, procházku) a platí jen pokyny lékaře?'],
   ['Kdo smí pravidla měnit mezi kontrolami a jak rychle to pacient uvidí?'],
   ['Jsou prahy návrhů k dávce (okno ≥ 28 dní, ≥ 8 čistých jídel, 2/3 nad cílem, medián > cíl + 0,5) správné?', 'Je postup posouzení D-POSTUP úplný?']
 ];

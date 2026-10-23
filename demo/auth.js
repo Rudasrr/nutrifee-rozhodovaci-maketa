@@ -43,7 +43,7 @@ function signOut(info) {
   NF.closeDrawer(); NF.render();
 }
 function friendly(m) {
-  if (/invalid|credentials|grant/i.test(m)) return 'E-mail nebo heslo nesedí.';
+  if (/invalid|credentials|grant/i.test(m)) return 'Nesprávný e-mail nebo heslo.';
   if (/not confirmed/i.test(m)) return 'Účet ještě není potvrzený. Ozvěte se autorovi makety.';
   if (/Failed to fetch|NetworkError|network|Load failed/i.test(m)) return 'Server není dostupný. Zkontrolujte připojení a zkuste to znovu.';
   return 'Přihlášení se nepovedlo: ' + m;
