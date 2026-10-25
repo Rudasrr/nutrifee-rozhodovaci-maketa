@@ -168,7 +168,7 @@ ol.bullets{list-style:decimal}
 .stepper .val{flex:1;min-width:0;text-align:center;font-family:var(--nf-font-display);font-weight:var(--nf-w-display-strong);font-size:var(--nf-fs-xl);line-height:1.1;font-variant-numeric:tabular-nums}
 .stepper .val small{display:block;font-family:var(--nf-font-text);font-weight:var(--nf-w-text);color:var(--nf-muted);font-size:var(--nf-fs-2xs)}
 .segmented{display:flex;gap:var(--nf-s1);padding:var(--nf-s1);border-radius:var(--nf-r-pill);background:var(--nf-surface-2);border:1px solid var(--nf-line)}
-.segmented button{flex:1;border:0;background:transparent;border-radius:var(--nf-r-pill);padding:var(--nf-s3) 0;min-height:var(--nf-tap);font-weight:var(--nf-w-strong);color:var(--nf-muted);font-size:var(--nf-fs-sm)}
+.segmented{flex-wrap:wrap}.segmented button{flex:1 1 auto;white-space:nowrap;border:0;background:transparent;border-radius:var(--nf-r-pill);padding:var(--nf-s3) 0;min-height:var(--nf-tap);font-weight:var(--nf-w-strong);color:var(--nf-muted);font-size:var(--nf-fs-sm)}
 .segmented button.on,.segmented [aria-pressed="true"]{background:var(--nf-primary);color:var(--nf-on-primary)}
 .toggle{margin-left:auto;width:80px;height:var(--nf-tap);border-radius:var(--nf-r-pill);background:var(--nf-surface-2);box-shadow:inset 0 0 0 2px var(--nf-border-control);position:relative;border:0;flex:none;transition:background-color var(--nf-t) var(--nf-ease)}
 .toggle::after{content:"";position:absolute;top:4px;left:4px;width:40px;height:40px;border-radius:50%;background:var(--nf-surface);box-shadow:0 2px 6px var(--nf-shadow-ink);transition:transform var(--nf-t) var(--nf-ease-move)}
@@ -203,6 +203,7 @@ ol.bullets{list-style:decimal}
 .tile .v{font-family:var(--nf-font-display);font-size:var(--nf-fs-2xl);font-weight:var(--nf-w-display-strong);letter-spacing:-.03em;line-height:1.1;margin:var(--nf-s2) 0 2px}
 .tile .v small{font-size:var(--nf-fs-xs);color:var(--nf-muted);font-weight:600;margin-left:var(--nf-s1)}
 .tile .d{font-size:var(--nf-fs-2xs);color:var(--nf-muted)}
+.tile[aria-expanded]{border-color:var(--nf-border-control)} /* rozbalovací dlaždice má viditelnou hranici ovládacího prvku (04 #8) */
 .tile.open,.tile[aria-expanded="true"]{border-color:var(--nf-primary);box-shadow:0 0 0 2px var(--nf-primary-soft)}
 .c-ok{--c:var(--nf-ok)}.c-warn{--c:var(--nf-over)}.c-bad{--c:var(--nf-low)}.c-none{--c:var(--nf-muted)}
 
@@ -278,6 +279,8 @@ td{padding:var(--nf-s2) var(--nf-s3);border-bottom:1px solid var(--nf-line);vert
 tr:last-child td{border-bottom:0}
 td.nowrap{white-space:nowrap}
 .trace-tbl .btn.link{min-height:0;font-size:var(--nf-fs-2xs)} /* odkaz „Data“ nezvětšuje řádek stopy (N21) */
+.trace-tbl td:nth-child(-n+3){overflow-wrap:normal;white-space:nowrap}.trace-tbl{position:relative}.trace-tbl table{min-width:640px} /* čas, kdo a událost se nelámou uprostřed slov; tabulka roluje v .tablewrap (23. 10. 2026) */
+.trace-tbl .btn.sm{min-height:var(--nf-tap-desk)}
 details.part{margin-bottom:var(--nf-s2)}
 details.part>summary{list-style:none;display:flex;align-items:center;gap:var(--nf-s3);min-height:var(--nf-tap);padding:var(--nf-s3) var(--nf-s5);cursor:pointer;font-weight:var(--nf-w-strong)}
 details.part>summary .mini{margin-left:auto;font-weight:var(--nf-w-text);font-size:var(--nf-fs-2xs);color:var(--nf-muted)}
@@ -436,7 +439,9 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .path .row3 b{display:block;font-family:var(--nf-font-display);font-size:var(--nf-fs-xl);letter-spacing:var(--nf-track-tight)}
 .frac{white-space:nowrap}.frac .of{margin:0 .25em}
 .path .row3 .tiny{display:block;line-height:1.25;margin-top:2px}
+.card:has(>.daystrip){container-type:inline-size}
 .daystrip{list-style:none;margin:0;padding:2px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:var(--nf-s2)}
+@container (max-width:16em){.daystrip{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:var(--nf-s3)}} /* při velkém písmu (160 %) pás dne 2 × 2, popisky se nepřekrývají (23. 10. 2026) */
 .dnode{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;min-width:0}
 .dnode>button{all:unset;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;min-width:0;width:100%;min-height:72px;cursor:pointer;border-radius:var(--nf-r-md)}
 .dnode>button:focus-visible{outline:3px solid var(--nf-focus);outline-offset:2px}
@@ -572,7 +577,9 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .chips.glu .chip.quiet{grid-column:1 / -1;min-height:var(--nf-tap);font-size:var(--nf-fs-sm);font-weight:600}
 
 /* ---------- zaučení sestry: náhled telefonu vedle seznamu ---------- */
+.split-wrap{container-type:inline-size}
 .split{display:grid;grid-template-columns:1fr 440px;gap:var(--nf-s6);align-items:start}
+@container (max-width:900px){.split{grid-template-columns:1fr}.split .phone-preview{position:relative;top:auto;max-width:440px;margin-inline:auto}} /* úzký pracovní sloupec (panel na notebooku): náhled telefonu pod seznamem, body se nelámou po slovech (23. 10. 2026) */
 .phone-preview{border:12px solid var(--nf-phone-frame);border-radius:52px;background:var(--nf-phone-frame);box-shadow:var(--nf-sh-raised);overflow:hidden;position:sticky;top:28px;max-height:calc(100vh - 48px)}
 .phone-preview .patient-shell{overflow-y:auto;max-height:calc(100vh - 72px)}
 .phone-preview .patient-shell{min-height:700px}
@@ -795,16 +802,17 @@ main h1[tabindex="-1"]:focus{outline:none}
   .flow,.wsteps{flex-wrap:wrap}
 }
 @media (prefers-reduced-motion:reduce){
-  .anim *,.lever-anim *,.emoji *,.rise *,.plate-ico *,.ins-axis *,.card.just-saved,.btn.primary.done,.toggle,.toggle::after,.branch div,details.more>summary::after,details.part>summary::after,.btn,.choice,.segmented button,.tabbar button,.tabbar .ic,.food-opt,.habit-opt,.tile,.reg-row,.rail button.nav{animation:none!important;transition:none!important} /* !important: jinak prohraje se specifičností .anim.play … */
-  .anim-ctl,.lever-anim .replay{display:none}
+  .anim:not(.user) *,.lever-anim:not(.user) *,.emoji *,.rise *,.plate-ico *,.ins-axis *,.card.just-saved,.btn.primary.done,.toggle,.toggle::after,.branch div,details.more>summary::after,details.part>summary::after,.btn,.choice,.segmented button,.tabbar button,.tabbar .ic,.food-opt,.habit-opt,.tile,.reg-row,.rail button.nav{animation:none!important;transition:none!important} /* !important: jinak prohraje se specifičností .anim.play … */
+  .lever-anim .replay{display:none} /* „Přehrát znovu“ zůstává: animaci si člověk pustí sám (04 #13) */
 }
 @media (prefers-contrast:more){:root{--nf-muted:#3d474f;--nf-line:#56636c;--nf-line-strong:#56636c;--nf-border-control:#26303a;--nf-card-edge:#56636c;--nf-sh-card:none}.btn,.choice,.tile,.card{border-color:#56636c}}
-@media (forced-colors:active){.rail .nav[aria-current],.rail .nav.active,.flow .step.now,.flow .step[aria-current],.choice.opt[aria-pressed="true"],.choice.chosen,.choice[aria-pressed="true"],.segmented [aria-pressed="true"],.tabbar [aria-current],.habit-opt[aria-pressed="true"],.food-opt.chosen,.tile[aria-expanded="true"],.btn[aria-pressed="true"]{outline:3px solid CanvasText;outline-offset:-3px}.toggle{border:2px solid CanvasText}.toggle.on::after{background:CanvasText}.msteps span.on,.path .bar span,.habit .mark{background:CanvasText}.track{forced-color-adjust:none}.dnode.done .dot{background:CanvasText;color:Canvas}.track .win{forced-color-adjust:none;border-color:CanvasText}}
+@media (forced-colors:active){.rail .nav[aria-current],.rail .nav.active,.flow .step.now,.flow .step[aria-current],.choice.opt[aria-pressed="true"],.choice.chosen,.choice[aria-pressed="true"],.segmented [aria-pressed="true"],.tabbar [aria-current],.habit-opt[aria-pressed="true"],.food-opt.chosen,.tile[aria-expanded="true"],.btn[aria-pressed="true"]{outline:3px solid CanvasText;outline-offset:-3px}.toggle{border:2px solid CanvasText}.toggle.on::after{background:CanvasText}.msteps span.on,.path .bar span,.habit .mark{background:CanvasText}.track{forced-color-adjust:none}.dnode.done .dot{background:CanvasText;color:Canvas}.track .win{forced-color-adjust:none;border-color:CanvasText}.weave i,.weave-legend i,.tir span,.tir-legend .sw{forced-color-adjust:none;border:1px solid CanvasText}.weave i.done,.weave-legend i.done,.tir .in,.tir-legend .sw.in{background:CanvasText}.weave i.skipped,.weave-legend i.skipped{background:Canvas}.weave i.missing,.weave-legend i.missing{background:Canvas;border-style:dotted}.tir .lo,.tir-legend .sw.lo{background:Canvas;border-style:dashed}.tir .hi,.tir-legend .sw.hi{background:GrayText}}
 @media print{
   .rail,.nextbar,.tabbar,.drawer,.toast,.flow,.btn,.appr,input[type=file],.anim-ctl{display:none!important}
   .app{display:block}.desk{padding:0;max-width:none}
   details>*{display:block}details>summary::after{display:none}
   .card,.tile,.prop,details.part{box-shadow:none;border:1px solid var(--nf-line-strong);break-inside:avoid}
+  .patient .card,.patient .tablewrap{max-width:100%;overflow:visible}.patient table{min-width:0} /* tisk z telefonu bez přetečení (23. 10. 2026) */
   h1,h2,h3{break-after:avoid}
   body{background:var(--nf-surface)}
 }

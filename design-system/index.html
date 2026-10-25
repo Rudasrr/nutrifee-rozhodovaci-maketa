@@ -2,6 +2,7 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NutriFee · designový systém</title>
 <meta name="description" content="Živý katalog designového systému NutriFee: tokeny, komponenty, pravidla a předání vývojáři. Čte přímo CSS makety.">
@@ -12,7 +13,7 @@
 <link rel="stylesheet" href="../demo/demo.css">
 <link rel="stylesheet" href="catalog.css">
 </head>
-<body class="ds" data-version="68">
+<body class="ds" data-version="69">
 <a class="skip" href="#main">Přeskočit na obsah</a>
 <header class="ds-head">
   <div class="ds-brand"><span class="brandmark" aria-hidden="true">N</span><div><b>NutriFee · designový systém</b><small>Živý katalog. Čte přímo <code>app/tokens.css</code>, <code>app/design.css</code> a <code>demo/demo.css</code> makety, proto se od ní nemůže rozejít.</small></div></div>
@@ -253,7 +254,7 @@
   <h1>Prezentační vrstva</h1>
   <p class="ds-lead">Fialová vrstva ovládá ukázku pro lékaře-garanta; do produkčního sestavení nepatří (<code>demo/demo.css</code>, tokeny <code>--nf-demo-*</code> v <code>app/tokens.css</code>). Fialová znamená vždy „ukázka“, nikdy stav aplikace: petrolejová tlačítka patří aplikaci a klepe je ukázka, fialová ovládá garant. Náhledy níže jsou skutečné třídy vrstvy; v maketě je panel přilepený vpravo (pod 1100 px jako spodní list), tady stojí v toku stránky.</p>
 
-  <article class="comp" id="c-vrstva"><header><h2>Lišta a panel „Ovládání ukázky“ s tlačítkem Dál</h2><p>Lišta <code>.pres-bar</code> nese štítek DEMO, kde v ukázce jsme a počet položek ke schválení. Panel <code>.tour-panel</code>: hlavička <code>.tour-head</code> s legendou ⓘ, vyprávění „co se děje · čeho si všímat · proč“ (<code>.tour-rows</code>), dole přilepená patička <code>.tour-foot</code> s řádkem stavu, řádkem „Dál: …“ a jediným tlačítkem vpřed <b>Dál ▶</b>. Když čeká rozhodnutí, je Dál ztlumené (<code>.is-blocked</code>, <code>aria-disabled</code>) a nad ním odkaz k první nerozhodnuté položce. Sbalený panel <code>.tour-min</code> má nadpis kroku a tytéž akce.</p></header>
+  <article class="comp" id="c-vrstva"><header><h2>Lišta a panel „Ovládání ukázky“ s tlačítkem Dál</h2><p>Lišta <code>.pres-bar</code> nese štítek DEMO, kde v ukázce jsme a počet položek ke schválení. Panel <code>.tour-panel</code>: hlavička <code>.tour-head</code> s legendou ⓘ, vyprávění „co se děje · čeho si všímat · proč“ (<code>.tour-rows</code>), dole přilepená patička <code>.tour-foot</code> s řádkem stavu, řádkem „Dál: …“ a jediným tlačítkem vpřed <b>Dál ▶</b>. Když čeká rozhodnutí, je Dál ztlumené (<code>.is-blocked</code>, <code>aria-disabled</code>) a nad ním odkaz k první nerozhodnuté položce. Sbalený panel <code>.tour-min</code> má nadpis kroku nad řádkem <code>.tour-min-row</code> ← · Rozbalit · Dál ▶, Dál vpravo.</p></header>
     <div class="preview ds-demo">
       <div class="pres-bar"><span class="flag">DEMO · syntetická data · není určeno pro léčbu</span><span class="where">Scénář 1 ze 6 · scéna 3 z 25: <b>Lékař – dávky, návyky a pokyny</b></span><button type="button" class="btn bar-todo">Ke schválení · zbývá 18</button><button type="button" class="btn">Přehled scén</button></div>
       <div class="ds-demo-row">
@@ -262,17 +263,17 @@
             <dl class="tour-rows"><div><dt>Co se děje</dt><dd>Lékař zadá dávky voličem. Aplikace je jen zobrazí a připomíná.</dd></div><div><dt>Čeho si všímat</dt><dd>Pole dávek jsou prázdná, nic se nepředvyplňuje.</dd></div><div><dt>Proč</dt><dd>Dávku určuje jen lékař.</dd></div></dl></div>
           <div class="tour-foot"><button type="button" class="tour-status-link">Rozhodněte 1 položku výše ↑</button><p class="tour-next">Dál: Krok 3: startovní plán</p><div class="tour-actions"><button type="button" class="btn">← Zpět</button><button type="button" class="btn primary is-blocked" aria-disabled="true">Dál ▶</button></div><p class="tour-progress-l" aria-hidden="true">Průběh: Scénář 1 ze 6 · scéna 3 z 25</p><div class="tour-progress" role="img" aria-label="Průběh"><span style="--n:1;--pct:100%"></span><span style="--n:5;--pct:45%"></span><span style="--n:4;--pct:0%"></span><span style="--n:3;--pct:0%"></span><span style="--n:3;--pct:0%"></span><span style="--n:2;--pct:0%"></span><span style="--n:7;--pct:0%"></span><span class="appx" style="--n:5;--pct:0%"></span></div></div></aside>
         <div class="ds-demo-col">
-          <div class="tour-panel tour-min" role="region" aria-label="Sbalený panel (ukázka)"><span class="tour-min-t">Krok 2: dávky, návyky a pokyny</span><button type="button" class="btn">Rozbalit</button><button type="button" class="btn" aria-label="Zpět">←</button><button type="button" class="btn primary">Dál ▶</button></div>
+          <div class="tour-panel tour-min" role="region" aria-label="Sbalený panel (ukázka)"><span class="tour-min-t">Krok 2: dávky, návyky a pokyny</span><div class="tour-min-row"><button type="button" class="btn" aria-label="Zpět">←</button><button type="button" class="btn">Rozbalit</button><button type="button" class="btn primary">Dál ▶</button></div></div>
           <p class="small muted">Na úvodu nese tlačítko text „Začít ukázku ▶“, ve finále „Potvrdit souhrn“, po potvrzení „Projít varianty v dodatku ▶“. Jiné názvy pro krok vpřed nepoužíváme.</p>
         </div>
       </div>
     </div></article>
 
-  <article class="comp" id="c-vrstva-stitek"><header><h2>Štítek „ke schválení“ a rozhodnutí v kroku</h2><p>Položka registru, která čeká na garanta, nese na obrazovce aplikace štítek <code>.appr.pend</code> (čárkovaný kroužek, slovo „ke schválení“). V panelu se nabídne jako <code>.gitem</code> s průvodcem a třemi rovnocennými volbami <code>.gchoices</code>: Schválit · Upravit · Zamítnout jsou obrysové, plná je jen zvolená (<code>.on</code>, <code>aria-pressed</code>); zamítnutí plné červené. Primární je jen Dál.</p></header>
+  <article class="comp" id="c-vrstva-stitek"><header><h2>Štítek „ke schválení“ a rozhodnutí v kroku</h2><p>Položka registru, která čeká na garanta, nese na obrazovce aplikace štítek <code>.appr.pend</code> (čárkovaný kroužek, slovo „ke schválení“). V panelu se nabídne jako <code>.gitem</code>: věta „Co schvalujete“, hned pod ní tři rovnocenné volby <code>.gchoices</code> (komentář a rozbalitelný průvodce <code>.gguide</code> až pod nimi): Schválit · Upravit · Zamítnout jsou obrysové, plná je jen zvolená (<code>.on</code>, <code>aria-pressed</code>); zamítnutí plné červené. Primární je jen Dál.</p></header>
     <div class="preview ds-demo">
       <div class="badges"><button type="button" class="appr pend"><span aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-dasharray="4 4"/></svg></span> Cíle glukózy <span class="st">· ke schválení</span></button></div>
       <div class="tour-panel ds-demo-panel" role="region" aria-label="Rozhodnutí v panelu (ukázka)"><div class="tour-body"><div class="garant decide"><p class="gtitle"><b>Ke schválení teď (1)</b></p><p class="small">Rozhodněte, než budete pokračovat. Změnit lze kdykoli.</p>
-        <div class="gitem"><button type="button" class="gh" aria-expanded="true"><span class="t">Cíle glukózy</span><span class="tag">ke schválení</span><span class="chev" aria-hidden="true">⌃</span></button><div class="gb"><p class="small">Schvalujete: dolní cíl 3,9, horní cíl po jídle 10,0 mmol/l.</p><label class="field"><span>Komentář (nepovinný)</span><input value="" placeholder="co změnit, proč, nebo jen poznámka"></label><div class="gchoices"><button type="button" class="btn sm gchoice on" aria-pressed="true">✓ Schválit</button><button type="button" class="btn sm gchoice" aria-pressed="false">Upravit</button><button type="button" class="btn sm gchoice gno" aria-pressed="false">Zamítnout</button></div><button type="button" class="tour-link">Uložit komentář</button></div></div>
+        <div class="gitem"><button type="button" class="gh" aria-expanded="true"><span class="t">Cíle glukózy</span><span class="tag">ke schválení</span><span class="chev" aria-hidden="true">⌃</span></button><div class="gb"><p class="gco"><b>Co schvalujete:</b> dolní cíl 3,9, horní cíl po jídle 10,0 mmol/l.</p><div class="gchoices"><button type="button" class="btn sm gchoice on" aria-pressed="true">✓ Schválit</button><button type="button" class="btn sm gchoice" aria-pressed="false">Upravit</button><button type="button" class="btn sm gchoice gno" aria-pressed="false">Zamítnout</button></div><label class="field"><span>Komentář (nepovinný)</span><input value="" placeholder="co změnit, proč, nebo jen poznámka"></label><button type="button" class="tour-link">Uložit komentář</button><details class="more gguide"><summary>Průvodce položkou: proč existuje · jak funguje · kde je použita · co se stane při zamítnutí</summary><p class="small">Pětidílný průvodce položkou.</p></details></div></div>
       </div></div></div>
     </div></article>
 

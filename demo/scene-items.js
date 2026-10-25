@@ -166,14 +166,12 @@ D.sceneItems = [
  },
  {
   "title": "Dodatek · pacient rady většinou nepřijal: jiné návrhy", "items": [
-   "D-POSTUP",
-   "D-PRAND"
+   "R-NAVYKY"
   ]
  },
  {
   "title": "Dodatek · „nemám to doma“: výměna rady", "items": [
-   "D-POSTUP",
-   "D-PRAND"
+   "R-NAVYKY"
   ]
  },
  {

@@ -31,9 +31,10 @@ function ensure(force) {
   if (refreshing) return refreshing;
   if (typeof global.fetch !== 'function') return Promise.reject(new Error('bez připojení'));
   refreshing = authPost('token?grant_type=refresh_token', { refresh_token: s.refresh_token })
-    .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+    .then(function (res) { if (!res.ok) { var er = new Error('HTTP ' + res.status); er.status = res.status; throw er; } return res.json(); })
     .then(function (j) { var n = fromResponse(j); write(n); refreshing = null; return n.access_token; })
-    .catch(function (err) { refreshing = null; signOut('Přihlášení vypršelo, přihlaste se prosím znovu.'); throw err; });
+    .catch(function (err) { refreshing = null; /* odhlásit jen když server token zamítl (4xx); při výpadku sítě přihlášení zůstává a fronta to zkusí znovu (nález 5, 23. 10. 2026) */
+      if (err && err.status >= 400 && err.status < 500) signOut('Přihlášení vypršelo, přihlaste se prosím znovu.'); throw err; });
   return refreshing;
 }
 /* Odhlášení: smaže přihlášení i místní deník garanta (jeho rozhodnutí jsou na serveru a po přihlášení se načtou zpět). */
@@ -66,6 +67,7 @@ function login() {
       write(s); form.email = '';
       var st = NF.getState(); st.toast = 'Přihlášení: ' + label(s) + (s.user.email ? ' · ' + s.user.email : '') + '.';
       NF.render();
+      if (D.sync && D.sync.dropForeign) D.sync.dropForeign();
       if (D.sync && D.sync.restore) D.sync.restore();
     })
     .catch(function (err) { form.busy = false; form.error = friendly(String(err && err.message || err)); NF.render(); });
@@ -78,12 +80,12 @@ function gate() {
     '<div class="gate-brand"><span class="brandmark">N</span>NutriFee</div>' +
     '<span class="demo-flag">DEMO · syntetická' + N + 'data · není' + N + 'určeno' + N + 'pro' + N + 'léčbu</span>' + /* N1: láme se jen po „·“ */
     '<h1>Maketa ke schválení</h1>' +
-    '<p class="muted">Přihlaste se e-mailem a heslem, které jste dostali od autora makety. Vaše rozhodnutí a komentáře k položkám registru se ukládají pod tímto přihlášením; nic jiného se neposílá. Jde o neformální rozhodnutí k maketě, ne o podpis pro ostrý provoz.</p>' +
+    '<p class="muted">Přihlaste se e-mailem a heslem, které jste dostali od autora makety. Vaše rozhodnutí a komentáře k položkám registru se ukládají pod tímto přihlášením; nic jiného se neposílá. Jde o neformální rozhodnutí k maketě, ne o podpis pro ostrý provoz. Přihlášení a rozhodnutí čekající na odeslání zůstávají v tomto prohlížeči, dokud se neodhlásíte – na sdíleném počítači se odhlaste.</p>' +
     '<p class="small muted">Hlavní část zabere asi 15 minut, dodatek s variantami další 4. Ukázku můžete přerušit; rozhodnutí se ukládají a po přihlášení se načtou zpět.</p>' +
     '<p class="small muted gate-device">Ukázka je navržená pro počítač. Na telefonu ji projdete, ale obrazovky lékaře jsou široké.</p>' +
     (form.info ? '<div class="error soft" role="status">' + e(form.info) + '</div>' : '') +
     '<label class="field"><span>E-mail</span><input id="auth-email" type="email" autocomplete="username" data-auth="email" value="' + e(form.email) + '"' + dis + '></label>' +
-    '<label class="field"><span>Heslo</span><input id="auth-pass" type="password" autocomplete="current-password" data-auth="pass" value="' + e(form.pass) + '"' + dis + '></label>' +
+    '<label class="field"><span>Heslo</span><input id="auth-pass" type="password" autocomplete="current-password" data-auth="pass"' + dis + '></label>' /* heslo se do HTML nepíše (nález 8) */ +
     (form.error ? '<div class="error" role="alert">' + e(form.error) + '</div>' : '') +
     '<div class="actions mb-3">' + NF.screens.btn(form.busy ? 'Přihlašuji…' : 'Přihlásit', 'authLogin', null, 'primary', dis) + '</div>' +
     '<p class="small muted">Nemáte přihlašovací údaje? Napište autorovi makety.</p>' +

@@ -13,12 +13,12 @@ NF.data.habits = [
   { id: 'H-PROCHAZKA', item: 'R-PROCHAZKA', default: false, title: 'Procházka po večeři', short: 'Procházka po večeři', why: 'Krátký pohyb po jídle zmírní vzestup glukózy bez změny jídla.', training: [{ id: 't-prochazka', text: 'Pacient ví, kdy je pohyb po píchnutí v pořádku (podle pokynů lékaře)', page: 'safety' }] }
 ];
 NF.data.instructions = [
-  { id: 'I-NEVIM', title: 'Nevím, jestli byl inzulin píchnutý', text: 'Když nevíte, jestli byl inzulin už píchnutý, znovu ho nepíchejte. Změřte glukózu za {v} a řiďte se pokynem pro vysokou nebo nízkou glukózu.', value: 60, unit: 'min', step: 15, default: true },
-  { id: 'I-HYPO', title: 'Nízká glukóza', text: 'Když glukóza klesne pod {v}, snězte 15 g rychlých sacharidů (asi 1,5 dl džusu) a změřte za 15 min.', value: 4, unit: 'mmol/l', fixed: true, default: true } /* práh pevně 4: stejné číslo jako čipy, otázky a eskalace (19. 10. 2026) */,
-  { id: 'I-MENE', title: 'Méně jídla než obvykle', text: 'Když sníte méně, než na kolik máte inzulin, změřte glukózu za {v} a při poklesu postupujte jako u nízké glukózy.', value: 60, unit: 'min', step: 15, default: true },
-  { id: 'I-NEMOC-BAZAL', title: 'Nemoc: inzulin na noc (bazál)', text: 'Bazál si píchejte dál ve stejný čas, i když nejíte. Pijte a měřte glukózu každé {v}.', value: 3, unit: 'h', step: 1, default: true },
-  { id: 'I-NEMOC-JIDLO', title: 'Nemoc: inzulin k jídlu', text: 'Když jídlo vynecháte, inzulin k němu nepíchejte. Když jíte, píchněte podle plánu. Při zvracení nebo glukóze nad {v} déle než 3 hodiny volejte ordinaci.', value: 15, unit: 'mmol/l', step: 0.5, default: true },
-  { id: 'I-VYSOKA', title: 'Vysoká glukóza', text: 'Když je glukóza nad {v} déle než 3 hodiny, volejte ordinaci.', value: 15, unit: 'mmol/l', step: 0.5, default: true },
+  { id: 'I-NEVIM', title: 'Nevím, jestli byl inzulin píchnutý', text: 'Když nevíte, jestli byl inzulin už píchnutý, znovu ho nepíchejte. Změřte glukózu za {v} a řiďte se pokynem pro vysokou nebo nízkou glukózu.', value: 60, unit: 'min', step: 15, min: 15, max: 240, default: true },
+  { id: 'I-HYPO', title: 'Nízká glukóza', text: 'Když glukóza klesne pod {v}, vypijte asi 1,5 dl džusu nebo snězte 3–4 kostky cukru a změřte za 15 min.', value: 4, unit: 'mmol/l', fixed: true, default: true } /* práh pevně 4: stejné číslo jako čipy, otázky a eskalace (19. 10. 2026) */,
+  { id: 'I-MENE', title: 'Méně jídla než obvykle', text: 'Když sníte méně, než na kolik máte inzulin, změřte glukózu za {v} a při poklesu postupujte jako u nízké glukózy.', value: 60, unit: 'min', step: 15, min: 15, max: 240, default: true },
+  { id: 'I-NEMOC-BAZAL', title: 'Nemoc: inzulin na noc (bazál)', text: 'Bazál si píchejte dál ve stejný čas, i když nejíte. Pijte a měřte glukózu každé {v}.', value: 3, unit: 'h', step: 1, min: 1, max: 12, default: true },
+  { id: 'I-NEMOC-JIDLO', title: 'Nemoc: inzulin k jídlu', text: 'Když jídlo vynecháte, inzulin k němu nepíchejte. Když jíte, píchněte podle plánu. Při zvracení nebo glukóze nad {v} déle než 3 hodiny volejte ordinaci.', value: 15, unit: 'mmol/l', step: 0.5, min: 10, max: 25, default: true },
+  { id: 'I-VYSOKA', title: 'Vysoká glukóza', text: 'Když je glukóza nad {v} déle než 3 hodiny, volejte ordinaci.', value: 15, unit: 'mmol/l', step: 0.5, min: 10, max: 25, default: true },
   { id: 'I-KONTAKT', title: 'Kdy a kam volat', text: 'V ordinační době volejte ordinaci, jinak pohotovost. Při bezvědomí, křečích nebo dušnosti volejte záchrannou službu.', value: true, default: true }
 ];
 })(typeof window !== 'undefined' ? window : globalThis);

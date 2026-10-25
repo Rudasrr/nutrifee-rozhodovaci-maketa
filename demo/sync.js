@@ -17,7 +17,8 @@ function save() { try { global.localStorage && global.localStorage.setItem(QKEY,
 function user() { var s = D.auth && D.auth.session(); return s && s.user ? s.user : null; }
 function record(S, d, h, r) {
   var sc = S.sceneIndex != null && D.scenes && D.scenes[S.sceneIndex] ? D.scenes[S.sceneIndex] : null, u = user();
-  return { id: h.id, kind: d.kind || 'decision', item: d.item, title: r ? r.title : '', status: d.status, params: d.params || null, text: d.text || null, off: d.off || null, comment: d.comment || '',
+  /* id řádku z času a náhody, ne z pořadového čísla jádra (NF.uid se nuluje při přehrání scény → po resetu by se opakovalo a server by 409 vzal za „uloženo“; 23. 10. 2026) */
+  return { id: 'D-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7), kind: d.kind || 'decision', item: d.item, title: r ? r.title : '', status: d.status, params: d.params || null, text: d.text || null, off: d.off || null, comment: d.comment || '',
     by: d.by, modelAt: d.at, at: new Date().toISOString(), scene: S.sceneIndex != null ? S.sceneIndex + 1 : null, sceneTitle: sc ? (sc.title || (D.chapters && D.chapters[sc.ch].title)) : null,
     schema: NF.SCHEMA, client: client, note: D.syncLabel || '', uid: u ? u.id : null, email: u ? u.email : null };
 }
@@ -63,7 +64,7 @@ function restore() {
   return D.auth.ensure().then(function (token) {
     return global.fetch(base() + '?select=*&user_id=eq.' + encodeURIComponent(u.id) + '&order=at.asc&limit=5000', { mode: 'cors', headers: { 'apikey': D.syncConfig.key, 'Authorization': 'Bearer ' + token } });
   }).then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-    .then(function (rows) { return D.garantMerge((rows || []).map(fromRow)); })
+    .then(function (rows) { rows = afterReset(rows || []); return D.garantMerge(rows.filter(function (r) { return r.kind !== 'reset'; }).map(fromRow)); })
     .catch(function (err) { try { NF.getState().toast = 'Dřívější rozhodnutí se nepodařilo načíst ze serveru (' + String(err && err.message || err) + ').'; NF.render(); } catch (e2) { } return 0; });
 }
 /* Událost mimo registr (průchod maketou, potvrzení souhrnu): stejný řádek tabulky, kind = 'progress' | 'summary'. */
@@ -75,12 +76,19 @@ function event(kind, item, title, data) {
     schema: NF.SCHEMA, client: client, note: D.syncLabel || '', uid: u ? u.id : null, email: u ? u.email : null };
   queue.push(x); save(); flush(); return x;
 }
+/* Reset garanta („Smazat rozhodnutí“) se zapíše na server jako řádek kind 'reset'; historie zůstává, stav se počítá jen z řádků po posledním resetu účtu (nález 9, 23. 10. 2026). */
+function afterReset(rows) {
+  var last = null; rows.forEach(function (r) { if (r.kind === 'reset' && (!last || String(r.at) > String(last))) last = r.at; });
+  return last ? rows.filter(function (r) { return String(r.at) > String(last); }) : rows;
+}
 function S0() { try { return NF.getState ? NF.getState() : null; } catch (err) { return null; } }
 D.sync = {
   event: event,
   pending: function () { return queue.length; },
   status: function () { return { pending: queue.length, lastOk: lastOk, lastErr: lastErr, configured: configured(), client: client }; },
-  row: row, fromRow: fromRow,
+  row: row, fromRow: fromRow, afterReset: afterReset,
+  /* fronta s řádky jiného účtu (odhlášení vypršením, pak jiný účet na stejném prohlížeči) se zahodí – RLS by je stejně odmítlo (nález 13) */
+  dropForeign: function () { var u = user(); if (!u) return 0; var n = queue.length; queue = queue.filter(function (x) { return !x.uid || x.uid === u.id; }); if (queue.length !== n) save(); return n - queue.length; },
   retry: flush, restore: restore,
   clear: function () { queue = []; lastErr = null; save(); }
 };

@@ -18,7 +18,7 @@ function load() {
     .catch(function (x) { err = String(x && x.message || x); })
     .then(function () { loading = false; rerender(); });
 }
-function fmt(iso) { if (!iso) return '–'; var d = new Date(iso); if (isNaN(d.getTime())) return String(iso); return d.getDate() + '. ' + (d.getMonth() + 1) + '. ' + d.getFullYear() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+function fmt(iso) { if (!iso) return '–'; var d = new Date(iso); if (isNaN(d.getTime())) return '–'; /* neplatné datum nikdy jako surový text (nález 1, 23. 10. 2026) */ return d.getDate() + '. ' + (d.getMonth() + 1) + '. ' + d.getFullYear() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
 var LABEL = { approved: ['schváleno', 'ok'], edited: ['schváleno s úpravou', 'warn'], rejected: ['zamítnuto', 'bad'] };
 function statusTag(st) { var l = LABEL[st] || ['ke schválení', '']; return '<span class="tag ' + l[1] + '">' + l[0] + '</span>'; }
 function stat(v, k) { return '<div class="box stat"><b>' + e(String(v)) + '</b><span class="small muted">' + e(k) + '</span></div>'; }
@@ -27,14 +27,20 @@ function params(r) { if (!r.params) return ''; var p = r.params; return Object.k
 /* Kam se garant dostal a zda potvrdil souhrn – z řádků kind progress/summary, poslední stav na účet. */
 function progressBlock(evs) {
   if (!evs.length) return '<div class="box mt-3 mb-3"><b>Průchod maketou</b><div class="small muted">Zatím žádný záznam: garant maketu ještě neotevřel po přihlášení.</div></div>';
-  var byUser = {};
+  var byUser = Object.create(null); /* klíče z dat serveru: bez prototypu (nález 7) */
   evs.forEach(function (r) { var k = r.user_email || r.decided_by || '?'; var u = byUser[k] = byUser[k] || { prog: null, sum: null }; if (r.kind === 'progress' && (!u.prog || String(r.at) > String(u.prog.at))) u.prog = r; if (r.kind === 'summary' && (!u.sum || String(r.at) > String(u.sum.at))) u.sum = r; });
   return '<div class="box mt-3 mb-3"><b>Průchod maketou</b>' + Object.keys(byUser).map(function (k) {
     var u = byUser[k], p = u.prog && u.prog.params || {}, sm = u.sum && u.sum.params || null;
-    var full = sm ? 'ano – souhrn potvrzen ' + fmt(u.sum.at) : (p.scene && p.mainEnd && p.scene >= p.mainEnd ? 'došel na konec hlavní linie, souhrn zatím nepotvrdil' : 'zatím ne');
-    return '<div class="small mt-2"><b>' + e(k) + '</b><br>nejdál: ' + (p.scene ? 'scéna ' + e(String(p.scene)) + ' z ' + e(String(p.total || '?')) + (p.title ? ' („' + e(p.title) + '“)' : '') + ' · ' + fmt(u.prog.at) : '–') + '<br>prošel celou maketu: ' + full +
+    var full = sm ? 'ano – souhrn potvrzen ' + e(fmt(u.sum.at)) : (p.scene && p.mainEnd && p.scene >= p.mainEnd ? 'došel na konec hlavní linie, souhrn zatím nepotvrdil' : 'zatím ne');
+    return '<div class="small mt-2"><b>' + e(k) + '</b><br>nejdál: ' + (p.scene ? 'scéna ' + e(String(p.scene)) + ' z ' + e(String(p.total || '?')) + (p.title ? ' („' + e(p.title) + '“)' : '') + ' · ' + e(fmt(u.prog.at)) : '–') + '<br>prošel celou maketu: ' + full +
       (sm ? '<br>v souhrnu: schváleno ' + e(String(sm.approved)) + ' · s úpravou ' + e(String(sm.edited)) + ' · zamítnuto ' + e(String(sm.rejected)) + ' · ke schválení ' + e(String(sm.pending)) + (sm.rejectedIds && sm.rejectedIds.length ? ' · zamítnuté: ' + e(sm.rejectedIds.join(', ')) : '') : '') + '</div>';
   }).join('') + '</div>';
+}
+/* Rozhodnutí se počítají jen od posledního resetu každého účtu (řádek kind 'reset'); historie zůstává v datech. */
+function decisionsAfterReset(all) {
+  var lastReset = Object.create(null);
+  all.forEach(function (r) { if (r.kind === 'reset') { var k = r.user_id || r.user_email || '?'; if (!lastReset[k] || String(r.at) > String(lastReset[k])) lastReset[k] = r.at; } });
+  return all.filter(function (r) { if (r.kind === 'progress' || r.kind === 'summary' || r.kind === 'reset') return false; var k = r.user_id || r.user_email || '?'; return !lastReset[k] || String(r.at) > String(lastReset[k]); });
 }
 function panel(s) { return panelInner(s) + '</div>'; }
 function panelInner(s) {
@@ -43,15 +49,15 @@ function panelInner(s) {
     '<div class="actions mt-0">' + btn(loading ? 'Načítám…' : 'Obnovit', 'resultsReload', null, 'sm', loading ? ' disabled' : '') + btn('Zavřít', 'closeDrawer', null, 'sm quiet') + (loadedAt ? '<span class="small muted">načteno ' + e(fmt(loadedAt)) + '</span>' : '') + '</div>';
   if (err) out += '<div class="error" role="alert">Nepodařilo se načíst: ' + e(err) + '</div>';
   if (!rows) return out + (loading ? '' : '<p class="muted">Zatím nic nenačteno.</p>');
-  var evs = rows.filter(function (r) { return r.kind === 'progress' || r.kind === 'summary'; }), decs = rows.filter(function (r) { return r.kind !== 'progress' && r.kind !== 'summary'; });
+  var evs = rows.filter(function (r) { return r.kind === 'progress' || r.kind === 'summary'; }), decs = decisionsAfterReset(rows);
   out += progressBlock(evs);
-  var byItem = {}, users = {}, last = null;
+  var byItem = Object.create(null), users = Object.create(null), last = null;
   decs.forEach(function (r) { (byItem[r.item] = byItem[r.item] || []).push(r); if (r.user_email) users[r.user_email] = 1; if (!last || String(r.at) > String(last)) last = r.at; });
   var decided = 0, c = { approved: 0, edited: 0, rejected: 0 }, comments = 0;
   var list = items.map(function (it) {
     var rs = byItem[it.id] || [], decs = rs.filter(function (r) { return r.kind === 'decision'; }), cm = rs.filter(function (r) { return r.kind === 'comment'; });
     var lastD = decs.length ? decs[decs.length - 1] : null;
-    if (lastD) { decided++; c[lastD.status] = (c[lastD.status] || 0) + 1; }
+    if (lastD) { decided++; if (LABEL[lastD.status]) c[lastD.status] += 1; }
     comments += cm.length;
     return { it: it, lastD: lastD, cm: cm, rs: rs };
   });
