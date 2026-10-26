@@ -19,7 +19,7 @@ function load() {
     .then(function () { loading = false; rerender(); });
 }
 function fmt(iso) { if (!iso) return '–'; var d = new Date(iso); if (isNaN(d.getTime())) return '–'; /* neplatné datum nikdy jako surový text (nález 1, 23. 10. 2026) */ return d.getDate() + '. ' + (d.getMonth() + 1) + '. ' + d.getFullYear() + ' ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
-var LABEL = { approved: ['schváleno', 'ok'], edited: ['schváleno s úpravou', 'warn'], rejected: ['zamítnuto', 'bad'] };
+var LABEL = { approved: ['schváleno', 'ok'], edited: ['upraveno', 'warn'], rejected: ['zamítnuto', 'bad'] };
 function statusTag(st) { var l = LABEL[st] || ['ke schválení', '']; return '<span class="tag ' + l[1] + '">' + l[0] + '</span>'; }
 function stat(v, k) { return '<div class="box stat"><b>' + e(String(v)) + '</b><span class="small muted">' + e(k) + '</span></div>'; }
 function who(r) { return r.user_email ? e(r.user_email) : (r.decided_by ? e(r.decided_by) : ''); }
@@ -33,7 +33,7 @@ function progressBlock(evs) {
     var u = byUser[k], p = u.prog && u.prog.params || {}, sm = u.sum && u.sum.params || null;
     var full = sm ? 'ano – souhrn potvrzen ' + e(fmt(u.sum.at)) : (p.scene && p.mainEnd && p.scene >= p.mainEnd ? 'došel na konec hlavní linie, souhrn zatím nepotvrdil' : 'zatím ne');
     return '<div class="small mt-2"><b>' + e(k) + '</b><br>nejdál: ' + (p.scene ? 'scéna ' + e(String(p.scene)) + ' z ' + e(String(p.total || '?')) + (p.title ? ' („' + e(p.title) + '“)' : '') + ' · ' + e(fmt(u.prog.at)) : '–') + '<br>prošel celou maketu: ' + full +
-      (sm ? '<br>v souhrnu: schváleno ' + e(String(sm.approved)) + ' · s úpravou ' + e(String(sm.edited)) + ' · zamítnuto ' + e(String(sm.rejected)) + ' · ke schválení ' + e(String(sm.pending)) + (sm.rejectedIds && sm.rejectedIds.length ? ' · zamítnuté: ' + e(sm.rejectedIds.join(', ')) : '') : '') + '</div>';
+      (sm ? '<br>v souhrnu: schváleno ' + e(String(sm.approved)) + ' · upraveno ' + e(String(sm.edited)) + ' · zamítnuto ' + e(String(sm.rejected)) + ' · ke schválení ' + e(String(sm.pending)) + (sm.rejectedIds && sm.rejectedIds.length ? ' · zamítnuté: ' + e(sm.rejectedIds.join(', ')) : '') : '') + '</div>';
   }).join('') + '</div>';
 }
 /* Rozhodnutí se počítají jen od posledního resetu každého účtu (řádek kind 'reset'); historie zůstává v datech. */

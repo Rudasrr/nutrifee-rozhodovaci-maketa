@@ -261,6 +261,24 @@ body.pres-locked main .tour-focus{pointer-events:none}
 .lock-bubble.above{top:auto;bottom:calc(100vh - var(--y,50vh) + var(--nf-s4))}
 .lock-bubble.on{opacity:1;transform:none}
 .lock-bubble:empty{padding:0}
+/* Zásah pod prstem v zamčené obrazovce (presenter.js probe): jen po dobu jednoho elementFromPoint, akce aplikace se nespustí */
+body.pres-probe main,body.pres-probe main .tour-focus{pointer-events:auto}
+/* ---------- vysvětlivky (demo/explain.js, 26. 10. 2026): jemné fialové tečkování a bublina stejného stylu jako lock-bubble ---------- */
+.nf-x{cursor:help}
+.nf-x-line{text-decoration:underline dotted var(--nf-demo-dot);text-decoration-thickness:var(--nf-demo-dot-w);text-underline-offset:var(--nf-demo-dot-off)}
+.nf-x-box{outline:var(--nf-demo-dot-w) dotted var(--nf-demo-dot);outline-offset:var(--nf-demo-dot-off)}
+.nf-x:focus-visible{outline:3px solid var(--nf-demo-focus);outline-offset:var(--nf-demo-dot-off)}
+.lock-bubble.explain{--xw:min(var(--nf-demo-explain-w),calc(100vw - 2 * var(--nf-s3)));width:var(--xw);left:clamp(var(--nf-s3),calc(var(--x,50vw) - var(--xw) / 2),calc(100vw - var(--xw) - var(--nf-s3)));top:calc(var(--y,50vh) + var(--nf-s2));max-height:min(var(--nf-demo-explain-h),calc(100vh - 2 * var(--nf-s3)));overflow:auto;padding:var(--nf-s3) var(--nf-s4);font-weight:var(--nf-w-text);pointer-events:auto;text-align:left}
+.lock-bubble.explain.above{top:auto;bottom:calc(100vh - var(--y,50vh) + var(--nf-s2))}
+.lock-bubble.explain:not(.on){visibility:hidden;pointer-events:none}
+.lock-bubble.explain .xb-t{margin:0 var(--nf-s8) var(--nf-s1) 0;font-size:var(--nf-fs-sm);font-weight:var(--nf-w-display-strong);line-height:var(--nf-lh-tight)}
+.lock-bubble.explain .xb-p{margin:0 0 var(--nf-s2)}
+.lock-bubble.explain .xb-note{font-weight:var(--nf-w-strong)}
+.lock-bubble.explain .xb-item{margin:0;padding-top:var(--nf-s2);border-top:1px solid var(--nf-demo-line);font-size:var(--nf-fs-2xs)}
+.lock-bubble.explain .xb-link{display:inline;min-height:0;padding:0;border:0;background:transparent;color:inherit;font:inherit;font-weight:var(--nf-w-display-strong);text-decoration:underline;text-underline-offset:var(--nf-demo-dot-off);cursor:pointer;text-align:left}
+.lock-bubble.explain .xb-close{position:absolute;top:var(--nf-s1);right:var(--nf-s1);display:grid;place-items:center;width:var(--nf-s8);height:var(--nf-s8);padding:0;border:0;border-radius:var(--nf-r-pill);background:transparent;color:inherit;font:inherit;font-size:var(--nf-fs-lg);line-height:1;cursor:pointer}
+.lock-bubble.explain .xb-close:focus-visible,.lock-bubble.explain .xb-link:focus-visible{outline:3px solid var(--nf-on-primary);outline-offset:2px}
+.xb-sample{text-decoration:underline dotted var(--nf-demo-dot);text-decoration-thickness:var(--nf-demo-dot-w);text-underline-offset:var(--nf-demo-dot-off)}
 /* V1/S10 (21. 10. 2026): tlačítka aplikace se už neodbarvují – petrolejová musí zůstat petrolejová a nic nesmí vypadat zakázaně; zamčení ukazuje panel */
 
 /* ---------- úvodní obrazovka ukázky (demo/intro.js) ---------- */

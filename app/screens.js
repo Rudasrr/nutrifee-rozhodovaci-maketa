@@ -164,7 +164,8 @@ V.patient = function (S, forcedPage) {
   }
   var nav = ['understand', 'takeover', 'meal', 'newplan'].indexOf(page) === -1;
   /* štítek DEMO na každé pacientské obrazovce, ne jen na Dnes: snímek kroku ani Bezpečí nevypadá jako skutečný pacient (LF-25, 19. 10. 2026) */
-  return '<div class="patient-shell"><div class="patient page-' + e(page) + '"><p class="demo-band"><span class="demo-flag">DEMO · syntetická data · není určeno pro léčbu</span></p>' + body + '</div>' + (nav ? tabbar(S) : '') + '</div>';
+  /* vlastník 26. 10. 2026: štítek DEMO jednou, v liště ukázky (NF.slots.demoBar); bez prezentační vrstvy ho nese obrazovka sama */
+  return '<div class="patient-shell"><div class="patient page-' + e(page) + '">' + (NF.slots.demoBar ? '' : '<p class="demo-band"><span class="demo-flag">DEMO · syntetická data · není určeno pro léčbu</span></p>') + body + '</div>' + (nav ? tabbar(S) : '') + '</div>';
 };
 
 function head(S, eyebrow, h1) { return '<p class="eyebrow">' + e(eyebrow) + '</p><h1>' + e(h1) + '</h1>'; }

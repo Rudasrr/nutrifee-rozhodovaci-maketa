@@ -17,10 +17,10 @@ D.patientContext = [
   ['Diagnóza', 'Diabetes 2. typu, 9 let'],
   ['Léčba', 'Jen inzulin – bazál 1× večer, prandiální ke třem jídlům, pevné dávky'],
   ['Perorální antidiabetika', 'žádná'],
-  ['Senzor', 'kontinuální monitor glukózy (CGM) zaveden 28. 9. 2026'],
-  ['Senzor před zařazením', 'čas v cíli 58 % · pod 3,9 mmol/l 3 % · 28. 9. – 4. 10. 2026'],
+  ['Senzor', 'kontinuální monitor glukózy (CGM) nosí od srpna 2026'],
+  ['Senzor před zařazením', 'za posledních 30 dní: čas v cíli 58 %, pod 3,9 mmol/l 3 %'],
   ['Poslední HbA1c', '62 mmol/mol (23. 9. 2026)'],
-  ['Věk, hmotnost', '58 let · 92 kg']
+  ['Věk, výška, hmotnost', '58 let · 176 cm · 92 kg (BMI 29,7)']
 ];
 
 /* ---------- jídla ----------
@@ -217,7 +217,7 @@ function setup(S) {
   S.enrollment.baseline = { tir: D.cardBaseline.tir, below: D.cardBaseline.below }; /* z reportu senzoru před zařazením; lékař hodnoty při zařazení potvrdí nebo upraví voličem */
 }
 function enrolled(S) { NF.ELIGIBILITY.forEach(function (c) { NF.setEligibility(S, c[0], true); }); }
-D.cardBaseline = { tir: 58, below: 3 }; /* čas v cíli a čas pod 4 mmol/l ze senzoru týden před zařazením (28. 9. – 4. 10. 2026) */
+D.cardBaseline = { tir: 58, below: 3 }; /* čas v cíli a čas pod 3,9 mmol/l ze senzoru za 30 dní před zařazením (vlastník 26. 10. 2026: delší období, bez data) */
 D.cardDoses = { basal: 18, breakfast: 8, lunch: 10, dinner: 8 }; /* dávky z karty modelového pacienta; v aplikaci je zadává lékař voličem */
 D.cardEligibility = ['adult', 'insulinOnly', 'regimen', 'cgm']; /* co karta pacienta dokládá; lékař přesto každou podmínku potvrdí */
 function draftReady(S) {
@@ -347,12 +347,12 @@ var CH = [
 ];
 D.acts = [
   { title: 'Úvod', note: 'K čemu NutriFee je a jak ukázku ovládat.' },
-  { title: 'Scénář 1 – V ordinaci', note: 'Karta, podmínky, dávky voličem, startovní sada návyků, osobní pokyny. Sestra zaučí s náhledem telefonu.' },
-  { title: 'Scénář 2 – Doma: aplikace se učí', note: 'Tři kroky před jídlem s inzulinem první. Po týdnu první známá jídla s rozmezím a reakcí.' },
-  { title: 'Scénář 3 – Rada před jídlem', note: 'Před píchnutím porce zpět k obvyklé; po píchnutí jen z větší; nové jídlo jen názvem.' },
-  { title: 'Scénář 4 – Nemoc', note: 'Pacient označí nemoc, aplikace pomáhá dál, ale jinak. Ukončuje pacient.' },
+  { title: 'Scénář 1 – V ordinaci', note: 'Lékař projde kartu pacienta a podmínky zařazení, zadá dávky a vydá plán se startovními návyky a pokyny. Sestra pak pacienta zaučí s náhledem jeho telefonu.' },
+  { title: 'Scénář 2 – Doma: aplikace se učí', note: 'Pacient zapisuje jídla ve třech krocích a prvním je vždy inzulin. Po týdnu aplikace zná první jídla a ukáže, kam se po nich glukóza dostává.' },
+  { title: 'Scénář 3 – Rada před jídlem', note: 'Před píchnutím aplikace radí vrátit porci k obvyklé z větší i z menší, po píchnutí jen z větší. Nové jídlo pacient zadá jen názvem.' },
+  { title: 'Scénář 4 – Nemoc', note: 'Pacient označí nemoc a aplikace mu pomáhá dál, jen jinak. Nemoc ukončí zase pacient.' },
   { title: 'Scénář 5 – Během studie: garant upraví pravidlo', note: 'Funkce ostré aplikace, ne vaše dnešní schvalování: během studie jako garant (a lékař studie) upravíte text rady po podnětu z provozu; změna platí okamžitě, bez čekání na kontrolu.' },
-  { title: 'Scénář 6 – Kontrola', note: 'Pacient: report před kontrolou. Lékař: souhrn → návrhy → potvrzení → předání. Stopa.' }
+  { title: 'Scénář 6 – Kontrola', note: 'Pacient si den předem prohlédne přehled pro lékaře. Lékař projde souhrn a návrhy, potvrdí nový plán a předá ho pacientovi. Na konci je stopa všech výpočtů a rozhodnutí.' }
 ];
 D.chapters = CH;
 

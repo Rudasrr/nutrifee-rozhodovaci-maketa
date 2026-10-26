@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 69;
+NF.SCHEMA = 70;
 NF.PAGES = ['today', 'foods', 'food', 'plan', 'safety', 'support', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
@@ -751,7 +751,7 @@ NF.whyNotUsable = function (S, ep) {
    Bez schválené položky D-CISTA nelze čistá data určit → žádný zápis do návrhu k dávce (zásada 4, 23. 10. 2026). */
 NF.usableForDose = function (S, ep) { return NF.usable(S, 'D-CISTA') && NF.usableEp(S, ep) && !ep.retro && !NF.latePodani(S, ep) && !ep.insulinCorrected; };
 NF.whyNotForDose = function (S, ep) {
-  if (!NF.usable(S, 'D-CISTA')) return 'pravidlo čistých dat (D-CISTA) je zamítnuté';
+  if (!NF.usable(S, 'D-CISTA')) return 'pravidlo čistých dat je v registru zamítnuté';
   var w = NF.whyNotUsable(S, ep); if (w) return w;
   if (ep.retro) return 'zpětný zápis s odhadnutým časem (jen do učení)';
   if (NF.latePodani(S, ep)) return 'pozdní podání – inzulin až po jídle (jen do učení)';
@@ -962,7 +962,7 @@ NF.effectiveBolus = function (state) { return state === 'before' ? 'before' : 'a
 NF.adviceGate = function (S) {
   var p = NF.activePlan(S);
   if (S.participation !== 'active') return { ok: false, why: 'Účast je ukončená.' };
-  if (!p || !p.understood) return { ok: false, why: 'Dokud nemáte převzatý plán od lékaře, neradíme.' };
+  if (!p || !p.understood) return { ok: false, why: 'Poradíme vám, až převezmete plán od lékaře.' };
   if (!NF.usable(S, 'R-REAKCE')) return { ok: false, why: 'Vyhodnocení reakce je v registru zamítnuté; neradíme.' };
   return { ok: true };
 };
@@ -1636,7 +1636,7 @@ NF.proposals = function (S, planId, catalog) {
     var ps = NF.postup(S, key, vars);
     pr.verify = ps.verify; pr.branches = ps.branches; pr.postup = 'D-POSTUP';
     pr.facts = ps.fakta.map(function (k) { return (k && fakta && fakta[k]) || null; });
-    if (ps.missing || !ps.branches.length) pr.weak.push('postup posouzení dávky (D-POSTUP) pro tento případ nemá schválenou větev – rozhodněte sami');
+    if (ps.missing || !ps.branches.length) pr.weak.push('váš schválený postup posouzení dávky pro tento případ nemá větev, rozhodněte sami');
     return pr;
   };
   /* Okno návrhu: od poslední změny dávky (= od vydání plánu), nejméně D-PRAND.dny (28) dní (R2, 6. 10. 2026). */
@@ -1700,7 +1700,7 @@ NF.proposals = function (S, planId, catalog) {
     eps.forEach(function (e) { var f = NF.foodById(S, e.foodId), nm = f ? f.name : e.foodId; byFood[nm] = byFood[nm] || { n: 0, above: 0 }; byFood[nm].n++; if (NF.epPeak(S, e) > t.high) byFood[nm].above++; });
     var breakdown = Object.keys(byFood).map(function (k) { return { food: k, n: byFood[k].n, above: byFood[k].above }; }).sort(function (a, b) { return b.n - a.n; });
     var inTargetFoods = breakdown.filter(function (b) { return b.n >= 2 && b.above === 0; });
-    var heteroWeak = inTargetFoods.length ? [(inTargetFoods.length > 1 ? 'jídla ' : 'jídlo ') + inTargetFoods.map(function (b) { return '„' + b.food + '“ (' + b.n + '× v cíli)'; }).join(', ') + (inTargetFoods.length > 1 ? ' jsou v cíli' : ' je v cíli') + ' – příčina může být v konkrétním jídle, ne v dávce; změna dávky by dopadla i na tyto dny'] : [];
+    var heteroWeak = inTargetFoods.length ? [(inTargetFoods.length > 1 ? 'jídla ' : 'jídlo ') + inTargetFoods.map(function (b) { return '„' + b.food + '“ (' + b.n + '×)'; }).join(', ') + (inTargetFoods.length > 1 ? ' zůstala pokaždé v cíli' : ' zůstalo pokaždé v cíli') + ', takže příčina může být v konkrétních jídlech, ne v dávce. Změna dávky by dopadla i na ' + (inTargetFoods.length > 1 ? 'dny s těmito jídly' : 'dny s tímto jídlem')] : [];
     var acceptedAdvice = eps.filter(function (e) { return (e.advice || []).some(function (a) { return a.accepted === true && a.lever !== 'portion'; }); });
     /* Rady první: dávka se neposuzuje, dokud pacient rady nepřijal aspoň radyPrve×, ani když je v okně většinou odmítal (odmítnutí ≥ 60 % z ≥ 5 nabídek). */
     var offered = 0, declinedN = 0;
@@ -1758,7 +1758,7 @@ NF.proposals = function (S, planId, catalog) {
   out.push({ id: 'PR-POKYNY', kind: 'instructions', cat: 'pokyny', priority: 6, group: 'keep', title: 'Pokyny pro pacienta beze změny?',
     why: 'Pokyny jsou v plánu ze schváleného registru s výchozími hodnotami' + (exc.length ? '; výjimky u tohoto pacienta: ' + exc.join(', ') + '.' : ', bez výjimek.'), /* 21. 10. 2026: pokyny automaticky v plánu, lékař podepisuje plán jako celek */
     weak: [], verify: ['Pokyny i cíle glukózy pacientovi dál odpovídají'], branches: [{ when: 'bod 1 sedí', action: 'keep', text: 'ponechat' }, { when: 'bod 1 nesedí', action: 'edit', text: 'upravit pokyny a cíle' }], item: 'R-POKYNY' });
-  if (!NF.usable(S, 'D-POSTUP')) out.forEach(function (pr) { if (pr.postup) { pr.branches = []; pr.postup = null; pr.weak = pr.weak.filter(function (w) { return w.indexOf('D-POSTUP') < 0; }); pr.weak.push('postup posouzení dávky (D-POSTUP) není schválen – větev nelze ukázat, rozhodněte sami'); } });
+  if (!NF.usable(S, 'D-POSTUP')) out.forEach(function (pr) { if (pr.postup) { pr.branches = []; pr.postup = null; pr.weak = pr.weak.filter(function (w) { return w.indexOf('postup posouzení dávky') < 0; }); pr.weak.push('postup posouzení dávky není v registru schválený, takže větev nelze ukázat; rozhodněte sami'); } });
   out.sort(function (a, b) { return a.priority - b.priority; });
   return out;
 };

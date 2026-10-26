@@ -4,6 +4,7 @@
 (function (global) {
 'use strict';
 var NF = global.NutriFee, e = NF.esc;
+NF.slots.demoBar = true; /* lišta ukázky nese štítek DEMO; jádro ho pak neopakuje (vlastník 26. 10. 2026) */
 var D = global.NutriFeeDemo, T = D.tour;
 var doc = global.document;
 var btn = function (l, a, v, c, x) { return NF.screens.btn(l, a, v, c, x); };
@@ -67,7 +68,7 @@ NF.demoActions.garantDecide = function (v) {
   var i = String(v).indexOf(':'), id = v.slice(0, i), status = v.slice(i + 1), s = S();
   var comment = (s.form && s.form['gc_' + id]) || '';
   if (status === 'edited' && !comment.trim()) { s.error = ''; say('Napište do komentáře, co upravit, a klepněte znovu na Upravit.'); s.gOpen = id; return; }
-  /* Schválení položky, kterou předtím modelově upravil příběh: jádro by ho vedlo jako „s úpravou“ (potvrzení zachová úpravu).
+  /* Schválení položky, kterou předtím modelově upravil příběh: jádro by ho vedlo jako „upraveno“ (potvrzení zachová úpravu).
      Prázdné off {} tuhle záměnu vypne, takže garantovo „Schválit“ zůstane schválením i na serveru. */
   var opts = { garant: true }; if (status === 'approved' && storyTouched(s, id)) opts.off = {};
   var r = NF.decideItem(s, id, status, comment, null, opts); if (!r.ok) { s.error = r.error; return; }
@@ -75,7 +76,7 @@ NF.demoActions.garantDecide = function (v) {
   if (s.form) s.form['gc_' + id] = '';
   if (summaryActive(s)) s.gOpen = null; /* stránka souhrnu: po rozhodnutí se řádek zavře a nový stav je vidět v tabulce */
   confirmAsk = false;
-  say(status === 'rejected' ? rejectedMsg(s, id) : status === 'edited' ? 'Schváleno s úpravou: váš komentář je v historii položky.' : 'Schváleno a zapsáno do historie.');
+  say(status === 'rejected' ? rejectedMsg(s, id) : status === 'edited' ? 'Upraveno: váš komentář je v historii položky.' : 'Schváleno a zapsáno do historie.');
 };
 /* V09 (23. 10. 2026): hláška po zamítnutí říká rovnou, co se stane (text „Co se stane při zamítnutí“ z průvodce), ne slib místa na obrazovce,
    které položky jako P-LEKAR nebo I-HYPO v příběhu nemají. Kde místo je, přidá se, že je to vidět na obrazovce. */
@@ -90,7 +91,7 @@ function offOnScreen(s, id) {
   try { html = s.role === 'doctor' ? NF.screens.doctor(s) : s.role === 'nurse' ? NF.screens.nurse(s) : NF.screens.patient(s); } catch (err) { return false; }
   return html.indexOf('data-off="' + id + '"') >= 0;
 }
-/* Upravit (S6): s komentářem = schválit s výhradou (stav „s úpravou“); bez komentáře u položky s parametry otevře úpravu v registru. */
+/* Upravit (S6): s komentářem = schválit s výhradou (stav „upraveno“); bez komentáře u položky s parametry otevře úpravu v registru. */
 NF.demoActions.garantEdit = function (id) {
   var s = S(), r = NF.item(s, id), comment = (s.form && s.form['gc_' + id]) || '';
   if (!r) return;
@@ -115,7 +116,7 @@ D.garantLog = function () { return glog.slice(); };
    je modelová: v historii položky zůstává, ale garantovi se nepřipisuje a položku mu nabídneme normálně. */
 function gDecs(id) { return glog.filter(function (d) { return d.item === id && d.kind !== 'comment'; }); }
 function gTouched(id) { return gDecs(id).length > 0; }
-/* Co garant zvolil (ne co z toho udělalo jádro: potvrzení položky s modelovou úpravou jádro vede jako „s úpravou“). */
+/* Co garant zvolil (ne co z toho udělalo jádro: potvrzení položky s modelovou úpravou jádro vede jako „upraveno“). */
 function gStatus(id) { var ds = gDecs(id); if (!ds.length) return null; var d = ds[ds.length - 1]; return d.chosen || d.status; }
 function storyTouched(s, id) { var n = s.registry.history.filter(function (h) { return h.item === id && h.kind !== 'comment'; }).length; return n > gDecs(id).length; }
 NF.itemTouched = function (S0, id) { return gTouched(id); }; /* jen v prezentační vrstvě; jádro bez demo/ počítá z historie */
@@ -349,7 +350,7 @@ D.prevSceneOff = function (s) { s = s || S(); return prevSceneOff(s, sceneIdx(s)
 function sceneRejected(s) { return D.decisionItems(sceneIdx(s)).filter(function (id) { var r = NF.item(s, id); return r && r.status === 'rejected'; }); }
 function itemStatus(s, r) {
   var st = gStatus(r.id);
-  return st === 'rejected' ? ['zamítnuto', 'bad'] : st === 'edited' ? ['schváleno s úpravou', 'warn'] : st === 'approved' ? ['schváleno', 'ok'] : NF.itemCommented(s, r.id) ? ['okomentováno · ke schválení', ''] : ['ke schválení', ''];
+  return st === 'rejected' ? ['zamítnuto', 'bad'] : st === 'edited' ? ['upraveno', 'info'] : st === 'approved' ? ['schváleno', 'ok'] : NF.itemCommented(s, r.id) ? ['okomentováno · ke schválení', ''] : ['ke schválení', ''];
 }
 /* Jedna položka v rozhodovacím kroku: celý pětidílný průvodce + rozhodnutí.
    Schválit · Upravit · Zamítnout jsou tři rovnocenná tlačítka; plné je jen to, které garant zvolil (rozhodnutí 12, 19. 10. 2026). */
@@ -366,7 +367,7 @@ function gbody(s, r) {
     '<label class="field"><span>Komentář ' + (canEdit ? '(nepovinný)' : '(povinný jen u Upravit)') + '</span><input data-bind="form.gc_' + e(r.id) + '" value="' + e((s.form && s.form['gc_' + r.id]) || '') + '" placeholder="co změnit, proč, nebo jen poznámka"></label>' +
     (canEdit ? '' : '<p class="small muted">Položka nemá parametry: Upravit znamená schválit s výhradou, kterou napíšete do komentáře.</p>') +
     '<button type="button" class="tour-link" data-action="garantComment" data-value="' + e(r.id) + '">Uložit komentář</button>' +
-    '<details class="more gguide"><summary>Průvodce položkou: proč existuje · jak funguje · kde je použita · co se stane při zamítnutí</summary>' + guide + '</details></div>';
+    '<details class="more gguide"><summary>Průvodce položkou: proč existuje, jak funguje, kde je použita a co se stane při zamítnutí</summary>' + guide + '</details></div>';
 }
 function gitem(s, r, isOpen) {
   var st = itemStatus(s, r);
@@ -555,7 +556,7 @@ function progressBar(s, i, st) {
   }).join('') + '</div>';
 }
 function head(collapsible) {
-  return '<div class="tour-head"><span class="tour-head-t">Ovládání ukázky</span><span class="tour-info" tabindex="0" role="note" title="Fialová tlačítka ovládají ukázku. Petrolejová jsou tlačítka budoucí aplikace; ukázka je klepe za vás." aria-label="Fialová tlačítka ovládají ukázku, petrolejová jsou tlačítka budoucí aplikace.">i</span>' +
+  return '<div class="tour-head"><span class="tour-head-t">Ovládání ukázky</span><span class="tour-info" tabindex="0" role="note" title="Fialová tlačítka ovládají ukázku. Petrolejová jsou tlačítka budoucí aplikace; ukázka je klepe za vás. Fialově podtečkované věci vysvětlí bublina po klepnutí." aria-label="Fialová tlačítka ovládají ukázku, petrolejová jsou tlačítka budoucí aplikace. Fialově podtečkované věci vysvětlí bublina po klepnutí.">i</span>' +
     (collapsible ? '<button type="button" class="tour-icon" data-action="tourToggle" aria-label="Sbalit panel" title="Sbalit panel">▾</button>' : '') + '</div>';
 }
 function panel(s) {
@@ -623,6 +624,8 @@ var returnTo = null;
 NF.demoActions.goSceneFrom = function (v) { var p = String(v).split(':'); returnTo = { item: p[1] }; land(D.playScene(Number(p[0]))); NF.closeDrawer(); };
 NF.demoActions.regReturn = function () { var id = returnTo && returnTo.item; returnTo = null; NF.demoActions.openAsideItem(id); };
 D.returnTo = function () { return returnTo; };
+/* Průvodce položkou pro vysvětlující bublinu (demo/explain.js): „Kde je použita“ jen textem, aby odkaz garanta nevytrhl ze scény. */
+D.itemGuideHtml = function (s, r) { inPanel = true; try { return NF.screens.itemGuide(s, r); } finally { inPanel = false; } };
 NF.demoActions.garantOpen = function (v) { var s = S(); s.gOpen = s.gOpen === v ? null : v; };
 NF.demoActions.openAsideItem = function (v) { var s = S(); panelMsg = ''; s.role = 'doctor'; s.page = 'registry'; s.reg = s.reg || {}; s.reg.open = v; s.reg.editing = false; s.reg.params = null; NF.closeDrawer(); };
 function decorate() {
@@ -700,10 +703,14 @@ var lastLayout = '';
 function layoutKey() { return (D.narrow() ? 'n' : 'w') + (isHidden() ? 'h' : 's'); }
 if (global.addEventListener) global.addEventListener('resize', function () { measureBar(); if (layoutKey() !== lastLayout) NF.render(); }); /* texty a sbalení panelu podle šířky */
 
-/* ---------- bublina při klepnutí do zamčené obrazovky (S4, 21. 10. 2026) ----------
+/* ---------- bublina při klepnutí do zamčené obrazovky (S4, 21. 10. 2026; upraveno 26. 10. 2026) ----------
    Zamčení zůstává, jak bylo: main má v příběhu pointer-events:none, klepnutí do něj žádnou akci aplikace nespustí (cílem je #app nebo body).
-   Tady ho jen poznáme podle souřadnic a na 3 s ukážeme fialovou bublinu v trvalé živé oblasti mimo #app (morph ji nepřepíše). */
+   Co leží pod prstem, zjistíme na okamžik zapnutou třídou pres-probe (demo.css vrátí main zásah jen pro elementFromPoint, akce se nespustí).
+   Bublina se ukáže jen u ovládacího prvku aplikace (D.CONTROL_SEL); klepnutí do prázdna nic neukáže (vlastník 26. 10. 2026).
+   Vysvětlený prvek (demo/explain.js) má přednost: ukáže se vysvětlení, u ovládacího prvku s větou, že ho klepne ukázka.
+   Hláška o klepání zmizí po 3 s; trvalá živá oblast mimo #app (morph ji nepřepíše). */
 var bubbleTimer = null, BUBBLE_MS = 3000;
+D.CONTROL_SEL = D.CONTROL_SEL || 'button,a,input,select,textarea,label,summary,[data-action],[data-bind],[role=button],[role=switch],[role=tab]';
 D.lockBubbleText = function () { return 'Tohle za vás klepne ukázka. Pokračujte v panelu ' + (D.narrow() ? 'dole' : 'vpravo') + '.'; };
 function bubbleEl() {
   var el = doc && doc.getElementById ? doc.getElementById('lock-bubble') : null;
@@ -714,17 +721,29 @@ function bubbleEl() {
   return el;
 }
 function hideBubble() { var el = bubbleEl(); bubbleTimer = null; if (!el) return; el.innerHTML = ''; if (el.classList) el.classList.remove('on', 'above'); }
+D.hideLockBubble = function () { if (bubbleTimer && global.clearTimeout) global.clearTimeout(bubbleTimer); hideBubble(); };
+/* Prvek pod souřadnicemi i v zamčeném main: třída pres-probe platí jen po dobu jednoho volání elementFromPoint. */
+function probe(x, y) {
+  var b = doc.body; if (!doc.elementFromPoint) return null;
+  var c0 = b.className || ''; b.className = c0 + ' pres-probe';
+  try { return doc.elementFromPoint(x, y); } finally { b.className = c0; }
+}
+function closestSel(el, sel) { try { return el && el.closest ? el.closest(sel) : null; } catch (err) { return null; } }
 D.lockedTap = function (ev) {
   var b = doc && doc.body; if (!ev || !b || !/(^|\s)pres-locked(\s|$)/.test(b.className || '')) return false;
-  var OUT = '.tour-panel,.tour-min,.pres-bar,#overlay,.drawer,.pres-drawer,.lock-bubble,.gsum-page,#lock-bubble';
-  var t = ev.target; if (t && t.closest && t.closest(OUT)) return false;
-  /* po překreslení už klepnuté tlačítko v DOM není a cíl by vyšel jako body; proto se ptáme i prvku pod souřadnicemi (garant V01, 23. 10. 2026) */
-  var under = doc.elementFromPoint ? doc.elementFromPoint(ev.clientX, ev.clientY) : null; if (under && under.closest && under.closest(OUT)) return false;
-  if (t && (t === doc.body || t === doc.documentElement) && (!under || under === doc.body)) return false;
+  var OUT = '.tour-panel,.tour-min,.pres-bar,#overlay,.drawer,.pres-drawer,.lock-bubble,.gsum-page,#lock-bubble,#explain-bubble';
+  var t = ev.target; if (closestSel(t, OUT)) return false;
   var m = doc.querySelector ? doc.querySelector('main') : null; if (!m || !m.getBoundingClientRect) return false;
   var rc = m.getBoundingClientRect(), x = ev.clientX, y = ev.clientY;
   if (!(x >= rc.left && x <= rc.right && y >= rc.top && y <= rc.bottom)) return false;
+  var under = probe(x, y); if (!under || closestSel(under, OUT)) return false;
+  if (m.contains && !m.contains(under)) return false; /* prázdné místo kolem obrazovky (#app, body) */
+  var ctl = closestSel(under, D.CONTROL_SEL); if (ctl && m.contains && !m.contains(ctl)) ctl = null;
+  var ex = closestSel(under, '[data-nf-explain]');
+  if (ex && D.explainShow && D.explainShow(ex, x, y, !!ctl)) { D.hideLockBubble(); return true; }
+  if (!ctl) return false; /* karta, text, pozadí: nic */
   var el = bubbleEl(); if (!el) return false;
+  if (D.explainHide) D.explainHide(false);
   var vh = global.innerHeight || 0;
   el.innerHTML = e(NF.nbspText(D.lockBubbleText()));
   if (el.style && el.style.setProperty) { el.style.setProperty('--x', Math.round(x) + 'px'); el.style.setProperty('--y', Math.round(y) + 'px'); }
@@ -734,7 +753,11 @@ D.lockedTap = function (ev) {
   return true;
 };
 bubbleEl(); /* živá oblast musí existovat dřív, než do ní něco napíšeme */
-if (doc && doc.addEventListener) doc.addEventListener('click', function (ev) { if (ev.detail === 0) return; D.lockedTap(ev); }, true); /* zachytávací fáze: cíl je ještě v DOM, než ho akce překreslí */ /* klávesnicí vyvolaný klik (detail 0) bublinu neukazuje */
+if (doc && doc.addEventListener) doc.addEventListener('click', function (ev) {
+  if (D.explainClick && D.explainClick(ev)) return; /* klepnutí do vysvětlující bubliny; klepnutí jinam ji zavře */
+  if (ev.detail === 0) return; /* klávesnicí vyvolaný klik bublinu neukazuje */
+  if (!D.lockedTap(ev) && D.explainTap) D.explainTap(ev); /* mimo zamčení vysvětlí neovládací prvek */
+}, true); /* zachytávací fáze: cíl je ještě v DOM, než ho akce překreslí */
 
 /* ---------- panel prezentujícího ---------- */
 function branchPicker(s, key) {

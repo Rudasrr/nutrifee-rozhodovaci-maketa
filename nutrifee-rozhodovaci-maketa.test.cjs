@@ -304,7 +304,8 @@ test('Přístupnost E (6. 10. 2026): barvy a velikosti v CSS, stupnice s textov�
   const opener = { focus() { focused.push('opener'); } }; ctx.document.activeElement = opener;
   act('openItem', 'S-CESTA'); act('closeDrawer'); assert.ok(focused.includes('opener'), 'zásuvka vrátila fokus'); ctx.document.activeElement = null;
 });
-test('Demo označení je vidět všude', () => everyScreen((m, w) => assert.match(m, /DEMO · syntetická data/, w)));
+/* vlastník 26. 10. 2026: štítek DEMO jednou – v liště ukázky na každé obrazovce, v jádru jen bez prezentační vrstvy; žádné jméno modelové role */
+test('Demo označení je vidět všude, ale jen jednou', () => everyScreen((m, w) => { assert.equal((m.match(/DEMO · syntetická data/g) || []).length, 1, w); assert.ok(!/Modelový lékař 01|Modelová sestra 01/.test(m), w + ': bez jména modelové role'); }));
 
 /* ---------- ordinace ---------- */
 test('Zařazení: podmínky zamykají pokračování; plán bez náležitostí nejde vydat', () => {
@@ -658,7 +659,7 @@ test('Akutní problém otevře pokyny a kontakty; návrh k dávce bez schválen�
   assert.match(plain(elements.get('overlay').innerHTML), /Akutní problém pacienta/); act('closeDrawer');
   NF.decideItem(S(), 'D-POSTUP', 'rejected', 'test');
   const props = NF.proposals(S(), NF.activePlan(S()).id, D.habitCatalog).filter(p => p.kind === 'dose');
-  assert.ok(props.length && props.every(p => p.branches.length === 0 && /D-POSTUP/.test(p.weak.join())));
+  assert.ok(props.length && props.every(p => p.branches.length === 0 && /postup posouzení dávky není v registru schválený/.test(p.weak.join())));
 });
 
 /* ---------- správnost výpočtů (balíček C) ---------- */
@@ -785,7 +786,7 @@ test('Druhý průchod: Co teď dává přednost jídlu před bazálem; připomí
   act('page', 'plan'); assert.equal((markup().match(/Tři jídla denně/g) || []).length, 0, 'duplicitní karta odstraněna');
   chapter('preview'); assert.equal(/class="mark">✓<\/span><div>Zapisuj/.test(markup()), false, 'žádné falešné fajfky'); assert.match(markup(), /Díky za \d+ dní zapisování/);
   /* bez zápisů report nepadá na „null %“ */
-  chapter('handover'); act('role', 'doctor'); act('startReview'); assert.equal(/null/.test(markup()), false); assert.match(markup(), /Zatím žádné zápisy/);
+  chapter('handover'); act('role', 'doctor'); act('startReview'); assert.equal(/null/.test(markup()), false); assert.match(markup(), /Pacient zatím nezapsal žádné jídlo/);
 });
 
 /* ---------- stopa ---------- */
@@ -999,7 +1000,7 @@ test('Registr R13: cíle glukózy z položky C-CILE s fallbackem; větve a ově�
   assert.equal(NF.item(S(), 'D-POSTUP').status, 'edited'); assert.ok(NF.item(S(), 'D-POSTUP').postup.prandHigh.branches[0].off);
   assert.match(markup(), /vyřazeno/);
   assert.equal(hasUp(NF.proposals(S(), r.planId)), false, 'vyřazená větev se v návrzích neukáže');
-  assert.ok(NF.proposals(S(), r.planId).some(p => p.postup && p.weak.some(w => /D-POSTUP/.test(w))) || true);
+  assert.ok(NF.proposals(S(), r.planId).some(p => p.postup && p.weak.some(w => /postup posouzení dávky/.test(w))) || true);
   chapter('advice');
   const k = food('Ovesná kaše s mlékem a banánem').id, T = NF.item(S(), 'R-PORCE').texts;
   assert.equal(NF.advise(S(), k, 'bigger', 'before').items.find(i => i.lever === 'portion').text, T.biggerBefore);
@@ -1422,8 +1423,8 @@ test('Zbytek prověrky (SCHEMA 61): fokus po kroku, zásuvka inert, toast, nadpi
   act('mealStep', '1'); let m = markup(); assert.match(m, /class="eyebrow time-h"><svg[^>]*data-icon="clock"[\s\S]*?<\/svg> Teď · \d{1,2}:\d\d<\/p>/); assert.match(m, /Vybráno teď: 7 mmol\/l/);
   /* LF-26: volič „jinak“ nejde pod 1 j. */
   act('mealBolus', 'other'); for (let i = 0; i < 70; i++) act('mealUnits', '-1'); assert.equal(S().meal.units, 1);
-  /* LF-25: štítek DEMO na každé pacientské obrazovce i bez prezentační vrstvy */
-  for (const pg of ['meal', 'foods', 'plan', 'safety']) { act('page', pg); assert.match(markup(), /<p class="demo-band"><span class="demo-flag">DEMO · syntetická data/, pg); }
+  /* LF-25 → 26. 10. 2026: s prezentační vrstvou nese štítek DEMO jen lišta ukázky; obrazovky pacienta ho neopakují */
+  for (const pg of ['meal', 'foods', 'plan', 'safety']) { act('page', pg); assert.ok(!/class="demo-band"/.test(markup()), pg); }
   /* A14: toast nejméně 6 s, delší text déle */
   assert.equal(NF.toastMs('Zapsáno.'), 6000); assert.equal(NF.toastMs('x'.repeat(200)), 12000);
   /* A20: štítek stavu nese ikonu */
@@ -1584,18 +1585,72 @@ test('Souhrn rozhodnutí na celou šířku (V4, 21. 10. 2026): stránka vlevo, �
   assert.equal(/#[0-9a-fA-F]{3,8}\b|rgba?\(/.test(block), false, 'souhrn bez pevných barev'); assert.deepEqual(block.replace(/@media[^{]*\{/g, '').match(/\b(?!1px)\d+px\b/g) || [], [], 'souhrn bez pevných rozměrů (kromě vlasové linky 1px)');
 });
 
-test('Bublina při klepnutí do zamčené obrazovky (S4, 21. 10. 2026): nápověda na 3 s, aplikace se nezmění, mimo zamčení nic', () => {
+/* Malý DOM pro testy vysvětlivek: parser značek a selektory, jaké používá demo/explain.js (značka, .třída, [atribut], [atribut=hodnota], mezera, čárka). */
+function miniDom(html) {
+  const VOID = new Set(['input', 'br', 'img', 'hr', 'meta', 'link', 'source', 'col', 'wbr']);
+  const parseSel = sel => sel.split(',').map(p => p.trim().split(/\s+/).map(c => {
+    const o = { tag: null, cls: [], attrs: [] }; const re = /^([a-z][\w-]*)|\.([\w-]+)|#([\w-]+)|\[([\w-]+)(?:=("?)([^\]"]*)\5)?\]/gi; let m;
+    while ((m = re.exec(c))) { if (m[1]) o.tag = m[1].toLowerCase(); else if (m[2]) o.cls.push(m[2]); else if (m[3]) o.attrs.push(['id', m[3]]); else o.attrs.push([m[4], m[6]]); }
+    return o;
+  }));
+  const one = (n, c) => n.tag && (!c.tag || n.tag === c.tag) && c.cls.every(k => n.cls.includes(k)) && c.attrs.every(([k, v]) => k in n.attrs && (v === undefined || n.attrs[k] === v));
+  const chain = (n, parts, i) => { if (!one(n, parts[i])) return false; if (i === 0) return true; for (let p = n.parent; p && p.tag; p = p.parent) if (chain(p, parts, i - 1)) return true; return false; };
+  const matches = (n, sel) => parseSel(sel).some(parts => chain(n, parts, parts.length - 1));
+  const all = (root, sel) => { const out = []; const walk = x => { for (const c of x.children) { if (matches(c, sel)) out.push(c); walk(c); } }; walk(root); return out; };
+  const proto = {
+    matches(sel) { return matches(this, sel); }, closest(sel) { for (let x = this; x && x.tag; x = x.parent) if (matches(x, sel)) return x; return null; },
+    querySelector(sel) { return all(this, sel)[0] || null; }, querySelectorAll(sel) { return all(this, sel); },
+    getAttribute(k) { return k in this.attrs ? this.attrs[k] : null; }, hasAttribute(k) { return k in this.attrs; },
+    get textContent() { return this.text != null ? this.text : this.children.map(c => c.textContent).join(''); },
+    get parentElement() { return this.parent && this.parent.tag ? this.parent : null; },
+    get classList() { const n = this; return { contains: k => n.cls.includes(k) }; }
+  };
+  const root = Object.assign(Object.create(proto), { tag: null, children: [], attrs: {}, cls: [] }); let cur = root;
+  const re = /<(\/?)([a-zA-Z][\w-]*)((?:[^>"']|"[^"]*"|'[^']*')*)>|([^<]+)/g; let m;
+  while ((m = re.exec(html))) {
+    if (m[4] != null) { cur.children.push(Object.assign(Object.create(proto), { tag: null, text: m[4], children: [], attrs: {}, cls: [], parent: cur })); continue; }
+    const tag = m[2].toLowerCase();
+    if (m[1]) { let x = cur; while (x && x.tag !== tag) x = x.parent; if (x) cur = x.parent; continue; }
+    const attrs = {}; m[3].replace(/([\w:-]+)(?:="([^"]*)")?/g, (_, k, v) => { attrs[k] = v === undefined ? '' : v; });
+    const node = Object.assign(Object.create(proto), { tag, attrs, cls: (attrs.class || '').split(/\s+/).filter(Boolean), children: [], parent: cur });
+    cur.children.push(node); if (!VOID.has(tag) && !/\/\s*$/.test(m[3])) cur = node;
+  }
+  return root;
+}
+/* Projde celý příběh (všechny scény včetně dodatku, každý krok) a vrátí obrazovky jako text od <main>. */
+function storyScreens() {
+  const out = [];
+  for (let si = 0; si < D.scenes.length; si++) {
+    act('goScene', String(si)); act('closeDrawer');
+    const n = D.tour.stepsFor(D.chapters[S().chapterIndex].id, S().branches).length;
+    for (let k = 0; k <= n; k++) { const m = markup(); out.push({ where: 'scéna ' + (si + 1) + ' krok ' + k + ' (' + S().role + ')', html: m.slice(m.indexOf('<main')) }); if (k < n) next(); }
+  }
+  return out;
+}
+
+test('Bublina „klepne ukázka“ (S4, 21. 10. 2026; oprava 26. 10. 2026): jen u ovládacího prvku, do prázdna nic, aplikace se nezmění', () => {
   act('goScene', '3'); act('closeDrawer'); app.act('tourNext');
   const before = JSON.stringify(S());
-  const main = { getBoundingClientRect() { return { left: 0, top: 60, right: 900, bottom: 800 }; } };
+  const main = { getBoundingClientRect() { return { left: 0, top: 60, right: 900, bottom: 800 }; }, contains: x => !!(x && x.inMain) };
   ctx.document.querySelector = sel => (sel === 'main' ? main : null);
+  /* prvek pod prstem: co vrátí elementFromPoint, když demo.css na okamžik vrátí main zásah (třída pres-probe) */
+  const node = (sels, inMain = true) => ({ inMain, closest: sel => (sel.split(',').some(q => sels.includes(q.trim())) ? { inMain, getAttribute: () => null } : null) });
+  let under = null, probed = [];
+  ctx.document.elementFromPoint = () => { probed.push(ctx.document.body.className); return under; };
   const tap = (x, y, cls) => ({ target: { closest: sel => (cls && sel.split(',').some(q => q.trim() === cls) ? {} : null) }, clientX: x, clientY: y, detail: 1 });
   ctx.document.body = { className: 'pres-doctor pres-panel' };
+  under = node(['button']);
   assert.equal(D.lockedTap(tap(100, 200)), false, 'bez zamčení se bublina neukáže');
   ctx.document.body = { className: 'pres-doctor pres-locked pres-panel' };
   assert.equal(D.lockedTap(tap(100, 200, '.tour-panel')), false, 'klepnutí do panelu bublinu neukáže');
   assert.equal(D.lockedTap(tap(1000, 200)), false, 'mimo obrazovku aplikace nic');
-  assert.equal(D.lockedTap(tap(100, 200)), true);
+  under = node([]); assert.equal(D.lockedTap(tap(100, 200)), false, 'klepnutí do prázdna (karta, text) bublinu neukáže');
+  under = null; assert.equal(D.lockedTap(tap(100, 200)), false, 'nic pod prstem: nic');
+  under = node(['button'], false); assert.equal(D.lockedTap(tap(100, 200)), false, 'pozadí mimo main (#app, body): nic');
+  assert.ok(probed.every(c => /pres-probe/.test(c)), 'zásah se zjišťuje s třídou pres-probe'); assert.equal(/pres-probe/.test(ctx.document.body.className), false, 'třída se hned vrátí');
+  for (const sel of ['button', 'a', 'input', 'select', 'textarea', 'label', 'summary', '[data-action]', '[data-bind]', '[role=button]', '[role=switch]', '[role=tab]']) {
+    under = node([sel]); assert.equal(D.lockedTap(tap(100, 200)), true, 'ovládací prvek ' + sel);
+  }
   const bub = elements.get('lock-bubble'); assert.match(plain(bub.innerHTML), /^Tohle za vás klepne ukázka\. Pokračujte v panelu (vpravo|dole)\.$/);
   assert.match(D.lockBubbleText(), /panelu (vpravo|dole)\./);
   assert.equal(JSON.stringify(S()), before, 'klepnutí v aplikaci nic nezměnilo');
@@ -1603,8 +1658,81 @@ test('Bublina při klepnutí do zamčené obrazovky (S4, 21. 10. 2026): nápově
   assert.match(src, /BUBBLE_MS = 3000/); assert.match(src, /setAttribute\('aria-live', 'polite'\)/); assert.match(src, /'Tohle za vás klepne ukázka\. Pokračujte v panelu ' \+ \(D\.narrow\(\) \? 'dole' : 'vpravo'\)/);
   const css = fs.readFileSync(path.join(__dirname, 'demo/demo.css'), 'utf8');
   assert.match(css, /body\.pres-locked main\{pointer-events:none\}/, 'zamčení zůstává'); assert.match(css, /\.lock-bubble\{[^}]*pointer-events:none/); assert.match(css, /\.lock-bubble\{[^}]*width:var\(--nf-demo-bubble-w\)/);
+  assert.match(css, /body\.pres-probe main,body\.pres-probe main \.tour-focus\{pointer-events:auto\}/);
   /* pokyn „Ovládejte jen fialovými tlačítky“ jen ve scénách 1–2 */
   for (let i = 2; i < D.scenes.length; i++) { act('goScene', String(i)); act('closeDrawer'); assert.equal(/class="tour-hint"/.test(markup()), false, 'scéna ' + (i + 1)); }
+});
+
+test('Vysvětlivky (26. 10. 2026): klepnutí na vysvětlený prvek ukáže nadpis, text a položku registru; přednost před „klepne ukázka“', () => {
+  chapter('reviewSummary'); act('startReview');
+  const doc = miniDom(markup().slice(markup().indexOf('<main')));
+  const tile = doc.querySelector('.tiles.report .tile[data-value=tir]'); assert.ok(tile, 'dlaždice času v cíli je na obrazovce');
+  tile.attrs['data-nf-explain'] = 'tile-tir'; tile.getBoundingClientRect = () => ({ left: 10, top: 100, right: 300, bottom: 220, width: 290, height: 120 });
+  const main = { getBoundingClientRect() { return { left: 0, top: 60, right: 900, bottom: 800 }; }, contains: () => true };
+  ctx.document.querySelector = sel => (sel === 'main' ? main : null);
+  ctx.document.body = { className: 'pres-doctor pres-locked pres-panel' };
+  const inner = tile.querySelector('.v'); ctx.document.elementFromPoint = () => inner;
+  assert.equal(D.lockedTap({ target: { closest: () => null }, clientX: 100, clientY: 150, detail: 1 }), true);
+  const h = plain(elements.get('explain-bubble').innerHTML);
+  assert.match(h, /class="xb-t">Čas v cíli \(TIR\)</, 'nadpis');
+  assert.match(h, /mezi 3,9 a 10,0 mmol\/l/, 'čísla z cílů glukózy'); assert.match(h, /Zelená je od 70 %, oranžová od 50 %/, 'prahy ze S-SEMAFOR');
+  assert.match(h, /Tohle tlačítko za vás v příběhu klepne ukázka\./, 'dlaždice je zároveň tlačítko');
+  assert.match(h, /data-action="explainItem" data-value="S-SEMAFOR">Semafor času v cíli \(TIR\)</, 'položka registru jako odkaz');
+  assert.match(h, /data-xb="close" aria-label="Zavřít vysvětlení"/);
+  assert.equal(elements.get('lock-bubble').innerHTML, '', 'hláška o klepání se neukáže');
+  assert.equal(D.explainOpen(), 'tile-tir');
+  /* odkaz otevře průvodce položkou pro garanta (bez skoku ze scény) */
+  act('explainItem', 'S-SEMAFOR'); assert.equal(D.explainOpen(), null, 'bublina se zavře');
+  const dr = plain(NF.slots.drawer(S(), 'explain-item:S-SEMAFOR')); assert.match(dr, /Položka registru · S-SEMAFOR/); assert.match(dr, /Co schvalujete/); assert.doesNotMatch(dr, /goSceneFrom/, 'z průvodce v bublině se ze scény neskáče');
+  /* zavírá se Esc, křížkem nebo klepnutím jinam; sama po 3 s nezmizí */
+  const src = fs.readFileSync(path.join(__dirname, 'demo/explain.js'), 'utf8');
+  assert.match(src, /ev\.key === 'Escape' && open/); assert.match(src, /data-xb=close/); assert.match(src, /if \(open\) D\.explainHide\(false\);\n  return false;/); assert.doesNotMatch(src, /setTimeout\(/, 'vysvětlení se samo nezavírá');
+  assert.match(src, /setAttribute\('role', 'dialog'\)/); assert.match(src, /setAttribute\('aria-label', 'Vysvětlení: '/); assert.match(src, /setAttribute\('tabindex', '0'\)/); assert.match(src, /aria-describedby/);
+  /* mimo zamčení: neovládací prvek se vysvětlí, u ovládacího má přednost akce aplikace */
+  const why = doc.querySelector('.tiles.report .tile .d'); why.attrs['data-nf-explain'] = 'tile-cmp';
+  const gid = ctx.document.getElementById; ctx.document.getElementById = id => (id === 'main' ? { contains: () => true } : gid(id));
+  assert.equal(D.explainTap({ target: why, clientX: 1, clientY: 1 }), false, 'řádek leží v tlačítku dlaždice: akce aplikace má přednost');
+  const weave = doc.querySelector('.weave'); weave.attrs['data-nf-explain'] = 'weave'; const cell = weave.querySelector('i');
+  assert.equal(D.explainTap({ target: cell, clientX: 1, clientY: 1 }), true, 'tkanina není ovládací: vysvětlí se');
+  const h2 = plain(elements.get('explain-bubble').innerHTML); assert.match(h2, /class="xb-t">Tkanina zápisů</); assert.doesNotMatch(h2, /klepne ukázka/, 'mimo zamčení bez věty o klepání');
+  ctx.document.getElementById = gid;
+  /* jen prezentační vrstva: HTML ji načítá za presenter.js, jádro ji nezná */
+  assert.match(html, /<script src="demo\/presenter\.js\?v=\d+"><\/script>\n<script src="demo\/explain\.js\?v=\d+"><\/script>/);
+  for (const f of CORE) assert.doesNotMatch(fs.readFileSync(path.join(__dirname, f), 'utf8'), /nf-explain|data-nf-explain|D\.explain/, f);
+  /* legenda v panelu a na úvodu */
+  assert.match(D.panelHtml(S()), /Fialově podtečkované věci vysvětlí bublina po klepnutí\./);
+  act('goScene', '0'); act('closeDrawer'); assert.match(markup(), /Fialově <span class="xb-sample">podtečkované<\/span> věci vysvětlí bublina po klepnutí\./);
+});
+
+test('Vysvětlivky: každá položka katalogu se v příběhu aspoň jednou najde; texty celými větami, bez „·“, čísla z registru, položka viditelná garantovi', () => {
+  assert.ok(D.explain.length >= 30 && D.explain.length <= 50, 'katalog má ' + D.explain.length + ' položek');
+  assert.equal(new Set(D.explain.map(x => x.id)).size, D.explain.length, 'jedinečná id');
+  const found = {}, checked = {};
+  for (const sc of storyScreens()) {
+    const doc = miniDom(sc.html), taken = new Set();
+    for (const x of D.explain) {
+      for (const el of doc.querySelectorAll(x.sel)) {
+        if (taken.has(el) || !D.explainOk(x, el)) continue; taken.add(el); found[x.id] = found[x.id] || sc.where;
+        const c = D.explainContent(x, el, S()), key = x.id + '|' + c.title + '|' + c.text + '|' + c.item;
+        if (checked[key]) continue; checked[key] = 1;
+        assert.ok(c.title && c.text, x.id + ': nadpis a text');
+        assert.doesNotMatch(c.title + ' ' + c.text, /·/, x.id + ': bez teček „·“ jako spojky');
+        assert.doesNotMatch(c.title + ' ' + c.text, /undefined|NaN|null|\{|\}/, x.id + ': čísla z registru dosazena (' + c.text + ')');
+        const sentences = c.text.split(/(?<=[.!?“])\s+(?=[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ„])/).filter(Boolean);
+        assert.ok(sentences.length >= 1 && sentences.length <= 3, x.id + ': 1 až 3 věty (' + sentences.length + ')');
+        assert.ok(sentences.every(t => /[.!?“]$/.test(t.trim()) && t.split(/\s+/).length >= 4), x.id + ': celé věty, ne heslovitě');
+        if (x.item) { assert.ok(c.item, x.id + ': položka registru existuje a garant ji vidí'); assert.notEqual(NF.item(S(), c.item).scope, 'provozni', x.id); }
+      }
+    }
+  }
+  const missing = D.explain.filter(x => !found[x.id]).map(x => x.id + ' (' + x.sel + ')');
+  assert.equal(missing.length, 0, 'selektor, který v příběhu nic nenajde: ' + missing.join(', '));
+  /* čísla a prahy se čtou z registru, ne natvrdo: po úpravě parametru se text změní */
+  const reak = NF.item(S(), 'R-REAKCE'); reak.params.minKnown = 5;
+  assert.match(D.explainContent(D.explainById.ring, null, S()).text, /Po 5 shodných zápisech/);
+  NF.item(S(), 'S-SEMAFOR').params.tir_zelena = 75; assert.match(D.explainContent(D.explainById['tile-tir'], null, S()).text, /Zelená je od 75 %/);
+  /* zásady odst. 2: vysvětlení nenavrhuje dávku */
+  for (const x of D.explain) { const t = D.explainContent(x, null, S()).text; assert.doesNotMatch(t, /\d+\s*j\./, x.id + ': bez jednotek inzulinu'); }
 });
 
 test('Katalog: sekce Prezentační vrstva čte demo/demo.css a ukazuje živé prvky vrstvy', () => {
@@ -1675,7 +1803,7 @@ test('Rozhodnutí vlastníka 23. 10. 2026 (SCHEMA 67): porce zleva menší · ob
   assert.match(m, /Čas pod 3,9 mmol\/l[\s\S]*dříve 3 → teď 2 · −1 p\. b\./);
   assert.match(m, /HbA1c[\s\S]*! nad cílem · zlepšuje se[\s\S]*dříve 62 → teď 55 · −7 mmol\/mol · cíl do 53/); /* cíl HbA1c v C-CILE (25. 10. 2026) */
   assert.match(m, /Obvyklá porce[\s\S]*první období · bez srovnání/);
-  assert.match(m, /čas v cíli 72 % \(dříve 58 %\)/);
+  assert.match(m, /Čas v cíli byl 72 % \(dříve 58 %\)/);
   assert.match(m, /class="tile c-none wide"[\s\S]*Mimo učení/);
 });
 

@@ -21,11 +21,12 @@ function intro(s) {
     '<section class="card"><h2>Jak ukázku ovládat</h2><ol class="intro-steps">' +
     '<li><b>' + (nar ? 'Dole' : 'Vpravo') + ' je fialový panel „Ovládání ukázky“.</b> Je to jediné, co ovládáte: <span class="pill">Dál ▶</span> odehraje další krok, <span class="pill">← Zpět</span> vrátí o krok.</li>' +
     '<li><b>' + (nar ? 'Nahoře' : 'Vlevo') + ' běží aplikace sama.</b> Vy do obrazovky neklikáte, jen sledujete, co se děje a proč.</li>' +
-    '<li><b>Když se poprvé objeví pravidlo aplikace</b> (štítek <span class="appr pend" aria-hidden="true">◌ ke schválení</span>), panel ho nabídne s vysvětlením. Rozhodnete <b>Schválit · Upravit · Zamítnout</b>; pokračovat lze až po rozhodnutí.</li>' +
+    '<li><b>Fialově <span class="xb-sample">podtečkované</span> věci vysvětlí bublina po klepnutí.</b> Hodí se, když si nejste jistí, co číslo nebo prvek znamená.</li>' + /* vysvětlivky (demo/explain.js, 26. 10. 2026) */
+    '<li><b>Když se poprvé objeví pravidlo aplikace</b> (štítek <span class="appr pend" aria-hidden="true">◌ ke schválení</span>), panel ho nabídne s vysvětlením. Rozhodnete tlačítkem <b>Schválit</b>, <b>Upravit</b> nebo <b>Zamítnout</b>; pokračovat lze až po rozhodnutí.</li>' +
     '<li><b>Zamítnutí ukázku nezastaví.</b> Na místě uvidíte „Tahle část nefunguje“. Rozhodnutí můžete kdykoli změnit.</li>' +
     '<li><b>Na konci je souhrn</b> všech rozhodnutí: zkontrolujete, případně změníte a potvrdíte. Nic neposíláte.</li></ol>' +
     '<details class="more"><summary>Dvě roviny: dnes a během studie</summary><p class="small">Dnes schvalujete funkce pro první verzi aplikace, na jejímž základě poběží studie. V příběhu uvidíte i to, co budete jako garant a lékař studie dělat až během ní (scénář 5: úprava pravidla po podnětu z provozu).</p></details></section>' +
-    '<section class="card"><h2>Co uvidíte</h2><p class="small">' + main + ' scén hlavní linie v ' + (D.acts.length - 1) + ' scénářích, za nimi dodatek s ' + ap + ' variantami. Modelový pacient i všechna data jsou syntetická, nejde o léčbu.</p>' +
+    '<section class="card"><h2>Co uvidíte</h2><p class="small">' + main + ' scén hlavní linie v ' + (D.acts.length - 1) + ' scénářích a za nimi dodatek ' + (NF.z(ap) === 'ze' ? 'se ' : 's ') + ap + ' variantami. Modelový pacient i všechna data jsou syntetická, nejde o léčbu.</p>' +
     '<details class="more"><summary>Scénáře</summary><ol class="intro-acts">' + D.acts.filter(function (a, i) { return i > 0; }).map(function (a) { return '<li><b>' + e(a.title) + '</b><br><span class="small muted">' + e(a.note) + '</span></li>'; }).join('') + '</ol></details></section>' +
     '</div></div>';
 }

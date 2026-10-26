@@ -123,5 +123,8 @@
   --nf-demo-panel-w:380px;
   --nf-demo-phone-w:402px;--nf-demo-phone-h:874px;--nf-demo-phone-r:52px;--nf-demo-phone-edge:12px;
   --nf-demo-bubble-w:280px;   /* bublina „Tohle za vás klepne ukázka“ (S4, 21. 10. 2026) */
+  --nf-demo-dot:var(--nf-demo-focus); /* tečkování vysvětlených prvků (demo/explain.js, 26. 10. 2026) */
+  --nf-demo-dot-w:1.5px;--nf-demo-dot-off:3px;
+  --nf-demo-explain-w:340px;--nf-demo-explain-h:420px; /* vysvětlující bublina */
   --nf-demo-page-w:1080px     /* stránka souhrnu rozhodnutí na celou šířku (V4, 21. 10. 2026) */
 }
