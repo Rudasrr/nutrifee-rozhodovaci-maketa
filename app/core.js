@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 70;
+NF.SCHEMA = 71;
 NF.PAGES = ['today', 'foods', 'food', 'plan', 'safety', 'support', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
@@ -1076,7 +1076,7 @@ NF.adviseAfter = function (S, foodId, meal, at, portion, bolus) {
   if (NF.usable(S, meta.item) && !(S.illness && S.illness.active)) {
     if (lowRetro || res.lowRisk) { res.blocked.push({ lever: 'walk', reason: 'low', why: NF.walkLowWhy(S, lowRetro) }); return res; }
     var soon = res.minutes == null || res.minutes <= 60;
-    res.items.push({ lever: 'walk', item: meta.item, label: meta.label, carbs: false, text: it.text, certainty: soon ? 'Jídlo už máte za sebou; pohyb do hodiny po jídle zmírní vzestup glukózy. Doplněk ani pořadí už teď nezměníte.' : 'Od jídla uplynulo ' + res.minutes + ' min. Vzestup už nezměníte, ale glukóza po jídle bývá zvýšená ještě 2–3 hodiny a procházka ji sníží.' });
+    res.items.push({ lever: 'walk', item: meta.item, label: meta.label, carbs: false, text: fill(S, it.text, NF.foodById(S, foodId) || {}), /* dosazení {minut} i u zpětného zápisu (27. 10. 2026) */ certainty: soon ? 'Jídlo už máte za sebou; pohyb do hodiny po jídle zmírní vzestup glukózy. Doplněk ani pořadí už teď nezměníte.' : 'Od jídla uplynulo ' + res.minutes + ' min. Vzestup už nezměníte, ale glukóza po jídle bývá zvýšená ještě 2–3 hodiny a procházka ji sníží.' });
   }
   return res;
 };

@@ -65,7 +65,10 @@ D.sceneItems = [
   "title": "Pacient – po týdnu: co už aplikace ví", "items": []
  },
  {
-  "title": "Pacient – otevřel aplikaci až v 10:00", "items": []
+  "title": "Pacient – otevřel aplikaci až v 10:00", "items": [
+   "Z-GLUKOZA",
+   "R-PROCHAZKA"
+  ]
  },
  {
   "title": "Pacient – před píchnutím: porce zpět k obvyklé a doplněk", "items": [

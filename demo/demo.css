@@ -61,6 +61,12 @@ body.pres-patient #main .error{position:absolute;top:70px;left:50%;transform:tra
 .tour-foot .tour-next{margin:0 0 var(--nf-s2)}
 .tour-status{margin:0 0 var(--nf-s2);font-size:var(--nf-fs-2xs);color:var(--nf-demo-strong);font-weight:var(--nf-w-strong)}
 .tour-status-link{display:flex;margin:0 0 var(--nf-s1)}
+/* Tempo 27. 10. 2026: nenápadný stav, dokud krok ukázky běží (tlačítko Dál je zamčené) */
+.tour-running{display:flex;align-items:center;gap:var(--nf-s2);color:var(--nf-demo-strong)}
+.tour-running::before{content:'';flex:none;width:8px;height:8px;border-radius:50%;background:var(--nf-demo-strong);animation:tourBlink 1s ease-in-out infinite}
+@keyframes tourBlink{0%,100%{opacity:.25}50%{opacity:1}}
+/* hláška (toast) nesmí na užším okně zakrýt spodní panel s tlačítkem Dál: jde nahoru pod lištu ukázky */
+@media (max-width:1100px){body[class*="pres-"] .toast{top:calc(var(--barh,64px) + var(--nf-s2));bottom:auto}}
 .tour-block{color:var(--nf-low-text)}
 .tour-actions{display:flex;gap:var(--nf-s2);flex-wrap:wrap;align-items:center}
 .tour-actions .btn{min-height:var(--nf-tap-desk);font-size:var(--nf-fs-xs);width:auto;flex:none}
@@ -217,7 +223,7 @@ body.pres-nurse .phone-preview{zoom:.85}
 .pres-drawer .pres-tools{margin-top:var(--nf-s5)}
 .pres-drawer .pres-confirm{margin-top:var(--nf-s2);background:var(--nf-low-bg);border-radius:var(--nf-r-sm);padding:var(--nf-s2) var(--nf-s3)}
 
-@media (prefers-reduced-motion:reduce){.tour-focus,.tour-watch,.garant .gitem.gflash{animation:none}.tour-progress span::after,.lock-bubble{transition:none}}
+@media (prefers-reduced-motion:reduce){.tour-focus,.tour-watch,.garant .gitem.gflash,.tour-running::before{animation:none}.tour-progress span::after,.lock-bubble{transition:none}}
 @media print{.pres-bar,.tour-panel,.drawer{display:none!important}#main::before{content:"DEMO · syntetická data · není určeno pro léčbu";display:block;border:2px solid var(--nf-demo-strong);color:var(--nf-demo-strong);border-radius:var(--nf-r-sm);padding:var(--nf-s2) var(--nf-s3);margin:0 0 var(--nf-s4);font-weight:var(--nf-w-strong);font-size:var(--nf-fs-2xs)}}
 
 /* ---------- stav ukládání rozhodnutí garanta ---------- */

@@ -50,7 +50,7 @@ NF.demoActions.tourReturn = function () { var s = S(); if (s.tourRole) { s.role 
 /* ---------- rozhodovací kroky garanta (7. 10. 2026) ----------
    Každá scéna hlavní linie končí krokem „Co jste viděli a co schvalujete“ s položkami registru, které se v ní poprvé použily.
    Automaticky z demo/scene-items.js (štítky na obrazovce); položky bez štítku, nebo ty, které patří jinam, mapuje D.itemScene. Zbytek jde do finále. */
-D.itemScene = { 'K-KRITERIA': 'enroll', 'Z-GLUKOZA': 'firstMeal', 'Z-IMPORT': 'reviewSummary', 'B-HYPO': 'firstResult', 'S-SILNA': 'reviewSummary', 'R-NAVYKY': 'doses', 'R-POKYNY': 'doses', 'I-VYSOKA': 'doses', 'I-KONTAKT': 'doses', 'I-HYPO': 'firstResult', 'I-NEVIM': 'afterBolus', 'I-MENE': 'afterBolus', 'I-NEMOC-BAZAL': 'illness', 'I-NEMOC-JIDLO': 'illness', 'C-CILE': 'doses', 'Z-BODY': 'training', 'R-DIKY': 'firstMeal', 'S-TYDEN': 'lateMeal', 'J-DATABAZE': 'custom', 'J-STITKY': 'custom', 'R-PODOBNOST': 'custom', 'P-NEMOC': 'illness', 'R-ZMIZELA': 'impact', 'D-BAZAL': 'reviewProposals', 'P-LEKAR': 'issue' };
+D.itemScene = { 'K-KRITERIA': 'enroll', 'Z-GLUKOZA': 'firstMeal', 'Z-IMPORT': 'reviewSummary', 'B-HYPO': 'firstResult', 'S-SILNA': 'reviewSummary', 'R-NAVYKY': 'doses', 'R-POKYNY': 'doses', 'I-VYSOKA': 'doses', 'I-KONTAKT': 'doses', 'I-HYPO': 'firstResult', 'I-NEVIM': 'afterBolus', 'I-MENE': 'afterBolus', 'I-NEMOC-BAZAL': 'illness', 'I-NEMOC-JIDLO': 'illness', 'C-CILE': 'doses', 'Z-BODY': 'training', 'R-DIKY': 'firstMeal', 'S-TYDEN': 'lateMeal', 'J-DATABAZE': 'custom', 'J-STITKY': 'custom', 'R-PODOBNOST': 'custom', 'P-NEMOC': 'illness', 'R-ZMIZELA': 'impact', 'D-BAZAL': 'reviewProposals', 'P-LEKAR': 'issue', 'R-PROCHAZKA': 'advice' }; /* R-PROCHAZKA: procházka je vidět už při zpětném zápisu (scéna 10), schvaluje se ale u rad k jídlu (tempo 27. 10. 2026) */
 var decisionPlanCache = null;
 function mainSceneOf(chId) { for (var i = 0; i < D.scenes.length; i++) if (!D.scenes[i].appendix && D.chapters[D.scenes[i].ch].id === chId) return i; return -1; }
 function decisionPlan() {
@@ -168,7 +168,34 @@ NF.registerSlot('banner', function (s) { captureToast(s); return bar(s); });
 var busy = false, running = null, runId = 0, focusSel = null, watchSel = null, pressSel = null;
 function animated() { return !!(doc && typeof doc.querySelector === 'function' && global.requestAnimationFrame); }
 function reduced() { try { return global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (err) { return false; } }
-function wait(ms, fn) { global.setTimeout(fn, reduced() ? Math.min(ms, 120) : ms); }
+/* Tempo ukázky (27. 10. 2026): všechny časy na jednom místě. Jedno Dál = jeden děj, který panel popisuje.
+   Každá akce: dojezd rolování k cíli → pauza na nalezení cíle → zvýraznění stisku → akce → jednotná pauza. */
+var PACE = {
+  poll: 50,          /* ms mezi dvěma měřeními polohy cíle */
+  settleMax: 1200,   /* nejdéle čekáme, než rolování k cíli dojede */
+  look: 450,         /* po dojezdu: oko cíl najde */
+  press: 250,        /* zvýraznění stisku */
+  after: 700,        /* pauza po akci */
+  view: 850,         /* cíl bez akce: jak dlouho se jen ukazuje */
+  listLook: 100, listPress: 200, listAfter: 300, /* další položka téhož seznamu (podmínky, body zaučení, volič): s dojezdem zhruba 0,7 s */
+  typeChar: 60, typeMax: 1500, /* psaní: 60 ms na znak, celkem nejvýš 1,5 s */
+  reducedCap: 120    /* omezení pohybu: každá pauza nejvýš 120 ms a na rolování se nečeká (jako dřív) */
+};
+D.PACE = PACE;
+function wait(ms, fn) { global.setTimeout(fn, reduced() ? Math.min(ms, PACE.reducedCap) : ms); }
+/* Počká, až cíl přestane jezdit (plynulé rolování): poloha se dvakrát po sobě nezmění, nejdéle settleMax. */
+function settle(el, alive, fn) {
+  if (!el || reduced() || typeof el.getBoundingClientRect !== 'function') { fn(); return; }
+  var t0 = Date.now(), last = null, same = 0;
+  (function poll() {
+    if (!alive()) return;
+    var r = null; try { r = el.getBoundingClientRect(); } catch (err) { r = null; }
+    var k = r ? Math.round(r.top) + ':' + Math.round(r.left) : '';
+    if (k === last) same++; else { same = 0; last = k; }
+    if (same >= 2 || Date.now() - t0 >= PACE.settleMax) { fn(); return; }
+    global.setTimeout(poll, PACE.poll);
+  })();
+}
 function find(sel) { try { return sel ? doc.querySelector(val(sel)) : null; } catch (err) { return null; } }
 /* Viditelná oblast okna bez lišty ukázky nahoře a bez panelu dole (pod 1100 px je panel dole). */
 function viewBox() {
@@ -184,7 +211,7 @@ function reveal(el, soft) {
   for (var p = el.parentNode; p && p !== doc; p = p.parentNode) if (p.tagName === 'DETAILS') p.open = true;
   var r = null, vb = viewBox(); try { r = el.getBoundingClientRect(); } catch (err) { r = null; }
   var beh = reduced() ? 'auto' : 'smooth';
-  if (r && soft && r.top >= vb.top && r.bottom <= vb.bottom) return;
+  if (r && soft && fullyVisible(el, r, vb)) return;
   var tall = r && r.height > (vb.bottom - vb.top) * 0.85;
   if (r && D.narrow() && global.scrollBy) {
     var pad = 12, want = tall ? vb.top + pad : vb.top + Math.max(pad, (vb.bottom - vb.top - r.height) / 2);
@@ -193,6 +220,17 @@ function reveal(el, soft) {
     return;
   }
   try { el.scrollIntoView({ block: tall ? 'start' : 'center', behavior: beh }); } catch (err4) { }
+}
+/* Celý vidět: v okně (bez lišty a spodního panelu) i v rolovacím rodiči (rámeček telefonu roluje uvnitř). */
+function fullyVisible(el, r, vb) {
+  if (r.top < vb.top || r.bottom > vb.bottom) return false;
+  for (var p = el.parentNode; p && p.nodeType === 1 && p !== doc.body && p !== doc.documentElement; p = p.parentNode) {
+    if (!(p.scrollHeight > p.clientHeight + 1)) continue;
+    var ov = ''; try { ov = global.getComputedStyle(p).overflowY; } catch (err) { ov = ''; }
+    if (ov !== 'auto' && ov !== 'scroll') continue;
+    var q = p.getBoundingClientRect(); if (r.top < q.top - 1 || r.bottom > q.bottom + 1) return false;
+  }
+  return true;
 }
 /* Rámeček telefonu roluje uvnitř: po kroku zpět nebo přehrání scény se vrátí nahoru (V08). */
 function shellTop() { try { var sh = doc.querySelector('.patient-shell .patient'); if (sh) sh.scrollTop = 0; } catch (err) { } }
@@ -218,30 +256,43 @@ function perform(op) {
   }
 }
 /* Každý krok animace ověří, že běh stále platí (skok na scénu ho zruší); chyba krok ukončí a odemkne tlačítka (P1, 6. 10. 2026). */
+function isAct(op) { return !!(op && (op.act || op.bind || op.fn)); }
+/* Další položka téhož seznamu: stejná akce za sebou (podmínky, body zaučení, volič), nebo krok výslovně označený list. */
+function listNext(step, prev, op) { return isAct(prev) && isAct(op) && (!!step.list || (!!op.act && op.act === prev.act)); }
+function pressable(el) { try { return !!(el && el.matches && el.matches('button,[data-action],input,select,textarea,label,summary,.toggle')); } catch (err) { return false; } }
 function runAnimated(step, done) {
-  var ops = (step.do || []).slice(), my = ++runId;
+  var ops = (step.do || []).slice(), my = ++runId, prev = null, lastSel = null;
   function alive() { return my === runId; }
   function safe(fn) { try { fn(); return true; } catch (err) { var s = S(); s.error = 'Krok ukázky selhal a byl přeskočen: ' + err.message; NF.save(s); done(true); return false; } }
+  /* Konec kroku: jedno rolování, jen když je „watch“ jiný cíl než poslední a není celý vidět. */
+  function finish() {
+    var ws = step.watch ? val(step.watch) : null, w = ws && ws !== lastSel ? find(ws) : null;
+    if (!w) { done(); return; }
+    focusSel = ws; pressSel = null; decorate(); reveal(w, true); settle(w, alive, function () { if (alive()) done(); });
+  }
   (function next() {
     if (!alive()) return;
-    if (!ops.length) { done(); return; }
-    var op = ops.shift();
-    focusSel = op.sel ? val(op.sel) : null; pressSel = null; decorate();
-    var el = find(op.sel); reveal(el);
-    if (!op.act && !op.bind && !op.fn) { wait(600, next); return; }
-    wait(650, function () {
+    if (!ops.length) { finish(); return; }
+    var op = ops.shift(), inList = listNext(step, prev, op), more = listNext(step, op, ops[0]); prev = op;
+    focusSel = op.sel ? val(op.sel) : null; pressSel = null; decorate(); if (focusSel) lastSel = focusSel;
+    var el = find(op.sel); reveal(el, true);
+    settle(el, alive, function () {
       if (!alive()) return;
-      if (op.bind && op.type && el && 'value' in el) {
-        var text = String(val(op.val)), i = 0; el.value = '';
-        (function typeOne() {
-          if (!alive()) return;
-          if (i < text.length) { el.value += text.charAt(i++); if (op.live) NF.bindValue(val(op.bind), el.value); wait(90, typeOne); return; }
-          if (safe(function () { perform(op); })) wait(350, next);
-        })();
-        return;
-      }
-      pressSel = focusSel; decorate();
-      wait(240, function () { if (!alive()) return; pressSel = null; if (safe(function () { perform(op); })) wait(op.quick ? 320 : 600, next); });
+      if (!isAct(op)) { wait(PACE.view, next); return; }
+      wait(inList ? PACE.listLook : PACE.look, function () {
+        if (!alive()) return;
+        if (op.bind && op.type && el && 'value' in el) {
+          var text = String(val(op.val)), i = 0, per = Math.max(15, Math.min(PACE.typeChar, Math.floor(PACE.typeMax / Math.max(1, text.length)))); el.value = '';
+          (function typeOne() {
+            if (!alive()) return;
+            if (i < text.length) { el.value += text.charAt(i++); if (op.live) NF.bindValue(val(op.bind), el.value); wait(per, typeOne); return; }
+            if (safe(function () { perform(op); })) wait(PACE.after, next);
+          })();
+          return;
+        }
+        var press = pressable(el); if (press) { pressSel = focusSel; decorate(); }
+        wait(press ? (inList ? PACE.listPress : PACE.press) : 0, function () { if (!alive()) return; pressSel = null; if (safe(function () { perform(op); })) wait(more ? PACE.listAfter : PACE.after, next); });
+      });
     });
   })();
 }
@@ -271,7 +322,7 @@ NF.demoActions.tourNext = function () {
     S().tourStep = i + 1; /* i selhaný krok se přeskočí, hláška zůstane; prezentace se nezasekne */
     markTour(); NF.save(S()); busy = false; running = null; focusSel = failed ? null : lastFocus(step); /* zvýraznění zůstane, dokud garant nepokračuje (8. 10. 2026) */
     watchSel = failed ? null : (step.watch || null); NF.render();
-    var w = find(watchSel); if (w) reveal(w); else reveal(find(focusSel), true); /* V04: cíl kroku, který překreslení odsunulo pod okraj, se doroluje */
+    reveal(find(watchSel) || find(focusSel), true); /* V04: jen když překreslení (panel s položkami ke schválení) cíl odsunulo pod okraj; jinak se nic neroluje */
     focusPanel();
   });
 };
@@ -605,7 +656,7 @@ function panel(s) {
     (idx === 1 ? '<p class="tour-hint">Ovládejte ukázku jen fialovými tlačítky v tomto panelu. Petrolejová tlačítka ' + (D.narrow() ? 'nahoře' : 'vlevo') + ' jsou skutečná tlačítka budoucí aplikace; ukázka je klepe za vás.</p>' : '') + /* S12: od scény 2; úvod to říká sám */
     (returnTo && !busy ? '<p class="tour-next">Přišli jste sem z registru (položka ' + e(returnTo.item) + ').</p>' : '') + '</div>' +
     '<div class="tour-foot">' + (panelMsg ? '<p class="tour-status" role="status">' + e(panelMsg) + '</p>' : '') + jump +
-    (sub ? '<p class="tour-next">' + e(sub) + '</p>' : '') +
+    (busy ? '<p class="tour-next tour-running">' + e(running != null && (st[running].do || []).some(isAct) ? 'Ukázka klepe…' : 'Ukázka ukazuje…') + '</p>' : sub ? '<p class="tour-next">' + e(sub) + '</p>' : '') +
     '<div class="tour-actions">' + (returnTo && !busy ? btn('← Zpět do registru', 'regReturn') : '') + btn('← Zpět', 'tourBack', null, '', busy || (idx === 0 && i === 0) ? ' disabled' : '') + nextBtn + '</div>' +
     progressBar(s, i, st) + '</div></aside>';
 }

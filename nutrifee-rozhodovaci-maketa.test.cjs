@@ -1159,6 +1159,28 @@ test('Každý krok vypráví a každá kapitola má úvod', () => {
   }
 });
 
+test('Tempo průchodu (27. 10. 2026): jedno Dál = jeden děj; fn jen s cílem; časy na jednom místě; rozdělení kroků nepřesunulo žádnou položku ke schválení do jiné scény', () => {
+  /* položky ke schválení se nabízejí ve stejných scénách jako před rozdělením kroků */
+  const FROZEN = {"K-KRITERIA": "enroll", "C-CILE": "doses", "R-NAVYKY": "doses", "R-POKYNY": "doses", "I-VYSOKA": "doses", "I-KONTAKT": "doses", "P-LEKAR": "issue", "Z-GLUKOZA": "firstMeal", "B-HYPO": "firstResult", "I-HYPO": "firstResult", "R-PORCE": "advice", "R-DOPLNEK": "advice", "R-PORADI": "advice", "R-PROCHAZKA": "advice", "I-MENE": "afterBolus", "I-NEVIM": "afterBolus", "R-PODOBNOST": "custom", "I-NEMOC-BAZAL": "illness", "I-NEMOC-JIDLO": "illness", "P-NEMOC": "illness", "S-SILNA": "reviewSummary", "S-SEMAFOR": "reviewSummary", "D-CISTA": "reviewSummary", "R-SKORE": "reviewSummary", "R-REAKCE": "reviewSummary", "D-POSTUP": "reviewSummary", "D-PRAND": "reviewSummary", "D-BAZAL": "reviewProposals"};
+  const got = {}; D.scenes.forEach((sc, i) => D.decisionItems(i).forEach(id => { got[id] = D.chapters[sc.ch].id; }));
+  assert.deepEqual(got, FROZEN);
+  /* krok: víc akcí jen jako seznam téže akce (list nebo stejná akce), jinak nejvýš dvojice volba + potvrzení/přechod; změna stavu přes fn vždy s cílem */
+  for (const c of D.chapters) for (const st of D.tour.chapters[c.id].steps) {
+    const acts = (st.do || []).filter(o => o.act || o.bind || o.fn), kinds = new Set(acts.map(o => o.act || (o.bind ? 'bind' : 'fn')));
+    assert.ok(acts.length <= 2 || st.list || kinds.size === 1, c.id + ' / ' + st.t + ': ' + acts.length + ' různých akcí v jednom kroku');
+    assert.ok(acts.length <= 5, c.id + ' / ' + st.t + ': seznam delší než 5 položek');
+    for (const o of st.do || []) { if (o.fn) assert.ok(o.sel, c.id + ' / ' + st.t + ': fn bez cíle sel'); assert.equal('quick' in o, false, c.id + ' / ' + st.t + ': quick už neplatí'); }
+  }
+  /* tempo: konstanty na jednom místě, čekání na dojezd rolování */
+  const P = D.PACE; assert.ok(P, 'D.PACE');
+  assert.deepEqual([P.poll, P.settleMax, P.look, P.press, P.after, P.typeChar, P.typeMax], [50, 1200, 450, 250, 700, 60, 1500]);
+  assert.ok(P.listLook + P.listPress + P.listAfter >= 600 && P.listLook + P.listPress + P.listAfter <= 800, 'položka seznamu zhruba 0,7 s');
+  const src = fs.readFileSync(path.join(__dirname, 'demo/presenter.js'), 'utf8');
+  assert.match(src, /function settle\(el, alive, fn\)/); assert.equal(/wait\((650|600|320|240|90)\b/.test(src), false, 'žádné pevné časy mimo PACE');
+  /* dlouhý zpětný zápis je rozdělený na kroky po jednom ději */
+  assert.ok(D.tour.stepsFor('lateMeal', D.defaults).length >= 6);
+});
+
 /* ---------- produkce ---------- */
 test('Produkční sestavení bez demo/ má registr, jídla i katalogy z app/data/, ale žádný plán; bez položek registru nic neradí', () => {
   for (const f of CORE) assert.equal(/D\.chapters|D\.play\(|NutriFeeDemo\.tour|NutriFeeDemo\.(habit|instruction)Catalog/.test(fs.readFileSync(path.join(__dirname, f), 'utf8')), false, f);
@@ -1956,6 +1978,13 @@ test('Garant 23. 10. 2026 (V09): zamítnutí položky bez místa v příběhu ř
   act('goScene', String(idx + 1)); act('closeDrawer'); assert.equal(S().tourStep || 0, 0);
   m = markup(); assert.match(m, /Od minulé scény nefunguje/); assert.match(m, /class="off-notice compact"[^>]*data-off="I-HYPO"/);
   assert.match(D.prevSceneOff(S()), /I-HYPO/);
+});
+
+test('Zpětný zápis (27. 10. 2026): rada k procházce má dosazené minuty, žádný zástupný znak', () => {
+  chapter('week'); act('role', 'patient');
+  const f = S().foods.find(x => /Ovesná kaše s mlékem/.test(x.name)); const at = NF.addMin(S().clock, -20);
+  const r = NF.adviseAfter(S(), f.id, 'breakfast', at, 'usual', 'as'); const w = r.items.find(i => i.lever === 'walk');
+  assert.ok(w, 'procházka nabídnutá'); assert.ok(!/[{}]/.test(w.text), w.text); assert.match(w.text, /\d+ minut/);
 });
 
 test('V publikovaných souborech nejsou skutečná jména', () => {
