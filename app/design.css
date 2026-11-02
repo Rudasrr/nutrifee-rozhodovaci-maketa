@@ -4,6 +4,17 @@
    Pořadí: základ · pomocné třídy · rám ordinace · karta · tlačítka a volby · pole a přepínače · štítky · dlaždice · report
    · návrhová karta · tabulky a rozbalování · registr · pacient · jídla · stupnice · rady · kroky jídla · zaučení · dávky
    · zásuvka a oznámení · grafy · ikony · vysvětlující animace · média (šířka, myš, pohyb, kontrast, tisk). */
+/* Pravidlo hodnot (B8, 1. 11. 2026; hlídá tokeny.test.cjs): každá barva, rozměr, délka pohybu, řez písma a prostrkání
+   je var(--nf-*) z app/tokens.css, i uvnitř calc(), min(), max() a @keyframes. Bez tokenu smí zůstat jen:
+   · nula v jakékoli jednotce (0, 0px, 0s), i jako záložní hodnota lokální proměnné (--barh,0px);
+   · vlasová čára ±1px (okraj, linka, outline, padding 1px, .sr-only);
+   · procenta a celé okno: 50 %, 100 %, calc(100% + …), 100vh (rozměry rozložení, ne vzhled);
+   · auto, none, fr, minmax(0,…), fit-content, max-content, klíčová slova a systémové barvy (transparent, currentColor, CanvasText, Canvas, GrayText);
+   · bezrozměrná čísla: řádkování, průhlednost, měřítko scale(), tah a čárkování SVG (stroke-width, stroke-dasharray, stroke-dashoffset),
+     z-index, flex a order, počty opakování repeat(n,…) a pořadí sloupců;
+   · úhly ve stupních (rotate, linear-gradient) — geometrie, ne vzhled;
+   · podmínky @media, @container a @page (var() v nich nefunguje; čísla opisují tokeny, kde to jde).
+   Nová hodnota = nový token v tokens.css s komentářem, ne číslo tady. */
 
 /* ---------- základ ---------- */
 *{box-sizing:border-box}
@@ -13,11 +24,11 @@ body{background:var(--nf-bg);color:var(--nf-ink);font:var(--nf-fs-desk)/var(--nf
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 button:disabled{cursor:not-allowed;opacity:.45}
-button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--nf-focus);outline-offset:3px}
-.btn.primary:focus-visible,.segmented button.on:focus-visible,.choice.chosen:focus-visible,.choice[aria-pressed="true"]:focus-visible,.dnode.now .dot:focus-visible{outline-color:var(--nf-focus-on-dark);outline-offset:-4px}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:var(--nf-focus-w) solid var(--nf-focus);outline-offset:var(--nf-focus-offset)}
+.btn.primary:focus-visible,.segmented button.on:focus-visible,.choice.chosen:focus-visible,.choice[aria-pressed="true"]:focus-visible,.dnode.now .dot:focus-visible{outline-color:var(--nf-focus-on-dark);outline-offset:var(--nf-focus-offset-in)}
 a{color:var(--nf-primary-strong)}
 h1{font-family:var(--nf-font-display);font-size:var(--nf-fs-h1-desk);font-weight:var(--nf-w-display-strong);line-height:var(--nf-lh-tight);letter-spacing:var(--nf-track-tight);margin:0 0 var(--nf-s3)}
-h2{font-family:var(--nf-font-display);font-size:var(--nf-fs-lg);font-weight:var(--nf-w-display);line-height:1.25;letter-spacing:-.01em;margin:0 0 var(--nf-s3)}
+h2{font-family:var(--nf-font-display);font-size:var(--nf-fs-lg);font-weight:var(--nf-w-display);line-height:1.25;letter-spacing:var(--nf-track-snug);margin:0 0 var(--nf-s3)}
 h3{font-family:var(--nf-font-display);font-size:var(--nf-fs-md);font-weight:var(--nf-w-display);margin:0 0 var(--nf-s2)}
 p{margin:0 0 var(--nf-s3)}p:last-child{margin-bottom:0}
 /* sazba: vyvážené titulky, odstavce bez osamoceného slova na konci (prohlížeče bez podpory to ignorují) */
@@ -27,9 +38,9 @@ p,li,.hint,.why{text-wrap:pretty}
 .muted{color:var(--nf-muted)}.small{font-size:var(--nf-fs-xs)}.tiny{font-size:var(--nf-fs-2xs)}
 .small:empty{display:none} /* řádek se štítkem registru u provozní položky zůstane prázdný — nepřidá mezeru */
 .eyebrow{font-size:var(--nf-fs-xs);letter-spacing:0;font-weight:var(--nf-w-strong);color:var(--nf-muted);margin:0 0 var(--nf-s2)}
-.skip{position:absolute;left:var(--nf-s3);top:-80px;background:var(--nf-surface);padding:var(--nf-s3);min-height:var(--nf-tap);z-index:99}.skip:focus{top:var(--nf-s3)}
+.skip{position:absolute;left:var(--nf-s3);top:var(--nf-skip-off);background:var(--nf-surface);padding:var(--nf-s3);min-height:var(--nf-tap);z-index:99}.skip:focus{top:var(--nf-s3)}
 .missing{color:var(--nf-over-text);font-weight:var(--nf-w-strong)}
-.error{background:var(--nf-low-bg);color:var(--nf-low-text);border-radius:var(--nf-r-md);padding:var(--nf-s3) var(--nf-s4);margin:0 0 var(--nf-s4);font-weight:600}
+.error{background:var(--nf-low-bg);color:var(--nf-low-text);border-radius:var(--nf-r-md);padding:var(--nf-s3) var(--nf-s4);margin:0 0 var(--nf-s4);font-weight:var(--nf-w-semi)}
 
 /* ---------- pomocné třídy (odstupy jen ze stupnice --nf-s*; místo inline stylů v obrazovkách) ---------- */
 .mt-0{margin-top:0}.mt-1{margin-top:var(--nf-s1)}.mt-2{margin-top:var(--nf-s2)}.mt-3{margin-top:var(--nf-s3)}.mt-4{margin-top:var(--nf-s4)}.mt-6{margin-top:var(--nf-s6)}
@@ -37,8 +48,8 @@ p,li,.hint,.why{text-wrap:pretty}
 .m-0{margin:0}.p-0{padding:0}.p-4{padding:var(--nf-s4)}.pt-2{padding-top:var(--nf-s2)}
 .inset{margin-left:var(--nf-s1);margin-right:var(--nf-s1)}  /* text mimo kartu zarovnaný s titulkem */
 .pull-up{margin-top:calc(-1 * var(--nf-s1))}
-.ta-c{text-align:center}.w-text{font-weight:var(--nf-w-text)}.w-600{font-weight:600}
-.full{flex-basis:100%}.w-full{width:100%}.measure{max-width:440px}
+.ta-c{text-align:center}.w-text{font-weight:var(--nf-w-text)}.w-600{font-weight:var(--nf-w-semi)}
+.full{flex-basis:100%}.w-full{width:100%}.measure{max-width:var(--nf-measure)}
 .struck{text-decoration:line-through}
 .stack{display:grid;gap:var(--nf-s2)}
 .media{display:flex;gap:var(--nf-s3);align-items:center}
@@ -50,16 +61,16 @@ ol.bullets{list-style:decimal}
 .trace-pre{white-space:pre-wrap;margin:0;background:var(--nf-bg);padding:var(--nf-s3);border-radius:var(--nf-r-sm)}
 
 /* ---------- rám ordinace (lékař, sestra) ---------- */
-.app{display:grid;grid-template-columns:224px minmax(0,1fr);min-height:100vh}
+.app{display:grid;grid-template-columns:var(--nf-rail-w) minmax(0,1fr);min-height:100vh}
 .rail{background:var(--nf-surface);border-right:1px solid var(--nf-line);padding:var(--nf-s6) var(--nf-s3);display:flex;flex-direction:column;gap:var(--nf-s1);position:sticky;top:0;height:100vh}
 .brand{display:flex;align-items:center;gap:var(--nf-s3);font-family:var(--nf-font-display);font-weight:var(--nf-w-display-strong);font-size:var(--nf-fs-lg);letter-spacing:var(--nf-track-tight);margin:0 var(--nf-s2) var(--nf-s5)}
-.brandmark{background:var(--nf-primary);color:var(--nf-on-primary);border-radius:50%;width:34px;height:34px;display:grid;place-items:center;box-shadow:0 0 0 2px var(--nf-surface),0 0 0 4px var(--nf-primary-soft);font-family:var(--nf-font-display);padding:0;line-height:34px;font-size:var(--nf-fs-lg)}
-.rail button.nav{display:flex;gap:var(--nf-s3);align-items:center;min-height:var(--nf-tap-desk);padding:var(--nf-s2) var(--nf-s3);border-radius:var(--nf-r-sm);color:var(--nf-muted);font-weight:600;border:0;background:transparent;text-align:left;width:100%}
+.brandmark{background:var(--nf-primary);color:var(--nf-on-primary);border-radius:50%;width:var(--nf-brandmark);height:var(--nf-brandmark);display:grid;place-items:center;box-shadow:0 0 0 var(--nf-bw) var(--nf-surface),0 0 0 var(--nf-halo) var(--nf-primary-soft);font-family:var(--nf-font-display);padding:0;line-height:var(--nf-brandmark);font-size:var(--nf-fs-lg)}
+.rail button.nav{display:flex;gap:var(--nf-s3);align-items:center;min-height:var(--nf-tap-desk);padding:var(--nf-s2) var(--nf-s3);border-radius:var(--nf-r-sm);color:var(--nf-muted);font-weight:var(--nf-w-semi);border:0;background:transparent;text-align:left;width:100%}
 .rail button.nav.active,.rail button.nav[aria-current]{background:var(--nf-primary-soft);color:var(--nf-primary-strong)}
-.rail button.nav .ic{width:22px;display:grid;place-items:center}
+.rail button.nav .ic{width:var(--nf-icon);display:grid;place-items:center}
 .rail button.nav .ic svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm)}
 .rail .who{margin-top:auto;font-size:var(--nf-fs-2xs);color:var(--nf-muted);padding:var(--nf-s2) var(--nf-s3);border-top:1px solid var(--nf-line)}
-.desk{padding:var(--nf-s6) var(--nf-s8) 120px;max-width:1460px;min-width:0}
+.desk{padding:var(--nf-s6) var(--nf-s8) var(--nf-desk-end);max-width:var(--nf-desk-max);min-width:0}
 .pagehead{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--nf-s5);margin-bottom:var(--nf-s5)}
 .pagehead .sub{color:var(--nf-muted)}
 
@@ -71,10 +82,10 @@ ol.bullets{list-style:decimal}
 .card{position:relative;padding:var(--nf-s4) var(--nf-s5);margin-bottom:var(--nf-s3)}
 .desk .card,.drawerpanel .card{padding:var(--nf-s5) var(--nf-s6);margin-bottom:var(--nf-s4)}
 .card>h2{font-size:var(--nf-fs-lg)}
-.card-title{font-family:var(--nf-font-display);font-size:var(--nf-fs-md);font-weight:var(--nf-w-display-strong);line-height:1.3;letter-spacing:0;margin:0 0 2px;color:var(--nf-ink)}
+.card-title{font-family:var(--nf-font-display);font-size:var(--nf-fs-md);font-weight:var(--nf-w-display-strong);line-height:1.3;letter-spacing:0;margin:0 0 var(--nf-s05);color:var(--nf-ink)}
 .desk .card-title{font-size:var(--nf-fs-sm)}
 /* čerstvě uložený zápis na Dnes: krátký zelený obrys, který odezní (okamžik potvrzení, 19. 10. 2026) */
-.card.just-saved{animation:savedIn 1.2s var(--nf-ease) both}
+.card.just-saved{animation:savedIn var(--nf-t-saved) var(--nf-ease) both}
 .card.tint{background:var(--nf-primary-tint)}
 .card.warn{background:var(--nf-over-bg)}
 .card.low{background:var(--nf-low-bg)}
@@ -87,15 +98,14 @@ ol.bullets{list-style:decimal}
 .doc-h{display:flex;align-items:center;gap:var(--nf-s2);color:var(--nf-ink)}
 .doc-h svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm)}
 .doc-voice{margin:0}
-.doc-voice blockquote,.doc-q{margin:0;font-size:var(--nf-fs-lg);font-weight:600;line-height:1.4;color:var(--nf-ink);text-indent:-.4em}
-.doc-voice figcaption,.doc-sign{margin-top:var(--nf-s2);font-size:var(--nf-fs-sm);color:var(--nf-muted);font-weight:var(--nf-w-text)}
+.doc-q{margin:0;font-size:var(--nf-fs-lg);font-weight:var(--nf-w-semi);line-height:1.4;color:var(--nf-ink)} /* bezpečnostní pravidlo: větší písmo, bez uvozovek a podpisu (SCHEMA 74) */
 .doc-list li>b{display:block;font-size:var(--nf-fs-sm);color:var(--nf-muted);font-weight:var(--nf-w-strong);margin-bottom:var(--nf-s1)}
 .doc-list .doc-q{font-size:var(--nf-fs-md)}
-.hint .doc-voice blockquote{font-size:var(--nf-fs-md)}
+.hint .doc-voice .doc-q{font-size:var(--nf-fs-md)}
 .card.flat{box-shadow:none}
 .card.flush{padding:0;overflow:hidden}
 .card-head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--nf-s2);font-weight:var(--nf-w-display-strong);margin-bottom:var(--nf-s2)}
-.card-head .muted{font-weight:600}
+.card-head .muted{font-weight:var(--nf-w-semi)}
 .hint{padding:var(--nf-s3) var(--nf-s4);border-radius:var(--nf-r-md);background:var(--nf-info-bg);color:var(--nf-info-text);margin:var(--nf-s3) 0 0;font-size:var(--nf-fs-xs)}
 .patient>.hint{margin-bottom:var(--nf-s3)} /* nápověda mezi kartami nedoléhá na další kartu */
 .hint.over,.hint.warn{background:var(--nf-over-bg);color:var(--nf-over-text)}
@@ -105,7 +115,7 @@ ol.bullets{list-style:decimal}
 .divider{height:1px;background:var(--nf-line);margin:var(--nf-s4) 0}
 .kv{display:grid;grid-template-columns:1fr auto;gap:var(--nf-s3);padding:var(--nf-s2) 0;border-bottom:1px solid var(--nf-line);font-size:var(--nf-fs-xs)}
 .kv:last-child{border-bottom:0}.kv span{color:var(--nf-muted)}.kv strong{text-align:right}
-.kv.contact{grid-template-columns:1fr;gap:2px}.kv.contact span{display:flex;align-items:center;gap:var(--nf-s2)}.kv.contact strong{text-align:left;padding-left:calc(var(--nf-icon-sm) + var(--nf-s2))}
+.kv.contact{grid-template-columns:1fr;gap:var(--nf-s05)}.kv.contact span{display:flex;align-items:center;gap:var(--nf-s2)}.kv.contact strong{text-align:left;padding-left:calc(var(--nf-icon-sm) + var(--nf-s2))}
 
 /* ---------- tlačítka a volby ---------- */
 .actions{display:flex;gap:var(--nf-s3);flex-wrap:wrap;align-items:center;margin-top:var(--nf-s4)}
@@ -116,106 +126,105 @@ ol.bullets{list-style:decimal}
 .actions.split>.btn,.actions.split>.choice{width:100%;min-width:0;padding-inline:var(--nf-s2);font-size:var(--nf-fs-sm);line-height:1.25;text-align:center}
 @media (max-width:359px){.actions.split{grid-template-columns:1fr}} /* na nejužším telefonu pod sebou; text se nikdy neořezává */
 /* textový odkaz u řádku (Opravit inzulin): zarovnaný vlevo bez odsazení, vedle něj tlumená poznámka */
-.btn.link{background:transparent;border:0;padding:0;min-height:var(--nf-tap);justify-content:flex-start;color:var(--nf-primary-strong);text-decoration:underline;text-underline-offset:3px}
+.btn.link{background:transparent;border:0;padding:0;min-height:var(--nf-tap);justify-content:flex-start;color:var(--nf-primary-strong);text-decoration:underline;text-underline-offset:var(--nf-underline-offset)}
 .actions.meta{column-gap:var(--nf-s4);row-gap:0}
 .btn{min-height:var(--nf-tap);padding:var(--nf-s2) var(--nf-s5);border-radius:var(--nf-r-pill);border:1px solid transparent;background:var(--nf-primary-soft);color:var(--nf-primary-strong);font-family:var(--nf-font-text);font-weight:var(--nf-w-strong);display:inline-flex;align-items:center;justify-content:center;gap:var(--nf-s2)}
-.btn svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm);vertical-align:-4px}
+.btn svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm);vertical-align:var(--nf-ico-valign-btn)}
 .btn.primary{background:var(--nf-primary);color:var(--nf-on-primary);border-color:var(--nf-primary);box-shadow:var(--nf-sh-primary)}
 .btn.primary:active{background:var(--nf-primary-strong)}
 .btn.primary:disabled{background:var(--nf-line-strong);color:var(--nf-muted);box-shadow:none;opacity:1;border-color:transparent}
 .btn.primary.done,.btn.primary.done:disabled{background:var(--nf-ok);border-color:var(--nf-ok);color:var(--nf-on-primary);transition:background-color var(--nf-t) var(--nf-ease)}
-.btn.quiet{background:transparent;border-color:transparent;color:var(--nf-muted);text-decoration:underline;text-underline-offset:3px;padding-left:var(--nf-s2);padding-right:var(--nf-s2)}
+.btn.quiet{background:transparent;border-color:transparent;color:var(--nf-muted);text-decoration:underline;text-underline-offset:var(--nf-underline-offset);padding-left:var(--nf-s2);padding-right:var(--nf-s2)}
 .btn.danger{background:var(--nf-low-bg);color:var(--nf-low-text)}
-.btn.acute{background:transparent;color:var(--nf-low-text);text-decoration:underline;text-underline-offset:3px;padding-left:var(--nf-s2);padding-right:var(--nf-s2)}
-.btn.acute svg.ico{width:18px;height:18px}
+.btn.acute{background:transparent;color:var(--nf-low-text);text-decoration:underline;text-underline-offset:var(--nf-underline-offset);padding-left:var(--nf-s2);padding-right:var(--nf-s2)}
+.btn.acute svg.ico{width:var(--nf-icon-xs);height:var(--nf-icon-xs)}
 .btn.big{min-height:var(--nf-tap-lg);font-size:var(--nf-fs-lg);width:100%}
 .btn.sm{min-height:var(--nf-tap-desk);padding:var(--nf-s1) var(--nf-s4);font-size:var(--nf-fs-2xs)}
 .btn.big{white-space:nowrap} /* pilulka = akce na jeden řádek; dlouhé odpovědi jsou volby (.choice.opt) */
-.btn[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--nf-primary);background:var(--nf-surface)}
-.btn.primary[aria-pressed="true"]{background:var(--nf-primary);color:var(--nf-on-primary);box-shadow:var(--nf-sh-primary),inset 0 0 0 2px var(--nf-surface)} /* vybraná primární odpověď zůstává plná (dřív bílý text na bílé) */
+.btn[aria-pressed="true"]{box-shadow:inset 0 0 0 var(--nf-bw) var(--nf-primary);background:var(--nf-surface)}
+.btn.primary[aria-pressed="true"]{background:var(--nf-primary);color:var(--nf-on-primary);box-shadow:var(--nf-sh-primary),inset 0 0 0 var(--nf-bw) var(--nf-surface)} /* vybraná primární odpověď zůstává plná (dřív bílý text na bílé) */
 .choice-row{display:flex;gap:var(--nf-s2);flex-wrap:wrap}
 .choice-row.col{flex-direction:column}
-.choice{min-height:var(--nf-tap);padding:var(--nf-s2) var(--nf-s4);border-radius:var(--nf-r-md);border:2px solid var(--nf-border-control);background:var(--nf-surface);font-family:var(--nf-font-text);font-weight:600;color:var(--nf-ink)}
+.choice{min-height:var(--nf-tap);padding:var(--nf-s2) var(--nf-s4);border-radius:var(--nf-r-md);border:var(--nf-bw) solid var(--nf-border-control);background:var(--nf-surface);font-family:var(--nf-font-text);font-weight:var(--nf-w-semi);color:var(--nf-ink)}
 /* vybraný stav: jedno vzezření, třída i ARIA (dřív sedm názvů) */
 .choice.chosen,.choice[aria-pressed="true"]{border-color:var(--nf-primary);background:var(--nf-primary);color:var(--nf-on-primary)}
 .choice.chosen small,.choice.chosen .muted,.choice[aria-pressed="true"] small{color:var(--nf-on-primary);opacity:.85}
-.choice.big{flex:1;min-height:64px;font-size:var(--nf-fs-md);border-radius:var(--nf-r-lg);flex-direction:column;display:flex;align-items:center;justify-content:center;gap:2px}
+.choice.big{flex:1;min-height:var(--nf-tap-xl);font-size:var(--nf-fs-md);border-radius:var(--nf-r-lg);flex-direction:column;display:flex;align-items:center;justify-content:center;gap:var(--nf-s05)}
 .choice.big small{font-weight:var(--nf-w-text);color:var(--nf-muted);font-size:var(--nf-fs-2xs)}
 .choice.sm{min-height:var(--nf-tap-desk);padding:var(--nf-s1) var(--nf-s3);font-size:var(--nf-fs-xs);border-radius:var(--nf-r-sm)}
 /* volba odpovědi o dvou řádcích (titulek + vysvětlení), rovnocenná s ostatními; plná až po vybrání, s fajfkou (19. 10. 2026) */
 .choice.opt{display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:var(--nf-s3);min-height:var(--nf-tap-lg);padding:var(--nf-s3) var(--nf-s4);text-align:left;border-radius:var(--nf-r-md);width:100%}
 .choice.opt .opt-t{font-weight:var(--nf-w-strong);font-size:var(--nf-fs-md)}
 .choice.opt .opt-s{grid-column:1;font-weight:var(--nf-w-text);font-size:var(--nf-fs-sm);color:var(--nf-muted)}
-.choice.opt::after{content:"";grid-column:2;grid-row:1 / span 2;width:22px;height:22px;border-radius:50%;border:2px solid var(--nf-border-control)}
+.choice.opt::after{content:"";grid-column:2;grid-row:1 / span 2;width:var(--nf-radio);height:var(--nf-radio);border-radius:50%;border:var(--nf-bw) solid var(--nf-border-control)}
 .choice.opt[aria-pressed="true"] .opt-s{color:var(--nf-on-primary)}
-.choice.opt[aria-pressed="true"]::after{border-color:var(--nf-on-primary);background:var(--nf-on-primary) center/14px no-repeat;background-image:var(--nf-check-ink)}
+.choice.opt[aria-pressed="true"]::after{border-color:var(--nf-on-primary);background:var(--nf-on-primary) center/var(--nf-icon-3xs) no-repeat;background-image:var(--nf-check-ink)}
 .check{display:flex;gap:var(--nf-s3);align-items:flex-start;padding:var(--nf-s2) 0;cursor:pointer}
-.check input{appearance:none;-webkit-appearance:none;flex:none;width:24px;height:24px;margin:0;border:2px solid var(--nf-border-control);border-radius:6px;background:var(--nf-surface);display:grid;place-items:center;cursor:pointer}
-.check input:checked{background:var(--nf-primary) center/16px no-repeat;border-color:var(--nf-primary);background-image:var(--nf-check-white)}
-.check input:focus-visible{outline:3px solid var(--nf-focus);outline-offset:3px}
+.check input{appearance:none;-webkit-appearance:none;flex:none;width:var(--nf-check);height:var(--nf-check);margin:0;border:var(--nf-bw) solid var(--nf-border-control);border-radius:var(--nf-r-xs);background:var(--nf-surface);display:grid;place-items:center;cursor:pointer}
+.check input:checked{background:var(--nf-primary) center/var(--nf-icon-2xs) no-repeat;border-color:var(--nf-primary);background-image:var(--nf-check-white)}
+.check input:focus-visible{outline:var(--nf-focus-w) solid var(--nf-focus);outline-offset:var(--nf-focus-offset)}
 .field input[type=file]{border-style:dashed;padding:var(--nf-s3);font-size:var(--nf-fs-sm)}
 .field input[type=file]::file-selector-button{font:inherit;font-weight:var(--nf-w-strong);border:0;border-radius:var(--nf-r-pill);background:var(--nf-primary-soft);color:var(--nf-primary-strong);padding:var(--nf-s2) var(--nf-s4);margin-right:var(--nf-s3);cursor:pointer}
 
 /* ---------- pole, volič, segmentovaný přepínač, přepínač ---------- */
 .field{display:block;margin:var(--nf-s3) 0}
 .field>span{display:block;font-weight:var(--nf-w-strong);font-size:var(--nf-fs-xs);margin-bottom:var(--nf-s2)}
-.field input,.field textarea{width:100%;border:2px solid var(--nf-border-control);border-radius:var(--nf-r-md);padding:var(--nf-s3) var(--nf-s4);background:var(--nf-surface);font-size:var(--nf-fs-md)}
-.field textarea{min-height:80px}
+.field input,.field textarea{width:100%;border:var(--nf-bw) solid var(--nf-border-control);border-radius:var(--nf-r-md);padding:var(--nf-s3) var(--nf-s4);background:var(--nf-surface);font-size:var(--nf-fs-md)}
+.field textarea{min-height:var(--nf-textarea-h)}
 .field-help{font-size:var(--nf-fs-2xs);color:var(--nf-muted);margin:var(--nf-s1) 0 0}
-.stepper{display:inline-flex;align-items:center;border:2px solid var(--nf-border-control);border-radius:var(--nf-r-md);background:var(--nf-surface);max-width:100%}
-.stepper button{flex:none;border:0;background:transparent;border-radius:var(--nf-r-sm);width:44px;height:48px;color:var(--nf-primary-strong);display:grid;place-items:center}
+.stepper{display:inline-flex;align-items:center;border:var(--nf-bw) solid var(--nf-border-control);border-radius:var(--nf-r-md);background:var(--nf-surface);max-width:100%}
+.stepper button{flex:none;border:0;background:transparent;border-radius:var(--nf-r-sm);width:var(--nf-stepper-btn-w);height:var(--nf-tap);color:var(--nf-primary-strong);display:grid;place-items:center}
 .stepper button svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm);stroke-width:2.5}
 .stepper .val{flex:1;min-width:0;text-align:center;font-family:var(--nf-font-display);font-weight:var(--nf-w-display-strong);font-size:var(--nf-fs-xl);line-height:1.1;font-variant-numeric:tabular-nums}
 .stepper .val small{display:block;font-family:var(--nf-font-text);font-weight:var(--nf-w-text);color:var(--nf-muted);font-size:var(--nf-fs-2xs)}
 .segmented{display:flex;gap:var(--nf-s1);padding:var(--nf-s1);border-radius:var(--nf-r-pill);background:var(--nf-surface-2);border:1px solid var(--nf-line)}
 .segmented{flex-wrap:wrap}.segmented button{flex:1 1 auto;white-space:nowrap;border:0;background:transparent;border-radius:var(--nf-r-pill);padding:var(--nf-s3) 0;min-height:var(--nf-tap);font-weight:var(--nf-w-strong);color:var(--nf-muted);font-size:var(--nf-fs-sm)}
 .segmented button.on,.segmented [aria-pressed="true"]{background:var(--nf-primary);color:var(--nf-on-primary)}
-.toggle{margin-left:auto;width:80px;height:var(--nf-tap);border-radius:var(--nf-r-pill);background:var(--nf-surface-2);box-shadow:inset 0 0 0 2px var(--nf-border-control);position:relative;border:0;flex:none;transition:background-color var(--nf-t) var(--nf-ease)}
-.toggle::after{content:"";position:absolute;top:4px;left:4px;width:40px;height:40px;border-radius:50%;background:var(--nf-surface);box-shadow:0 2px 6px var(--nf-shadow-ink);transition:transform var(--nf-t) var(--nf-ease-move)}
+.toggle{margin-left:auto;width:var(--nf-toggle-w);height:var(--nf-tap);border-radius:var(--nf-r-pill);background:var(--nf-surface-2);box-shadow:inset 0 0 0 var(--nf-bw) var(--nf-border-control);position:relative;border:0;flex:none;transition:background-color var(--nf-t) var(--nf-ease)}
+.toggle::after{content:"";position:absolute;top:var(--nf-s1);left:var(--nf-s1);width:var(--nf-toggle-knob);height:var(--nf-toggle-knob);border-radius:50%;background:var(--nf-surface);box-shadow:var(--nf-sh-knob);transition:transform var(--nf-t) var(--nf-ease-move)}
 .toggle.on,.toggle[aria-checked="true"]{background:var(--nf-primary);box-shadow:none}
-.toggle::after{outline:1px solid var(--nf-line-strong)}.toggle.on::after,.toggle[aria-checked="true"]::after{outline:0}.toggle.on::after,.toggle[aria-checked="true"]::after{transform:translateX(32px)}
+.toggle::after{outline:1px solid var(--nf-line-strong)}.toggle.on::after,.toggle[aria-checked="true"]::after{outline:0}.toggle.on::after,.toggle[aria-checked="true"]::after{transform:translateX(var(--nf-toggle-travel))}
 
 /* ---------- štítky (kanonicky ok / over / low / info / neutral; warn a bad jsou starší aliasy) ---------- */
-.tag{display:inline-flex;align-items:center;gap:var(--nf-s1);border-radius:var(--nf-r-pill);font-family:var(--nf-font-text);font-size:var(--nf-fs-2xs);line-height:1.3;padding:var(--nf-s1) var(--nf-s2);font-weight:var(--nf-w-display-strong);background:var(--nf-line);color:var(--nf-muted);letter-spacing:.02em}
+.tag{display:inline-flex;align-items:center;gap:var(--nf-s1);border-radius:var(--nf-r-pill);font-family:var(--nf-font-text);font-size:var(--nf-fs-2xs);line-height:1.3;padding:var(--nf-s1) var(--nf-s2);font-weight:var(--nf-w-display-strong);background:var(--nf-line);color:var(--nf-muted);letter-spacing:var(--nf-track-tag)}
 .tag.known{background:var(--nf-bg-2);color:var(--nf-ink)}.tag.similar,.tag.info{background:var(--nf-info-bg);color:var(--nf-info-text)}.tag.unknown{background:var(--nf-surface-2);color:var(--nf-text)}
-.tag svg.ico{width:14px;height:14px;stroke-width:2.4;vertical-align:0;flex:none}
+.tag svg.ico{width:var(--nf-icon-3xs);height:var(--nf-icon-3xs);stroke-width:2.4;vertical-align:0;flex:none}
 .tag.ok{background:var(--nf-ok-bg);color:var(--nf-ok-text)}.tag.act{background:var(--nf-primary-soft);color:var(--nf-primary-strong)} /* větev postupu „zvýšit/snížit“: petrolejová = akce lékaře, ne oranžové upozornění (S11, 21. 10. 2026) */.tag.over,.tag.warn{background:var(--nf-over-bg);color:var(--nf-over-text)}.tag.low,.tag.bad{background:var(--nf-low-bg);color:var(--nf-low-text)}
 .badge{margin-left:auto;color:var(--nf-text);font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong);border-radius:var(--nf-r-pill);padding:var(--nf-s1) var(--nf-s3);background:var(--nf-surface-2);flex:none} /* „brzy“ neutrálně: běžný stav, ne upozornění (rozhodnutí vlastníka 19. 10. 2026) */
 .badge.ok{background:var(--nf-ok-bg);color:var(--nf-ok-text)}
 .appr{display:inline-block;vertical-align:middle;line-height:1.35;font-family:var(--nf-font-text);font-size:var(--nf-fs-2xs);min-height:var(--nf-tap-desk);text-align:left;font-weight:var(--nf-w-strong);color:var(--nf-info-text);background:var(--nf-info-bg);border-radius:var(--nf-r-md);padding:var(--nf-s2) var(--nf-s3);cursor:pointer;border:0}
 .appr.rej{color:var(--nf-low-text);background:var(--nf-low-bg)}
-.appr.edit{color:var(--nf-info-text);background:var(--nf-info-bg)} /* „✎ upraveno“ je informace, ne upozornění (S12) */
 .appr.pend{color:var(--nf-muted);background:var(--nf-line)}
-.appr .st{font-weight:600;white-space:nowrap}
-.appr span[aria-hidden]{display:inline-grid;place-items:center;vertical-align:-2px;margin-right:var(--nf-s1)}
-.appr span[aria-hidden] svg.ico{width:14px;height:14px;stroke-width:2.2}
+.appr .st{font-weight:var(--nf-w-semi);white-space:nowrap}
+.appr span[aria-hidden]{display:inline-grid;place-items:center;vertical-align:var(--nf-ico-valign-sm);margin-right:var(--nf-s1)}
+.appr span[aria-hidden] svg.ico{width:var(--nf-icon-3xs);height:var(--nf-icon-3xs);stroke-width:2.2}
 .off-mark{display:none}
 .demo-band{margin:0 var(--nf-s1) var(--nf-s2)}
-.demo-flag{display:inline-block;text-wrap:balance;background:var(--nf-demo-bg);color:var(--nf-demo);border-radius:var(--nf-r-pill);padding:2px var(--nf-s2);font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-strong)}
+.demo-flag{display:inline-block;text-wrap:balance;background:var(--nf-demo-bg);color:var(--nf-demo);border-radius:var(--nf-r-pill);padding:var(--nf-s05) var(--nf-s2);font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-strong)}
 
 /* ---------- dlaždice souhrnu ---------- */
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:var(--nf-s3);margin-bottom:var(--nf-s3)}
-.tiles.dense{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(var(--nf-tile-min),1fr));gap:var(--nf-s3);margin-bottom:var(--nf-s3)}
+.tiles.dense{grid-template-columns:repeat(auto-fit,minmax(var(--nf-tile-min-dense),1fr))}
 .tiles.report{grid-template-columns:repeat(3,minmax(0,1fr))}.tiles.report .tile.wide{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;align-items:baseline;column-gap:var(--nf-s3)}.tiles.report .tile.wide .v{margin:0;font-size:var(--nf-fs-lg)}.tiles.report .tile.wide .st{margin:0}@media (max-width:640px){.tiles.report{grid-template-columns:repeat(2,minmax(0,1fr))}} /* souhrn kontroly 3 × 2, bez osiřelého řádku */
 .tile{padding:var(--nf-s3) var(--nf-s4);text-align:left;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;align-self:stretch} /* řádky dlaždic zarovnané nahoru (S23) */
 .tile .k{font-size:var(--nf-fs-2xs);color:var(--nf-muted);font-weight:var(--nf-w-strong);display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--nf-s2)}
 .tile .st{font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong);color:var(--c-tx,var(--nf-ok-text));margin-bottom:var(--nf-s1)}.tile.c-warn .st{--c-tx:var(--nf-over-text)}.tile.c-bad .st{--c-tx:var(--nf-low-text)}.tile.c-none .st{--c-tx:var(--nf-muted)}
-.tile .v{font-family:var(--nf-font-display);font-size:var(--nf-fs-2xl);font-weight:var(--nf-w-display-strong);letter-spacing:-.03em;line-height:1.1;margin:var(--nf-s2) 0 2px}
-.tile .v small{font-size:var(--nf-fs-xs);color:var(--nf-muted);font-weight:600;margin-left:var(--nf-s1)}
+.tile .v{font-family:var(--nf-font-display);font-size:var(--nf-fs-2xl);font-weight:var(--nf-w-display-strong);letter-spacing:var(--nf-track-num);line-height:1.1;margin:var(--nf-s2) 0 var(--nf-s05)}
+.tile .v small{font-size:var(--nf-fs-xs);color:var(--nf-muted);font-weight:var(--nf-w-semi);margin-left:var(--nf-s1)}
 .tile .d{font-size:var(--nf-fs-2xs);color:var(--nf-muted)}
 .tile[aria-expanded]{border-color:var(--nf-border-control)} /* rozbalovací dlaždice má viditelnou hranici ovládacího prvku (04 #8) */
-.tile.open,.tile[aria-expanded="true"]{border-color:var(--nf-primary);box-shadow:0 0 0 2px var(--nf-primary-soft)}
+.tile.open,.tile[aria-expanded="true"]{border-color:var(--nf-primary);box-shadow:0 0 0 var(--nf-bw) var(--nf-primary-soft)}
 .c-ok{--c:var(--nf-ok)}.c-warn{--c:var(--nf-over)}.c-bad{--c:var(--nf-low)}.c-none{--c:var(--nf-muted)}
 
 /* ---------- report: postup kontroly a spodní lišta dalšího kroku ---------- */
 .flow{display:flex;background:var(--nf-surface);border:1px solid var(--nf-line);border-radius:var(--nf-r-pill);padding:var(--nf-s1);margin-bottom:var(--nf-s5);box-shadow:var(--nf-sh-card)}
-.flow .step{flex:1;display:flex;align-items:center;gap:var(--nf-s3);min-height:var(--nf-tap-desk);padding:var(--nf-s2) var(--nf-s4);border-radius:var(--nf-r-pill);color:var(--nf-muted);font-weight:600;font-size:var(--nf-fs-xs);border:0;background:transparent;text-align:left}
-.flow .step .n,.wsteps button .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong);background:var(--nf-line);color:var(--nf-muted);flex:none}
+.flow .step{flex:1;display:flex;align-items:center;gap:var(--nf-s3);min-height:var(--nf-tap-desk);padding:var(--nf-s2) var(--nf-s4);border-radius:var(--nf-r-pill);color:var(--nf-muted);font-weight:var(--nf-w-semi);font-size:var(--nf-fs-xs);border:0;background:transparent;text-align:left}
+.flow .step .n,.wsteps button .n{width:var(--nf-num-circle-sm);height:var(--nf-num-circle-sm);border-radius:50%;display:grid;place-items:center;font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong);background:var(--nf-line);color:var(--nf-muted);flex:none}
 .flow .step.done .n,.wsteps button.done .n{background:var(--nf-ok);color:var(--nf-on-primary)}
 .flow .step.now,.flow .step[aria-current]{background:var(--nf-primary-soft);color:var(--nf-primary-strong)}
 .flow .step.now .n,.wsteps button.now .n{background:var(--nf-primary);color:var(--nf-on-primary)}
 .flow .step small{margin-left:var(--nf-s2);font-weight:var(--nf-w-text)} /* doplněk u názvu kroku (N09) */
-.nextbar{position:fixed;left:224px;right:0;bottom:0;background:var(--nf-surface);box-shadow:var(--nf-sh-raised);border-top:1px solid var(--nf-line);padding:var(--nf-s4) var(--nf-s8);display:flex;align-items:center;gap:var(--nf-s4);z-index:20}
+.nextbar{position:fixed;left:var(--nf-rail-w);right:0;bottom:0;background:var(--nf-surface);box-shadow:var(--nf-sh-raised);border-top:1px solid var(--nf-line);padding:var(--nf-s4) var(--nf-s8);display:flex;align-items:center;gap:var(--nf-s4);z-index:20}
 .nextbar .txt{flex:1}.nextbar .txt b{display:block}.nextbar .txt small{color:var(--nf-muted)}
 
 /* ---------- návrhová karta lékaře ---------- */
@@ -223,11 +232,11 @@ ol.bullets{list-style:decimal}
 .prop.current{border-color:var(--nf-primary-soft);box-shadow:var(--nf-sh-raised)}
 .prop.locked .bar{color:var(--nf-muted)}.prop.locked .bar h3{color:var(--nf-muted)} /* zamčený návrh čitelně (dřív opacity, kontrast 2,3 : 1) */
 .prop .bar{display:flex;align-items:center;gap:var(--nf-s3);padding:var(--nf-s4) var(--nf-s5);width:100%;border:0;background:transparent;text-align:left}
-.sec-h .mk{width:22px;height:22px;border-radius:50%;background:var(--nf-ok-bg);color:var(--nf-ok-text);display:grid;place-items:center;flex:none}
-.sec-h .mk svg.ico{width:13px;height:13px;stroke-width:2.6;vertical-align:0}
+.sec-h .mk{width:var(--nf-sec-mark);height:var(--nf-sec-mark);border-radius:50%;background:var(--nf-ok-bg);color:var(--nf-ok-text);display:grid;place-items:center;flex:none}
+.sec-h .mk svg.ico{width:var(--nf-icon-4xs);height:var(--nf-icon-4xs);stroke-width:2.6;vertical-align:0}
 .verify-sum>summary{color:var(--nf-ok-text);gap:var(--nf-s2)}
 .verify-sum[open]>summary{margin-bottom:var(--nf-s1)}
-.prop .bar .n{width:28px;height:28px;border-radius:50%;background:var(--nf-surface-2);color:var(--nf-ink);display:grid;place-items:center;font-weight:var(--nf-w-display-strong);font-size:var(--nf-fs-2xs);flex:none}
+.prop .bar .n{width:var(--nf-num-circle);height:var(--nf-num-circle);border-radius:50%;background:var(--nf-surface-2);color:var(--nf-ink);display:grid;place-items:center;font-weight:var(--nf-w-display-strong);font-size:var(--nf-fs-2xs);flex:none}
 .prop.done .bar .n{background:var(--nf-ok-bg);color:var(--nf-ok-text)}
 .prop .bar h3,.prop .bar .t{margin:0;font-family:var(--nf-font-display);font-size:var(--nf-fs-md);font-weight:var(--nf-w-display);flex:1}
 .prop .bar-h{margin:0}
@@ -235,7 +244,7 @@ ol.bullets{list-style:decimal}
 .prop.done .bar .state{color:var(--nf-ok-text);font-weight:var(--nf-w-strong)}
 .prop .body{padding:0 var(--nf-s5) var(--nf-s5);display:grid;gap:var(--nf-s4)}
 .why b{color:var(--nf-ink)}
-.why-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--nf-s3);margin:var(--nf-s2) 0 var(--nf-s3)}
+.why-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(var(--nf-tile-min-sm),1fr));gap:var(--nf-s3);margin:var(--nf-s2) 0 var(--nf-s3)}
 .why-tile{background:var(--nf-surface-2);border-radius:var(--nf-r-md);padding:var(--nf-s3)}
 .why-tile b{display:block;font-family:var(--nf-font-display);font-size:var(--nf-fs-xl);font-weight:var(--nf-w-display-strong);letter-spacing:var(--nf-track-tight);line-height:1.1;color:var(--nf-ink)}
 .why-tile span{font-size:var(--nf-fs-2xs);color:var(--nf-muted)}
@@ -246,9 +255,14 @@ ol.bullets{list-style:decimal}
 .keep-list li{display:grid;grid-template-columns:1fr auto;gap:var(--nf-s3);align-items:start} /* akce v seznamu Beze změny ve vlastním sloupci (N06) */
 .keep-list .keep-act{justify-self:end}
 .why-row{display:flex;flex-wrap:wrap;gap:var(--nf-s2);align-items:center;font-size:var(--nf-fs-2xs);color:var(--nf-muted);margin:var(--nf-s1) 0}
+.why-row.lows b{color:var(--nf-low-text)} /* SCHEMA 75 (A1): poklesy pod 4 v kartě návrhu barvou role „pod 4“; stav nese slovo v popisku */
 .sec-h{display:flex;align-items:center;gap:var(--nf-s2);font-family:var(--nf-font-display);font-size:var(--nf-fs-md);font-weight:var(--nf-w-display);color:var(--nf-ink);margin:0 0 var(--nf-s2);letter-spacing:0}
-.sec-h .prog{margin-left:auto;font-size:var(--nf-fs-2xs);font-weight:600;color:var(--nf-muted)}
+.sec-h .prog{margin-left:auto;font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-semi);color:var(--nf-muted)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:var(--nf-s4)}
+/* M3 (kontrola 3): obrazovka pacienta je kontejner – v rámečku telefonu na počítači (a v náhledu u sestry) jsou dvě karty vedle sebe pod sebou
+   jako na skutečném telefonu; dotaz na šířku okna to v rámečku nepoznal (karta přetekla přes okraj rámečku, po překreslení se text lámal po slovech). */
+.patient{container-type:inline-size}
+@container (max-width:520px){.patient .grid2{grid-template-columns:1fr}}
 .box{background:var(--nf-surface-2);border-radius:var(--nf-r-md);padding:var(--nf-s3) var(--nf-s4);font-size:var(--nf-fs-xs)}
 .box .k{font-size:var(--nf-fs-2xs);color:var(--nf-muted);font-weight:var(--nf-w-strong);margin-bottom:var(--nf-s2)}
 .branch div{display:flex;gap:var(--nf-s3);align-items:flex-start;margin:var(--nf-s2) 0;color:var(--nf-muted);transition:color var(--nf-t) var(--nf-ease)}
@@ -258,7 +272,7 @@ ol.bullets{list-style:decimal}
 .branch .active-branch .tag{font-size:var(--nf-fs-sm)}
 .verify{display:grid;grid-template-columns:1fr auto;gap:var(--nf-s2);align-items:center;padding:var(--nf-s2) 0;border-bottom:1px solid var(--nf-line)}
 .verify:last-child{border-bottom:0}
-.verify .choice.sm{min-height:44px}
+.verify .choice.sm{min-height:var(--nf-tap-sm)}
 .verify .choice.yes.chosen{background:var(--nf-ok-bg);color:var(--nf-ok-text);border-color:var(--nf-ok)}
 .verify .choice.no.chosen{background:var(--nf-over-bg);color:var(--nf-over-text);border-color:var(--nf-over)}
 .verify.off{background:var(--nf-over-bg);border-radius:var(--nf-r-sm);padding:var(--nf-s2);margin:0 calc(-1 * var(--nf-s2))}
@@ -269,7 +283,7 @@ ol.bullets{list-style:decimal}
 .decide .lbl{font-weight:var(--nf-w-strong)}
 .decide .diff{font-family:var(--nf-font-display);font-size:var(--nf-fs-xl);font-weight:var(--nf-w-display-strong);color:var(--nf-ink);white-space:nowrap}.decide .diff small{font-family:var(--nf-font-text);font-size:var(--nf-fs-xs);font-weight:var(--nf-w-text);color:var(--nf-muted)}
 .decide .rule{font-size:var(--nf-fs-2xs);color:var(--nf-muted);margin-left:auto}
-.decide .stepper{min-width:11rem;flex:none}.decide .stepper .val{min-width:5ch;white-space:nowrap} /* nová dávka „10 j.“ se nikdy neořízne (V02) */
+.decide .stepper{min-width:var(--nf-decide-stepper-min);flex:none}.decide .stepper .val{min-width:var(--nf-decide-val-min);white-space:nowrap} /* nová dávka „10 j.“ se nikdy neořízne (V02) */
 
 /* ---------- tabulky, rozbalování ---------- */
 .tablewrap{overflow:auto}
@@ -279,7 +293,7 @@ td{padding:var(--nf-s2) var(--nf-s3);border-bottom:1px solid var(--nf-line);vert
 tr:last-child td{border-bottom:0}
 td.nowrap{white-space:nowrap}
 .trace-tbl .btn.link{min-height:0;font-size:var(--nf-fs-2xs)} /* odkaz „Data“ nezvětšuje řádek stopy (N21) */
-.trace-tbl td:nth-child(-n+3){overflow-wrap:normal;white-space:nowrap}.trace-tbl{position:relative}.trace-tbl table{min-width:640px} /* čas, kdo a událost se nelámou uprostřed slov; tabulka roluje v .tablewrap (23. 10. 2026) */
+.trace-tbl td:nth-child(-n+3){overflow-wrap:normal;white-space:nowrap}.trace-tbl{position:relative}.trace-tbl table{min-width:var(--nf-trace-min)} /* čas, kdo a událost se nelámou uprostřed slov; tabulka roluje v .tablewrap (23. 10. 2026) */
 .trace-tbl .btn.sm{min-height:var(--nf-tap-desk)}
 details.part{margin-bottom:var(--nf-s2)}
 details.part>summary{list-style:none;display:flex;align-items:center;gap:var(--nf-s3);min-height:var(--nf-tap);padding:var(--nf-s3) var(--nf-s5);cursor:pointer;font-weight:var(--nf-w-strong)}
@@ -288,27 +302,27 @@ details.part .body{padding:var(--nf-s3) var(--nf-s5) var(--nf-s4);border-top:1px
 details.more>summary{list-style:none;cursor:pointer;color:var(--nf-primary-strong);font-weight:var(--nf-w-strong);font-size:var(--nf-fs-xs);min-height:var(--nf-tap-desk);display:flex;align-items:center}
 details.part>summary::-webkit-details-marker,details.more>summary::-webkit-details-marker{display:none}
 /* jeden chevron pro všechna rozbalení: kreslený CSS, otočí se po otevření */
-details.more>summary::after,details.part>summary::after{content:"";display:inline-block;flex:none;width:9px;height:9px;margin:0 var(--nf-s1) 2px var(--nf-s2);border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform var(--nf-t) var(--nf-ease)}
+details.more>summary::after,details.part>summary::after{content:"";display:inline-block;flex:none;width:var(--nf-chevron);height:var(--nf-chevron);margin:0 var(--nf-s1) var(--nf-s05) var(--nf-s2);border-right:var(--nf-bw) solid currentColor;border-bottom:var(--nf-bw) solid currentColor;transform:rotate(45deg);transition:transform var(--nf-t) var(--nf-ease)}
 details.part>summary::after{color:var(--nf-muted)}
-details.more[open]>summary::after,details.part[open]>summary::after{transform:rotate(225deg);margin-bottom:-4px}
+details.more[open]>summary::after,details.part[open]>summary::after{transform:rotate(225deg);margin-bottom:calc(-1 * var(--nf-s1))}
 .plain{list-style:none;padding:0;margin:0}
 .plain li{padding:var(--nf-s3) 0;border-bottom:1px solid var(--nf-line)}
 .plain li:last-child{border-bottom:0}
 
 /* ---------- registr ---------- */
 .filters{display:flex;gap:var(--nf-s3);flex-wrap:wrap;align-items:center;margin-bottom:var(--nf-s4)}
-.filters input{border:2px solid var(--nf-border-control);border-radius:var(--nf-r-md);padding:var(--nf-s2) var(--nf-s4);min-height:var(--nf-tap-desk);min-width:240px;background:var(--nf-surface)}
-.reg{display:grid;grid-template-columns:minmax(320px,1fr) minmax(360px,440px);gap:var(--nf-s4);align-items:start}
-.reg-row{display:grid;grid-template-columns:1fr 9rem 6rem;gap:var(--nf-s3);align-items:center;min-height:56px;padding:var(--nf-s3) var(--nf-s4);border:0;border-bottom:1px solid var(--nf-line);background:transparent;width:100%;text-align:left}
+.filters input{border:var(--nf-bw) solid var(--nf-border-control);border-radius:var(--nf-r-md);padding:var(--nf-s2) var(--nf-s4);min-height:var(--nf-tap-desk);min-width:var(--nf-filter-min);background:var(--nf-surface)}
+.reg{display:grid;grid-template-columns:minmax(var(--nf-reg-list-min),1fr) minmax(var(--nf-reg-side-min),var(--nf-reg-side-max));gap:var(--nf-s4);align-items:start}
+.reg-row{display:grid;grid-template-columns:1fr var(--nf-reg-col-state) var(--nf-reg-col-date);gap:var(--nf-s3);align-items:center;min-height:var(--nf-tap-lg);padding:var(--nf-s3) var(--nf-s4);border:0;border-bottom:1px solid var(--nf-line);background:transparent;width:100%;text-align:left}
 .reg-row.on,.reg-row[aria-pressed="true"]{background:var(--nf-primary-soft)}
-.reg-row .t{font-weight:var(--nf-w-strong)}.reg-row .s{font-size:var(--nf-fs-2xs);color:var(--nf-muted)}
+.reg-row .t{font-weight:var(--nf-w-strong)}.reg-row .s{font-size:var(--nf-fs-2xs);color:var(--nf-muted)}.reg-row .s.note{font-style:italic} /* první věta poznámky garanta (27. 10. 2026) */
 .reg-row>.tag{justify-self:start}.reg-row .s.date{justify-self:end;font-variant-numeric:tabular-nums} /* sloupec stavů a dat zarovnaný (N15) */
-.reg-side{position:sticky;top:20px;max-height:calc(100vh - var(--barh,0px) - 40px);overflow:auto;overscroll-behavior:contain;padding-right:var(--nf-s1)} /* detail položky roluje sám, nezávisle na seznamu */
+.reg-side{position:sticky;top:calc(var(--barh,0px) + var(--nf-s5));max-height:calc(100vh - var(--barh,0px) - 2 * var(--nf-s5));scroll-margin-top:calc(var(--barh,0px) + var(--nf-s3));overflow:auto;overscroll-behavior:contain;padding-right:var(--nf-s1)} /* detail položky roluje sám, nezávisle na seznamu */
 .reg-side::after{content:"";display:block;position:sticky;bottom:0;height:var(--nf-s8);margin-top:calc(-1 * var(--nf-s4));background:linear-gradient(transparent,var(--nf-bg));pointer-events:none} /* přechod u spodní hrany naznačí, že detail pokračuje; na konci leží pod obsahem (S27) */
 .hist li{font-size:var(--nf-fs-2xs)}
-.guide{margin-top:var(--nf-s2)}.guide .gsec{border-top:1px solid var(--nf-line);padding:var(--nf-s2) 0 2px}.guide .gsec:first-child{border-top:0}
-.guide h3{margin:0 0 var(--nf-s1);font-size:var(--nf-fs-2xs);letter-spacing:.04em;font-weight:var(--nf-w-display-strong);color:var(--nf-primary-strong)}
-.guide p{margin:0 0 var(--nf-s2);font-size:var(--nf-fs-xs);line-height:1.5}.guide .gparams{margin:2px 0 var(--nf-s2)}.guide .gparams li{padding:2px 0}.guide .box{margin-top:var(--nf-s2)}
+.guide{margin-top:var(--nf-s2)}.guide .gsec{border-top:1px solid var(--nf-line);padding:var(--nf-s2) 0 var(--nf-s05)}.guide .gsec:first-child{border-top:0}
+.guide h3{margin:0 0 var(--nf-s1);font-size:var(--nf-fs-2xs);letter-spacing:var(--nf-track-label);font-weight:var(--nf-w-display-strong);color:var(--nf-primary-strong)}
+.guide p{margin:0 0 var(--nf-s2);font-size:var(--nf-fs-xs);line-height:1.5}.guide .gparams{margin:var(--nf-s05) 0 var(--nf-s2)}.guide .gparams li{padding:var(--nf-s05) 0}.guide .box{margin-top:var(--nf-s2)}
 
 /* ---------- pacient: rám telefonu, řádek „co teď“, inzulin, návyky, nemoc ---------- */
 .patient-shell{position:relative;min-height:100vh;overflow:hidden;background:var(--nf-bg)}
@@ -341,8 +355,8 @@ details.more[open]>summary::after,details.part[open]>summary::after{transform:ro
 .now-row .ic.warn{color:var(--nf-over-text);background:var(--nf-surface)}
 .now-row .ic.low{color:var(--nf-low-text);background:var(--nf-surface)}
 svg.ico.ok{color:var(--nf-ok-text)}
-.hero-num{display:flex;align-items:baseline;gap:var(--nf-s2);font-family:var(--nf-font-display);font-size:var(--nf-fs-num);font-weight:var(--nf-w-display-strong);letter-spacing:-.03em;line-height:1;color:var(--nf-ink);margin:var(--nf-s2) 0 2px}
-.hero-num small{font-size:var(--nf-fs-lg);font-weight:600;color:var(--nf-muted);letter-spacing:0}
+.hero-num{display:flex;align-items:baseline;gap:var(--nf-s2);font-family:var(--nf-font-display);font-size:var(--nf-fs-num);font-weight:var(--nf-w-display-strong);letter-spacing:var(--nf-track-num);line-height:1;color:var(--nf-ink);margin:var(--nf-s2) 0 var(--nf-s05)}
+.hero-num small{font-size:var(--nf-fs-lg);font-weight:var(--nf-w-semi);color:var(--nf-muted);letter-spacing:0}
 .hero-num.sm{font-size:var(--nf-fs-num-sm)}
 .hero-num.over{color:var(--nf-over-text)}.hero-num.ok{color:var(--nf-ok-text)}
 .hero-cap{font-size:var(--nf-fs-sm);color:var(--nf-muted);margin:0 0 var(--nf-s2)}
@@ -359,8 +373,8 @@ svg.ico.ok{color:var(--nf-ok-text)}
 .dose .st,.kv .dose .st{font-family:var(--nf-font-text);font-size:var(--nf-fs-xs);font-weight:var(--nf-w-strong);margin-left:var(--nf-s1)}
 .dose.done,.kv span.dose.done{background:var(--nf-ok-bg);border-color:transparent}.dose.done svg.ico,.dose.done .st{color:var(--nf-ok-text)}
 .dose.new,.kv span.dose.new{background:var(--nf-primary-soft);border-color:transparent}.dose.new .st{color:var(--nf-primary-strong)}
-.dose.was,.kv span.dose.was{border-color:var(--nf-line-strong);background:transparent;color:var(--nf-muted)}.dose.was svg.ico{color:var(--nf-muted)}.dose.was b{text-decoration:line-through;text-decoration-thickness:2px;font-weight:var(--nf-w-display)}
-.dose.sm,.kv span.dose.sm{min-height:var(--nf-dose-h-sm);padding:0 var(--nf-s3) 0 var(--nf-s2);border-width:var(--nf-dose-border-sm)}.dose.sm b{font-size:var(--nf-fs-lg)}.dose.sm svg.ico{width:16px;height:16px}
+.dose.was,.kv span.dose.was{border-color:var(--nf-line-strong);background:transparent;color:var(--nf-muted)}.dose.was svg.ico{color:var(--nf-muted)}.dose.was b{text-decoration:line-through;text-decoration-thickness:var(--nf-bw);font-weight:var(--nf-w-display)}
+.dose.sm,.kv span.dose.sm{min-height:var(--nf-dose-h-sm);padding:0 var(--nf-s3) 0 var(--nf-s2);border-width:var(--nf-dose-border-sm)}.dose.sm b{font-size:var(--nf-fs-lg)}.dose.sm svg.ico{width:var(--nf-icon-2xs);height:var(--nf-icon-2xs)}
 .dose-pair{display:inline-flex;align-items:center;gap:var(--nf-s2);flex-wrap:wrap;justify-content:flex-end}
 .insulin .dose{margin-left:auto}
 .page-newplan .dose.new{animation:nf-dose-in var(--nf-t-dose) var(--nf-ease) both}
@@ -368,8 +382,8 @@ svg.ico.ok{color:var(--nf-ok-text)}
 @media (prefers-reduced-motion:reduce){.page-newplan .dose.new{animation:none}}
 .habit{display:flex;align-items:center;gap:var(--nf-s3);padding:var(--nf-s2) 0;border-top:1px solid var(--nf-line)}
 .habit:first-of-type{border-top:0}
-.habit .mark{width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;color:var(--nf-on-primary);background:var(--nf-ok)}
-.habit .mark.todo{background:transparent;border:2px solid var(--nf-border-control)}
+.habit .mark{width:var(--nf-check);height:var(--nf-check);border-radius:50%;flex:none;display:grid;place-items:center;color:var(--nf-on-primary);background:var(--nf-ok)}
+.habit .mark.todo{background:transparent;border:var(--nf-bw) solid var(--nf-border-control)}
 .habit small{color:var(--nf-muted);display:block}
 details.habits>summary{color:var(--nf-ink);font-weight:var(--nf-w-text)}
 details.habits>summary b{font-weight:var(--nf-w-display-strong)}
@@ -388,16 +402,16 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .food-h{margin:0;font-size:inherit;font-weight:inherit;letter-spacing:0}
 .result-compact>summary{list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:var(--nf-s1) var(--nf-s3);min-height:var(--nf-tap);cursor:pointer;font-weight:var(--nf-w-strong)}
 .result-compact>summary::-webkit-details-marker{display:none}
-.result-compact>summary>span:not(.st){flex:1;min-width:0}
-.result-compact>summary .st{text-align:right;margin-left:auto;white-space:nowrap;font-size:var(--nf-fs-sm);color:var(--nf-muted);font-weight:600}
+.result-compact>summary>span:not(.st){flex:1 1 var(--nf-result-label-min);min-width:0} /* kosm. 13: v úzkém rámečku se zalomí stav pod popisek, ne slovo popisku pod „Jak to dopadlo“ */
+.result-compact>summary .st{text-align:right;margin-left:auto;white-space:nowrap;font-size:var(--nf-fs-sm);color:var(--nf-muted);font-weight:var(--nf-w-semi)}
 .result-compact[open]>summary{margin-bottom:var(--nf-s2)}
 .chosen-note{font-size:var(--nf-fs-lg);font-weight:var(--nf-w-strong);color:var(--nf-ink);margin:var(--nf-s3) 0 0}
 
 /* lišta záložek: klasická, od kraje ke kraji, s bezpečnou zónou telefonu (rozhodnutí vlastníka 19. 10. 2026).
    Aktivní záložka = bledá pilulka kolem ikony + tučnější tah + tmavší popisek; popisky vždy u všech čtyř. */
 .tabbar{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,var(--nf-phone));z-index:12;margin:0;display:flex;justify-content:space-around;align-items:stretch;background:var(--nf-surface);border-top:1px solid var(--nf-line);box-shadow:var(--nf-sh-bar);padding:var(--nf-s2) var(--nf-s2) calc(var(--nf-s2) + env(safe-area-inset-bottom,0px))}
-.tabbar button{flex:1;max-width:120px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--nf-s1);border:0;background:transparent;border-radius:var(--nf-r-md);font-size:var(--nf-fs-sm);font-weight:var(--nf-w-strong);color:var(--nf-muted);min-width:0}
-.tabbar .ic{display:grid;place-items:center;width:min(64px,100%);height:32px;border-radius:var(--nf-r-pill);transition:background-color var(--nf-t-fast) var(--nf-ease)}
+.tabbar button{flex:1;max-width:var(--nf-tab-max);min-height:var(--nf-tap-lg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--nf-s1);border:0;background:transparent;border-radius:var(--nf-r-md);font-size:var(--nf-fs-sm);font-weight:var(--nf-w-strong);color:var(--nf-muted);min-width:0}
+.tabbar .ic{display:grid;place-items:center;width:min(var(--nf-tab-pill-w),100%);height:var(--nf-tab-pill-h);border-radius:var(--nf-r-pill);transition:background-color var(--nf-t-fast) var(--nf-ease)}
 .tabbar .ic svg.ico{width:var(--nf-icon);height:var(--nf-icon)}
 .tabbar button.active,.tabbar [aria-current]{color:var(--nf-ink);font-weight:var(--nf-w-display-strong)}
 .tabbar button.active .ic,.tabbar [aria-current] .ic{background:var(--nf-primary-soft);color:var(--nf-primary-strong)}
@@ -406,8 +420,8 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 @media (max-height:500px) and (orientation:landscape){.tabbar{padding-block:var(--nf-s1)}.tabbar button{flex-direction:row;min-height:var(--nf-tap)}} /* na šířku nižší lišta */
 
 /* zpětná vazba: cesta ke kontrole, pás dne */
-.path .bar{height:10px;border-radius:6px;background:var(--nf-bg-2);overflow:hidden;margin:var(--nf-s2) 0 var(--nf-s1)}
-.path .bar span{display:block;height:100%;width:var(--pct);background:var(--nf-primary);border-radius:6px}
+.path .bar{height:var(--nf-path-bar-h);border-radius:var(--nf-r-pill);background:var(--nf-bg-2);overflow:hidden;margin:var(--nf-s2) 0 var(--nf-s1)}
+.path .bar span{display:block;height:100%;width:var(--pct);background:var(--nf-primary);border-radius:var(--nf-r-pill)}
 /* tkanina zápisů (Podpis C, 20. 10. 2026): den = sloupec, čtyři tečky; jen činy, žádná glukóza ani série */
 .weave{display:grid;grid-template-columns:auto repeat(var(--days),minmax(0,1fr));column-gap:var(--nf-weave-gap);align-items:start;margin-top:var(--nf-s2)}
 .weave .wlabels,.weave .wcol{display:grid;grid-auto-rows:var(--nf-weave-dot);row-gap:var(--nf-weave-gap);justify-items:center}
@@ -416,9 +430,9 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .weave i.done,.weave-legend i.done{background:var(--nf-ok)}
 .weave i.skipped,.weave-legend i.skipped{box-shadow:inset 0 0 0 var(--nf-weave-ring) var(--nf-muted)}
 .weave i.missing,.weave-legend i.missing{background:var(--nf-line)}
-.weave i.future,.weave-legend i.future{border:1.5px dashed var(--nf-line-strong)} /* dnešní jídla, která ještě přijdou */
+.weave i.future,.weave-legend i.future{border:var(--nf-weave-ring) dashed var(--nf-line-strong)} /* dnešní jídla, která ještě přijdou */
 .weave .wcol.ill .wmark{color:var(--nf-muted)} /* den nemoci jen teploměrem, tečky v plné barvě (legenda nemá další odstín) */
-.weave .wcol.today{border-radius:var(--nf-r-pill);box-shadow:0 0 0 calc(var(--nf-weave-gap) + 3px) var(--nf-primary-soft);background:var(--nf-primary-soft)}
+.weave .wcol.today{border-radius:var(--nf-r-pill);box-shadow:0 0 0 calc(var(--nf-weave-gap) + var(--nf-weave-halo)) var(--nf-primary-soft);background:var(--nf-primary-soft)}
 .weave.lg{column-gap:var(--nf-weave-gap-lg)}
 .weave.lg .wlabels,.weave.lg .wcol{grid-auto-rows:var(--nf-weave-dot-lg);row-gap:var(--nf-weave-gap-lg)}
 .weave.lg .wlabels{display:grid;font-size:var(--nf-fs-xs);line-height:var(--nf-weave-dot-lg)}
@@ -437,18 +451,18 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .path .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--nf-s2);margin-top:var(--nf-s3)}
 .path .row3 div{text-align:center;background:var(--nf-surface-2);border-radius:var(--nf-r-md);padding:var(--nf-s2) var(--nf-s1)}
 .path .row3 b{display:block;font-family:var(--nf-font-display);font-size:var(--nf-fs-xl);letter-spacing:var(--nf-track-tight)}
-.frac{white-space:nowrap}.frac .of{margin:0 .25em}
-.path .row3 .tiny{display:block;line-height:1.25;margin-top:2px}
+.frac{white-space:nowrap}.frac .of{margin:0 var(--nf-frac-gap)}
+.path .row3 .tiny{display:block;line-height:1.25;margin-top:var(--nf-s05)}
 .card:has(>.daystrip){container-type:inline-size}
-.daystrip{list-style:none;margin:0;padding:2px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:var(--nf-s2)}
+.daystrip{list-style:none;margin:0;padding:var(--nf-s05) 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:var(--nf-s2)}
 @container (max-width:16em){.daystrip{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:var(--nf-s3)}} /* při velkém písmu (160 %) pás dne 2 × 2, popisky se nepřekrývají (23. 10. 2026) */
-.dnode{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;min-width:0}
-.dnode>button{all:unset;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;min-width:0;width:100%;min-height:72px;cursor:pointer;border-radius:var(--nf-r-md)}
-.dnode>button:focus-visible{outline:3px solid var(--nf-focus);outline-offset:2px}
-.dnode .dot{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--nf-surface);border:2px solid var(--nf-line-strong);color:var(--nf-primary-strong)}
+.dnode{display:flex;flex-direction:column;align-items:center;text-align:center;gap:var(--nf-s05);min-width:0}
+.dnode>button{all:unset;display:flex;flex-direction:column;align-items:center;text-align:center;gap:var(--nf-s05);min-width:0;width:100%;min-height:var(--nf-row-h);cursor:pointer;border-radius:var(--nf-r-md)}
+.dnode>button:focus-visible{outline:var(--nf-focus-w) solid var(--nf-focus);outline-offset:var(--nf-focus-offset-sm)}
+.dnode .dot{width:var(--nf-dnode-dot);height:var(--nf-dnode-dot);border-radius:50%;display:grid;place-items:center;background:var(--nf-surface);border:var(--nf-bw) solid var(--nf-line-strong);color:var(--nf-primary-strong)}
 .dnode .dot svg.ico{width:var(--nf-icon);height:var(--nf-icon);vertical-align:0}
 .dnode.done .dot{background:var(--nf-ok-bg);border-color:var(--nf-ok);color:var(--nf-ok-text)}
-.dnode.now .dot{background:var(--nf-primary);border-color:var(--nf-primary);color:var(--nf-on-primary);box-shadow:0 0 0 4px var(--nf-primary-soft)}
+.dnode.now .dot{background:var(--nf-primary);border-color:var(--nf-primary);color:var(--nf-on-primary);box-shadow:0 0 0 var(--nf-halo) var(--nf-primary-soft)}
 .dnode.now b{color:var(--nf-primary-strong)}
 .dnode.next .dot{border-color:var(--nf-primary);color:var(--nf-primary-strong)}
 .dnode .dose{margin-top:var(--nf-s1)}
@@ -464,25 +478,25 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .badges{display:flex;gap:var(--nf-s2);margin-top:var(--nf-s2);flex-wrap:wrap}
 .food .chev{margin-left:auto;color:var(--nf-muted)}
 .food .chev svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm)}
-.emoji{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--nf-surface);color:var(--nf-primary-strong);flex:none;position:relative}
-.emoji svg{position:absolute;inset:-5px;width:62px;height:62px;transform:rotate(-90deg)}
+.emoji{width:var(--nf-emoji);height:var(--nf-emoji);border-radius:50%;display:grid;place-items:center;background:var(--nf-surface);color:var(--nf-primary-strong);flex:none;position:relative}
+.emoji svg{position:absolute;inset:var(--nf-emoji-ring-off);width:var(--nf-emoji-ring);height:var(--nf-emoji-ring);transform:rotate(-90deg)}
 .emoji svg circle{fill:none;stroke-width:4;stroke-linecap:round}
 .emoji svg.ico.fico{position:static;width:var(--nf-icon-lg);height:var(--nf-icon-lg);transform:none}
 .emoji .ck svg.ico{position:static;transform:none} /* fajfka uvnitř zeleného kolečka, ne podle prstence */
-.emoji .ck{position:absolute;right:-4px;bottom:-4px;width:20px;height:20px;border-radius:50%;background:var(--nf-ok);color:var(--nf-on-primary);display:grid;place-items:center;border:2px solid var(--nf-surface)}
+.emoji .ck{position:absolute;right:var(--nf-emoji-ck-off);bottom:var(--nf-emoji-ck-off);width:var(--nf-emoji-ck);height:var(--nf-emoji-ck);border-radius:50%;background:var(--nf-ok);color:var(--nf-on-primary);display:grid;place-items:center;border:var(--nf-bw) solid var(--nf-surface)}
 .learn{font-size:var(--nf-fs-2xs);color:var(--nf-muted);margin-top:var(--nf-s1)}
 .food .sum{margin-top:var(--nf-s3);font-size:var(--nf-fs-xs)}
 .food .sum b{color:var(--nf-ink)}
 .detail{margin-top:var(--nf-s3);padding-top:var(--nf-s3);border-top:1px solid var(--nf-line);display:grid;gap:var(--nf-s3);font-size:var(--nf-fs-xs)}
 .tip{background:var(--nf-surface-2);border-radius:var(--nf-r-md);padding:var(--nf-s3)}
-.tip b{display:block;font-size:var(--nf-fs-sm);color:var(--nf-ink);margin-bottom:2px}
+.tip b{display:block;font-size:var(--nf-fs-sm);color:var(--nf-ink);margin-bottom:var(--nf-s05)}
 /* Vaše jídla jako řádky seznamu (20. 10. 2026): prstenec · název · štítek reakce · šipka; detail na samostatné obrazovce */
 .list-card{padding:var(--nf-s1) var(--nf-s4)}
 .food-list{list-style:none;margin:0;padding:0}
 .food-list>li+li{border-top:1px solid var(--nf-line)}
-.food-row{display:flex;align-items:center;gap:var(--nf-s3);width:100%;min-height:72px;padding:var(--nf-s3) 0;border:0;background:transparent;text-align:left;color:inherit;font:inherit;cursor:pointer}
-.food-row:focus-visible{outline:3px solid var(--nf-focus);outline-offset:2px;border-radius:var(--nf-r-sm)}
-.food-row .emoji{width:40px;height:40px}.food-row .emoji svg{inset:-4px;width:48px;height:48px}.food-row .emoji svg.ico.fico{width:var(--nf-icon-sm);height:var(--nf-icon-sm)}.food-row .emoji .ck{width:16px;height:16px;right:-5px;bottom:-5px}.food-row .emoji .ck svg.ico{width:10px;height:10px}
+.food-row{display:flex;align-items:center;gap:var(--nf-s3);width:100%;min-height:var(--nf-row-h);padding:var(--nf-s3) 0;border:0;background:transparent;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.food-row:focus-visible{outline:var(--nf-focus-w) solid var(--nf-focus);outline-offset:var(--nf-focus-offset-sm);border-radius:var(--nf-r-sm)}
+.food-row .emoji{width:var(--nf-emoji-sm);height:var(--nf-emoji-sm)}.food-row .emoji svg{inset:var(--nf-emoji-ring-off-sm);width:var(--nf-emoji-ring-sm);height:var(--nf-emoji-ring-sm)}.food-row .emoji svg.ico.fico{width:var(--nf-icon-sm);height:var(--nf-icon-sm)}.food-row .emoji .ck{width:var(--nf-emoji-ck-sm);height:var(--nf-emoji-ck-sm);right:var(--nf-emoji-ck-off-sm);bottom:var(--nf-emoji-ck-off-sm)}.food-row .emoji .ck svg.ico{width:var(--nf-icon-5xs);height:var(--nf-icon-5xs)}
 .fr-main{display:flex;flex-direction:column;gap:var(--nf-s1);min-width:0;flex:1}
 .food-row .name{font-family:var(--nf-font-display);font-weight:var(--nf-w-display);font-size:var(--nf-fs-md);line-height:1.25;color:var(--nf-ink)}
 .food-row .badges{margin-top:0}
@@ -490,19 +504,19 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .badges.mt-0{margin-top:0}
 .food-grid{list-style:none;margin:var(--nf-s1) 0 var(--nf-s3);padding:0} /* výsledky hledání jako řádky v kartě, jako Vaše jídla (21. 10. 2026) */
 .food-grid>li+li{border-top:1px solid var(--nf-line)}
-.food-opt{display:flex;align-items:center;gap:var(--nf-s3);width:100%;min-height:64px;text-align:left;border:0;border-radius:var(--nf-r-sm);background:transparent;padding:var(--nf-s2) var(--nf-s2);color:inherit;font:inherit}
+.food-opt{display:flex;align-items:center;gap:var(--nf-s3);width:100%;min-height:var(--nf-tap-xl);text-align:left;border:0;border-radius:var(--nf-r-sm);background:transparent;padding:var(--nf-s2) var(--nf-s2);color:inherit;font:inherit}
 .food-opt.chosen,.food-opt[aria-pressed="true"]{background:var(--nf-primary-soft)}
 .food-opt .name{flex:1;min-width:0;font-family:var(--nf-font-display);font-weight:var(--nf-w-display);font-size:var(--nf-fs-md);line-height:1.25;color:var(--nf-ink)}
 .food-grid.q .food-opt .name{font-weight:var(--nf-w-text)}.food-opt .name mark{background:none;color:inherit;font-weight:var(--nf-w-display-strong)} /* při hledání tučně jen shoda */
-.food-opt small{display:block;margin-top:2px;font-family:var(--nf-font-text);font-weight:var(--nf-w-text);color:var(--nf-muted);font-size:var(--nf-fs-2xs)}
+.food-opt small{display:block;margin-top:var(--nf-s05);font-family:var(--nf-font-text);font-weight:var(--nf-w-text);color:var(--nf-muted);font-size:var(--nf-fs-2xs)}
 .food-opt .badges{display:block;margin-top:var(--nf-s1)}.food-opt .tag{white-space:nowrap}
 .food-opt .sel{flex:none;color:var(--nf-primary-strong)}.food-opt .sel svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm)}
-.food-opt .emoji{width:40px;height:40px;flex:none}.food-opt .emoji svg{inset:-4px;width:48px;height:48px}
+.food-opt .emoji{width:var(--nf-emoji-sm);height:var(--nf-emoji-sm);flex:none}.food-opt .emoji svg{inset:var(--nf-emoji-ring-off-sm);width:var(--nf-emoji-ring-sm);height:var(--nf-emoji-ring-sm)}
 .food-opt svg.ico.fico{width:var(--nf-icon-sm);height:var(--nf-icon-sm);color:var(--nf-primary-strong)}
-.food-opt .emoji .ck{width:16px;height:16px;right:-5px;bottom:-5px}.food-opt .emoji .ck svg.ico{width:10px;height:10px}
-.food-opt:focus-visible{outline:3px solid var(--nf-focus);outline-offset:2px}
-.choice.plate{flex:1;flex-direction:column;display:flex;align-items:center;gap:var(--nf-s1);padding:var(--nf-s3) var(--nf-s2);min-height:84px;font-size:var(--nf-fs-xs)}
-.plate-ico{width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;flex:none}
+.food-opt .emoji .ck{width:var(--nf-emoji-ck-sm);height:var(--nf-emoji-ck-sm);right:var(--nf-emoji-ck-off-sm);bottom:var(--nf-emoji-ck-off-sm)}.food-opt .emoji .ck svg.ico{width:var(--nf-icon-5xs);height:var(--nf-icon-5xs)}
+.food-opt:focus-visible{outline:var(--nf-focus-w) solid var(--nf-focus);outline-offset:var(--nf-focus-offset-sm)}
+.choice.plate{flex:1;flex-direction:column;display:flex;align-items:center;gap:var(--nf-s1);padding:var(--nf-s3) var(--nf-s2);min-height:var(--nf-plate-h);font-size:var(--nf-fs-xs)}
+.plate-ico{width:var(--nf-plate-ico);height:var(--nf-plate-ico);fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;flex:none}
 .plate-ico .rim{stroke-width:1.6}.plate-ico .inner{stroke-opacity:.35}
 .plate-ico .food{fill:currentColor;fill-opacity:.22;stroke-width:1.6;transform-box:fill-box;transform-origin:center}
 .choice.plate.chosen .plate-ico .food{fill-opacity:.4}
@@ -510,36 +524,36 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 /* ---------- stupnice: kam se glukóza po jídle dostane (dvě plochá pásma, hranice podle cíle; červená jen pod 4) ---------- */
 .peak{display:grid;gap:var(--nf-s2);font-size:var(--nf-fs-2xs)}
 .peak .lbl{display:flex;justify-content:space-between;font-weight:var(--nf-w-strong);align-items:center;gap:var(--nf-s2)}
-.peak .in{border-radius:var(--nf-r-pill);padding:3px var(--nf-s3);font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong)}
+.peak .in{border-radius:var(--nf-r-pill);padding:var(--nf-peak-in-py) var(--nf-s3);font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong)}
 .peak .rows{position:relative;padding-top:var(--nf-s6)}
-.peak{--rl:84px}
+.peak{--rl:var(--nf-peak-label-w)}
 .peak .row{display:grid;grid-template-columns:calc(var(--rl) - var(--nf-s2)) 1fr;gap:var(--nf-s2);align-items:center;margin-top:var(--nf-s8)}
 .peak .rl{font-size:var(--nf-fs-2xs);color:var(--nf-muted);font-weight:var(--nf-w-strong);text-align:right;line-height:1.1}
 .peak .row.adv.ok .rl{color:var(--nf-ok-text)}
-.peak .goal{position:absolute;top:14px;bottom:-6px;left:calc(var(--rl) + (100% - var(--rl)) * var(--f));width:0;border-left:2px dashed var(--nf-ok-text);z-index:2}
-.peak .goal span{position:absolute;top:-16px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:var(--nf-fs-xs);font-weight:var(--nf-w-display-strong);color:var(--nf-ok-text);background:var(--nf-surface);border-radius:6px;padding:1px var(--nf-s2)}
+.peak .goal{position:absolute;top:var(--nf-peak-goal-top);bottom:calc(-1 * var(--nf-goal-overhang));left:calc(var(--rl) + (100% - var(--rl)) * var(--f));width:0;border-left:var(--nf-bw) dashed var(--nf-ok-text);z-index:2}
+.peak .goal span{position:absolute;top:calc(-1 * var(--nf-s4));left:50%;transform:translateX(-50%);white-space:nowrap;font-size:var(--nf-fs-xs);font-weight:var(--nf-w-display-strong);color:var(--nf-ok-text);background:var(--nf-surface);border-radius:var(--nf-r-xs);padding:1px var(--nf-s2)}
 .peak .row.adv.ok .win{border-color:var(--nf-ok-text)}
-.peak .axis-words{display:flex;justify-content:space-between;font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-strong);padding:0 2px 0 var(--rl);margin-top:2px}.peak .axis-words span:first-child{color:var(--nf-ok-text)}.peak .axis-words span:last-child{color:var(--nf-over-text)}
+.peak .axis-words{display:flex;justify-content:space-between;font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-strong);padding:0 var(--nf-s05) 0 var(--rl);margin-top:var(--nf-s05)}.peak .axis-words span:first-child{color:var(--nf-ok-text)}.peak .axis-words span:last-child{color:var(--nf-over-text)}
 /* čísla osy přesně podle hodnoty (stejný výpočet jako hranice cíle), ne rozprostřená */
-.peak .axis,.rise .axis{position:relative;height:1.4em;margin-top:var(--nf-s1);font-size:var(--nf-fs-2xs);color:var(--nf-muted);font-variant-numeric:tabular-nums}
+.peak .axis,.rise .axis{position:relative;height:var(--nf-axis-h);margin-top:var(--nf-s1);font-size:var(--nf-fs-2xs);color:var(--nf-muted);font-variant-numeric:tabular-nums}
 .peak .axis{margin-left:var(--rl)}
 .peak .axis span,.rise .axis span{position:absolute;left:calc(100% * var(--f));transform:translateX(-50%)}
 .peak .note{color:var(--nf-muted)}
-.track{position:relative;height:18px;border-radius:9px;background:linear-gradient(90deg,var(--nf-ok) 0,var(--nf-ok) var(--goal,50%),var(--nf-over) var(--goal,50%),var(--nf-over) 100%)}
+.track{position:relative;height:var(--nf-track-h);border-radius:var(--nf-r-pill);background:linear-gradient(90deg,var(--nf-ok) 0,var(--nf-ok) calc(var(--goal,50%) - var(--nf-tir-gap) / 2),var(--nf-surface) calc(var(--goal,50%) - var(--nf-tir-gap) / 2),var(--nf-surface) calc(var(--goal,50%) + var(--nf-tir-gap) / 2),var(--nf-over) calc(var(--goal,50%) + var(--nf-tir-gap) / 2),var(--nf-over) 100%)}
 .track .dim,.track .win,.rise .span{left:var(--from);right:calc(100% - var(--to))}
-.track .dim{position:absolute;top:0;bottom:0;background:var(--nf-surface-2);opacity:.82;border-radius:9px}
-.track .win{position:absolute;top:-4px;bottom:-4px;border:2.5px solid var(--nf-ink);border-radius:8px;box-shadow:0 2px 8px var(--nf-shadow-ink)}
-.track .win b{position:absolute;top:50%;transform:translateY(-50%);font-size:var(--nf-fs-sm);font-weight:var(--nf-w-display-strong);background:var(--nf-surface);border-radius:6px;padding:0 var(--nf-s1);line-height:16px;white-space:nowrap;font-variant-numeric:tabular-nums}
-.track .win .rng{left:50%;bottom:calc(100% + 6px);top:auto;transform:translateX(-50%);z-index:3}
+.track .dim{position:absolute;top:0;bottom:0;background:var(--nf-surface-2);opacity:.82;border-radius:var(--nf-r-pill)}
+.track .win{position:absolute;top:calc(-1 * var(--nf-s1));bottom:calc(-1 * var(--nf-s1));border:var(--nf-bw-lg) solid var(--nf-ink);border-radius:var(--nf-r-win);box-shadow:var(--nf-sh-marker)}
+.track .win b{position:absolute;top:50%;transform:translateY(-50%);font-size:var(--nf-fs-sm);font-weight:var(--nf-w-display-strong);background:var(--nf-surface);border-radius:var(--nf-r-xs);padding:0 var(--nf-s1);line-height:var(--nf-track-lh);white-space:nowrap;font-variant-numeric:tabular-nums}
+.track .win .rng{left:50%;bottom:calc(100% + var(--nf-track-rng-gap));top:auto;transform:translateX(-50%);z-index:3}
 .track.wide .win{border-style:dashed;border-color:var(--nf-info)}
 /* pruh start -> vrchol v kartě Jak to dopadlo: táž stupnice (kroužek = při jídle, plný bod = vrchol) */
 .rise{margin:var(--nf-s3) 0 var(--nf-s1)}
 .rise .mark,.rise .goal{left:var(--at)}
-.rise .mark{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;transform:translate(-50%,-50%);z-index:2}
-.rise .mark.s{background:var(--nf-surface);border:2.5px solid var(--nf-ink)}
-.rise .mark.p{background:var(--nf-ink);border:2.5px solid var(--nf-surface);box-shadow:0 0 0 2px var(--nf-ink);animation:popIn .3s var(--nf-ease) .25s both}
-.rise .span{position:absolute;top:50%;height:6px;transform:translateY(-50%);background:var(--nf-ink);opacity:.35;border-radius:3px}
-.rise .goal{position:absolute;top:-6px;bottom:-6px;width:0;border-left:2px dashed var(--nf-ok-text);z-index:1}
+.rise .mark{position:absolute;top:50%;width:var(--nf-rise-mark);height:var(--nf-rise-mark);border-radius:50%;transform:translate(-50%,-50%);z-index:2}
+.rise .mark.s{background:var(--nf-surface);border:var(--nf-bw-lg) solid var(--nf-ink)}
+.rise .mark.p{background:var(--nf-ink);border:var(--nf-bw-lg) solid var(--nf-surface);box-shadow:0 0 0 var(--nf-bw) var(--nf-ink);animation:popIn var(--nf-t-mid) var(--nf-ease) var(--nf-anim-delay-mark) both}
+.rise .span{position:absolute;top:50%;height:var(--nf-rise-span-h);transform:translateY(-50%);background:var(--nf-ink);opacity:.35;border-radius:var(--nf-r-pill)}
+.rise .goal{position:absolute;top:calc(-1 * var(--nf-goal-overhang));bottom:calc(-1 * var(--nf-goal-overhang));width:0;border-left:var(--nf-bw) dashed var(--nf-ok-text);z-index:1}
 
 .rise .lbl{display:flex;gap:var(--nf-s4);flex-wrap:wrap;font-size:var(--nf-fs-sm);color:var(--nf-muted);margin-top:var(--nf-s2)}
 .rise .lbl b{display:block;font-size:var(--nf-fs-lg);color:var(--nf-ink);font-variant-numeric:tabular-nums}
@@ -551,7 +565,7 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .advice.taken{border-color:var(--nf-ok);background:var(--nf-ok-bg)}
 .advice.declined .text,.advice.declined .lever-fig,.advice.declined .cert{opacity:.6} /* vybraná volba zůstává v plné barvě */
 .advice.compact{padding:var(--nf-s3) var(--nf-s4);background:transparent;border-style:dashed}
-.advice.compact .text{font-size:var(--nf-fs-sm);font-weight:600;margin:2px 0;display:flex;align-items:center;gap:var(--nf-s2);flex-wrap:wrap}
+.advice.compact .text{font-size:var(--nf-fs-sm);font-weight:var(--nf-w-semi);margin:var(--nf-s05) 0;display:flex;align-items:center;gap:var(--nf-s2);flex-wrap:wrap}
 .advice .lever{font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong);color:var(--nf-muted);display:flex;gap:var(--nf-s2);align-items:center;flex-wrap:wrap}
 .advice .text{font-size:var(--nf-fs-md);font-weight:var(--nf-w-strong);margin:var(--nf-s2) 0;text-wrap:balance}
 .advice .cert{font-size:var(--nf-fs-xs);color:var(--nf-muted)}
@@ -559,40 +573,40 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .advice .choice-row .choice{min-height:var(--nf-tap);flex:1;display:inline-flex;align-items:center;justify-content:center;gap:var(--nf-s2)}
 .advice .choice.yes{flex:1.25}
 .advice .choice-row .choice{white-space:nowrap;padding-inline:var(--nf-s3)} /* „Zkusím to“ první a širší, ale rovnocenná volba: plná až po vybrání (19. 10. 2026) */
-.advice .choice svg.ico{width:18px;height:18px}
+.advice .choice svg.ico{width:var(--nf-icon-xs);height:var(--nf-icon-xs)}
 .reasons{margin-top:var(--nf-s2)}
 .reasons .choice{min-height:var(--nf-tap-desk);font-size:var(--nf-fs-xs);padding:var(--nf-s1) var(--nf-s3)}
 
 /* ---------- kroky jídla, čipy glukózy ---------- */
 .msteps{display:flex;gap:var(--nf-s2);margin:0 var(--nf-s1) var(--nf-s3)}
-.msteps span{flex:1;height:5px;border-radius:3px;background:var(--nf-line-strong)}
+.msteps span{flex:1;height:var(--nf-msteps-h);border-radius:var(--nf-r-pill);background:var(--nf-line-strong)}
 .msteps span.on{background:var(--nf-primary)}
 .timechips{display:flex;gap:var(--nf-s2);flex-wrap:wrap;margin-top:var(--nf-s2)}
 .chips{display:flex;flex-wrap:wrap;gap:var(--nf-s2)}
-.chips .choice.chip{min-height:52px;min-width:52px;padding:var(--nf-s2) var(--nf-s3);font-size:var(--nf-fs-lg);border-radius:var(--nf-r-md);flex:0 0 auto;font-variant-numeric:tabular-nums}
-.chips .choice.chip.quiet{color:var(--nf-muted);font-weight:600;font-size:var(--nf-fs-sm)}
+.chips .choice.chip{min-height:var(--nf-chip);min-width:var(--nf-chip);padding:var(--nf-s2) var(--nf-s3);font-size:var(--nf-fs-lg);border-radius:var(--nf-r-md);flex:0 0 auto;font-variant-numeric:tabular-nums}
+.chips .choice.chip.quiet{color:var(--nf-muted);font-weight:var(--nf-w-semi);font-size:var(--nf-fs-sm)}
 .chips.glu{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
 .chips.glu .choice.chip{min-width:0;width:100%;font-weight:var(--nf-w-strong);padding:0}
 .chips.glu .chip.low,.chips.glu .chip.high{grid-column:span 2}
-.chips.glu .chip.quiet{grid-column:1 / -1;min-height:var(--nf-tap);font-size:var(--nf-fs-sm);font-weight:600}
+.chips.glu .chip.quiet{grid-column:1 / -1;min-height:var(--nf-tap);font-size:var(--nf-fs-sm);font-weight:var(--nf-w-semi)}
 
 /* ---------- zaučení sestry: náhled telefonu vedle seznamu ---------- */
 .split-wrap{container-type:inline-size}
-.split{display:grid;grid-template-columns:1fr 440px;gap:var(--nf-s6);align-items:start}
-@container (max-width:900px){.split{grid-template-columns:1fr}.split .phone-preview{position:relative;top:auto;max-width:440px;margin-inline:auto}} /* úzký pracovní sloupec (panel na notebooku): náhled telefonu pod seznamem, body se nelámou po slovech (23. 10. 2026) */
-.phone-preview{border:12px solid var(--nf-phone-frame);border-radius:52px;background:var(--nf-phone-frame);box-shadow:var(--nf-sh-raised);overflow:hidden;position:sticky;top:28px;max-height:calc(100vh - 48px)}
-.phone-preview .patient-shell{overflow-y:auto;max-height:calc(100vh - 72px)}
-.phone-preview .patient-shell{min-height:700px}
-.phone-preview .patient{padding-top:46px}
+.split{display:grid;grid-template-columns:1fr var(--nf-preview-w);gap:var(--nf-s6);align-items:start}
+@container (max-width:900px){.split{grid-template-columns:1fr}.split .phone-preview{position:relative;top:auto;max-width:var(--nf-preview-w);margin-inline:auto}} /* úzký pracovní sloupec (panel na notebooku): náhled telefonu pod seznamem, body se nelámou po slovech (23. 10. 2026) */
+.phone-preview{border:var(--nf-preview-edge) solid var(--nf-phone-frame);border-radius:var(--nf-preview-r);background:var(--nf-phone-frame);box-shadow:var(--nf-sh-raised);overflow:hidden;position:sticky;top:var(--nf-preview-top);max-height:calc(100vh - 2 * var(--nf-s6))}
+.phone-preview .patient-shell{overflow-y:auto;max-height:calc(100vh - 2 * var(--nf-s6) - 2 * var(--nf-preview-edge))}
+.phone-preview .patient-shell{min-height:var(--nf-preview-min-h)}
+.phone-preview .patient{padding-top:var(--nf-preview-inset)}
 .phone-preview .tabbar{position:absolute;width:100%;border-radius:0;border-left:0;border-right:0}
-.phone-preview .island{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:34px;border-radius:18px;background:var(--nf-phone-frame);z-index:5}
+.phone-preview .island{position:absolute;top:var(--nf-s3);left:50%;transform:translateX(-50%);width:var(--nf-island-w);height:var(--nf-island-h);border-radius:var(--nf-r-pill);background:var(--nf-phone-frame);z-index:5}
 .preview-static{position:relative}
 .preview-static .patient-shell{pointer-events:none} /* sestra pacientské obrazovky v náhledu neovládá (6. 10. 2026) */
 /* V08 (21. 10. 2026): štítek nad rámečkem telefonu; obal je lepivý místo telefonu, aby štítek jel s ním */
 .preview-wrap{position:sticky;top:var(--nf-s4);display:flex;flex-direction:column;align-items:center}
 .preview-wrap .phone-preview{position:relative;top:auto;width:100%}
 .preview-wrap .preview-label{position:static;margin:0 auto var(--nf-s2);background:var(--nf-primary);color:var(--nf-on-primary);font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-strong);padding:var(--nf-s1) var(--nf-s3);border-radius:var(--nf-r-pill);white-space:nowrap}
-.preview-switch{display:flex;align-items:center;gap:var(--nf-s3);flex-wrap:wrap}.preview-switch .segmented{flex:1 1 18rem}
+.preview-switch{display:flex;align-items:center;gap:var(--nf-s3);flex-wrap:wrap}.preview-switch .segmented{flex:1 1 var(--nf-preview-switch-min)}
 .train-row{display:grid;grid-template-columns:1fr auto;gap:var(--nf-s2);align-items:center;border-bottom:1px solid var(--nf-line)}
 .train-row:last-child{border-bottom:0}
 .train-row .check{padding:var(--nf-s3) 0}
@@ -608,66 +622,66 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .dose-group.basal{background:var(--nf-primary-tint);border-color:var(--nf-line-strong);color:var(--nf-ink)}
 .dose-group.basal .gk{color:var(--nf-primary-strong)}
 .dose-group.basal .dose-field .stepper{background:var(--nf-surface)}
-.dose-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--nf-s3)}
+.dose-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(var(--nf-tile-min-sm),1fr));gap:var(--nf-s3)}
 .basal-kv{background:var(--nf-primary-tint);border-radius:var(--nf-r-sm);padding:var(--nf-s2) var(--nf-s3);margin-top:var(--nf-s2)}
 .basal-kv span{color:var(--nf-muted)}
 /* V01 (21. 10. 2026): box voliče u lékaře je .dose-field (.dose je pilulka dávky u pacienta). Popisek nad voličem, rámeček jen na voliči. */
 .dose-field{display:flex;flex-direction:column;align-items:stretch;min-width:0;text-align:left}
 .dose-field .k{font-size:var(--nf-fs-2xs);color:var(--nf-muted);font-weight:var(--nf-w-strong);margin-bottom:var(--nf-s2)}
 .dose-field .stepper{width:100%;justify-content:space-between}
-.basal-row{grid-template-columns:repeat(auto-fit,minmax(150px,max-content))} /* V11: volič bazálu stejně široký jako u jídel, čas vedle */
-.basal-row .dose-field:first-child{max-width:17rem}
+.basal-row{grid-template-columns:repeat(auto-fit,minmax(var(--nf-tile-min-sm),max-content))} /* V11: volič bazálu stejně široký jako u jídel, čas vedle */
+.basal-row .dose-field:first-child{max-width:var(--nf-basal-field-max)}
 .timechips.basal{margin-top:0;flex-wrap:nowrap}
-.habit-opt{display:flex;gap:var(--nf-s3);align-items:flex-start;text-align:left;border:2px solid var(--nf-line);border-radius:var(--nf-r-md);background:var(--nf-surface);padding:var(--nf-s3) var(--nf-s4);width:100%}
+.habit-opt{display:flex;gap:var(--nf-s3);align-items:flex-start;text-align:left;border:var(--nf-bw) solid var(--nf-line);border-radius:var(--nf-r-md);background:var(--nf-surface);padding:var(--nf-s3) var(--nf-s4);width:100%}
 .habit-opt.on,.habit-opt[aria-pressed="true"]{border-color:var(--nf-primary)}
-.habit-opt .dot{width:22px;height:22px;border-radius:calc(var(--nf-r-sm) / 2);border:2px solid var(--nf-border-control);flex:none;display:grid;place-items:center;color:var(--nf-on-primary)}
+.habit-opt .dot{width:var(--nf-radio);height:var(--nf-radio);border-radius:calc(var(--nf-r-sm) / 2);border:var(--nf-bw) solid var(--nf-border-control);flex:none;display:grid;place-items:center;color:var(--nf-on-primary)}
 .habit-opt.on .dot,.habit-opt[aria-pressed="true"] .dot{background:var(--nf-primary);border-color:var(--nf-primary)}
 .habit-opt small{display:block;color:var(--nf-muted);font-weight:var(--nf-w-text)}
 .instr{display:grid;grid-template-columns:1fr auto;gap:var(--nf-s3);align-items:center;padding:var(--nf-s3) 0;border-bottom:1px solid var(--nf-line)}
 .instr:last-child{border-bottom:0}
-.instr .stepper{width:10.5rem;justify-content:space-between} /* voliče pokynů stejně široké, rovný levý okraj sloupce (N03) */
+.instr .stepper{width:var(--nf-instr-stepper-w);justify-content:space-between} /* voliče pokynů stejně široké, rovný levý okraj sloupce (N03) */
 
 /* ---------- zásuvka, oznámení ---------- */
 .drawer{position:fixed;inset:0;background:var(--nf-scrim);display:flex;justify-content:flex-end;z-index:60}
-.drawerpanel{position:relative;background:var(--nf-surface);width:min(560px,100%);height:100%;overflow:auto;padding:max(var(--nf-s6),env(safe-area-inset-top,0px)) max(var(--nf-s6),env(safe-area-inset-right,0px)) 40px var(--nf-s6);box-shadow:var(--nf-sh-raised)}
+.drawerpanel{position:relative;background:var(--nf-surface);width:min(var(--nf-drawer-w),100%);height:100%;overflow:auto;padding:max(var(--nf-s6),env(safe-area-inset-top,0px)) max(var(--nf-s6),env(safe-area-inset-right,0px)) var(--nf-drawer-end) var(--nf-s6);box-shadow:var(--nf-sh-raised)}
 .drawer.sheet{justify-content:center;align-items:flex-end}
-.drawer.sheet .drawerpanel{width:min(100%,var(--nf-phone));height:auto;max-height:92vh;border-radius:var(--nf-r-lg) var(--nf-r-lg) 0 0;padding:var(--nf-s5) var(--nf-s4) calc(var(--nf-s5) + env(safe-area-inset-bottom,0px));background:var(--nf-bg)}
+.drawer.sheet .drawerpanel{width:min(100%,var(--nf-phone));height:auto;max-height:var(--nf-sheet-max-h);border-radius:var(--nf-r-lg) var(--nf-r-lg) 0 0;padding:var(--nf-s5) var(--nf-s4) calc(var(--nf-s5) + env(safe-area-inset-bottom,0px));background:var(--nf-bg)}
 .sheet-body{padding:0;max-width:none;margin:0}
 .sheet-h{font-size:var(--nf-fs-2xl);margin:0 var(--nf-s1) var(--nf-s3)}
 .drawerpanel .close{position:absolute;right:var(--nf-s4);top:max(var(--nf-s3),env(safe-area-inset-top,0px));min-width:var(--nf-tap);min-height:var(--nf-tap);font-size:var(--nf-fs-xl);padding:0}
-.toast{position:fixed;left:var(--nf-s4);right:var(--nf-s4);margin-inline:auto;width:fit-content;max-width:520px;bottom:calc(var(--nf-tabbar-h) + var(--nf-s6) + env(safe-area-inset-bottom,0px));background:var(--nf-ink);color:var(--nf-on-primary);padding:var(--nf-s3) var(--nf-s5);border-radius:var(--nf-r-lg);font-weight:600;z-index:70;box-shadow:var(--nf-sh-raised)}
-.app .toast{left:calc(224px + var(--nf-s4));bottom:96px}
+.toast{position:fixed;left:var(--nf-s4);right:var(--nf-s4);margin-inline:auto;width:fit-content;max-width:var(--nf-toast-max);bottom:calc(var(--nf-tabbar-h) + var(--nf-s6) + env(safe-area-inset-bottom,0px));background:var(--nf-ink);color:var(--nf-on-primary);padding:var(--nf-s3) var(--nf-s5);border-radius:var(--nf-r-lg);font-weight:var(--nf-w-semi);z-index:70;box-shadow:var(--nf-sh-raised)}
+.app .toast{left:calc(var(--nf-rail-w) + var(--nf-s4));bottom:var(--nf-toast-desk-bottom)}
 
 /* ---------- graf průběhu a sloupce (lékař) ---------- */
 .chart{margin:var(--nf-s3) 0}
 .chart svg{width:100%;height:auto;display:block}
 .chart figcaption{font-size:var(--nf-fs-2xs);color:var(--nf-muted);margin-top:var(--nf-s1)}
 .bars{display:grid;grid-template-columns:auto 1fr;gap:var(--nf-s2) var(--nf-s3);align-items:center;font-size:var(--nf-fs-xs)}
-.bars .b{width:var(--pct);height:26px;border-radius:var(--nf-r-sm);display:flex;align-items:center;padding:0 var(--nf-s3);font-weight:var(--nf-w-strong);font-size:var(--nf-fs-2xs);min-width:60px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.bars .b{width:var(--pct);height:var(--nf-bar-h);border-radius:var(--nf-r-sm);display:flex;align-items:center;padding:0 var(--nf-s3);font-weight:var(--nf-w-strong);font-size:var(--nf-fs-2xs);min-width:var(--nf-bar-min);white-space:nowrap;font-variant-numeric:tabular-nums}
 .bars .b.ok{background:var(--nf-ok-bg);color:var(--nf-ok-text)}.bars .b.over{background:var(--nf-over-bg);color:var(--nf-over-text)}.bars .b.none{background:var(--nf-surface-2);color:var(--nf-muted)}
 /* pruh rozmezí glukózy v dlaždici času v cíli (pod 4 · v cíli · nad cílem), každý úsek se slovem (rozhodnutí vlastníka 19. 10. 2026) */
-.tir{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:var(--nf-s2) 0 var(--nf-s1);background:var(--nf-surface-2)}
-.tir span{display:block;width:var(--pct);min-width:2px}
-.tir .lo{background:var(--nf-low);min-width:3px}.tir .in{background:var(--nf-ok)}.tir .hi{background:var(--nf-over)}
+.tir{display:flex;gap:var(--nf-tir-gap);height:var(--nf-tir-h);border-radius:var(--nf-r-pill);overflow:hidden;margin:var(--nf-s2) 0 var(--nf-s1);background:var(--nf-surface)}
+.tir span{display:block;width:var(--pct);min-width:var(--nf-tir-min)}
+.tir .lo{background:var(--nf-low);min-width:var(--nf-tir-min-lo)}.tir .in{background:var(--nf-ok)}.tir .hi{background:var(--nf-over)}
 /* S24: legenda s barevným klíčem; položka se nikdy neláme uvnitř, v úzké dlaždici jde celá na další řádek */
 .tir-legend{display:flex;flex-wrap:wrap;gap:0 var(--nf-s3);font-size:var(--nf-fs-2xs);color:var(--nf-muted);margin-bottom:var(--nf-s1)}
 .tir-legend span{display:flex;align-items:center;gap:var(--nf-s1);white-space:nowrap}
-.tir-legend .sw{display:inline-block;width:var(--nf-s2);height:var(--nf-s2);border-radius:2px;flex:none}
+.tir-legend .sw{display:inline-block;width:var(--nf-s2);height:var(--nf-s2);border-radius:var(--nf-r-2xs);flex:none}
 .tir-legend .sw.lo{background:var(--nf-low)}.tir-legend .sw.in{background:var(--nf-ok)}.tir-legend .sw.hi{background:var(--nf-over)}
 .tir-legend b{color:var(--nf-ink);font-variant-numeric:tabular-nums}
 
 /* ---------- ikony (sada Lucide v app/icons.js) ---------- */
-svg.ico{width:var(--nf-icon);height:var(--nf-icon);flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-5px;display:inline-block}
-.habit .mark svg.ico,.dot svg.ico,.emoji .ck svg.ico,.n svg.ico{width:13px;height:13px;vertical-align:0;stroke-width:2.4}
+svg.ico{width:var(--nf-icon);height:var(--nf-icon);flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:var(--nf-ico-valign);display:inline-block}
+.habit .mark svg.ico,.dot svg.ico,.emoji .ck svg.ico,.n svg.ico{width:var(--nf-icon-4xs);height:var(--nf-icon-4xs);vertical-align:0;stroke-width:2.4}
 .sico{overflow:visible;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 /* ---------- vysvětlující animace: přehrají se jednou (.play), statický stav = konec; tlačítko jen „Přehrát znovu“ ---------- */
 .anim{position:relative;margin-top:var(--nf-s2)}
 .anim svg{width:100%;height:auto;display:block;font-family:inherit}
 .anim-cap{font-size:var(--nf-fs-2xs);color:var(--nf-muted);margin-top:var(--nf-s2)}
-.anim-ctl{display:flex;justify-content:flex-end;margin-top:2px}
-.anim-ctl .btn{min-height:44px;font-size:var(--nf-fs-2xs)}
-.anim-ctl .btn svg.ico{width:16px;height:16px}
+.anim-ctl{display:flex;justify-content:flex-end;margin-top:var(--nf-s05)}
+.anim-ctl .btn{min-height:var(--nf-tap-sm);font-size:var(--nf-fs-2xs)}
+.anim-ctl .btn svg.ico{width:var(--nf-icon-2xs);height:var(--nf-icon-2xs)}
 /* klíč a talíř (4,8 s, tři fáze; aktivní popisek ztmavne) */
 .kbase{stroke:var(--nf-line-strong);stroke-width:1.5}
 .kband{fill:var(--nf-ok-bg);stroke:var(--nf-line-strong)}
@@ -678,20 +692,20 @@ svg.ico{width:var(--nf-icon);height:var(--nf-icon);flex:none;fill:none;stroke:cu
 .kfood{fill:var(--nf-primary);fill-opacity:.35;stroke:var(--nf-primary-strong);stroke-width:1.5;transform-box:fill-box;transform-origin:center}
 .kline{fill:none;stroke:var(--nf-ok-text);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:400;stroke-dashoffset:0}
 .khigh{fill:none;stroke:var(--nf-over);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:400;stroke-dashoffset:0;opacity:.3}
-.kl{font-size:var(--nf-fs-fig);fill:var(--nf-muted);font-weight:600}.kl3{fill:var(--nf-ink);font-weight:var(--nf-w-strong)}
+.kl{font-size:var(--nf-fs-fig);fill:var(--nf-muted);font-weight:var(--nf-w-semi)}.kl3{fill:var(--nf-ink);font-weight:var(--nf-w-strong)}
 .kl.warn{fill:var(--nf-over-text)}
-.anim.play .kline{animation:kDraw .6s var(--nf-ease) both}
-.anim.play .kfood{animation:kBig 4.8s var(--nf-ease-move) both}
-.anim.play .khigh{animation:kHigh 4.8s var(--nf-ease-move) both}
-.anim.play .kl1{animation:kA1 4.8s linear both}.anim.play .kl2{animation:kA2 4.8s linear both}.anim.play .kl3{animation:kA3 4.8s linear both}
+.anim.play .kline{animation:kDraw var(--nf-anim-draw) var(--nf-ease) both}
+.anim.play .kfood{animation:kBig var(--nf-anim-key) var(--nf-ease-move) both}
+.anim.play .khigh{animation:kHigh var(--nf-anim-key) var(--nf-ease-move) both}
+.anim.play .kl1{animation:kA1 var(--nf-anim-key) linear both}.anim.play .kl2{animation:kA2 var(--nf-anim-key) linear both}.anim.play .kl3{animation:kA3 var(--nf-anim-key) linear both}
 /* co aplikace nedělá: přeškrtnutí inkoustem */
 .nots{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--nf-s2);text-align:center}
-.not .pic{position:relative;display:inline-grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--nf-surface);color:var(--nf-primary-strong)}
-.not .pi svg.ico{width:28px;height:28px}
-.not .strike-svg{position:absolute;inset:0;width:56px;height:56px}
+.not .pic{position:relative;display:inline-grid;place-items:center;width:var(--nf-icon-circle-xl);height:var(--nf-icon-circle-xl);border-radius:50%;background:var(--nf-surface);color:var(--nf-primary-strong)}
+.not .pi svg.ico{width:var(--nf-icon-xl);height:var(--nf-icon-xl)}
+.not .strike-svg{position:absolute;inset:0;width:var(--nf-icon-circle-xl);height:var(--nf-icon-circle-xl)}
 .not .strike{fill:none;stroke:var(--nf-ink);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:40;stroke-dashoffset:0}
-.not small{display:block;font-size:var(--nf-fs-2xs);color:var(--nf-ink);font-weight:600;margin-top:var(--nf-s2);line-height:1.25}
-.anim.play .strike.s1{animation:strike .4s var(--nf-ease) .2s both}.anim.play .strike.s2{animation:strike .4s var(--nf-ease) .55s both}.anim.play .strike.s3{animation:strike .4s var(--nf-ease) .9s both}
+.not small{display:block;font-size:var(--nf-fs-2xs);color:var(--nf-ink);font-weight:var(--nf-w-semi);margin-top:var(--nf-s2);line-height:1.25}
+.anim.play .strike.s1{animation:strike var(--nf-t-slow) var(--nf-ease) var(--nf-anim-delay) both}.anim.play .strike.s2{animation:strike var(--nf-t-slow) var(--nf-ease) calc(var(--nf-anim-delay) + var(--nf-anim-strike-step)) both}.anim.play .strike.s3{animation:strike var(--nf-t-slow) var(--nf-ease) calc(var(--nf-anim-delay) + 2 * var(--nf-anim-strike-step)) both}
 /* osa inzulinu: stříkačka se posune podle odpovědi */
 .ins-axis{margin-top:var(--nf-s3)}
 .ins-axis svg{width:100%;height:auto;display:block}
@@ -701,13 +715,13 @@ svg.ico{width:var(--nf-icon);height:var(--nf-icon);flex:none;fill:none;stroke:cu
 .ins-axis .rim{fill:var(--nf-surface);stroke:var(--nf-primary-strong);stroke-width:1.75}
 .ins-axis .rim2{fill:none;stroke:var(--nf-primary-strong);stroke-width:1.25;stroke-opacity:.45}
 .ins-axis .food{fill:var(--nf-primary);fill-opacity:.35;stroke:var(--nf-primary-strong);stroke-width:1.5}
-.ins-axis .syr{transition:transform .4s var(--nf-ease-move),opacity .2s;transform:translate(var(--sx-before),40px);opacity:.35}
+.ins-axis .syr{transition:transform var(--nf-t-slow) var(--nf-ease-move),opacity var(--nf-t-fade);transform:translate(var(--sx-before),var(--nf-syr-y));opacity:.35}
 .ins-axis .syr .sico{color:var(--nf-primary-strong)}
-.ins-axis .syr .q{font-size:var(--nf-fs-fig-lg);font-weight:var(--nf-w-display-strong);fill:var(--nf-over-text);opacity:0;transition:opacity .3s}
-.ins-axis.b-as .syr{transform:translate(var(--sx-as),40px);opacity:1}
-.ins-axis.b-other .syr{transform:translate(var(--sx-other),40px);opacity:1}
-.ins-axis.b-before .syr{transform:translate(var(--sx-before),40px);opacity:.7}
-.ins-axis.b-unknown .syr{transform:translate(var(--sx-as),40px);opacity:.5}.ins-axis.b-unknown .syr .q{opacity:1}
+.ins-axis .syr .q{font-size:var(--nf-fs-fig-lg);font-weight:var(--nf-w-display-strong);fill:var(--nf-over-text);opacity:0;transition:opacity var(--nf-t-mid)}
+.ins-axis.b-as .syr{transform:translate(var(--sx-as),var(--nf-syr-y));opacity:1}
+.ins-axis.b-other .syr{transform:translate(var(--sx-other),var(--nf-syr-y));opacity:1}
+.ins-axis.b-before .syr{transform:translate(var(--sx-before),var(--nf-syr-y));opacity:.7}
+.ins-axis.b-unknown .syr{transform:translate(var(--sx-as),var(--nf-syr-y));opacity:.5}.ins-axis.b-unknown .syr .q{opacity:1}
 .ins-axis .axl{font-size:var(--nf-fs-fig-sm);font-weight:var(--nf-w-strong);fill:var(--nf-muted)}
 .ins-axis .axc{font-size:var(--nf-fs-fig-xs);fill:var(--nf-muted)}
 /* scény z ikon sady + geometrické talíře */
@@ -720,31 +734,31 @@ svg.ico{width:var(--nf-icon);height:var(--nf-icon);flex:none;fill:none;stroke:cu
 .lever-fig .splate .p1,.lever-anim .prim{fill:var(--nf-surface);stroke:var(--nf-primary-strong);stroke-width:var(--nf-fig-stroke)}
 .lever-fig .splate .pfood{transform-box:fill-box;transform-origin:center}
 .lever-fig .farr,.lever-anim .bowl .sico,.lever-anim .st{color:var(--nf-primary-strong)}
-.fig-cap{margin:var(--nf-s1) 0 0;color:var(--nf-muted);font-weight:600;font-size:var(--nf-fs-sm)}
+.fig-cap{margin:var(--nf-s1) 0 0;color:var(--nf-muted);font-weight:var(--nf-w-semi);font-size:var(--nf-fs-sm)}
 .lever-anim .sec{stroke:var(--nf-surface);stroke-width:1.5}
 .lever-anim .s1{fill:var(--nf-primary)}.lever-anim .s2{fill:var(--nf-primary);fill-opacity:.55}.lever-anim .s3{fill:var(--nf-primary);fill-opacity:.25}
 .lever-anim .n{font-size:var(--nf-fs-fig-xl);font-weight:var(--nf-w-display-strong);fill:var(--nf-ink)}.lever-anim .n1{fill:var(--nf-surface)}
-.lever-anim .lab{font-size:var(--nf-fs-fig-xl);font-weight:600;fill:var(--nf-ink)}
+.lever-anim .lab{font-size:var(--nf-fs-fig-xl);font-weight:var(--nf-w-semi);fill:var(--nf-ink)}
 .lever-anim .plus{font-size:var(--nf-fs-fig-2xl);font-weight:var(--nf-w-display-strong);fill:var(--nf-primary-strong)}
 .lever-anim .ringbg{fill:none;stroke:var(--nf-line);stroke-width:5}
 .lever-anim .ringfg{fill:none;stroke:var(--nf-primary);stroke-width:5;stroke-linecap:round;stroke-dasharray:188.5;stroke-dashoffset:141.4;transform:rotate(-90deg);transform-box:fill-box;transform-origin:center}
 .lever-anim .min{font-size:var(--nf-fs-fig-xl);font-weight:var(--nf-w-display-strong);fill:var(--nf-primary-strong)}
 .lever-anim .hand{stroke:var(--nf-primary-strong);stroke-width:2;stroke-linecap:round;transform-box:fill-box;transform-origin:50% 100%;transform:rotate(90deg)}
-.lever-anim.play .s1,.lever-anim.play .n1,.lever-anim.play .l1{animation:secIn .35s var(--nf-ease) .2s both}
-.lever-anim.play .s2,.lever-anim.play .n2,.lever-anim.play .l2{animation:secIn .35s var(--nf-ease) .7s both}
-.lever-anim.play .s3,.lever-anim.play .n3,.lever-anim.play .l3{animation:secIn .35s var(--nf-ease) 1.2s both}
-.lever-anim.play .bowl{animation:plateIn .5s var(--nf-ease) .2s both}
-.lever-anim.play .plus{animation:fadeIn .2s var(--nf-ease) .6s both}
-.lever-anim.play .st1{animation:secIn .3s var(--nf-ease) .2s both}
-.lever-anim.play .ringfg{animation:ringFill 1.6s linear .2s both}
-.lever-anim.play .hand{animation:handTurn 1.6s linear .2s both}
-.lever-anim.play .anim-bigger .pfood{animation:plateBigger .7s var(--nf-ease) .4s both}
-.lever-anim.play .anim-smaller .pfood{animation:plateSmaller .7s var(--nf-ease) .4s both}
+.lever-anim.play .s1,.lever-anim.play .n1,.lever-anim.play .l1{animation:secIn var(--nf-anim-in) var(--nf-ease) var(--nf-anim-delay) both}
+.lever-anim.play .s2,.lever-anim.play .n2,.lever-anim.play .l2{animation:secIn var(--nf-anim-in) var(--nf-ease) calc(var(--nf-anim-delay) + var(--nf-anim-step)) both}
+.lever-anim.play .s3,.lever-anim.play .n3,.lever-anim.play .l3{animation:secIn var(--nf-anim-in) var(--nf-ease) calc(var(--nf-anim-delay) + 2 * var(--nf-anim-step)) both}
+.lever-anim.play .bowl{animation:plateIn var(--nf-anim-slide-t) var(--nf-ease) var(--nf-anim-delay) both}
+.lever-anim.play .plus{animation:fadeIn var(--nf-t-fade) var(--nf-ease) var(--nf-anim-delay-plus) both}
+.lever-anim.play .st1{animation:secIn var(--nf-t-mid) var(--nf-ease) var(--nf-anim-delay) both}
+.lever-anim.play .ringfg{animation:ringFill var(--nf-anim-ring) linear var(--nf-anim-delay) both}
+.lever-anim.play .hand{animation:handTurn var(--nf-anim-ring) linear var(--nf-anim-delay) both}
+.lever-anim.play .anim-bigger .pfood{animation:plateBigger var(--nf-anim-portion) var(--nf-ease) var(--nf-anim-delay-portion) both}
+.lever-anim.play .anim-smaller .pfood{animation:plateSmaller var(--nf-anim-portion) var(--nf-ease) var(--nf-anim-delay-portion) both}
 /* prstenec učení (nový oblouk, fajfka) a talíře porcí */
-.emoji.just svg circle.new{animation:arcIn .45s var(--nf-ease) .15s both}
-.emoji.just .ck{animation:popIn .22s var(--nf-ease) .55s both}
-.plate-ico.anim-bigger .food{animation:plateBigger .7s var(--nf-ease) .4s both}
-.plate-ico.anim-smaller .food{animation:plateSmaller .7s var(--nf-ease) .4s both}
+.emoji.just svg circle.new{animation:arcIn var(--nf-anim-arc) var(--nf-ease) var(--nf-anim-delay-arc) both}
+.emoji.just .ck{animation:popIn var(--nf-anim-pop) var(--nf-ease) var(--nf-anim-delay-check) both}
+.plate-ico.anim-bigger .food{animation:plateBigger var(--nf-anim-portion) var(--nf-ease) var(--nf-anim-delay-portion) both}
+.plate-ico.anim-smaller .food{animation:plateSmaller var(--nf-anim-portion) var(--nf-ease) var(--nf-anim-delay-portion) both}
 @keyframes kDraw{from{stroke-dashoffset:400}to{stroke-dashoffset:0}}
 @keyframes kBig{0%,33%{transform:scale(1)}41%,66%{transform:scale(1.4)}74%,100%{transform:scale(1)}}
 @keyframes kHigh{0%,33%{opacity:0;stroke-dashoffset:400}41%,66%{opacity:.9;stroke-dashoffset:0}74%,100%{opacity:.3;stroke-dashoffset:0}}
@@ -754,17 +768,17 @@ svg.ico{width:var(--nf-icon);height:var(--nf-icon);flex:none;fill:none;stroke:cu
 @keyframes strike{from{stroke-dashoffset:40}to{stroke-dashoffset:0}}
 @keyframes secIn{from{opacity:0}to{opacity:1}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes plateIn{from{transform:translateX(32px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes plateIn{from{transform:translateX(var(--nf-anim-slide));opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes ringFill{from{stroke-dashoffset:188.5}to{stroke-dashoffset:141.4}}
 @keyframes handTurn{from{transform:rotate(0)}to{transform:rotate(90deg)}}
 @keyframes arcIn{from{stroke-dasharray:0 170}}
 @keyframes popIn{from{transform:scale(.6);opacity:0}}
 @keyframes plateBigger{from{transform:scale(1.46)}}
 @keyframes plateSmaller{from{transform:scale(.56)}}
-@keyframes savedIn{from{box-shadow:0 0 0 3px var(--nf-ok)}to{box-shadow:var(--nf-sh-card)}}
+@keyframes savedIn{from{box-shadow:0 0 0 var(--nf-bw-xl) var(--nf-ok)}to{box-shadow:var(--nf-sh-card)}}
 
 /* ---------- stisk a přechody (krátké, vysvětlující; ne dekorace) ---------- */
-.btn,.choice,.segmented button,.tabbar button,.food-opt,.habit-opt,.tile,.reg-row,.rail button.nav{transition:background-color var(--nf-t-fast) var(--nf-ease),border-color var(--nf-t-fast) var(--nf-ease),color var(--nf-t-fast) var(--nf-ease),box-shadow var(--nf-t-fast) var(--nf-ease),transform 120ms var(--nf-ease)}
+.btn,.choice,.segmented button,.tabbar button,.food-opt,.habit-opt,.tile,.reg-row,.rail button.nav{transition:background-color var(--nf-t-fast) var(--nf-ease),border-color var(--nf-t-fast) var(--nf-ease),color var(--nf-t-fast) var(--nf-ease),box-shadow var(--nf-t-fast) var(--nf-ease),transform var(--nf-t-press) var(--nf-ease)}
 .btn:active,.choice:active{transform:scale(.98)}
 
 /* ---------- média ---------- */
@@ -778,26 +792,36 @@ svg.ico{width:var(--nf-icon);height:var(--nf-icon);flex:none;fill:none;stroke:cu
 /* ordinace na širokém monitoru: pruh · pracovní sloupec do 880 px · kontext jen ke čtení (rozhodnutí vlastníka 19. 10. 2026) */
 .ctx{display:none}
 @media (min-width:1600px){
-  .app.wide{grid-template-columns:224px minmax(0,1fr) var(--nf-ctx-w)}
+  .app.wide{grid-template-columns:var(--nf-rail-w) minmax(0,1fr) var(--nf-ctx-w)}
   .app.wide .desk{max-width:none}
-  .app.wide .desk>:not(.nextbar){max-width:880px;margin-inline:auto}
+  .app.wide .desk>:not(.nextbar){max-width:var(--nf-desk-col);margin-inline:auto}
   .app.wide .nextbar{right:var(--nf-ctx-w)}
-  .ctx{display:block;position:sticky;top:0;height:100vh;overflow:auto;background:var(--nf-surface);border-left:1px solid var(--nf-line);padding:var(--nf-s6) var(--nf-s5) 120px}
+  .ctx{display:block;position:sticky;top:0;height:100vh;overflow:auto;background:var(--nf-surface);border-left:1px solid var(--nf-line);padding:var(--nf-s6) var(--nf-s5) var(--nf-desk-end)}
   .ctx h2{font-size:var(--nf-fs-lg);margin-bottom:var(--nf-s1)}
   .ctx-sec{margin-top:var(--nf-s5)}.ctx-sec h3{font-size:var(--nf-fs-xs);color:var(--nf-muted);margin-bottom:var(--nf-s1)}
 }
 /* nejužší telefony (pod 360 px): dvousloupcové řádky pod sebou, pás dne menším písmem */
 @media (max-width:359px){
-  .patient .kv{grid-template-columns:1fr;gap:2px}.patient .kv strong{text-align:left}
+  .patient .kv{grid-template-columns:1fr;gap:var(--nf-s05)}.patient .kv strong{text-align:left}
   .dnode b,.dnode small{font-size:var(--nf-fs-xs)}
   .result-compact>summary .st{flex-basis:100%;text-align:left;margin-left:0}
 }
 /* nadpis obrazovky dostane fokus pro čtečku po přepnutí; rámeček kolem něj nepatří (21. 10. 2026) */
 main h1[tabindex="-1"]:focus{outline:none}
 @media (max-width:1180px){.reg{grid-template-columns:1fr}.reg-side{position:static;max-height:none}}
+/* Fáze 2 (27. 10. 2026): řádek štítků položek u místa, kde působí (A02); směr podle podobného jídla bez čísla (A15); karta „Podnět z provozu“ (A33). */
+.rules{display:flex;flex-wrap:wrap;gap:var(--nf-s2)}
+.sim-dir{margin:var(--nf-s1) 0}
+.impulse .doc-q{margin:var(--nf-s2) 0;text-indent:var(--nf-quote-indent)} /* podnět z provozu je citace v uvozovkách */
+/* A31: na telefonu lišta „Další krok“ zalomí text pod nadpis na plnou šířku; záhlaví registru nestlačí štítek stavu ukládání */
+@media (max-width:640px){
+  .nextbar{flex-wrap:wrap;padding:var(--nf-s3) var(--nf-s4)}.nextbar .txt{flex:1 1 100%}
+  .pagehead{flex-wrap:wrap}.pagehead>:not(:first-child){flex:0 0 auto;max-width:100%}
+  .instr{grid-template-columns:minmax(0,1fr)}.instr .stepper{justify-self:start} /* 27. 10. 2026: rozbalený seznam pravidel na telefonu – volič pod textem, stránka nepřeteče do šířky */
+}
 @media (max-width:1000px){
   .app{grid-template-columns:1fr}.rail{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center}
-  .rail .who{margin:0 0 0 auto;border:0}.nextbar{left:0}.desk{padding:var(--nf-s4) var(--nf-s4) 120px}
+  .rail .who{margin:0 0 0 auto;border:0}.nextbar{left:0}.desk{padding:var(--nf-s4) var(--nf-s4) var(--nf-desk-end)}
   .grid2,.reg,.split,.dose-grid{grid-template-columns:1fr}.reg-side{position:static}
   .flow,.wsteps{flex-wrap:wrap}
 }
@@ -805,8 +829,8 @@ main h1[tabindex="-1"]:focus{outline:none}
   .anim:not(.user) *,.lever-anim:not(.user) *,.emoji *,.rise *,.plate-ico *,.ins-axis *,.card.just-saved,.btn.primary.done,.toggle,.toggle::after,.branch div,details.more>summary::after,details.part>summary::after,.btn,.choice,.segmented button,.tabbar button,.tabbar .ic,.food-opt,.habit-opt,.tile,.reg-row,.rail button.nav{animation:none!important;transition:none!important} /* !important: jinak prohraje se specifičností .anim.play … */
   .lever-anim .replay{display:none} /* „Přehrát znovu“ zůstává: animaci si člověk pustí sám (04 #13) */
 }
-@media (prefers-contrast:more){:root{--nf-muted:#3d474f;--nf-line:#56636c;--nf-line-strong:#56636c;--nf-border-control:#26303a;--nf-card-edge:#56636c;--nf-sh-card:none}.btn,.choice,.tile,.card{border-color:#56636c}}
-@media (forced-colors:active){.rail .nav[aria-current],.rail .nav.active,.flow .step.now,.flow .step[aria-current],.choice.opt[aria-pressed="true"],.choice.chosen,.choice[aria-pressed="true"],.segmented [aria-pressed="true"],.tabbar [aria-current],.habit-opt[aria-pressed="true"],.food-opt.chosen,.tile[aria-expanded="true"],.btn[aria-pressed="true"]{outline:3px solid CanvasText;outline-offset:-3px}.toggle{border:2px solid CanvasText}.toggle.on::after{background:CanvasText}.msteps span.on,.path .bar span,.habit .mark{background:CanvasText}.track{forced-color-adjust:none}.dnode.done .dot{background:CanvasText;color:Canvas}.track .win{forced-color-adjust:none;border-color:CanvasText}.weave i,.weave-legend i,.tir span,.tir-legend .sw{forced-color-adjust:none;border:1px solid CanvasText}.weave i.done,.weave-legend i.done,.tir .in,.tir-legend .sw.in{background:CanvasText}.weave i.skipped,.weave-legend i.skipped{background:Canvas}.weave i.missing,.weave-legend i.missing{background:Canvas;border-style:dotted}.tir .lo,.tir-legend .sw.lo{background:Canvas;border-style:dashed}.tir .hi,.tir-legend .sw.hi{background:GrayText}}
+@media (prefers-contrast:more){:root{--nf-muted:var(--nf-hc-muted);--nf-line:var(--nf-hc-line);--nf-line-strong:var(--nf-hc-line);--nf-border-control:var(--nf-hc-control);--nf-card-edge:var(--nf-hc-line);--nf-sh-card:none}.btn,.choice,.tile,.card{border-color:var(--nf-hc-line)}}
+@media (forced-colors:active){.rail .nav[aria-current],.rail .nav.active,.flow .step.now,.flow .step[aria-current],.choice.opt[aria-pressed="true"],.choice.chosen,.choice[aria-pressed="true"],.segmented [aria-pressed="true"],.tabbar [aria-current],.habit-opt[aria-pressed="true"],.food-opt.chosen,.tile[aria-expanded="true"],.btn[aria-pressed="true"]{outline:var(--nf-focus-w) solid CanvasText;outline-offset:calc(-1 * var(--nf-focus-w))}.toggle{border:var(--nf-bw) solid CanvasText}.toggle.on::after{background:CanvasText}.msteps span.on,.path .bar span,.habit .mark{background:CanvasText}.track{forced-color-adjust:none}.dnode.done .dot{background:CanvasText;color:Canvas}.track .win{forced-color-adjust:none;border-color:CanvasText}.weave i,.weave-legend i,.tir span,.tir-legend .sw{forced-color-adjust:none;border:1px solid CanvasText}.weave i.done,.weave-legend i.done,.tir .in,.tir-legend .sw.in{background:CanvasText}.weave i.skipped,.weave-legend i.skipped{background:Canvas}.weave i.missing,.weave-legend i.missing{background:Canvas;border-style:dotted}.tir .lo,.tir-legend .sw.lo{background:Canvas;border-style:dashed}.tir .hi,.tir-legend .sw.hi{background:GrayText}}
 @media print{
   .rail,.nextbar,.tabbar,.drawer,.toast,.flow,.btn,.appr,input[type=file],.anim-ctl{display:none!important}
   .app{display:block}.desk{padding:0;max-width:none}
@@ -817,3 +841,47 @@ main h1[tabindex="-1"]:focus{outline:none}
   body{background:var(--nf-surface)}
 }
 @page{size:A4;margin:14mm}
+/* ---------- kontrola 4 (SCHEMA 78): nové prvky jádra ---------- */
+/* mřížky čísel: výchozí hodnoty ze senzoru a volič dávky 1–40 (07 A2) */
+.chips.num-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--nf-tap-desk) + var(--nf-s3)),1fr));gap:var(--nf-s1);margin-top:var(--nf-s2)}
+.chips.num-grid.dose-grid{grid-template-columns:repeat(8,minmax(0,1fr))}
+.chips.num-grid .chip{min-width:0;min-height:var(--nf-tap-desk);padding:var(--nf-s1);justify-content:center;font-variant-numeric:tabular-nums}
+@media (max-width:600px){.chips.num-grid.dose-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+/* oznámení telefonu (rozhodnutí 4): nad obrazovkou pacienta, jako systémové oznámení telefonu */
+.phone-notices{display:grid;gap:var(--nf-s2);padding:var(--nf-s2) var(--nf-s3) 0}
+.patient-shell.has-notice{position:relative}
+.patient-shell.has-notice>.phone-notices{position:absolute;left:var(--nf-s2);right:var(--nf-s2);top:var(--nf-s8);z-index:6;padding:0}
+.phone-notice{display:grid;gap:var(--nf-s1);width:100%;text-align:left;padding:var(--nf-s3) var(--nf-s4);border:0;border-radius:var(--nf-r-md);background:var(--nf-surface);color:var(--nf-ink);box-shadow:var(--nf-sh-raised);font:inherit;cursor:pointer}
+.phone-notice .pn-head{display:flex;justify-content:space-between;align-items:center;gap:var(--nf-s2);font-size:var(--nf-fs-xs);color:var(--nf-muted);font-weight:var(--nf-w-strong)}
+.phone-notice .pn-app{display:inline-flex;align-items:center;gap:var(--nf-s1);color:var(--nf-primary-strong)}
+.phone-notice .pn-app .ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm)}
+.phone-notice .pn-text{font-size:var(--nf-fs-sm);line-height:var(--nf-lh)}
+/* sbalené části: vybraná hodnota teď, stupnice u rutinních rad, cesta ke kontrole jako řádek (07 B1, B5) */
+details.chips-done{margin-top:var(--nf-s2)}
+details.chips-done>summary{display:flex;flex-wrap:wrap;gap:var(--nf-s2);align-items:center;font-weight:var(--nf-w-strong);color:var(--nf-ink)}
+details.chips-done .chosen-note{color:var(--nf-ok-text)}
+details.scale-compact>summary,details.path-compact>summary{display:flex;gap:var(--nf-s2);align-items:center;font-size:var(--nf-fs-sm);color:var(--nf-ink)}
+details.path-compact>summary .ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm);color:var(--nf-primary-strong);flex:none}
+/* karty na Dnes a v Plánu */
+.card.reminders .dose-field .k{font-weight:var(--nf-w-strong)}
+.card.dose-off{background:var(--nf-over-bg)}
+.card.dose-off .ic{color:var(--nf-over-text)}
+.card.yesterday{background:var(--nf-primary-tint)}
+.card.readback{background:var(--nf-primary-tint)}
+.dose-origin{color:var(--nf-text)}
+/* sestra s pacientem před lékařem (rozhodnutí 7) */
+.part.nurse-part .verify{display:flex;flex-wrap:wrap;gap:var(--nf-s2);align-items:center;justify-content:space-between;padding:var(--nf-s2) 0;border-top:1px solid var(--nf-line)}
+.part.nurse-part .verify.off{background:var(--nf-over-bg);border-radius:var(--nf-r-sm);padding:var(--nf-s2)}
+.part.nurse-part .v-text{flex:1 1 var(--nf-verify-text-min)}
+.verify.nurse{border-left:0}
+.verify .nurse-tag,.verify.nurse .mini{font-size:var(--nf-fs-2xs);color:var(--nf-muted)}
+/* bez exportu chybí noční hodnoty (bod 5) */
+.nights-missing{color:var(--nf-over-text)}
+/* SCHEMA 80 (agent J, 31/03 B9): oznámení nikdy nezakrývá tlačítko pod sebou – klepnutí jde skrz, zavře ho klepnutí kamkoli (ui.js) */
+#toast,.toast{pointer-events:none}
+/* SCHEMA 80 (31/03 C4): zlomek „0 z 1“ má mezery v textu, odsazení „z“ už není potřeba */
+.frac .of{margin:0}
+/* SCHEMA 80 (rozhodnutí vlastníka 1. 11. 2026, bod 7): nepovinný čip nočního poklesu u snídaně pod mřížkou hodnoty teď */
+.night-low .choice.chip{width:auto;padding-inline:var(--nf-s4)}
+/* SCHEMA 80 (31/02 B3): HbA1c voličem – hodnota mřížkou a datum odběru výběrem */
+.hba-field select{min-height:var(--nf-tap);font:inherit}

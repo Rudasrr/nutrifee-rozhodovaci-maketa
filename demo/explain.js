@@ -28,8 +28,8 @@ function attr(el, a) { return el && el.getAttribute ? el.getAttribute(a) : null;
 D.explain = [
   /* ----- pacient ----- */
   { id: 'dose', sel: '.dose', not: '.was,.new', box: true, title: 'Dávka inzulinu',
-    text: 'Klíček s číslem je dávka, kterou předepsal lékař. Aplikace ji pacientovi jen připomíná a ptá se, jestli byla podaná; sama ji nikdy nepočítá ani nemění. Změnit ji může jen lékař na kontrole.',
-    item: 'D-POSTUP' },
+    text: 'Pilulka s číslem je dávka, kterou předepsal lékař. Aplikace ji pacientovi jen připomíná a ptá se, jestli byla podaná; sama ji nikdy nepočítá ani nemění. Změnit ji může jen lékař na kontrole.',
+    item: null }, /* C22: bez slova „klíč“; C10 (nezávislá kontrola 27. 10. 2026): dávku žádná položka registru neřídí – určuje ji lékař, proto bez odkazu */
   { id: 'peak-goal', sel: '.peak .goal', box: true, title: 'Hranice cíle',
     text: function (S) { return 'Svislá čárkovaná čára je horní cíl glukózy po jídle, u tohoto pacienta ' + dec(tg(S, 'high')) + ' mmol/l. Co skončí vlevo od ní, počítáme jako v cíli. Hranici nastavuje lékař v cílech glukózy.'; },
     item: 'C-CILE' },
@@ -42,18 +42,18 @@ D.explain = [
   { id: 'learning', sel: '.badges .tag.similar', box: true,
     title: function (S, el) { return /Podobné/.test(txt(el)) ? 'Podobné jídlo' : 'Učíme se'; },
     text: function (S, el) {
-      if (/Podobné/.test(txt(el))) return 'Pacient jídlo přirovnal ke svému známému jídlu. Do třetího vlastního zápisu ukážeme široké rozmezí převzaté z toho jídla; bez potvrzení pacienta nic neodhadujeme.';
-      return 'Jídlo má zatím méně než ' + prm(S, 'R-REAKCE', 'minKnown') + ' započítaných zápisů; číslo říká, kolik jich už máme. Dokud jich není dost, aplikace o reakci na jídlo nic netvrdí.';
+      if (/Podobné/.test(txt(el))) return 'Pacient jídlo přirovnal ke svému známému jídlu. Do třetího vlastního zápisu ukážeme jen směr podle toho jídla, slovem a ikonou (spíš v cíli, nebo spíš nad cílem), bez čísla; bez označení pacientem nic neodhadujeme.'; /* A15 */
+      var k = Number(prm(S, 'R-REAKCE', 'minKnown')); return 'Jídlo má zatím méně než ' + k + ' ' + (k >= 2 && k <= 4 ? 'započítané zápisy' : 'započítaných zápisů') + '; číslo říká, kolik jich už máme. Dokud jich není dost, aplikace o reakci na jídlo nic netvrdí.'; /* C23 (03/K2) */
     },
     item: function (S, el) { return /Podobné/.test(txt(el)) ? 'R-PODOBNOST' : 'R-REAKCE'; } },
   { id: 'reaction', sel: '.badges .tag.over,.badges .tag.ok', box: true, title: 'Reakce na jídlo',
     text: function (S) { return '„Většinou v cíli“ znamená, že aspoň ' + pct(prm(S, 'R-SKORE', 'mirna')) + ' započítaných zápisů skončilo s nejvyšší hodnotou v cíli, jinak je jídlo „častěji nad cílem“. Štítek se ukáže od ' + prm(S, 'R-SKORE', 'odKolika') + ' zápisů a počítá se z posledních ' + prm(S, 'R-SKORE', 'oknoZapisu') + '. Je to srovnání s pacientovými vlastními jídly, ne známka.'; },
     item: 'R-SKORE' },
   { id: 'glu-low', sel: '.chips.glu .chip.low', box: true, title: 'Pokles pod 4',
-    text: function (S) { return 'Klepnutí na „pod 4“ hned ukáže pokyn lékaře k nízké glukóze a v tomto zápisu aplikace neradí vůbec. Když se pokles zopakuje ' + prm(S, 'B-HYPO', 'poklesy') + '× za ' + prm(S, 'B-HYPO', 'dny') + ' dní, aplikace pacientovi řekne, ať zavolá do ordinace. Sama aplikace nikam nevolá.'; },
+    text: function (S) { return 'Klepnutí na „pod 4“ hned ukáže pravidlo k nízké glukóze a v tomto zápisu aplikace neradí vůbec. Když se pokles zopakuje ' + prm(S, 'B-HYPO', 'poklesy') + '× za ' + prm(S, 'B-HYPO', 'dny') + ' dní, ukáže na Dnes kartu s obecnou radou, co dělat. K volání do ordinace aplikace nevyzývá; poklesy uvidí lékař na kontrole.'; },
     item: 'B-HYPO' },
   { id: 'glu-high', sel: '.chips.glu .chip.high', box: true, title: 'Hodnota nad stupnicí',
-    text: 'Senzor ukazuje víc, než čipy nabízejí, a zápis si to pamatuje. Pokyn lékaře pro vysokou glukózu má pacient v Bezpečí. Živou glukózu aplikace nesleduje, na vysoké hodnoty upozorňuje aplikace senzoru.',
+    text: 'Senzor ukazuje víc, než čipy nabízejí, a zápis si to pamatuje. Klepnutí na „nad 15“ hned ukáže pravidlo k vysoké glukóze a zapíše se do stopy; v Bezpečí ho má pacient vždy. Živou glukózu aplikace nesleduje, na vysoké hodnoty upozorňuje aplikace senzoru.',
     item: 'I-VYSOKA' },
   { id: 'glu-none', sel: '.chips.glu [data-value=none]', box: true, title: 'Nemám hodnotu',
     text: 'Zápis se uloží i bez čísla, třeba když senzor zrovna nejde přečíst. Do učení se ale nezapočítá, dokud chybějící hodnotu nedoplní export ze senzoru, který nahraje sestra na kontrole.',
@@ -64,12 +64,12 @@ D.explain = [
   { id: 'daystrip', sel: '.daystrip', box: true, title: 'Pás dne',
     text: 'Tři hlavní jídla a bazál v pořadí, jak jdou za sebou. Na řadě je vždy první nezapsané jídlo, ne podle hodin, takže pozdní snídaně nic nerozbije. U jídla na řadě je vidět předepsaná dávka.',
     item: 'R-NAVYKY' },
-  { id: 'weave', sel: '.weave', box: true, title: 'Tkanina zápisů',
+  { id: 'weave', sel: '.weave', box: true, title: 'Pruh zápisů',
     text: function (S) {
       if (role(S) === 'doctor') return 'Celé období mezi kontrolami na jednom obrázku: sloupec je den, řádky jsou snídaně, oběd, večeře a bazál. Hned uvidíte, jestli pacient zapisoval průběžně, nebo jen chvílemi, a kde byla nemoc.';
       return 'Každý sloupec je jeden den a každé políčko jedno hlavní jídlo nebo bazál. Plné políčko je zapsané, prázdné je bez zápisu. Mezery nejsou chyba; zápisy lékař otevře až s pacientem na kontrole.';
     },
-    item: function (S) { return role(S) === 'doctor' ? 'R-NAVYKY' : 'P-LEKAR'; } },
+    item: null }, /* C10: tkaninu žádná garantová položka neřídí (provozní S-CESTA) */
   { id: 'result', sel: '.card.result', box: true, title: 'Jak to dopadlo',
     text: function (S) { return 'Když pacient opíše nejvyšší hodnotu po jídle, ukážeme mu věcný výsledek: v cíli znamená nejvýš ' + dec(tg(S, 'high')) + ' mmol/l. Za přijatou radu poděkujeme jednou, hodnotu glukózy nikdy nechválíme ani nekáráme. Opsané hodnoty později upřesní export ze senzoru.'; },
     item: 'R-REAKCE' },
@@ -86,14 +86,14 @@ D.explain = [
     title: function (S, el) { return el && el.classList && el.classList.contains('pend') ? 'Štítek „ke schválení“' : 'Štítek položky registru'; },
     text: 'Takový štítek je u všeho, co aplikace počítá, radí nebo navrhuje. „Ke schválení“ znamená, že o položce ještě nerozhodl garant; maketa se zatím chová, jako by byla schválená. Po zamítnutí se na tomto místě ukáže, že tahle část nefunguje.',
     item: function (S, el) { return attr(el, 'data-value'); } },
-  { id: 'doc-voice', sel: '.doc-voice', box: true, title: 'Pokyn lékaře',
-    text: 'Pokyn je doslovně z plánu, který lékař podepsal, proto je v uvozovkách s podpisem „váš lékař“. Aplikace k němu nic nepřidává. Hodnotu v pokynu lze změnit jen u konkrétního pacienta při vydání plánu.',
+  { id: 'doc-voice', sel: '.doc-voice', box: true, title: 'Bezpečnostní pravidlo',
+    text: 'Obecné pravidlo NutriFee, stejné pro všechny pacienty, schválené garantem. Nemá uvozovky ani podpis lékaře, protože ho lékař nepíše ani nevybírá. Aplikace k němu nic nepřidává; hodnotu lze změnit jen u konkrétního pacienta při vydání plánu.',
     item: 'R-POKYNY' },
   { id: 'path', sel: '.card.path', box: true, title: 'Cesta ke kontrole',
     text: 'Pacient vidí, kolik dní zbývá do kontroly a jak mu přibývají zápisy. Připomíná mu, proč zapisuje: data otevře lékař až s ním v ordinaci. Mezi kontrolami je nikdo nečte.',
-    item: 'P-LEKAR' },
+    item: null }, /* C10: karta je provozní (S-CESTA) */
   { id: 'sick', sel: '.sick', box: true, title: 'Není mi dobře',
-    text: function (S) { return 'Přepínač zapíná pacient sám. Během nemoci aplikace k jídlu neradí, ukazuje jen pokyny lékaře pro nemoc a zápisy se nepočítají do učení ani do návrhů k dávce. Po ' + prm(S, 'P-NEMOC', 'dny') + ' dnech přidá kartu s pokynem lékaře; nemoc ukončuje zase pacient.'; },
+    text: function (S) { return 'Přepínač zapíná pacient sám. Během nemoci aplikace k jídlu neradí, ukazuje jen pravidla pro nemoc a zápisy se nepočítají do učení ani do návrhů k dávce. Po ' + prm(S, 'P-NEMOC', 'dny') + ' dnech přidá kartu s pravidlem k nemoci; nemoc ukončuje zase pacient.'; },
     item: 'P-NEMOC' },
 
   /* ----- lékař: zařazení a plán ----- */
@@ -101,37 +101,37 @@ D.explain = [
     text: 'Aplikace stojí na pevné dávce inzulinu, proto pacient musí splnit všechny čtyři podmínky. Údaje předvyplní karta pacienta, potvrzení je vaše. Pacienta s premixem zařadit nelze, protože jeho dávku nejde přiřadit k jídlu.',
     item: 'K-KRITERIA' },
   { id: 'baseline', sel: '.dose-row', has: '[data-action=baseline]', box: true, title: 'Výchozí hodnoty ze senzoru',
-    text: function (S) { return 'Čas v cíli a čas pod ' + dec(prm(S, 'C-CILE', 'low')) + ' mmol/l za dobu před zařazením opíšete ze souhrnu v aplikaci senzoru. Při další kontrole tyto hodnoty porovnáme a uvidíte, jestli se zlepšily.'; },
+    text: function (S) { return 'Čas v cíli a čas pod ' + dec(prm(S, 'C-CILE', 'low')) + ' mmol/l za měsíc před zařazením se načtou z karty pacienta; lékař je jen potvrdí voličem, nic nepíše (C17, kontrola 2). Při další kontrole tyto hodnoty porovnáme a uvidíte, jestli se zlepšily.'; },
     item: 'S-SEMAFOR' },
   { id: 'targets', sel: '.dose-row', has: '[data-action=target]', box: true, title: 'Cíle glukózy',
     text: function (S) { var c = function (k) { return prm(S, 'C-CILE', k); }; return 'Výchozí cíle jsou glukóza ' + dec(c('low')) + ' až ' + dec(c('high')) + ' mmol/l, ráno nalačno do ' + dec(c('fastingHigh')) + ' mmol/l, čas v cíli alespoň ' + c('tirGoal') + ' % a HbA1c do ' + c('hba1cGoal') + ' mmol/mol. Podle nich aplikace počítá, co je v cíli, a barví dlaždice na kontrole. U konkrétního pacienta je můžete změnit.'; },
     item: 'C-CILE' },
   { id: 'dose-grid', sel: '.dose-grid', box: true, title: 'Dávky inzulinu',
     text: 'Dávky zadáváte voličem podle svého předpisu; aplikace žádnou výši nenabízí ani nepředvyplní. Pacientovi je bude připomínat a ptát se na podání. Změnit je můžete jen vy, na kontrole.',
-    item: 'D-POSTUP' },
+    item: null }, /* C10: dávku při zařazení žádná položka neřídí */
   { id: 'habit', sel: '.habit-opt', box: true, title: 'Startovní návyk',
     text: 'Sada je stejná pro všechny pacienty a vy ji můžete škrtnout nebo doplnit. Pod každým návykem je věta, kterou pacient uvidí, aby věděl, proč ho dělá. Návyky začnou platit až po zaučení u sestry.',
     item: 'R-NAVYKY' },
 
   /* ----- lékař: kontrola ----- */
   { id: 'tile-tir', sel: '.tiles.report .tile[data-value=tir]', box: true, title: 'Čas v cíli (TIR)',
-    text: function (S) { return 'Podíl času, kdy byla glukóza podle senzoru mezi ' + dec(tg(S, 'low')) + ' a ' + dec(tg(S, 'high')) + ' mmol/l, spočítaný z exportu, který nahrála sestra. Zelená je od ' + prm(S, 'S-SEMAFOR', 'tir_zelena') + ' %, oranžová od ' + prm(S, 'S-SEMAFOR', 'tir_zluta') + ' %, pod tím červená.'; },
+    text: function (S) { return 'Podíl času, kdy byla glukóza podle senzoru mezi ' + dec(tg(S, 'low')) + ' a ' + dec(tg(S, 'high')) + ' mmol/l, spočítaný z exportu, který nahrála sestra. Zelená je od cíle pacienta ' + NF.targets(S).tirGoal + ' %, oranžová od ' + prm(S, 'S-SEMAFOR', 'tir_zluta') + ' %, pod tím červená.'; }, /* kontrola 4 (C15): zelená hranice z cílů pacienta (C-CILE) */
     item: 'S-SEMAFOR' },
   { id: 'tile-below', sel: '.tiles.report .tile[data-value=below]', box: true,
     title: function (S) { return 'Čas pod ' + dec(tg(S, 'low')) + ' mmol/l'; },
-    text: function (S) { return 'Podíl času pod dolním cílem podle exportu ze senzoru. Pod ' + prm(S, 'S-SEMAFOR', 'tbr_max') + ' % je to v pořádku; od této hranice je semafor červený bez ohledu na čas v cíli.'; },
+    text: function (S) { return 'Podíl času pod dolním cílem podle exportu ze senzoru. Pod ' + NF.targets(S).tbrGoal + ' % (cíl pacienta) je to v pořádku; od této hranice je semafor červený bez ohledu na čas v cíli.'; },
     item: 'S-SEMAFOR' },
   { id: 'tile-hba', sel: '.tiles.report .tile[data-value=hba]', box: true, title: 'HbA1c',
     text: function (S) { return 'Poslední HbA1c z karty pacienta proti cíli do ' + tg(S, 'hba1cGoal') + ' mmol/mol z plánu. Aplikace hodnotu jen přebírá a porovnává s tou při zařazení; sama nic neměří.'; },
     item: 'C-CILE' },
   { id: 'tile-usual', sel: '.tiles.report .tile[data-value=usual]', box: true, title: 'Obvyklá porce',
     text: 'Jak často pacient jedl obvyklou porci, tedy množství, na které je nastavená dávka. Čím častěji, tím spolehlivěji se dá posoudit, jestli dávka sedí. Hranice barvy je napsaná přímo na dlaždici.',
-    item: 'R-NAVYKY' },
+    item: 'S-SEMAFOR' }, /* C10: hranice barvy řídí S-SEMAFOR */
   { id: 'tile-ins', sel: '.tiles.report .tile[data-value=ins]', box: true, title: 'Inzulin podle plánu',
     text: function (S) { return 'Podíl jídel, u kterých pacient potvrdil dávku v předepsané výši a včas, tedy nejvýš ' + prm(S, 'D-CISTA', 'pred_min') + ' minut před jídlem a ' + prm(S, 'D-CISTA', 'po_min') + ' minut po něm. Jídla s jinou, pozdní nebo nepotvrzenou dávkou se do návrhů k dávce nepočítají.'; },
     item: 'D-CISTA' },
   { id: 'tile-adv', sel: '.tiles.report .tile[data-value=adv]', box: true, title: 'Přijaté rady',
-    text: function (S) { var k = Number(prm(S, 'D-PRAND', 'radyPrve')); return 'Kolikrát pacient radu před jídlem přijal. Zelená znamená, že s radou bývala nejvyšší glukóza po jídle níž než bez ní. Návrh k dávce vznikne až poté, co pacient přijal aspoň ' + NF.plural(k, 'radu', 'rady', 'rad') + ' k jídlu.'; },
+    text: function (S) { var k = Number(prm(S, 'D-PRAND', 'radyPrve')); return 'U kolika jídel pacient radu před jídlem přijal. Pod číslem je neutrální srovnání, jestli s radou bývala nejvyšší glukóza po jídle níž než bez ní; dlaždice nemá barvu, protože nejde o hodnocení pacienta ani o důkaz účinku. Návrh k dávce vznikne až poté, co pacient přijal aspoň ' + NF.plural(k, 'radu', 'rady', 'rad') + ' k jídlu.'; }, /* B11 */
     item: 'D-PRAND' },
   { id: 'tile-ill', sel: '.tiles.report .tile[data-value=ill]', box: true, title: 'Mimo učení',
     text: 'Dny nemoci a zápisy bez dat ze senzoru. Do učení ani do návrhů k dávce se nepočítají, aby nemoc nezkreslila obraz. Delší nemoc najdete v podkladech zvlášť.',
@@ -161,14 +161,14 @@ D.explain = [
     text: 'Souhlasím přijme větev vašeho postupu, kterou určilo ověření. Jiné rozhodnutí zvolíte, když chcete postupovat jinak; do stopy se zapíše jako rozhodnutí jinak než postup. Obojí je vaše rozhodnutí, aplikace ho jen zaznamená.',
     item: 'D-POSTUP' },
   { id: 'keep', sel: '.keep-list', box: true, title: 'Beze změny',
-    text: 'Návrhy, které nic nemění, jen připomínají, že rada nebo pokyny zůstávají. Potvrdíte je najednou a každý se do stopy zapíše zvlášť. Kterýkoli můžete rozhodnout i samostatně.',
+    text: 'Návrhy, které nic nemění, jen připomínají, že rada nebo bezpečnostní pravidla zůstávají. Potvrdíte je najednou a každý se do stopy zapíše zvlášť. Kterýkoli můžete rozhodnout i samostatně.',
     item: 'R-POKYNY' },
   { id: 'dose-pair', sel: '.dose-pair', has: '.was', box: true, title: 'Stará a nová dávka',
     text: 'Přeškrtnuté číslo je dávka z minulého plánu, za šipkou nová dávka, kterou zvolil lékař. Pacient ji při převzetí plánu potvrdí a učení u jídla se změněnou dávkou začíná znovu.',
     item: 'D-POSTUP' },
   { id: 'trace', sel: '.trace-tbl', box: true, title: 'Stopa',
     text: 'Každý výpočet, rada, návrh a rozhodnutí se zapíše s časem a se skutečným aktérem. Tlačítko Data ukáže vstupy a výstupy výpočtu. Vše je deterministické, bez generativní AI, takže se dá zpětně ověřit.',
-    item: 'P-LEKAR' },
+    item: null }, /* C10: stopa není položka garanta */
 
   /* ----- sestra ----- */
   { id: 'training', sel: '.train-row', box: true, title: 'Bod zaučení',
@@ -180,10 +180,10 @@ D.explain = [
 
   /* ----- registr ----- */
   { id: 'reg-state', sel: '.reg-row .tag', box: true, title: 'Stav položky',
-    text: 'Ke schválení znamená, že o položce ještě nerozhodl garant. Schválená nebo upravená položka platí hned; zamítnutou aplikace nepoužije a na jejím místě maketa ukáže, že tahle část nefunguje. Rozhodnutí lze kdykoli změnit.',
+    text: 'Ke schválení znamená, že o položce ještě nerozhodl garant. Schválená položka platí hned; zamítnutou aplikace nepoužije a na jejím místě maketa ukáže, že tahle část nefunguje. Rozhodnutí lze kdykoli změnit.',
     item: function (S, el) { return attr(up(el, '.reg-row'), 'data-value'); } },
   { id: 'reg-hist', sel: '.reg-side .hist', box: true, title: 'Historie rozhodnutí',
-    text: 'Každé rozhodnutí o položce zůstává v historii s časem, autorem a změnou parametrů. Nic se nepřepisuje, takže je vždy vidět, kdo co a kdy schválil.',
+    text: 'Každé rozhodnutí, poznámka i nová verze položky zůstává v historii s časem a autorem; kroky, které odehrála ukázka, jsou označené „model (příběh)“. Nic se nepřepisuje, takže je vždy vidět, kdo co a kdy schválil.',
     item: function (S, el) { return attr(down(up(el, '.reg'), '.reg-row.on'), 'data-value'); } }
 ];
 D.explainById = {}; D.explain.forEach(function (x) { D.explainById[x.id] = x; });
@@ -215,7 +215,7 @@ var HINT_ID = 'nf-explain-hint';
 function hintEl() {
   var el = doc && doc.getElementById ? doc.getElementById(HINT_ID) : null;
   if (!el && doc && doc.createElement && doc.body && doc.body.appendChild) {
-    el = doc.createElement('span'); el.id = HINT_ID; el.className = 'sr-only'; el.textContent = 'Má vysvětlení: Enter nebo mezerník otevře bublinu.'; doc.body.appendChild(el);
+    el = doc.createElement('span'); el.id = HINT_ID; el.className = 'sr-only'; el.setAttribute('aria-hidden', 'true'); el.textContent = 'Má vysvětlení: Enter nebo mezerník otevře bublinu.'; doc.body.appendChild(el); /* kontrola 4 (C6): jen popis přes aria-describedby, ne samostatný text mimo orientační body */
   }
   return el;
 }
@@ -243,7 +243,7 @@ var open = null;
 function bubbleEl() {
   var el = doc && doc.getElementById ? doc.getElementById('explain-bubble') : null;
   if (!el && doc && doc.createElement && doc.body && doc.body.appendChild) {
-    el = doc.createElement('div'); el.id = 'explain-bubble'; el.className = 'lock-bubble explain'; el.setAttribute('role', 'dialog'); doc.body.appendChild(el);
+    el = doc.createElement('div'); el.id = 'explain-bubble'; el.className = 'lock-bubble explain'; el.setAttribute('role', 'dialog'); el.hidden = true; doc.body.appendChild(el); /* kontrola 4 (C7): prázdný dialog skrytý, dokud není otevřený */
   }
   return el;
 }
@@ -273,13 +273,13 @@ D.explainShow = function (anchor, x, y, tapNote, fromKey) {
     (c.item ? '<p class="xb-item">Vychází z položky registru <button type="button" class="xb-link" data-action="explainItem" data-value="' + e(c.item) + '">' + e(NF.nbspText(c.itemTitle)) + '</button>' + (S && NF.itemState && NF.itemState(S, c.item) === 'rejected' ? ' (zamítnuto)' : '') + '</p>' : '');
   if (el.setAttribute) el.setAttribute('aria-label', 'Vysvětlení: ' + c.title);
   open = { anchor: anchor, id: id, x: x, y: y };
-  place(anchor, x, y); cls(el, ['on']);
+  el.hidden = false; place(anchor, x, y); cls(el, ['on']);
   if (fromKey) { var b = el.querySelector && el.querySelector('.xb-close'); if (b && b.focus) { try { b.focus({ preventScroll: true }); } catch (err) { } } }
   return true;
 };
 D.explainHide = function (refocus) {
   var el = bubbleEl(), a = open && open.anchor; open = null; if (!el) return;
-  cls(el, null, ['on', 'above']); el.innerHTML = '';
+  cls(el, null, ['on', 'above']); el.innerHTML = ''; el.hidden = true;
   if (refocus && a && a.focus) { try { a.focus({ preventScroll: true }); } catch (err) { } }
 };
 D.explainOpen = function () { return open ? open.id : null; };
@@ -304,7 +304,7 @@ NF.slots.drawer = function (s, name) {
     var st = NF.itemState(s, r.id), tagCls = st === 'rejected' ? 'bad' : st === 'pending' ? '' : 'ok';
     var html = '<p class="eyebrow">Položka registru · ' + e(r.id) + '</p><h2>' + e(r.title) + '</h2><p><span class="tag ' + tagCls + '">' + e(NF.stateLabel ? NF.stateLabel(s, r.id) : st) + '</span></p>' +
       '<p class="small muted">' + e(r.summary) + '</p>' + (D.itemGuideHtml ? D.itemGuideHtml(s, r) : NF.screens.itemGuide(s, r)) +
-      '<div class="actions mt-3">' + NF.screens.btn('Otevřít v registru', 'openAsideItem', r.id) + '</div>';
+      (r.scope === 'provozni' ? '' : '<div class="actions mt-3">' + NF.screens.btn('Rozhodnout o položce', 'garantChange', r.id) + '</div>');
     return D.nbspHtml ? D.nbspHtml(html) : html;
   }
   return prevDrawer ? prevDrawer(s, name) : '';

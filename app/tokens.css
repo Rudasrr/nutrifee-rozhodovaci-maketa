@@ -31,10 +31,10 @@
   --nf-primary-tint:#EEF7F9;  /* nejjemnější zvýraznění karty (milník, výsledek) */
 
   /* ---------- barvy: stavy glukózy a bezpečí (vždy se slovem a ikonou) ---------- */
-  --nf-ok:#2FA371;            /* v cíli, hotovo, splněno = svěží zelená (výplně s bílou ikonou 3,2:1; pro text --nf-ok-text) */
+  --nf-ok:#268F61;            /* v cíli, hotovo, splněno = svěží zelená; jako grafický prvek 4,0:1 na bílé a 3,8:1 na podkladu, s bílou ikonou 4,0:1 (kontrola 4, přístupnost C9/C10: dřív #2FA371, 3,0:1 na podkladu); pro text --nf-ok-text */
   --nf-ok-bg:#DFF4EA;
   --nf-ok-text:#1E7A52;       /* na bílé 5,3:1 */
-  --nf-over:#EC7F4F;          /* nad cílem, upozornění, „brzy“ = korálově oranžová (není chyba); jen výplně a pruhy */
+  --nf-over:#D2632B;          /* nad cílem, upozornění = korálově oranžová (není chyba); jen výplně, okraje a pruhy: 3,8:1 na bílé, 3,5:1 na podkladu (kontrola 4, C9: dřív #EC7F4F, 2,5:1) */
   --nf-over-bg:#FDEBE2;
   --nf-over-text:#94520F;     /* text „nad cílem“: oranžovohnědá (odstín ~31°), odlišitelná od červené pro pokles pod 4; na bílé 6,0:1, na --nf-over-bg 5,2:1 (21. 10. 2026) */
   --nf-low:#D9453D;           /* chyby, kritická upozornění, pokles pod 4, mimo rozsah, zamítnuto = červená (výplně s bílou ikonou 4,4:1) */
@@ -65,29 +65,110 @@
   --nf-fs-fig-xs:10px;--nf-fs-fig-sm:11px;--nf-fs-fig:12px;--nf-fs-fig-lg:13px;--nf-fs-fig-xl:16px;--nf-fs-fig-2xl:28px;
   --nf-fig-h:96px;--nf-fig-stroke:1.75;   /* jeden rámeček ilustrací rad: výška a tah (19. 10. 2026) */
   --nf-lh:1.45;--nf-lh-tight:1.15;
-  --nf-w-text:500;--nf-w-strong:700;--nf-w-display:700;--nf-w-display-strong:800;
+  --nf-w-text:500;--nf-w-semi:600;--nf-w-strong:700;--nf-w-display:700;--nf-w-display-strong:800; /* 600: vedlejší zvýraznění (jednotky, volby, poznámky) */
   --nf-track-tight:-0.02em;--nf-track-caps:0.06em;
+  --nf-track-snug:-0.01em;    /* nadpis h2 */
+  --nf-track-num:-0.03em;     /* velká čísla (dlaždice, hodnota glukózy) */
+  --nf-track-tag:0.02em;      /* štítky */
+  --nf-track-label:0.04em;    /* malé nadpisy oddílů průvodce položkou */
+  --nf-underline-offset:3px;  /* podtržení textových tlačítek */
+  --nf-frac-gap:.25em;        /* mezera kolem „z“ ve zlomku „3 z 5“ */
+  --nf-quote-indent:-.4em;    /* předsazení uvozovky u citace podnětu */
 
   /* ---------- rozměry ---------- */
-  --nf-s1:4px;--nf-s2:8px;--nf-s3:12px;--nf-s4:16px;--nf-s5:20px;--nf-s6:24px;--nf-s8:32px;
-  --nf-r-sm:10px;--nf-r-md:16px;--nf-r-lg:20px;--nf-r-pill:999px;
+  --nf-s05:2px;--nf-s1:4px;--nf-s2:8px;--nf-s3:12px;--nf-s4:16px;--nf-s5:20px;--nf-s6:24px;--nf-s8:32px;
+  --nf-r-2xs:2px;--nf-r-xs:6px;--nf-r-win:8px;--nf-r-sm:10px;--nf-r-md:16px;--nf-r-lg:20px;--nf-r-pill:999px; /* 2xs: klíč legendy · xs: zaškrtávátko, popisky na stupnici · win: okénko na stupnici; plné zakulacení drobných pruhů = pill */
   --nf-tap:48px;              /* nejmenší cíl dotyku pacienta */
   --nf-tap-desk:40px;         /* nejmenší cíl kliknutí v ordinaci (myš) */
   --nf-tap-lg:56px;           /* primární akce pacienta */
-  --nf-icon-sm:20px;--nf-icon:22px;--nf-icon-lg:26px;--nf-icon-circle-sm:36px;--nf-icon-circle:40px;--nf-icon-circle-lg:48px;--nf-icon-circle-xl:56px;
+  --nf-tap-sm:44px;           /* drobné akce v ordinaci a „Přehrát znovu“ (myš) */
+  --nf-tap-xl:64px;           /* velká volba (.choice.big) a řádek výsledku hledání jídla */
+  --nf-icon-5xs:10px;--nf-icon-4xs:13px;--nf-icon-3xs:14px;--nf-icon-2xs:16px;--nf-icon-xs:18px;--nf-icon-sm:20px;--nf-icon:22px;--nf-icon-lg:26px;--nf-icon-xl:28px;
+  --nf-ico-valign:-5px;--nf-ico-valign-btn:-4px;--nf-ico-valign-sm:-2px; /* posun ikony k účaří textu: běžná · v tlačítku · v řádku schválení */
+  --nf-icon-circle-sm:36px;--nf-icon-circle:40px;--nf-icon-circle-lg:48px;--nf-icon-circle-xl:56px;
   /* token dávky (Podpis A, 20. 10. 2026): pilulka s klíčem a číslem; malá varianta v pásu dne a tabulkách */
   --nf-dose-h:44px;--nf-dose-h-sm:32px;--nf-dose-border:2px;--nf-dose-border-sm:1.5px;
   /* tkanina zápisů (Podpis C, 20. 10. 2026): den = sloupec, čtyři tečky (snídaně · oběd · večeře · bazál) */
   --nf-weave-dot:6px;--nf-weave-row:16px;--nf-weave-dot-md:8px;--nf-weave-gap:2px;--nf-weave-dot-lg:14px;--nf-weave-gap-lg:6px;--nf-weave-ring:1.5px;
   --nf-phone:480px;           /* šířka sloupce pacienta */
+  --nf-result-label-min:12em; /* karta „Jak to dopadlo“: nejmenší šířka popisku, než se stav zalomí pod něj (kosm. 13, 27. 10. 2026) */
   --nf-ctx-w:380px;           /* kontextový sloupec ordinace od 1600 px */
+
+  /* ---------- čáry a fokus (B8, 1. 11. 2026) ---------- */
+  --nf-bw:2px;                /* obrys ovládacích prvků, čárkovaná čára cíle, šipka rozbalení, prstenec vybrané dlaždice */
+  --nf-bw-lg:2.5px;           /* okénko a značky na stupnici */
+  --nf-bw-xl:3px;             /* zelený obrys čerstvě uložené karty */
+  --nf-halo:4px;              /* bledý prstenec kolem aktivního bodu (pás dne, značka) */
+  --nf-focus-w:3px;--nf-focus-offset:3px;--nf-focus-offset-sm:2px; /* rámeček fokusu a jeho odsazení (u řádků a bodů menší) */
+  --nf-focus-offset-in:-4px;  /* fokus uvnitř plných petrolejových prvků */
+
+  /* ---------- rozměry komponent (B8, 1. 11. 2026): hodnoty, které do škály nepatří; název říká, kde platí ---------- */
+  /* ordinace */
+  --nf-rail-w:224px;          /* levý pruh navigace */
+  --nf-desk-max:1460px;       /* pracovní plocha */
+  --nf-desk-col:880px;        /* pracovní sloupec vedle kontextu (od 1600 px) */
+  --nf-desk-end:120px;        /* místo pod obsahem nad lištou Další krok */
+  --nf-brandmark:34px;        /* značka N v pruhu */
+  --nf-skip-off:-80px;        /* odkaz „Přeskočit na obsah“ mimo obrazovku */
+  --nf-toast-desk-bottom:96px;/* oznámení v ordinaci nad lištou Další krok */
+  --nf-measure:440px;         /* nejširší řádek textu a pole */
+  --nf-tile-min:170px;--nf-tile-min-dense:140px;--nf-tile-min-sm:150px; /* nejmenší šířka dlaždice a voliče v mřížce */
+  --nf-trace-min:640px;       /* tabulka stopy (roluje do strany) */
+  --nf-filter-min:240px;      /* hledání v registru */
+  --nf-reg-list-min:320px;--nf-reg-side-min:360px;--nf-reg-side-max:440px; /* registr: seznam · detail */
+  --nf-reg-col-state:9rem;--nf-reg-col-date:6rem; /* registr: sloupce stavu a data */
+  --nf-decide-stepper-min:11rem;--nf-decide-val-min:5ch; /* volič nové dávky v návrhu („10 j.“ se neořízne) */
+  --nf-instr-stepper-w:10.5rem; /* voliče pokynů stejně široké */
+  --nf-basal-field-max:17rem; /* volič bazálu */
+  --nf-preview-switch-min:18rem; /* přepínač obrazovek u náhledu telefonu */
+  --nf-verify-text-min:16em;  /* text bodu ověření u sestry, než se volba zalomí pod něj */
+  --nf-textarea-h:80px;
+  --nf-stepper-btn-w:44px;    /* tlačítko − / + ve voliči (výška = --nf-tap) */
+  --nf-num-circle:28px;--nf-num-circle-sm:26px; /* kolečko s číslem: návrh · krok postupu */
+  --nf-sec-mark:22px;         /* kolečko s fajfkou u oddílu návrhu */
+  --nf-chevron:9px;           /* šipka rozbalení (kreslená okraji) */
+  --nf-bar-h:26px;--nf-bar-min:60px; /* sloupec v grafu reakcí */
+  --nf-drawer-w:560px;--nf-drawer-end:40px; /* zásuvka: šířka a místo pod obsahem */
+  --nf-sheet-max-h:92vh;      /* list zdola na telefonu */
+  --nf-toast-max:520px;
+  /* ovládací prvky */
+  --nf-check:24px;            /* zaškrtávátko a značka návyku */
+  --nf-radio:22px;            /* kolečko volby (.choice.opt) a čtvereček návyku v zařazení */
+  --nf-toggle-w:80px;--nf-toggle-knob:40px;--nf-toggle-travel:32px; /* přepínač: šířka, knoflík, posun (= šířka − knoflík − 2 × --nf-s1) */
+  --nf-chip:52px;             /* čip glukózy */
+  --nf-row-h:72px;            /* řádek jídla a bod pásu dne */
+  --nf-plate-h:84px;--nf-plate-ico:40px; /* volba porce s talířem */
+  --nf-tab-max:120px;--nf-tab-pill-w:64px;--nf-tab-pill-h:32px; /* lišta záložek: tlačítko a pilulka kolem ikony */
+  /* pacient: pás dne, prstenec učení, cesta, kroky */
+  --nf-dnode-dot:44px;        /* kolečko jídla v pásu dne */
+  --nf-emoji:52px;--nf-emoji-ring:62px;--nf-emoji-ring-off:-5px;--nf-emoji-ck:20px;--nf-emoji-ck-off:-4px; /* ikona jídla s prstencem učení a fajfkou */
+  --nf-emoji-sm:40px;--nf-emoji-ring-sm:48px;--nf-emoji-ring-off-sm:-4px;--nf-emoji-ck-sm:16px;--nf-emoji-ck-off-sm:-5px; /* totéž v řádku seznamu */
+  --nf-weave-halo:3px;        /* zvýraznění dnešního sloupce tkaniny (k --nf-weave-gap) */
+  --nf-path-bar-h:10px;       /* pruh cesty ke kontrole */
+  --nf-msteps-h:5px;          /* pruhy kroků jídla */
+  /* stupnice glukózy, pruh času v cíli */
+  --nf-peak-label-w:84px;     /* sloupec popisků řádků stupnice */
+  --nf-peak-in-py:3px;        /* svislé odsazení štítku „v cíli“ */
+  --nf-peak-goal-top:14px;    /* začátek čáry cíle pod popiskem */
+  --nf-goal-overhang:6px;     /* čára cíle přesahuje pruh nahoru a dolů */
+  --nf-axis-h:1.4em;          /* řádek čísel osy */
+  --nf-track-h:18px;--nf-track-lh:16px;--nf-track-rng-gap:6px; /* pruh stupnice · řádek čísla v okénku · mezera popisku rozsahu */
+  --nf-rise-mark:18px;--nf-rise-span-h:6px; /* značky a spojnice start → vrchol */
+  --nf-tir-h:10px;--nf-tir-min:2px;--nf-tir-min-lo:3px; /* pruh času v cíli; nejužší úsek (pod 4 o něco širší, aby nezmizel) */
+  /* náhled telefonu u sestry */
+  --nf-preview-w:440px;--nf-preview-edge:12px;--nf-preview-r:52px;--nf-preview-top:28px;--nf-preview-min-h:700px;
+  --nf-preview-inset:46px;    /* obsah pod výřezem */
+  --nf-island-w:120px;--nf-island-h:34px; /* výřez nahoře */
 
   /* ---------- stíny ---------- */
   /* vyvýšení tónem a tvarem, stín jen náznakem (19. 10. 2026: barevná záře pod tlačítky a mlha mezi kartami působily o generaci starší) */
+  --nf-tir-gap:2px;           /* bílá mezera mezi sousedními barevnými úseky pruhu času v cíli a stupnice: zelená a oranžová mají mezi sebou malý kontrast, hranici nese mezera (kontrola 4, C9) */
   --nf-sh-card:0 1px 2px rgba(11,28,43,.04),0 4px 14px rgba(11,28,43,.05);
   --nf-sh-raised:0 14px 36px rgba(11,28,43,.10);
   --nf-sh-primary:0 1px 2px rgba(10,90,114,.24);
   --nf-sh-inset:inset 0 0 0 1px var(--nf-line);
+  --nf-sh-knob:0 2px 6px var(--nf-shadow-ink);   /* knoflík přepínače */
+  --nf-sh-marker:0 2px 8px var(--nf-shadow-ink); /* okénko na stupnici */
   --nf-sh-bar:0 -6px 24px rgba(11,28,43,.06);  /* spodní lišta záložek (stín nahoru) */
   --nf-tabbar-h:72px;                       /* výška lišty záložek bez bezpečné zóny telefonu */
   --nf-scrim:rgba(11,28,43,.35);          /* ztmavení pod zásuvkou */
@@ -100,7 +181,21 @@
   /* ---------- pohyb ---------- */
   --nf-t-success:.6s;          /* okamžik potvrzení po uložení */
   --nf-t-dose:.22s;            /* nová dávka od lékaře najede zdola (jediná animace předání plánu) */
-  --nf-t-fast:.15s;--nf-t:.25s;--nf-t-slow:.4s;--nf-ease:cubic-bezier(.2,.7,.2,1);--nf-ease-move:cubic-bezier(.4,0,.2,1);
+  --nf-t-fast:.15s;--nf-t:.25s;--nf-t-slow:.4s;
+  --nf-t-fade:.2s;--nf-t-mid:.3s; /* prolnutí a objevení prvku */
+  --nf-t-press:120ms;          /* stisk tlačítka (zmenšení) */
+  --nf-t-saved:1.2s;           /* zelený obrys po uložení odezní */
+  /* vysvětlující animace (přehrají se jednou): délky a zpoždění */
+  --nf-anim-draw:.6s;--nf-anim-key:4.8s;--nf-anim-in:.35s;--nf-anim-slide-t:.5s;--nf-anim-pop:.22s;--nf-anim-ring:1.6s;--nf-anim-portion:.7s;--nf-anim-arc:.45s;
+  --nf-anim-delay:.2s;         /* první krok */
+  --nf-anim-step:.5s;          /* rozestup dílů koláče */
+  --nf-anim-strike-step:.35s;  /* rozestup přeškrtnutí „co aplikace nedělá“ */
+  --nf-anim-delay-arc:.15s;--nf-anim-delay-mark:.25s;--nf-anim-delay-portion:.4s;--nf-anim-delay-check:.55s;--nf-anim-delay-plus:.6s;
+  --nf-anim-slide:32px;        /* talíř přijede zboku */
+  --nf-syr-y:40px;             /* svislá poloha stříkačky na ose inzulinu (jednotky obrázku) */--nf-ease:cubic-bezier(.2,.7,.2,1);--nf-ease-move:cubic-bezier(.4,0,.2,1);
+
+  /* ---------- vysoký kontrast (prefers-contrast:more v design.css přepíná tyto hodnoty místo běžných; C2, 1. 11. 2026) ---------- */
+  --nf-hc-muted:#3D474F;--nf-hc-line:#56636C;--nf-hc-control:#26303A;
 
   /* ---------- mapování starších názvů (design.css je zatím používá; nové komponenty berou --nf-*) ---------- */
   --ink:var(--nf-ink);--muted:var(--nf-muted);--brand:var(--nf-primary);--brand2:var(--nf-primary-strong);--brandbg:var(--nf-primary-soft);
@@ -120,11 +215,22 @@
   --nf-demo-glow:rgba(123,79,196,.30);
   --nf-demo-shadow:0 18px 50px rgba(43,24,74,.20);
   --nf-demo-stage:var(--nf-bg-2); /* podklad za rámečkem telefonu */
-  --nf-demo-panel-w:380px;
+  --nf-demo-panel-w:clamp(280px,34vw,380px); /* panel vyprávění po boku; užší na menší šířce (kontrola 4, přístupnost A1) */
+  --nf-demo-side-min:640px;   /* do této šířky okna je panel dole jako list, nad ní po boku (dřív 1100 px; při zvětšení prohlížeče 150–200 % zůstane po boku). Media query proměnnou nepřečte: demo.css a presenter.js (SIDE_MIN) ji opisují */
+  --nf-demo-pulse-iter:3;     /* kolikrát zapulzuje zvýrazněný cíl kroku; pak zůstane statický rámeček (kontrola 4, přístupnost B5: WCAG 2.2.2) */
   --nf-demo-phone-w:402px;--nf-demo-phone-h:874px;--nf-demo-phone-r:52px;--nf-demo-phone-edge:12px;
   --nf-demo-bubble-w:280px;   /* bublina „Tohle za vás klepne ukázka“ (S4, 21. 10. 2026) */
   --nf-demo-dot:var(--nf-demo-focus); /* tečkování vysvětlených prvků (demo/explain.js, 26. 10. 2026) */
   --nf-demo-dot-w:1.5px;--nf-demo-dot-off:3px;
   --nf-demo-explain-w:340px;--nf-demo-explain-h:420px; /* vysvětlující bublina */
-  --nf-demo-page-w:1080px     /* stránka souhrnu rozhodnutí na celou šířku (V4, 21. 10. 2026) */
+  --nf-demo-page-w:1080px;    /* stránka souhrnu rozhodnutí na celou šířku (V4, 21. 10. 2026) */
+  --nf-demo-notch-w:120px;    /* šířka výřezu v rámečku telefonu (B23, 27. 10. 2026) */
+  --nf-demo-notch-h:34px;     /* výška výřezu */
+  --nf-demo-notch-inset:56px; /* pruh nad obsahem telefonu: odsazení výřezu (--nf-s3) + výška + mezera */
+  --nf-demo-sheet-h:45vh;     /* panel vyprávění na telefonu (list dole) */
+  --nf-demo-sheet-h-decide:60vh; /* týž list, když čeká rozhodnutí: karta položky i Schválit/Zamítnout se vejdou nad patičku (M9, 27. 10. 2026) */
+  --nf-demo-sheet-h-low:56vh; /* list na nízkém telefonu (výška do 760 px): vyprávění má aspoň pár řádků (M8, kontrola 2, 29. 10. 2026) */
+  --nf-demo-gsum-st-w:10rem;  /* souhrn: sloupec Stav (pevná šířka – sloupec Poznámka po změně neposkočí, K6) */
+  --nf-demo-gsum-act-w:10rem;  /* souhrn: sloupec s tlačítkem Změnit */
+  --nf-demo-content-end:calc(var(--nf-tap) * 3) /* místo pod obsahem nad spodními pruhy (lišta Další krok, list panelu) */
 }

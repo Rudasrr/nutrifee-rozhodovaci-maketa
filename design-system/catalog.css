@@ -77,3 +77,9 @@ code{font:600 .92em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(-
 .ds-demo-row{display:flex;flex-wrap:wrap;gap:var(--nf-s5);align-items:flex-start}
 .ds-demo-col{flex:1 1 calc(var(--nf-demo-panel-w) * .75);display:grid;gap:var(--nf-s3);min-width:0}
 .ds-demo-card{flex:1 1 calc(var(--nf-demo-panel-w) * .6);margin:var(--nf-s3)}
+/* všechny ostatní tokeny (B8, 1. 11. 2026) */
+.ds-tokens{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 10px}
+.ds-tok{display:flex;justify-content:space-between;align-items:baseline;gap:8px;text-align:left;border:1px solid var(--nf-line);border-radius:var(--nf-r-sm);background:var(--nf-surface);padding:6px 10px;cursor:pointer;min-width:0}
+.ds-tok b{flex:none;font:600 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--nf-ink);white-space:nowrap}
+.ds-tok span{min-width:0;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--nf-muted);text-align:right;overflow-wrap:anywhere}
+.ds-group small{font-weight:500}

@@ -1,184 +1,41 @@
-/* Generováno skriptem navrhy-designu/04-pohledy-2026-10-05/scene-items.cjs – needitovat ručně. Pro každou scénu položky registru, které se během ní objeví na obrazovce. */
+/* Generováno skriptem navrhy-designu/04-pohledy-2026-10-05/scene-items.cjs – needitovat ručně. Pro každou scénu: items = položky registru, jejichž štítek se během ní objeví na obrazovce;
+   targets = položka → po kolika krocích scény je poprvé ve výřezu cíle kroku (sel / watch), tam ji panel nabídne ke schválení (B01, 27. 10. 2026);
+   deps = krok (po kolika krocích) → položka → „skip“ (zamítnutí obsah kroku odstraní nebo jeho děj neproběhne: panel krok přeskočí) | „note“ (děj proběhne,
+   ale část obrazovky chybí: panel řekne, co se místo toho stalo); alt = zamítnutá položka → mapa targets, jak vypadá při jejím zamítnutí (kontrola 2, 29. 10. 2026);
+   drop = krok → položka → klíče vět vyprávění, které v režimu „note“ panel vynechá, protože popisují zamítnutou část (kontrola 4, M2). */
 (function (global) { var D = global.NutriFeeDemo = global.NutriFeeDemo || {};
 D.sceneItems = [
- {
-  "title": "Úvod – k čemu NutriFee je a jak ukázku ovládat", "items": []
- },
- {
-  "title": "Lékař – karta a podmínky zařazení", "items": [
-   "K-KRITERIA",
-   "R-NAVYKY",
-   "R-POKYNY",
-   "I-NEVIM",
-   "I-HYPO",
-   "I-MENE",
-   "I-NEMOC-BAZAL",
-   "I-NEMOC-JIDLO",
-   "I-VYSOKA",
-   "I-KONTAKT",
-   "C-CILE"
-  ]
- },
- {
-  "title": "Lékař – dávky, startovní návyky a pokyny", "items": [
-   "R-NAVYKY",
-   "R-POKYNY",
-   "I-NEVIM",
-   "I-HYPO",
-   "I-MENE",
-   "I-NEMOC-BAZAL",
-   "I-NEMOC-JIDLO",
-   "I-VYSOKA",
-   "I-KONTAKT",
-   "C-CILE"
-  ]
- },
- {
-  "title": "Lékař – vydání plánu", "items": []
- },
- {
-  "title": "Sestra – zaučení s náhledem telefonu", "items": [
-   "I-HYPO",
-   "I-KONTAKT",
-   "I-MENE",
-   "I-NEVIM",
-   "I-VYSOKA",
-   "I-NEMOC-BAZAL",
-   "I-NEMOC-JIDLO"
-  ]
- },
- {
-  "title": "Pacient – převzetí plánu a jedna otázka", "items": []
- },
- {
-  "title": "Pacient – první snídaně ve třech krocích", "items": [
-   "Z-GLUKOZA"
-  ]
- },
- {
-  "title": "Pacient – před obědem: nejvyšší hodnota po snídani", "items": [
-   "Z-GLUKOZA",
-   "B-HYPO"
-  ]
- },
- {
-  "title": "Pacient – po týdnu: co už aplikace ví", "items": []
- },
- {
-  "title": "Pacient – otevřel aplikaci až v 10:00", "items": [
-   "Z-GLUKOZA",
-   "R-PROCHAZKA"
-  ]
- },
- {
-  "title": "Pacient – před píchnutím: porce zpět k obvyklé a doplněk", "items": [
-   "R-PORCE",
-   "R-DOPLNEK",
-   "R-PORADI",
-   "R-PROCHAZKA"
-  ]
- },
- {
-  "title": "Pacient – po píchnutí: co aplikace smí a nesmí", "items": [
-   "R-PORCE",
-   "R-PORADI",
-   "R-PROCHAZKA"
-  ]
- },
- {
-  "title": "Pacient – nové jídlo jen názvem", "items": [
-   "R-DOPLNEK",
-   "R-PORADI",
-   "R-PROCHAZKA"
-  ]
- },
- {
-  "title": "Pacient – není mi dobře", "items": []
- },
- {
-  "title": "Pacient – jídlo během nemoci", "items": []
- },
- {
-  "title": "Pacient – už je mi lépe", "items": []
- },
- {
-  "title": "Během studie – garant upraví pravidlo po podnětu", "items": []
- },
- {
-  "title": "Pacient – rada s novým textem", "items": [
-   "R-PORADI",
-   "R-PROCHAZKA"
-  ]
- },
- {
-  "title": "Pacient – den před kontrolou", "items": [
-   "C-CILE"
-  ]
- },
- {
-  "title": "Lékař – kontrola, krok 1: souhrn", "items": [
-   "C-CILE",
-   "S-SEMAFOR",
-   "D-CISTA",
-   "B-HYPO",
-   "S-SILNA",
-   "R-SKORE",
-   "R-REAKCE",
-   "I-NEVIM",
-   "I-HYPO",
-   "I-MENE",
-   "I-NEMOC-BAZAL",
-   "I-NEMOC-JIDLO",
-   "I-VYSOKA",
-   "I-KONTAKT",
-   "D-POSTUP",
-   "D-PRAND"
-  ]
- },
- {
-  "title": "Lékař – krok 2: návrhy s důvodem a postupem", "items": [
-   "D-POSTUP",
-   "D-PRAND"
-  ]
- },
- {
-  "title": "Lékař – krok 3: potvrzení a vydání plánu P2", "items": []
- },
- {
-  "title": "Lékař – krok 4: předání pacientovi", "items": []
- },
- {
-  "title": "Pacient – nový plán a co se změnilo", "items": []
- },
- {
-  "title": "Lékař – verze a stopa: důkaz, jak to počítá", "items": []
- },
- {
-  "title": "Dodatek · zaučení se nezdařilo", "items": [
-   "I-HYPO",
-   "I-KONTAKT",
-   "I-MENE",
-   "I-NEVIM",
-   "I-VYSOKA",
-   "I-NEMOC-BAZAL",
-   "I-NEMOC-JIDLO"
-  ]
- },
- {
-  "title": "Dodatek · bez zaučení plán nezačne platit", "items": []
- },
- {
-  "title": "Dodatek · pacient rady většinou nepřijal: jiné návrhy", "items": [
-   "R-NAVYKY"
-  ]
- },
- {
-  "title": "Dodatek · „nemám to doma“: výměna rady", "items": [
-   "R-NAVYKY"
-  ]
- },
- {
-  "title": "Dodatek · „nemám to doma“: co uvidí pacient", "items": []
- }
+ {"title":"Úvod – k čemu NutriFee je a jak ukázku ovládat","items":[],"targets":{}},
+ {"title":"Lékař – karta a podmínky zařazení","items":["K-KRITERIA","R-NAVYKY","R-POKYNY","I-NEVIM","I-HYPO","I-MENE","I-NEMOC-BAZAL","I-NEMOC-JIDLO","I-VYSOKA","I-KONTAKT","C-CILE"],"targets":{"K-KRITERIA":2}},
+ {"title":"Lékař – dávky, startovní návyky a pravidla","items":["R-NAVYKY","R-POKYNY","I-NEVIM","I-HYPO","I-MENE","I-NEMOC-BAZAL","I-NEMOC-JIDLO","I-VYSOKA","I-KONTAKT","C-CILE"],"targets":{"R-NAVYKY":3,"R-POKYNY":4,"I-NEVIM":4,"I-HYPO":4,"I-MENE":4,"I-KONTAKT":5,"C-CILE":5,"I-NEMOC-JIDLO":6,"I-VYSOKA":6},"deps":{"3":{"R-NAVYKY":"skip"},"4":{"I-HYPO":"note","I-MENE":"note","I-NEVIM":"note","I-NEMOC-BAZAL":"note","I-NEMOC-JIDLO":"note","I-VYSOKA":"note","I-KONTAKT":"note"},"5":{"R-POKYNY":"note","I-HYPO":"note","I-MENE":"note","I-NEVIM":"note","I-NEMOC-BAZAL":"note","I-NEMOC-JIDLO":"note","I-VYSOKA":"note","I-KONTAKT":"note"},"6":{"R-POKYNY":"skip","I-HYPO":"note","I-MENE":"note","I-NEVIM":"note","I-NEMOC-BAZAL":"note","I-NEMOC-JIDLO":"note","I-VYSOKA":"note","I-KONTAKT":"note"}},"alt":{"C-CILE":{"R-NAVYKY":3,"R-POKYNY":4,"I-NEVIM":4,"I-HYPO":4,"I-MENE":4,"C-CILE":5,"I-NEMOC-JIDLO":6,"I-VYSOKA":6,"I-KONTAKT":6},"R-NAVYKY":{"R-POKYNY":4,"I-NEVIM":4,"I-HYPO":4,"I-MENE":4,"I-KONTAKT":5,"C-CILE":5,"I-NEMOC-JIDLO":6,"I-VYSOKA":6},"R-POKYNY":{"R-NAVYKY":3,"R-POKYNY":5,"C-CILE":5},"I-HYPO":{"R-NAVYKY":3,"R-POKYNY":4,"I-NEVIM":4,"I-MENE":4,"I-NEMOC-BAZAL":4,"I-KONTAKT":5,"C-CILE":5,"I-NEMOC-JIDLO":6,"I-VYSOKA":6},"I-MENE":{"R-NAVYKY":3,"R-POKYNY":4,"I-NEVIM":4,"I-HYPO":4,"I-KONTAKT":5,"C-CILE":5,"I-NEMOC-JIDLO":6,"I-VYSOKA":6},"I-NEVIM":{"R-NAVYKY":3,"R-POKYNY":4,"I-HYPO":4,"I-MENE":4,"I-KONTAKT":5,"C-CILE":5,"I-NEMOC-JIDLO":6,"I-VYSOKA":6},"I-NEMOC-JIDLO":{"R-NAVYKY":3,"R-POKYNY":4,"I-NEVIM":4,"I-HYPO":4,"I-MENE":4,"I-KONTAKT":5,"C-CILE":5,"I-NEMOC-BAZAL":6,"I-VYSOKA":6},"I-VYSOKA":{"R-NAVYKY":3,"R-POKYNY":4,"I-NEVIM":4,"I-HYPO":4,"I-MENE":4,"I-KONTAKT":5,"C-CILE":5,"I-NEMOC-JIDLO":6},"I-KONTAKT":{"R-NAVYKY":3,"R-POKYNY":4,"I-NEVIM":4,"I-HYPO":4,"I-MENE":4,"C-CILE":5,"I-NEMOC-JIDLO":6,"I-VYSOKA":6}},"drop":{"4":{"I-HYPO":["Pod pravidly jsou cíle glukózy; ukáže je další krok.","V plánu je automaticky sedm bezpečnostních pravidel ze schvá","Co dělat při nízké glukóze, si aplikace nevymýšlí."],"I-MENE":["Pravidlo „Méně jídla než obvykle“ je obecné pravidlo NutriFe","V plánu je automaticky sedm bezpečnostních pravidel ze schvá"],"I-NEVIM":["V plánu je automaticky sedm bezpečnostních pravidel ze schvá"],"I-NEMOC-BAZAL":["V plánu je automaticky sedm bezpečnostních pravidel ze schvá"]},"5":{"R-POKYNY":["Cíle glukózy jsou výchozí z registru; lékař je u pacienta mů","Dolní cíl #, horní po jídle #, ráno nalačno do # mmol/l, čas"]}}},
+ {"title":"Lékař – vydání plánu","items":["P-NEMOC"],"targets":{"P-LEKAR":1}},
+ {"title":"Sestra – zaučení s náhledem telefonu","items":["P-NEMOC","I-HYPO","I-KONTAKT","I-MENE","I-NEVIM","I-VYSOKA","I-NEMOC-BAZAL","I-NEMOC-JIDLO"],"targets":{"Z-BODY":1},"deps":{"3":{"R-NAVYKY":"note"},"5":{"R-NAVYKY":"note"},"6":{"R-NAVYKY":"note"}},"drop":{"3":{"R-NAVYKY":["Body k porci, inzulinu a bazálu v zaučení nejsou: startovní ","Pacient také ví, „kam se obrátit s technickým problémem a ka","Pacient také ví, že před kontrolou pošle do ordinace export ","Body k porci, inzulinu a bazálu existují jen proto, že jsou "]},"5":{"R-NAVYKY":["Sestra s pacientem ústně prošla dva body: upozornění na nízk"]},"6":{"R-NAVYKY":["Do stopy se zapsalo, že zaučení dokončila sestra, i s časem."]}}},
+ {"title":"Pacient – převzetí plánu a jedna otázka","items":["P-NEMOC"],"targets":{}},
+ {"title":"Pacient – první snídaně ve třech krocích","items":["Z-GLUKOZA","B-HYPO","P-NEMOC"],"targets":{"Z-GLUKOZA":2,"B-HYPO":2},"deps":{"2":{"B-HYPO":"note"}},"alt":{"Z-GLUKOZA":{"Z-GLUKOZA":2},"B-HYPO":{"Z-GLUKOZA":2}}},
+ {"title":"Pacient – před obědem: nejvyšší hodnota po snídani","items":["Z-GLUKOZA","B-HYPO"],"targets":{},"deps":{"1":{"B-HYPO":"note"}},"drop":{"1":{"B-HYPO":["Pod hodnotou se objevila druhá otázka: „Klesla glukóza do # "]}}},
+ {"title":"Pacient – po týdnu: co už aplikace ví","items":["R-SKORE","R-REAKCE"],"targets":{"R-SKORE":1,"R-REAKCE":1},"deps":{"0":{"R-REAKCE":"note"},"1":{"R-REAKCE":"skip","R-SKORE":"note"},"2":{"R-REAKCE":"skip","R-SKORE":"skip"},"3":{"R-SKORE":"note"}},"alt":{"R-REAKCE":{},"R-SKORE":{"R-REAKCE":1}},"drop":{"1":{"R-SKORE":["Okno na stupnici ukazuje rozmezí nejvyšších hodnot ze započí","Nad stupnicí stojí, kolikrát byla kaše v cíli."]},"3":{"R-SKORE":["Bez vyhodnocení reakce aplikace žádné jídlo nepoznává: všech"]}}},
+ {"title":"Pacient – otevřel aplikaci až v 10:15","items":["P-NEMOC","B-HYPO","Z-GLUKOZA","I-VYSOKA","R-SKORE","R-REAKCE"],"targets":{"S-TYDEN":3,"B-HYPO":8,"Z-GLUKOZA":8,"I-VYSOKA":9},"deps":{"2":{"R-REAKCE":"note"},"8":{"B-HYPO":"note"},"9":{"B-HYPO":"note","R-POKYNY":"note","I-VYSOKA":"note"},"12":{"R-REAKCE":"note"},"13":{"R-REAKCE":"note"},"14":{"R-REAKCE":"skip"}},"alt":{"B-HYPO":{"S-TYDEN":3,"I-VYSOKA":9},"R-POKYNY":{"S-TYDEN":3,"B-HYPO":8,"Z-GLUKOZA":8},"I-VYSOKA":{"S-TYDEN":3,"B-HYPO":8,"Z-GLUKOZA":8}},"drop":{"2":{"R-REAKCE":["Chválí se čin (zápisy se všemi údaji), ne hodnota glukózy."]},"9":{"R-POKYNY":["Hned pod volbou je karta „Nejvyšší hodnota po jídle nad #“ s","Aplikace živou glukózu nesleduje, na vysokou hodnotu upozorň","Pravidlo říká, co dělat, když glukóza vysoko je; aplikace k ","Nejvyšší hodnotu po snídani pacient opsal nad #, víc, než či"],"I-VYSOKA":["Hned pod volbou je karta „Nejvyšší hodnota po jídle nad #“ s","Aplikace živou glukózu nesleduje, na vysokou hodnotu upozorň","Pravidlo říká, co dělat, když glukóza vysoko je; aplikace k ","Nejvyšší hodnotu po snídani pacient opsal nad #, víc, než či"]},"12":{"R-REAKCE":["Rada, která nemohla zabrat, by na kontrole zkreslila srovnán","Od snídaně uplynulo # minut, proto krok # žádnou radu nenabí"]},"13":{"R-REAKCE":["Pod výsledkem se aplikace jednou zeptá, co bylo jinak: „Tent","Na Dnes je hned karta „Jak to dopadlo“: snídaně, nejvyšší ho"]}}},
+ {"title":"Pacient – před píchnutím: porce zpět k obvyklé a doplněk","items":["R-SKORE","R-REAKCE","R-PORCE","R-DOPLNEK","R-PROCHAZKA","P-NEMOC"],"targets":{"R-PORCE":1,"R-DOPLNEK":2,"R-PROCHAZKA":3},"deps":{"0":{"R-REAKCE":"note"},"1":{"R-REAKCE":"skip"},"2":{"R-REAKCE":"skip","R-SKORE":"skip"},"3":{"R-REAKCE":"skip","R-SKORE":"skip"},"4":{"R-REAKCE":"skip","R-SKORE":"skip"},"5":{"R-REAKCE":"note","R-SKORE":"note","R-PORCE":"note","R-DOPLNEK":"note"}},"alt":{"R-REAKCE":{},"R-SKORE":{"R-PORCE":1},"R-PORCE":{"R-DOPLNEK":2,"R-PROCHAZKA":3},"R-DOPLNEK":{"R-PORCE":1,"R-PROCHAZKA":3},"R-PROCHAZKA":{"R-PORCE":1,"R-DOPLNEK":2}},"drop":{"5":{"R-REAKCE":["Až u dalšího jídla opíše nejvyšší hodnotu, karta „Jak to dop"],"R-SKORE":["Až u dalšího jídla opíše nejvyšší hodnotu, karta „Jak to dop"]}}},
+ {"title":"Pacient – po píchnutí: co aplikace smí a nesmí","items":["R-SKORE","R-REAKCE","R-PORCE","R-PROCHAZKA","I-MENE","I-NEVIM","Z-GLUKOZA","B-HYPO","P-NEMOC"],"targets":{"R-PORCE":1,"I-MENE":2,"I-NEVIM":3},"deps":{"0":{"R-REAKCE":"note","R-POKYNY":"note","I-NEVIM":"note"},"1":{"R-REAKCE":"skip"},"2":{"R-REAKCE":"skip","R-SKORE":"note","R-PROCHAZKA":"note","R-POKYNY":"note","I-MENE":"note"},"3":{"R-POKYNY":"skip"},"4":{"R-REAKCE":"skip"},"5":{"R-REAKCE":"skip"},"6":{"R-REAKCE":"skip","R-PORCE":"skip"}},"alt":{"R-REAKCE":{"I-NEVIM":3},"R-PORCE":{"I-MENE":2,"I-NEVIM":3},"R-POKYNY":{"R-PORCE":1},"I-MENE":{"R-PORCE":1,"I-NEVIM":3},"I-NEVIM":{"R-PORCE":1,"I-MENE":2}},"drop":{"2":{"R-SKORE":["Rada k porci se nedá; obrazovka ukáže pravidlo „Méně jídla n","Co dělat, říká schválené pravidlo; pohyb by glukózu po menší"],"R-PROCHAZKA":["Rada k porci se nedá; obrazovka ukáže pravidlo „Méně jídla n","Co dělat, říká schválené pravidlo; pohyb by glukózu po menší"],"R-POKYNY":["Rada k porci se nedá; obrazovka ukáže pravidlo „Méně jídla n"]}}},
+ {"title":"Pacient – menší porce a pokles pod 4","items":["R-REAKCE","I-MENE","P-NEMOC","B-HYPO","I-HYPO"],"targets":{"I-MENE":1,"I-HYPO":4,"B-HYPO":5},"deps":{"1":{"R-POKYNY":"note"},"2":{"B-HYPO":"note","R-POKYNY":"note","I-MENE":"note"},"3":{"R-POKYNY":"note","I-HYPO":"note","I-MENE":"note"},"4":{"R-POKYNY":"note","I-HYPO":"note"},"5":{"R-POKYNY":"note","I-HYPO":"note"}},"alt":{"B-HYPO":{"I-MENE":1},"R-POKYNY":{"B-HYPO":3},"I-HYPO":{"I-MENE":1,"B-HYPO":3},"I-MENE":{"I-HYPO":4,"B-HYPO":5}},"drop":{"2":{"B-HYPO":["Na Dnes zůstává karta s pravidlem a věta, že se za # minut o"]},"3":{"R-POKYNY":["Na Dnes je otázka, jestli glukóza klesla pod #; pacient se p"],"I-MENE":["Na Dnes je otázka, jestli glukóza klesla pod #; pacient se p"]},"4":{"R-POKYNY":["Na Dnes je karta „Pokles pod # je zapsaný“ s pravidlem k níz","Co dělat při nízké glukóze, říká bezpečnostní pravidlo schvá"],"I-HYPO":["Na Dnes je karta „Pokles pod # je zapsaný“ s pravidlem k níz","Co dělat při nízké glukóze, říká bezpečnostní pravidlo schvá"]},"5":{"R-POKYNY":["Na kontrole uvidí lékař oba poklesy v podkladech v části Bez","Další den k obědu znovu menší porce s inzulinem a za hodinu ","Jsou to dva poklesy za posledních # dní, a tak Dnes ukáže ka","Rada je obecné pravidlo NutriFee schválené garantem: nevybíz"],"I-HYPO":["Na kontrole uvidí lékař oba poklesy v podkladech v části Bez","Další den k obědu znovu menší porce s inzulinem a za hodinu ","Jsou to dva poklesy za posledních # dní, a tak Dnes ukáže ka","Rada je obecné pravidlo NutriFee schválené garantem: nevybíz"]}}},
+ {"title":"Pacient – nové jídlo jen názvem","items":["R-PODOBNOST","R-REAKCE","R-PORADI","R-PROCHAZKA","P-NEMOC"],"targets":{"R-PODOBNOST":2,"R-REAKCE":4,"R-PORADI":5},"deps":{"1":{"R-PODOBNOST":"note"},"2":{"R-PODOBNOST":"skip"},"4":{"R-REAKCE":"skip","R-PODOBNOST":"skip"},"5":{"R-REAKCE":"skip","R-PODOBNOST":"skip","R-SKORE":"skip"},"6":{"R-REAKCE":"skip","R-SKORE":"skip"}},"alt":{"R-REAKCE":{"R-PODOBNOST":2},"R-PODOBNOST":{},"R-SKORE":{"R-PODOBNOST":2,"R-REAKCE":4},"R-PORADI":{"R-PODOBNOST":2,"R-REAKCE":4}},"drop":{"1":{"R-PODOBNOST":["Hned po napsání názvu se aplikace zeptala, jestli nejde o st"]}}},
+ {"title":"Pacient – není mi dobře","items":["P-NEMOC","I-NEMOC-BAZAL","I-NEMOC-JIDLO"],"targets":{"P-NEMOC":1,"I-NEMOC-BAZAL":2,"I-NEMOC-JIDLO":2},"deps":{"2":{"R-POKYNY":"note","I-NEMOC-BAZAL":"note","I-NEMOC-JIDLO":"note"}},"alt":{"R-POKYNY":{"P-NEMOC":1},"I-NEMOC-BAZAL":{"P-NEMOC":1,"I-NEMOC-JIDLO":2},"I-NEMOC-JIDLO":{"P-NEMOC":1,"I-NEMOC-BAZAL":2},"P-NEMOC":{}},"drop":{"2":{"R-POKYNY":["Bazál píchá dál i bez jídla; inzulin k jídlu jen k jídlu, kt","Klinický obsah je ze schválených pravidel, ne z výpočtu apli"],"I-NEMOC-BAZAL":["Bazál píchá dál i bez jídla; inzulin k jídlu jen k jídlu, kt","Klinický obsah je ze schválených pravidel, ne z výpočtu apli"],"I-NEMOC-JIDLO":["Klinický obsah je ze schválených pravidel, ne z výpočtu apli"]}}},
+ {"title":"Pacient – jídlo během nemoci","items":["R-SKORE","R-REAKCE","I-MENE","P-NEMOC","I-NEMOC-BAZAL","I-NEMOC-JIDLO"],"targets":{},"deps":{"2":{"P-NEMOC":"note"}},"drop":{"2":{"P-NEMOC":["Zápis má štítek „nemoc“ a do učení nevstupuje."]}}},
+ {"title":"Pacient – už je mi lépe","items":["P-NEMOC","I-NEMOC-BAZAL","I-NEMOC-JIDLO"],"targets":{},"deps":{"1":{"P-NEMOC":"skip"}}},
+ {"title":"Během studie – garant upraví pravidlo po podnětu","items":[],"targets":{},"deps":{"2":{"R-PORADI":"skip"},"3":{"R-PORADI":"skip"},"5":{"R-PORADI":"skip"}}},
+ {"title":"Pacient – rada s novým textem","items":["R-SKORE","R-REAKCE","R-PORADI","R-PROCHAZKA","P-NEMOC"],"targets":{"R-PORADI":1},"deps":{"0":{"R-REAKCE":"note","R-SKORE":"note"},"1":{"R-REAKCE":"skip","R-SKORE":"skip","R-POKYNY":"note","I-MENE":"note"},"2":{"R-REAKCE":"skip","R-SKORE":"skip"}},"alt":{"R-REAKCE":{},"R-SKORE":{},"R-PORADI":{}},"drop":{"1":{"R-POKYNY":["„Snězte nejdřív maso, potom zbytek jídla. Když budete mít do"],"I-MENE":["„Snězte nejdřív maso, potom zbytek jídla. Když budete mít do"]}}},
+ {"title":"Pacient – 1. ledna ráno: noční pokles pod 4","items":["Z-GLUKOZA","B-HYPO","P-NEMOC","I-HYPO"],"targets":{"Z-GLUKOZA":2,"B-HYPO":2,"I-HYPO":4},"deps":{"2":{"B-HYPO":"note"},"4":{"B-HYPO":"skip","R-POKYNY":"note","I-HYPO":"note"}},"alt":{"Z-GLUKOZA":{"Z-GLUKOZA":2,"B-HYPO":3,"I-HYPO":4},"B-HYPO":{"Z-GLUKOZA":2},"R-POKYNY":{"Z-GLUKOZA":2,"B-HYPO":2},"I-HYPO":{"Z-GLUKOZA":2,"B-HYPO":2}},"drop":{"2":{"B-HYPO":["Pod mřížkou je nepovinný čip „V noci klesla glukóza pod #“."]},"4":{"R-POKYNY":["Na Dnes je karta „Pokles pod # je zapsaný“ s pravidlem k níz","Oba noční poklesy lékař uvidí na kontrole u návrhu k bazálu ","Předchozí noční pokles byl v noci na #. prosince, před víc n"],"I-HYPO":["Na Dnes je karta „Pokles pod # je zapsaný“ s pravidlem k níz","Oba noční poklesy lékař uvidí na kontrole u návrhu k bazálu ","Předchozí noční pokles byl v noci na #. prosince, před víc n"]}}},
+ {"title":"Pacient – den před kontrolou","items":["C-CILE"],"targets":{"C-CILE":2}},
+ {"title":"Lékař – kontrola, krok 1: souhrn","items":["D-POSTUP","C-CILE","S-SEMAFOR","D-CISTA","B-HYPO","S-SILNA","R-SKORE","R-REAKCE","I-NEVIM","I-HYPO","I-MENE","I-NEMOC-BAZAL","I-NEMOC-JIDLO","I-VYSOKA","I-KONTAKT","D-BAZAL"],"targets":{"D-POSTUP":1,"Z-IMPORT":4,"C-CILE":5,"S-SEMAFOR":5,"D-CISTA":5,"S-SILNA":9,"B-HYPO":10},"deps":{"1":{"D-POSTUP":"note"},"2":{"D-POSTUP":"note"},"3":{"D-POSTUP":"skip"},"5":{"C-CILE":"note","B-HYPO":"note","D-CISTA":"note","S-SEMAFOR":"note"},"8":{"R-REAKCE":"note","R-SKORE":"note","R-PROCHAZKA":"note"},"9":{"R-POKYNY":"note"},"10":{"B-HYPO":"note"}},"alt":{"C-CILE":{"D-POSTUP":1,"Z-IMPORT":4,"S-SEMAFOR":6,"C-CILE":6,"S-SILNA":9,"B-HYPO":10},"D-CISTA":{"D-POSTUP":1,"Z-IMPORT":4,"S-SEMAFOR":6,"C-CILE":6,"S-SILNA":9,"B-HYPO":10},"D-POSTUP":{"Z-IMPORT":4,"C-CILE":5,"S-SEMAFOR":5,"D-CISTA":5,"S-SILNA":9,"B-HYPO":10},"S-SILNA":{"D-POSTUP":1,"Z-IMPORT":4,"C-CILE":5,"S-SEMAFOR":5,"D-CISTA":5,"B-HYPO":10},"S-SEMAFOR":{"D-POSTUP":1,"Z-IMPORT":4,"S-SEMAFOR":6,"C-CILE":6,"S-SILNA":9,"B-HYPO":10}},"drop":{"5":{"B-HYPO":["U času pod # jsou i poklesy po jídle, které hlásil pacient."]},"8":{"R-REAKCE":["Report neříká „neposlechl“.","Pod nimi je nejčastější důvod odmítnutí."],"R-SKORE":["Report neříká „neposlechl“.","Pod nimi je nejčastější důvod odmítnutí."],"R-PROCHAZKA":["Report neříká „neposlechl“.","Pod nimi je nejčastější důvod odmítnutí."]},"9":{"R-POKYNY":["Lékař jídla s pacientem neprobírá; řeší je aplikace radami k"]},"10":{"B-HYPO":["V části Bezpečnost jsou oba říjnové poklesy pod # po obědě, "]}}},
+ {"title":"Lékař – krok 2: návrhy s důvodem a postupem","items":["D-BAZAL","D-POSTUP","D-CISTA","D-PRAND"],"targets":{"D-BAZAL":1,"D-POSTUP":2,"D-CISTA":5,"D-PRAND":5},"deps":{"1":{"B-HYPO":"note"},"3":{"D-POSTUP":"skip"},"4":{"R-REAKCE":"skip","R-SKORE":"skip","D-CISTA":"skip","D-POSTUP":"skip"},"5":{"R-REAKCE":"skip","R-SKORE":"skip","D-CISTA":"skip"},"6":{"R-REAKCE":"skip","R-SKORE":"skip","D-CISTA":"skip","D-PRAND":"skip"},"7":{"R-REAKCE":"skip","R-SKORE":"skip","D-CISTA":"skip","D-PRAND":"skip"},"8":{"R-REAKCE":"skip","R-SKORE":"skip","D-CISTA":"skip","D-PRAND":"skip","D-POSTUP":"skip"},"9":{"R-REAKCE":"skip","B-HYPO":"note","R-SKORE":"skip","D-CISTA":"skip","D-POSTUP":"skip"},"10":{"R-REAKCE":"skip","B-HYPO":"note","R-SKORE":"skip","D-CISTA":"skip"},"11":{"R-REAKCE":"skip","R-SKORE":"skip","D-CISTA":"skip","D-POSTUP":"skip"},"12":{"R-REAKCE":"skip","R-SKORE":"skip","R-PORCE":"note","D-POSTUP":"skip"},"13":{"R-REAKCE":"skip","R-SKORE":"skip"},"14":{"R-REAKCE":"note","R-SKORE":"note","D-PRAND":"note"}},"alt":{"R-REAKCE":{"D-BAZAL":1,"D-POSTUP":2},"R-SKORE":{"D-BAZAL":1,"D-POSTUP":2},"D-CISTA":{"D-BAZAL":1,"D-POSTUP":2,"D-PRAND":12},"D-PRAND":{"D-BAZAL":1,"D-POSTUP":2},"D-BAZAL":{"D-CISTA":5,"D-PRAND":5,"D-POSTUP":5},"D-POSTUP":{"D-BAZAL":1}},"drop":{"1":{"B-HYPO":["Oba noční poklesy pacient zapsal i sám u snídaně."]},"9":{"B-HYPO":["Karta ale ukazuje i žádný pokles pod # po obědě, oba hlášené","Do čistých dat tyto obědy nejdou kvůli menší porci, pokles s","Třetí návrh se týká dávky k obědu: vrcholy po obědě bývaly n","Tytéž poklesy jsou první v „Co návrh oslabuje“ a v seznamu v","Poklesy jsou přímo v kartě, ne jen ve sbalené části Bezpečno"]},"10":{"B-HYPO":["Bod „U jídla nebyl v období pokles pod #“ podle dat nesedí a","Tento bod lékař nepřepíná: pokles pod # u jídla v období vět"]},"12":{"R-PORCE":["Další návrh je „Probrat radu „Doplněk k jídlu““.","Pacient doplněk přijímal, ale u # jídel ho aplikace podle sc"]},"14":{"R-REAKCE":["Návrhy, které nic nemění (zachovat radu, bezpečnostní pravid"],"R-SKORE":["Návrhy, které nic nemění (zachovat radu, bezpečnostní pravid"],"D-PRAND":["Návrhy, které nic nemění (zachovat radu, bezpečnostní pravid"]}}},
+ {"title":"Lékař – krok 3: potvrzení a vydání plánu P2","items":[],"targets":{}},
+ {"title":"Lékař – krok 4: předání pacientovi","items":[],"targets":{}},
+ {"title":"Pacient – nový plán a co se změnilo","items":["P-NEMOC"],"targets":{},"deps":{"1":{"R-REAKCE":"skip","R-SKORE":"skip","D-CISTA":"skip","D-PRAND":"skip","D-POSTUP":"skip"}}},
+ {"title":"Souhrn – vaše rozhodnutí o položkách registru","items":[],"targets":{}},
+ {"title":"Dodatek · zaučení se nezdařilo","items":["P-NEMOC"],"targets":{"Z-BODY":1},"deps":{"1":{"R-NAVYKY":"skip"}},"alt":{"R-NAVYKY":{"Z-BODY":2}}},
+ {"title":"Dodatek · bez zaučení plán nezačne platit","items":[],"targets":{}},
+ {"title":"Dodatek · pacient rady většinou nepřijal: jiné návrhy","items":["D-PRAND","D-POSTUP"],"targets":{"D-PRAND":1,"D-POSTUP":1},"deps":{"1":{"D-CISTA":"note","D-POSTUP":"note"},"2":{"R-REAKCE":"note","R-SKORE":"note","D-CISTA":"skip","D-PRAND":"skip"},"3":{"D-CISTA":"skip","D-PRAND":"skip","D-POSTUP":"note"},"4":{"D-PRAND":"skip"}},"alt":{"R-DOPLNEK":{},"D-PRAND":{},"D-POSTUP":{"D-PRAND":1}},"drop":{"1":{"D-CISTA":["První karta je „Nejdřív rady ke snídani – dávka až po radách","Má dva body: jestli pacient radu může běžně plnit a jestli j","Karta nemá body o vyrovnání ani to, co návrh oslabuje: dávka","Dávka se neposuzuje, dokud pacient rady nepřijal aspoň třikr"],"D-POSTUP":["Má dva body: jestli pacient radu může běžně plnit a jestli j","Karta nemá body o vyrovnání ani to, co návrh oslabuje: dávka","Dávka se neposuzuje, dokud pacient rady nepřijal aspoň třikr"]},"2":{"R-REAKCE":["Radu „Doplněk k jídlu“, kterou pacient odmítal nejčastěji, b"],"R-SKORE":["Radu „Doplněk k jídlu“, kterou pacient odmítal nejčastěji, b"]}}},
+ {"title":"Dodatek · „nemám to doma“: výměna rady","items":["D-CISTA","D-PRAND","D-POSTUP"],"targets":{"D-PRAND":2,"D-POSTUP":2},"deps":{"0":{"R-REAKCE":"note","B-HYPO":"note","R-PODOBNOST":"note","R-SKORE":"note","R-DOPLNEK":"note","R-PROCHAZKA":"note"},"1":{"R-REAKCE":"skip","B-HYPO":"note","R-PODOBNOST":"skip","R-SKORE":"skip","R-DOPLNEK":"skip","R-PROCHAZKA":"skip","D-CISTA":"skip","D-POSTUP":"skip"},"2":{"R-REAKCE":"note","B-HYPO":"note","R-SKORE":"note","R-PROCHAZKA":"note","D-CISTA":"note","D-POSTUP":"note"},"3":{"R-REAKCE":"note","B-HYPO":"skip","R-SKORE":"note","D-CISTA":"skip","D-PRAND":"skip"},"4":{"B-HYPO":"skip","R-PORADI":"skip","D-CISTA":"skip","D-PRAND":"skip","D-POSTUP":"skip"},"5":{"R-REAKCE":"note","R-SKORE":"note","R-PORADI":"skip","D-PRAND":"skip"}},"alt":{"B-HYPO":{"D-PRAND":1,"D-POSTUP":1,"D-CISTA":2},"R-DOPLNEK":{},"D-PRAND":{},"D-POSTUP":{"D-CISTA":2,"D-PRAND":2}},"drop":{"1":{"B-HYPO":["Jako v hlavní linii u něj jsou dva poklesy pod # po menší po"]},"2":{"R-REAKCE":["Další karta je „Nejdřív rady ke snídani – dávka až po radách"],"B-HYPO":["Další karta je „Nejdřív rady ke snídani – dávka až po radách","Má dva body: jestli pacient radu může běžně plnit a jestli j","Dávka se neposuzuje, dokud pacient rady nepřijal aspoň třikr","Rozhodne bod o tom, jestli radu může plnit."],"R-SKORE":["Další karta je „Nejdřív rady ke snídani – dávka až po radách"],"R-PROCHAZKA":["Další karta je „Nejdřív rady ke snídani – dávka až po radách"],"D-CISTA":["Další karta je „Nejdřív rady ke snídani – dávka až po radách","Má dva body: jestli pacient radu může běžně plnit a jestli j","Karta nemá body o vyrovnání ani to, co návrh oslabuje: dávka"],"D-POSTUP":["Další karta je „Nejdřív rady ke snídani – dávka až po radách","Má dva body: jestli pacient radu může běžně plnit a jestli j","Dávka se neposuzuje, dokud pacient rady nepřijal aspoň třikr","Rozhodne bod o tom, jestli radu může plnit.","Karta nemá body o vyrovnání ani to, co návrh oslabuje: dávka"]},"3":{"R-REAKCE":["Tlačítko ale zní „Souhlasím · vyměnit (vypnout)“: náhradní r"],"R-SKORE":["Tlačítko ale zní „Souhlasím · vyměnit (vypnout)“: náhradní r"]},"5":{"R-REAKCE":["Lékař rozhodl i ostatní návrhy podle postupu: dávka k obědu "],"R-SKORE":["Lékař rozhodl i ostatní návrhy podle postupu: dávka k obědu "]}}},
+ {"title":"Dodatek · „nemám to doma“: co uvidí pacient","items":["P-NEMOC"],"targets":{}}
 ];
 })(typeof window !== 'undefined' ? window : globalThis);

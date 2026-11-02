@@ -21,7 +21,7 @@ const S = () => app.getState(); const act = (a, v) => app.act(a, v); const bind 
 const markup = () => String(elements.get('app').innerHTML).replace(/ /g, ' ');
 const chapter = id => { act('goChapter', String(D.indexOf(id))); act('closeDrawer'); };
 const BAD = /undefined|NaN|\[object Object\]|\bnull\b|Infinity/;
-const allPages = fn => { const s = S(); for (const r of ['patient', 'doctor', 'nurse']) for (const pg of [...NF.PAGES, 'import']) { s.role = r; s.page = pg; app.render(); fn(markup(), r + '/' + pg); } };
+const allPages = fn => { const s = S(); for (const r of ['patient', 'doctor', 'nurse']) for (const pg of [...NF.PAGES, 'import'] /* 'import' už neexistuje (SCHEMA 74): neznámá stránka nesmí shodit vykreslení */) { s.role = r; s.page = pg; app.render(); fn(markup(), r + '/' + pg); } };
 const meal = (food, portion, bolus, finish) => { const f = S().foods.find(x => x.name === food); act('startMeal', 'breakfast'); act('mealBolus', bolus); act('mealBefore', '7'); act('mealStep', '2'); act('mealFood', f.id); act('mealPortion', portion); act('mealStep', '3'); act('mealFinish', finish); };
 const walk = (v, p = '$', out = []) => { if (typeof v === 'number' && !Number.isFinite(v)) out.push(p); else if (v && typeof v === 'object') for (const k of Object.keys(v)) walk(v[k], p + '.' + k, out); return out; };
 let passed = 0, failed = 0; const fails = [];
@@ -47,7 +47,7 @@ test('Dávky a kroky: nečíselná hodnota nic nezmění, žádné NaN ve stavu'
   act('mealCancel'); act('fixInsulinUnits', 'x'); assert.ok(S().fixInsulinUnits == null || Number.isInteger(S().fixInsulinUnits));
   chapter('doses'); act('wizardGo', 'x'); assert.ok(Number.isInteger(S().wizardStep)); act('dose', 'basal:x'); act('dose', 'nope:1'); assert.ok(Number.isInteger(S().draft.doses.basal.units) && !S().error, 'dose s cizím klíčem: ' + S().error);
   chapter('reviewProposals'); act('reviewStep', 'x'); assert.ok(Number.isInteger(S().review.step)); act('propUnits', S().review.proposals[0].id + ':x'); assert.deepEqual(walk(S()), []);
-  chapter('registry'); act('regOpen', 'R-REAKCE'); act('regEdit'); act('regParam', 'R-REAKCE:minKnown:x'); assert.deepEqual(walk(S()), [], 'NaN ve stavu: ' + walk(S()));
+  chapter('registry'); act('regOpen', 'R-REAKCE'); act('regDecide', 'x'); act('garantDecide', 'R-REAKCE:x'); act('garantNote', 'NEEXISTUJE'); assert.deepEqual(walk(S()), [], 'NaN ve stavu: ' + walk(S()));
 });
 /* #4 Čas zpětného zápisu a posun inzulinu musí být platné; jinak se zápis neuloží. */
 test('Zpětný zápis: neplatná hodina (−1, 25,5, NaN, 7,999) a nečíselný posun inzulinu nevedou k NaN datu', () => {
@@ -60,7 +60,7 @@ test('csv: neexistující datum/čas se nepřijme, pole v uvozovkách se čtou',
   const r = NF.parseSensorCsv('čas;hodnota\n32.13.2026 07:20;7\n14.10.2026 25:99;7\n31.04.2026 07:00;7\n14.10.2026 07:05;7');
   assert.deepEqual(JSON.parse(JSON.stringify(r.map(x => x.at))), ['2026-10-14T07:05:00'], 'přijato: ' + JSON.stringify(r)); /* pole z jiného kontextu vm: porovnat po převodu */
   assert.equal(NF.parseSensorCsv('"čas";"hodnota"\n"14.10.2026 07:05";"7,0"\n"14.10.2026 07:20";"8,1"').length, 2);
-  chapter('preview'); act('importText', 'čas;hodnota\n32.13.2026 07:20;7\n14.10.2026 25:99;7'); act('importPage'); assert.equal(BAD.test(markup()), false, 'NaN na stránce Nahrát export'); act('role', 'doctor'); act('startReview'); assert.equal(BAD.test(markup()), false, 'NaN v kontrole');
+  chapter('preview'); act('importText', 'čas;hodnota\n32.13.2026 07:20;7\n14.10.2026 25:99;7'); act('page', 'preview'); assert.equal(BAD.test(markup()), false, 'NaN v přehledu Před kontrolou'); /* stránka Nahrát export zrušena (SCHEMA 74) */ act('role', 'doctor'); act('startReview'); assert.equal(BAD.test(markup()), false, 'NaN v kontrole');
 });
 /* #6 Rozpracovaný zápis s neexistujícím jídlem: hláška, ne pád vykreslení (zápis se nesmí zahodit). */
 test('Krok 3 s neznámým jídlem dá hlášku „Vyberte jídlo“ a zápis zůstane otevřený', () => {
@@ -74,7 +74,7 @@ test('Žádná hodnota ze stavu nejde do HTML neescapovaná', () => {
   chapter('training'); act('trainingPreview', '<b>x</b>" onmouseover="1'); assert.equal(/page-<b>|onmouseover="1/.test(markup()), false, 'třída stránky neescapovaná');
   chapter('advice'); act('startMeal', 'lunch'); act('mealBolus', 'before'); act('mealBefore', '7'); act('mealStep', '2'); bind('meal.q', '<b>fuzz</b>'); act('mealNewFood'); act('mealSaveFood'); act('mealPortion', 'usual'); act('mealStep', '3'); act('mealFinish', 'as');
   act('page', 'foods'); allPages((m, w) => assert.equal(/<b>fuzz<\/b>/.test(m), false, w));
-  act('role', 'doctor'); act('page', 'registry'); act('regOpen', 'R-PORADI'); bind('form.regcomment_R-PORADI', '<b>fuzz</b>'); act('regDecide', 'rejected'); allPages((m, w) => assert.equal(/<b>fuzz<\/b>/.test(m), false, w));
+  act('role', 'doctor'); act('page', 'registry'); act('regOpen', 'R-PORADI'); bind('form.note_R-PORADI', '<b>fuzz</b>'); act('regDecide', 'rejected'); allPages((m, w) => assert.equal(/<b>fuzz<\/b>/.test(m), false, w));
 });
 /* #9 Vykreslení nemění stav (štítek reakce se počítá při vykreslení a uloží až příští akcí). */
 test('Vykreslení je bez vedlejšího účinku na stav: po reloadu je stav stejný jako před ním', () => {

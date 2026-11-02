@@ -3,16 +3,21 @@
    „admin“ = správce (vidí výsledky všech, demo/results.js), „garant“ = garant (rozhoduje a komentuje, vidí jen své zápisy).
    Účet bez jedné z těchto rolí k maketě přístup nemá (projekt Supabase může mít i jiné uživatele) – po přihlášení je hned odhlášen s vysvětlením.
    Hesla ověřuje server Supabase; v kódu není nic tajného (veřejný klíč + pravidla RLS). Jádro app/ o přihlášení neví.
-   Přihlášení drží localStorage (nutrifee-auth); token se obnovuje sám, po neúspěchu se uživatel odhlásí. */
+   Přihlášení drží localStorage (nutrifee-auth); token se obnovuje sám, po neúspěchu se uživatel odhlásí.
+   Kontrola 4 (30. 10. 2026, 05-robustnost A1, C2, C5): vypršení přihlášení nemaže deník, koncepty poznámek ani frontu – po novém přihlášení téhož účtu
+   se fronta odešle a deník obnoví ze serveru (D.sync.afterLogin). Přihlásí-li se jiný účet (nutrifee-auth-uid se liší), deník a koncepty předchozího
+   se smažou; jeho neodeslaná rozhodnutí zůstanou ve frontě a odejdou, až se znovu přihlásí. Na přihlašovací stránce jde vše smazat (sdílený počítač). */
 (function (global) {
 'use strict';
 var NF = global.NutriFee, D = global.NutriFeeDemo, e = NF.esc;
-var AKEY = 'nutrifee-auth';
+var AKEY = 'nutrifee-auth', UKEY = 'nutrifee-auth-uid';
 var form = { email: '', pass: '', error: '', info: '', busy: false, forceOffered: false };
 function cfg() { return D.syncConfig || {}; }
 function base() { return String(cfg().url || '').replace(/\/$/, '') + '/auth/v1/'; }
 function readRaw() { try { var s = JSON.parse(global.localStorage && global.localStorage.getItem(AKEY) || 'null'); return s && s.access_token && s.user ? s : null; } catch (err) { return null; } }
 function read() { var s = readRaw(); return s && allowed(s) ? s : null; }
+function lastUid() { try { return global.localStorage && global.localStorage.getItem(UKEY); } catch (err) { return null; } }
+function setLastUid(id) { try { if (id) global.localStorage.setItem(UKEY, id); else global.localStorage.removeItem(UKEY); } catch (err) { } }
 function write(s) { try { if (s) global.localStorage.setItem(AKEY, JSON.stringify(s)); else global.localStorage.removeItem(AKEY); } catch (err) { } }
 function role(s) { s = s || read(); if (!s) return null; var m = s.user && s.user.app_metadata, r = m && m.role; return r === 'admin' || r === 'garant' ? r : null; }
 function allowed(s) { return !!role(s); }
@@ -34,13 +39,14 @@ function ensure(force) {
     .then(function (res) { if (!res.ok) { var er = new Error('HTTP ' + res.status); er.status = res.status; throw er; } return res.json(); })
     .then(function (j) { var n = fromResponse(j); write(n); refreshing = null; return n.access_token; })
     .catch(function (err) { refreshing = null; /* odhlásit jen když server token zamítl (4xx); při výpadku sítě přihlášení zůstává a fronta to zkusí znovu (nález 5, 23. 10. 2026) */
-      if (err && err.status >= 400 && err.status < 500) signOut('Přihlášení vypršelo, přihlaste se prosím znovu.'); throw err; });
+      if (err && err.status >= 400 && err.status < 500) signOut('Přihlášení vypršelo, přihlaste se prosím znovu. Rozepsané poznámky a neodeslaná rozhodnutí zůstávají v tomto prohlížeči a po přihlášení se odešlou.', true); throw err; });
   return refreshing;
 }
-/* Odhlášení: smaže přihlášení i místní deník garanta (jeho rozhodnutí jsou na serveru a po přihlášení se načtou zpět). */
-function signOut(info) {
+/* Odhlášení: smaže přihlášení i místní deník garanta (jeho rozhodnutí jsou na serveru a po přihlášení se načtou zpět).
+   keep (vypršení, A1): deník, koncepty i fronta zůstávají; smažou se, až se přihlásí jiný účet, nebo tlačítkem na přihlašovací stránce. */
+function signOut(info, keep) {
   write(null); form.pass = ''; form.error = ''; form.info = info || ''; form.forceOffered = false;
-  if (D.garantClear) D.garantClear();
+  if (!keep) { setLastUid(null); if (D.garantClear) D.garantClear(); }
   NF.closeDrawer(); NF.render();
 }
 function friendly(m) {
@@ -64,13 +70,23 @@ function login() {
         if (typeof global.fetch === 'function') { try { authPost('logout', null, s.access_token).catch(function () { }); } catch (err) { } }
         form.error = 'Tento účet nemá k maketě přístup. Roli garanta nebo správce přiděluje autor makety.'; NF.render(); return;
       }
-      write(s); form.email = '';
-      var st = NF.getState(); st.toast = 'Přihlášení: ' + label(s) + (s.user.email ? ' · ' + s.user.email : '') + '.';
+      var prev = lastUid();
+      write(s); form.email = ''; form.info = ''; setLastUid(s.user.id);
+      if (prev && prev !== s.user.id && D.garantClear) D.garantClear(); /* jiný účet: deník a koncepty předchozího pryč (jeho fronta čeká) */
+      var foreign = D.sync && D.sync.foreign ? D.sync.foreign() : 0;
+      var st = NF.getState(); st.toast = 'Přihlášení: ' + label(s) + (s.user.email ? ' · ' + s.user.email : '') + '.' +
+        (foreign ? ' V tomto prohlížeči čeká ' + foreign + ' neodeslaných zápisů jiného účtu; odešlou se, až se ten účet znovu přihlásí.' : ''); /* C5 */
       NF.render();
-      if (D.sync && D.sync.dropForeign) D.sync.dropForeign();
-      if (D.sync && D.sync.restore) D.sync.restore();
+      if (D.sync && D.sync.afterLogin) D.sync.afterLogin(); /* A1: nejdřív odeslat frontu, pak obnovit deník */
+      else if (D.sync && D.sync.restore) D.sync.restore();
     })
     .catch(function (err) { form.busy = false; form.error = friendly(String(err && err.message || err)); NF.render(); });
+}
+/* Zůstala po vypršení přihlášení v prohlížeči data makety? (fronta, deník garanta, koncepty) */
+function leftovers() {
+  var n = D.sync && D.sync.localCount ? D.sync.localCount() : 0, g = D.garantLog ? D.garantLog().length : 0, dr = 0;
+  try { var x = JSON.parse(global.localStorage && global.localStorage.getItem('nutrifee-garant-drafts') || '{}'); dr = x && typeof x === 'object' ? Object.keys(x).length : 0; } catch (err) { dr = 0; }
+  return !!(lastUid() && (n || g || dr));
 }
 /* ---------- přihlašovací stránka místo aplikace ---------- */
 function gate() {
@@ -80,10 +96,11 @@ function gate() {
     '<div class="gate-brand"><span class="brandmark">N</span>NutriFee</div>' +
     '<span class="demo-flag">DEMO · syntetická' + N + 'data · není' + N + 'určeno' + N + 'pro' + N + 'léčbu</span>' + /* N1: láme se jen po „·“ */
     '<h1>Maketa ke schválení</h1>' +
-    '<p class="muted">Přihlaste se e-mailem a heslem, které jste dostali od autora makety. Vaše rozhodnutí a komentáře k položkám registru se ukládají pod tímto přihlášením; nic jiného se neposílá. Jde o neformální rozhodnutí k maketě, ne o podpis pro ostrý provoz. Přihlášení a rozhodnutí čekající na odeslání zůstávají v tomto prohlížeči, dokud se neodhlásíte – na sdíleném počítači se odhlaste.</p>' +
+    '<p class="muted">Přihlaste se e-mailem a heslem, které jste dostali od autora makety. Vaše rozhodnutí a poznámky k položkám registru se ukládají pod tímto přihlášením; nic jiného se neposílá. Jde o neformální rozhodnutí k maketě, ne o podpis pro ostrý provoz. Přihlášení a rozhodnutí čekající na odeslání zůstávají v tomto prohlížeči, dokud se neodhlásíte – na sdíleném počítači se odhlaste.</p>' +
     '<p class="small muted">Hlavní část zabere asi 15 minut, dodatek s variantami další 4. Ukázku můžete přerušit; rozhodnutí se ukládají a po přihlášení se načtou zpět.</p>' +
     '<p class="small muted gate-device">Ukázka je navržená pro počítač. Na telefonu ji projdete, ale obrazovky lékaře jsou široké.</p>' +
     (form.info ? '<div class="error soft" role="status">' + e(form.info) + '</div>' : '') +
+    (leftovers() ? '<p class="small muted">V tomto prohlížeči zůstala data makety z minulého přihlášení (rozhodnutí, poznámky nebo zápisy čekající na odeslání). Na sdíleném počítači je můžete smazat; neodeslaná rozhodnutí tím zmizí.</p><div class="actions mb-3">' + NF.screens.btn('Smazat data makety z tohoto prohlížeče', 'authWipe', null, 'sm quiet') + '</div>' : '') + /* C2 (05) */
     '<label class="field"><span>E-mail</span><input id="auth-email" type="email" autocomplete="username" data-auth="email" value="' + e(form.email) + '"' + dis + '></label>' +
     '<label class="field"><span>Heslo</span><input id="auth-pass" type="password" autocomplete="current-password" data-auth="pass"' + dis + '></label>' /* heslo se do HTML nepíše (nález 8) */ +
     (form.error ? '<div class="error" role="alert">' + e(form.error) + '</div>' : '') +
@@ -116,6 +133,13 @@ NF.demoActions.authLogout = function () {
   if (typeof global.fetch === 'function') { try { authPost('logout', null, s.access_token).catch(function () { }); } catch (err) { } }
   signOut('Jste odhlášeni.');
 };
+NF.demoActions.authWipe = function () {
+  if (read()) return;
+  if (D.sync && D.sync.wipeLocal) D.sync.wipeLocal();
+  setLastUid(null); if (D.garantClear) D.garantClear();
+  form.info = 'Data makety z tohoto prohlížeče jsou smazaná.'; NF.render();
+};
 NF.demoActions.authLogoutForce = function () { if (D.sync && D.sync.clear) D.sync.clear(); NF.demoActions.authLogout(); };
+(function () { var s0 = read(); if (s0 && s0.user && s0.user.id && !lastUid()) setLastUid(s0.user.id); })();
 D.auth = { session: read, role: function () { return role(); }, label: function () { return label(); }, ensure: ensure, forceOffered: function () { return form.forceOffered; }, form: function () { return form; } };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -72,7 +72,9 @@ demo/      prezentační vrstva — modelový pacient, simulovaný senzor, pří
 Vynecháním složky `demo/` a jejích `<script>` řádků vznikne produkční sestavení bez přepisování
 obrazovek: jádro dostane registr a jídla z `app/data/`, ale žádný plán; bez schválené položky
 registru nic nevyhodnocuje ani neradí. Klinické položky registru schvaluje lékař-garant, provozní
-(formát exportu, texty, zaučení) vlastník aplikace — garant je nevidí.
+(formát exportu, texty, zaučení) neschvaluje nikdo — garant je nevidí.
+Produkční sestavení bere skutečný čas zařízení, ukládá pod klíčem `nutrifee` a roli zařízení určuje
+adresa: `?role=pacient` (výchozí), `?role=lekar`, `?role=sestra` (SCHEMA 80).
 Po změně struktury zvyš `NF.SCHEMA` v `app/core.js` · `app/icons.js` i `?v=` v HTML (test to hlídá).
 
 ## Co je simulované

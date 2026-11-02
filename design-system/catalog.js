@@ -30,8 +30,10 @@ function hexOf(rgb) {
 }
 function norm(v) { var h = hexOf(v); if (h) return h; if (/^#[0-9a-f]{3}$/i.test(v)) return ('#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3]).toUpperCase(); return String(v).trim().toUpperCase(); }
 function tokenFor(value) {
-  var n = norm(value), out = [];
-  tokens.forEach(function (t) { if (norm(t.value) === n) out.push(t.name); });
+  /* jen tokeny, které jsou celé jednou hodnotou (ne stín s barvou uvnitř), a barvy včetně průhlednosti */
+  var alpha = function (v) { var m = /rgba\([^)]*,\s*([\d.]+)\)/.exec(v); return m ? Number(m[1]) : 1; };
+  var n = norm(value), a = alpha(value), out = [];
+  tokens.forEach(function (t) { if (/\s/.test(t.value.replace(/,\s*/g, ',')) || alpha(t.value) !== a) return; if (norm(t.value) === n) out.push(t.name); });
   return out;
 }
 function lum(hex) {
@@ -41,7 +43,8 @@ function lum(hex) {
 function contrast(a, b) { var la = lum(a), lb = lum(b); return ((Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05)).toFixed(1); }
 
 /* ---------- vykreslení tokenů ---------- */
-var GROUPS = [['Plocha', /^--nf-(bg|surface|line)/], ['Text', /^--nf-(ink|text|muted|on-primary|focus)/], ['Akce', /^--nf-primary/], ['Stavy', /^--nf-(ok|over|low|info|basal)/], ['Prezentační vrstva', /^--nf-demo/]];
+var GROUPS = [['Plocha', /^--nf-(bg|surface|line)/], ['Text', /^--nf-(ink|text|muted|on-primary|focus)/], ['Akce', /^--nf-primary/], ['Stavy', /^--nf-(ok|over|low|info|basal)/], ['Vysoký kontrast (prefers-contrast:more)', /^--nf-hc-/], ['Prezentační vrstva', /^--nf-demo/]];
+var shownColors = {};
 function renderColors() {
   var box = $('#tok-colors'); if (!box) return; var html = '';
   GROUPS.forEach(function (g) {
@@ -49,6 +52,7 @@ function renderColors() {
     if (!list.length) return;
     html += '<p class="ds-group">' + g[0] + '</p>';
     list.forEach(function (t) {
+      shownColors[t.name] = 1;
       var hex = norm(t.value), onWhite = contrast(hex, '#FFFFFF'), onBg = contrast(hex, norm(cs.getPropertyValue('--nf-bg')));
       html += '<button type="button" class="ds-swatch" data-copy="var(' + t.name + ')" title="Kopírovat var(' + t.name + ')"><i style="background:' + hex + '"></i><span><b>' + t.name.replace('--nf-', '') + '</b><small>' + hex + '</small><br><span class="ratio">na bílé ' + onWhite + ' : 1 · na podkladu ' + onBg + ' : 1</span></span></button>';
     });
@@ -57,12 +61,37 @@ function renderColors() {
 }
 function renderSpace() {
   var box = $('#tok-space'); if (!box) return;
-  box.innerHTML = tokens.filter(function (t) { return /^--nf-s\d$/.test(t.name); }).map(function (t) { return '<div><span>' + t.name.replace('--nf-', '') + ' · ' + t.value + '</span><i style="width:' + (parseInt(t.value, 10) * 4) + 'px"></i></div>'; }).join('') +
+  box.innerHTML = tokens.filter(function (t) { return /^--nf-s\d+$/.test(t.name); }).map(function (t) { return '<div><span>' + t.name.replace('--nf-', '') + ' · ' + t.value + '</span><i style="width:' + (parseInt(t.value, 10) * 4) + 'px"></i></div>'; }).join('') +
     tokens.filter(function (t) { return /^--nf-tap/.test(t.name); }).map(function (t) { return '<div><span>' + t.name.replace('--nf-', '') + ' · ' + t.value + '</span><i style="width:' + parseInt(t.value, 10) + 'px;height:' + parseInt(t.value, 10) / 2 + 'px"></i></div>'; }).join('');
 }
 
+/* všechny ostatní tokeny (B8, 1. 11. 2026): čáry, ikony, rozměry komponent, pohyb, písmo – co design.css skládá */
+var SIZE_GROUPS = [['Písmo', /^--nf-(font|fs-|lh|w-|track-(tight|caps|snug|num|tag|label)$|underline|frac|quote)/], ['Odstupy a cíle dotyku', /^--nf-(s\d+|tap)/], ['Čáry a fokus', /^--nf-(bw|halo|focus-w|focus-offset)/], ['Zaoblení', /^--nf-r-/],
+  ['Ikony', /^--nf-(icon|ico-|check-)/], ['Stíny', /^--nf-(sh-|scrim|shadow)/], ['Pohyb', /^--nf-(t-|t$|ease|anim-)/], ['Prezentační vrstva', /^--nf-demo/], ['Rozměry komponent', /./]];
+function renderSizes() {
+  var box = $('#tok-sizes'); if (!box) return; var used = {}, html = '';
+  SIZE_GROUPS.forEach(function (g) {
+    var list = tokens.filter(function (t) { return !shownColors[t.name] && !used[t.name] && g[1].test(t.name); });
+    if (!list.length) return;
+    html += '<p class="ds-group">' + g[0] + ' <small>(' + list.length + ')</small></p>';
+    list.forEach(function (t) {
+      used[t.name] = 1;
+      var raw = /^url\(/.test(t.raw) ? 'obrázek (data URI)' : t.raw;
+      html += '<button type="button" class="ds-tok" data-copy="var(' + t.name + ')" title="Kopírovat var(' + t.name + ')"><b>' + t.name.replace('--nf-', '') + '</b><span>' + raw.replace(/</g, '&lt;') + '</span></button>';
+    });
+  });
+  box.innerHTML = html;
+}
+
 /* ---------- inspektor ---------- */
-var PROPS = [['background-color', 'pozadí', 'color'], ['color', 'text', 'color'], ['border-color', 'okraj', 'color'], ['border-radius', 'zaoblení'], ['font-family', 'písmo'], ['font-size', 'velikost'], ['font-weight', 'řez'], ['line-height', 'řádkování'], ['padding', 'odsazení'], ['min-height', 'výška min.'], ['box-shadow', 'stín']];
+var PROPS = [['background-color', 'pozadí', 'color'], ['color', 'text', 'color'], ['border-color', 'okraj', 'color'], ['border-width', 'tloušťka okraje'], ['border-radius', 'zaoblení'], ['font-family', 'písmo'], ['font-size', 'velikost'], ['font-weight', 'řez'], ['line-height', 'řádkování'], ['letter-spacing', 'prostrkání'],
+  ['padding', 'odsazení'], ['margin', 'vnější okraj'], ['gap', 'mezera'], ['width', 'šířka'], ['height', 'výška'], ['min-width', 'šířka min.'], ['min-height', 'výška min.'], ['max-width', 'šířka max.'], ['max-height', 'výška max.'],
+  ['outline-width', 'fokus'], ['outline-offset', 'odsazení fokusu'], ['box-shadow', 'stín'], ['animation-duration', 'animace'], ['transition-duration', 'přechod']];
+/* které deklarace (i zkratky) nastavují danou vlastnost: inspektor z nich čte názvy tokenů přímo z pravidel */
+var FAMILY = { 'background-color': /^background(-color)?$/, 'color': /^color$/, 'border-color': /^border(-(top|right|bottom|left|block|inline))?(-color)?$/, 'border-width': /^border(-(top|right|bottom|left|block|inline))?(-width)?$/,
+  'border-radius': /^border(-[a-z-]+)?-radius$/, 'font-family': /^font(-family)?$/, 'font-size': /^font(-size)?$/, 'font-weight': /^font(-weight)?$/, 'line-height': /^(font|line-height)$/, 'letter-spacing': /^letter-spacing$/,
+  'padding': /^padding(-[a-z-]+)?$/, 'margin': /^margin(-[a-z-]+)?$/, 'gap': /^((row|column)-)?gap$/, 'width': /^(width|inline-size)$/, 'height': /^(height|block-size)$/, 'min-width': /^min-width$/, 'min-height': /^min-height$/,
+  'max-width': /^max-width$/, 'max-height': /^max-height$/, 'outline-width': /^outline(-width)?$/, 'outline-offset': /^outline-offset$/, 'box-shadow': /^box-shadow$/, 'animation-duration': /^animation(-duration|-delay)?$/, 'transition-duration': /^transition(-duration|-delay)?$/ };
 var selected = null;
 function shortFont(v) { return v.split(',')[0].replace(/"/g, '').trim(); }
 function tokenLabel(prop, value) {
@@ -74,7 +103,7 @@ function tokenLabel(prop, value) {
   else if (prop[0] === 'box-shadow') names = tokens.filter(function (t) { return /--nf-sh/.test(t.name) && t.value.replace(/\s/g, '') === value.replace(/\s/g, ''); }).map(function (t) { return t.name; });
   return names;
 }
-function rulesFor(el) {
+function matchedRules(el) {
   /* jen pravidla, jejichž selektor na prvek skutečně dopadá — i ve stavech hover / fokus / stisk / neaktivní (pseudotřídy se pro shodu odstraní) */
   var out = [], seen = {};
   var strip = function (sel) { return sel.replace(/:(hover|active|focus-visible|focus|disabled)\b/g, '').replace(/::?(before|after)\b/g, ''); };
@@ -85,7 +114,7 @@ function rulesFor(el) {
       if (rule.cssRules && rule.conditionText) { walk(rule.cssRules, '@media ' + rule.conditionText); continue; }
       if (!rule.selectorText || !test(rule.selectorText)) continue;
       var txt = wrap ? wrap + ' { ' + rule.cssText + ' }' : rule.cssText;
-      if (!seen[txt]) { seen[txt] = 1; out.push(txt); }
+      if (!seen[txt]) { seen[txt] = 1; out.push({ text: txt, rule: rule }); }
     }
   };
   for (var i = 0; i < document.styleSheets.length; i++) {
@@ -95,11 +124,29 @@ function rulesFor(el) {
   }
   return out;
 }
+function rulesFor(el) { return matchedRules(el).map(function (r) { return r.text; }); }
+function varsFor(el, prop) {
+  /* názvy --nf-* z deklarací pravidel, která na prvek dopadají a nastavují vlastnost prop (i zkratkou: border, font, animation …) */
+  var fam = FAMILY[prop], names = [];
+  if (!fam) return names;
+  matchedRules(el).forEach(function (r) {
+    r.rule.style.cssText.split(/;(?![^(]*\))/).forEach(function (d) {
+      var i = d.indexOf(':'); if (i < 0) return;
+      var name = d.slice(0, i).trim(); if (!fam.test(name)) return;
+      var m, re = /var\((--nf-[a-z0-9-]+)/g, val = d.slice(i + 1);
+      while ((m = re.exec(val))) if (names.indexOf(m[1]) < 0) names.push(m[1]);
+    });
+  });
+  /* zkratka nese barvu i rozměr (border: var(--nf-bw) solid var(--nf-line)): k barevné vlastnosti jen barevné tokeny, k ostatním jen nebarevné */
+  var wantColor = /color$/.test(prop);
+  return names.filter(function (n) { return /^#/.test(norm(cs.getPropertyValue(n).trim())) === wantColor; });
+}
 function describe(el) {
   var st = getComputedStyle(el), rows = '';
   PROPS.forEach(function (p) {
-    var v = st.getPropertyValue(p[0]); if (!v || v === 'none' || v === 'normal' || v === '0px' || v === 'rgba(0, 0, 0, 0)' || (p[0] === 'border-color' && st.borderStyle === 'none')) return;
-    var names = tokenLabel(p, v), shown = p[2] === 'color' ? (hexOf(v) || v) : p[0] === 'font-family' ? shortFont(v) : v;
+    var v = st.getPropertyValue(p[0]); if (!v || v === 'none' || v === 'normal' || v === '0px' || v === '0s' || v === 'rgba(0, 0, 0, 0)' || (p[0] === 'border-color' && st.borderStyle === 'none')) return;
+    var names = varsFor(el, p[0]); if (!names.length) names = tokenLabel(p, v); /* token z pravidla má přednost; shoda hodnoty jen jako nápověda */
+    var shown = p[2] === 'color' ? (hexOf(v) || v) : p[0] === 'font-family' ? shortFont(v) : v;
     rows += '<tr><td>' + p[1] + '</td><td>' + (p[2] === 'color' && hexOf(v) ? '<i class="sw" style="background:' + hexOf(v) + '"></i>' : '') + shown + (names.length ? '<br>' + names.map(function (n) { return '<code>' + n + '</code>'; }).join(' ') : '') + '</td></tr>';
   });
   return rows;
@@ -120,8 +167,8 @@ function copy(text, msg) {
 }
 function promptFor(el) {
   var st = getComputedStyle(el), lines = ['Komponenta NutriFee: <' + el.tagName.toLowerCase() + '> s třídami ' + ($('#insp-cls').textContent) + '.'];
-  PROPS.forEach(function (p) { var v = st.getPropertyValue(p[0]); if (!v || v === 'none' || v === 'normal' || v === 'rgba(0, 0, 0, 0)') return; var names = tokenLabel(p, v); lines.push('- ' + p[1] + ': ' + (names.length ? names.map(function (n) { return 'var(' + n + ')'; }).join(' / ') : (p[2] === 'color' ? (hexOf(v) || v) : p[0] === 'font-family' ? shortFont(v) : v))); });
-  lines.push('Pravidla: barvy jen z app/tokens.css; cíl dotyku ≥ 48 px; stav vždy slovem a ikonou, ne jen barvou; fokus outline 3 px var(--nf-focus); respektovat prefers-reduced-motion.');
+  PROPS.forEach(function (p) { var v = st.getPropertyValue(p[0]); if (!v || v === 'none' || v === 'normal' || v === 'rgba(0, 0, 0, 0)' || v === '0px' || v === '0s') return; var names = varsFor(el, p[0]); if (!names.length) names = tokenLabel(p, v); /* token z pravidla má přednost; shoda hodnoty jen jako nápověda */ lines.push('- ' + p[1] + ': ' + (names.length ? names.map(function (n) { return 'var(' + n + ')'; }).join(' / ') : (p[2] === 'color' ? (hexOf(v) || v) : p[0] === 'font-family' ? shortFont(v) : v))); });
+  lines.push('Pravidla: barvy, rozměry, pohyb a písmo jen z app/tokens.css (var(--nf-*)); cíl dotyku ≥ 48 px; stav vždy slovem a ikonou, ne jen barvou; fokus outline 3 px var(--nf-focus); respektovat prefers-reduced-motion.');
   lines.push('CSS z makety:'); lines.push(rulesFor(el).join('\n'));
   return lines.join('\n');
 }
@@ -157,6 +204,6 @@ if ('IntersectionObserver' in window) {
 /* verze podle makety: načteme jádro jen kvůli NF.SCHEMA? Ne — katalog nenačítá skripty makety. Verzi dopíše publikace do data-version. */
 var ver = document.body.getAttribute('data-version'); if (ver) $('#ds-version').textContent = 'verze ' + ver; /* data-version = NF.SCHEMA makety, hlídá test */
 
-readTokens(); renderColors(); renderSpace();
+readTokens(); renderColors(); renderSpace(); renderSizes();
 if (!tokens.length) { var b = $('#tok-colors'); if (b) b.innerHTML = '<p class="muted">Tokeny se nepodařilo načíst (stránka musí běžet ze serveru nebo ze stejné složky jako app/tokens.css).</p>'; }
 })();
