@@ -97,6 +97,7 @@ function device({ store = null, session = null, offset = 0, fetch = true } = {})
   const app = ctx.NutriFeeApp, NF = ctx.NutriFee, D = ctx.NutriFeeDemo;
   const dev = { store, ctx, app, NF, D, els, downloads, blobs, S: () => app.getState(), act: (a, v) => app.act(a, v),
     fire: (t, ev) => (winL[t] || []).map(fn => fn(ev || { key: null, preventDefault() { this.prevented = true; } })),
+    docFire: (t, ev) => (docL[t] || []).map(fn => fn(ev)), /* SCHEMA 83: psaní do pole poznámky (input, focusout) */
     visible: async () => { (docL.visibilitychange || []).forEach(fn => fn()); await tick(); },
     queue: () => JSON.parse(store.get('nutrifee-sync-queue') || '[]'), dead: () => JSON.parse(store.get('nutrifee-sync-dead') || '[]'),
     status: id => D.sync.state(id), state: id => NF.itemState(app.getState(), id), note: id => NF.itemNote(app.getState(), id),
@@ -106,6 +107,7 @@ function device({ store = null, session = null, offset = 0, fetch = true } = {})
 const scene = (d, n = '2') => { d.act('goScene', n); d.act('closeDrawer'); };
 const dq = d => d.queue().filter(x => x.kind === 'decision' || x.kind === 'note');
 const garantRows = () => srv.rows.filter(r => r.kind === 'decision' || r.kind === 'note');
+const legacyNote = (A, id, text) => A.NF.decideItem(A.S(), id, null, text, { garant: true, note: true, status: null, rt: new Date().toISOString(), where: 'panel' }); /* SCHEMA 83: poznámka bez rozhodnutí v novém toku nevzniká; starší záznam jako dřív */
 
 let passed = 0, failed = 0; const fails = [], tests = [];
 const test = (name, fn) => tests.push([name, fn]);
@@ -114,7 +116,7 @@ const test = (name, fn) => tests.push([name, fn]);
 test('Rozhodnutí 1: decision i note nesou params.ver { version, fp, fpGuide, alg }; otisk je deterministický a závisí na znění, parametrech i průvodci', async () => {
   makeServer(); const G = srv.user('u-g', 'garant@example.test', 'garant', 'pw');
   const A = device({ session: srv.session(G) }); scene(A);
-  A.D.noteDraft('R-NAVYKY', 'jen poznámka'); A.D.saveNote('R-NAVYKY'); await advance(3000);
+  legacyNote(A, 'R-NAVYKY', 'jen poznámka'); await advance(3000);
   A.act('garantDecide', 'K-KRITERIA:approved'); await advance(100);
   const dec = srv.rows.find(r => r.kind === 'decision' && r.item === 'K-KRITERIA'), nt = srv.rows.find(r => r.kind === 'note');
   for (const r of [dec, nt]) { const v = r.params.ver; assert.ok(v, 'ver chybí u ' + r.kind); assert.equal(v.version, 'v1'); assert.match(v.fp, /^(fp-[0-9a-f]{16}|[0-9a-f]{8})$/); assert.match(v.fpCat, /^[0-9a-f]{8}$/); assert.match(v.fpGuide, /^[0-9a-f]{8}$/); assert.ok(['sync1', 'core'].includes(v.alg)); assert.equal(typeof r.params.seq, 'number'); }
@@ -159,7 +161,7 @@ test('Rozhodnutí 2: export JSON a CSV jen pro správce, z načtených řádků 
   const A = device({ session: srv.session(G) }); scene(A);
   A.D.noteDraft('K-KRITERIA', 'pozn; s "uvozovkami"'); A.act('garantDecide', 'K-KRITERIA:approved');
   A.D.noteDraft('C-CILE', '=SUM(A1)'); A.act('garantDecide', 'C-CILE:rejected:ano'); await advance(100);
-  A.act('garantDecide', 'C-CILE:approved'); A.D.noteDraft('R-NAVYKY', 'jen poznámka'); A.D.saveNote('R-NAVYKY'); await advance(5000);
+  A.act('garantDecide', 'C-CILE:approved'); legacyNote(A, 'R-NAVYKY', 'jen poznámka'); await advance(5000);
   const M = device({ session: srv.session(Ad) }); M.act('openResults'); await advance(100);
   assert.ok(M.D.results.rows().length >= 4, 'správce načetl řádky');
   assert.match(M.overlay(), /data-action="resultsExport" data-value="json"[^>]*>Stáhnout JSON/); assert.match(M.overlay(), /data-action="resultsExport" data-value="csv"[^>]*>Stáhnout CSV/);
@@ -296,7 +298,7 @@ test('05 B4 + 03 B2: pořadí podle opraveného času (posun hodin z hlavičky D
 });
 test('05 B3: pravdivý stav uložení – state(sid) „local“ do odeslání, pak „server“; stateText pro řádek pod poznámkou', async () => {
   makeServer(); const G = srv.user('u-g', 'garant@example.test', 'garant', 'pw'); const A = device({ session: srv.session(G) }); scene(A);
-  srv.outage = true; A.D.noteDraft('R-NAVYKY', 'offline'); A.D.saveNote('R-NAVYKY'); await advance(3000);
+  srv.outage = true; A.act('garantDecide', 'R-NAVYKY:approved'); A.D.noteDraft('R-NAVYKY', 'offline'); A.D.saveNote('R-NAVYKY'); await advance(3000);
   const sid = A.D.garantLog().slice(-1)[0].sid; assert.equal(A.status(sid), 'local'); assert.match(A.D.sync.stateText(sid), /čeká na odeslání/);
   assert.match(String(A.NF.slots.syncEnd()), /nejsou odeslaná/); assert.equal(A.D.sync.allSaved(), false);
   let seen = 0; A.D.sync.onChange(() => seen++);
@@ -321,8 +323,10 @@ test('01 M7: výchozí účet ve výsledcích je garant, ne vlastní (i když ne
 });
 test('01 M8: poznámka uložená těsně před Schválit se stejným textem → jeden řádek (rozhodnutí); starší dvojice se u správce nepočítá jako druhé „schváleno“', async () => {
   makeServer(); const G = srv.user('u-g', 'garant@example.test', 'garant', 'pw'); const A = device({ session: srv.session(G) }); scene(A);
+  /* SCHEMA 83: poznámka vzniká až po rozhodnutí; změní-li garant hned po ní rozhodnutí, odejde jen rozhodnutí s poznámkou */
+  A.act('garantDecide', 'K-KRITERIA:rejected'); await advance(3000);
   A.D.noteDraft('K-KRITERIA', 'text'); A.D.saveNote('K-KRITERIA'); await advance(500); A.act('garantDecide', 'K-KRITERIA:approved'); await advance(3000);
-  const ks = srv.rows.filter(r => r.item === 'K-KRITERIA'); assert.deepEqual(ks.map(r => r.kind), ['decision']); assert.equal(ks[0].comment, 'text');
+  const ks = srv.rows.filter(r => r.item === 'K-KRITERIA'); assert.deepEqual(ks.map(r => r.kind), ['decision', 'decision']); assert.equal(ks[1].comment, 'text'); assert.equal(ks[1].status, 'approved');
   const noteSid = A.D.garantLog().find(d => d.item === 'K-KRITERIA' && d.kind === 'note').sid; assert.equal(A.status(noteSid), 'server', 'sid poznámky ukazuje na rozhodnutí');
   const T = s => '2026-10-30T09:00:' + s + '.000Z', u = { user_id: 'u-g', user_email: 'garant@example.test' };
   const rows = [Object.assign({ id: 'a:1', kind: 'scene', item: 'SCENA', at: T('00'), scene: 3, params: { how: 'dal', items: [{ id: 'R-NAVYKY', status: null, note: '' }] } }, u),
@@ -471,10 +475,12 @@ test('31 B2: pohled garant_stav (model SQL) a klient (D.sync.sortRows + výsledk
 });
 test('31 B3: poznámka nejvýš 4000 znaků (maxlength, počitadlo, i presenter); řádek odmítnutý kvůli délce řekne proč a „Zkusit znovu“ rozhodnutí odešle; snímek souhrnu bez celých poznámek', async () => {
   makeServer(); const G = srv.user('u-g', 'garant@example.test', 'garant', 'pw'); const A = device({ session: srv.session(G) }); scene(A);
-  await advance(3000); A.act('openDecisions'); A.S().gOpen = 'K-KRITERIA'; A.NF.render(); assert.match(A.overlay(), /<textarea rows="2" maxlength="4000" data-gnote="K-KRITERIA"/);
+  await advance(3000); A.act('openDecisions'); A.S().gOpen = 'K-KRITERIA'; A.NF.render(); assert.equal(/data-gnote="K-KRITERIA"/.test(A.overlay()), false, 'SCHEMA 83: pole až po rozhodnutí');
+  A.act('garantDecide', 'K-KRITERIA:approved'); await advance(3000); assert.match(A.overlay(), /<textarea rows="2" maxlength="4000" data-gnote="K-KRITERIA"/);
   A.D.noteDraft('K-KRITERIA', 'x'.repeat(3700)); A.NF.render(); assert.match(A.overlay(), /data-gcount="K-KRITERIA"[^>]*>3700 z 4000 znaků</);
-  A.D.noteDraft('K-KRITERIA', 'x'.repeat(4100)); A.act('garantDecide', 'K-KRITERIA:approved'); await advance(3000);
-  assert.equal(A.state('K-KRITERIA'), 'pending', 'dlouhá poznámka: rozhodnutí se nezapsalo'); assert.equal(A.queue().length, 0); assert.match(A.page() + A.overlay(), /má 4100 znaků; uložit jde nejvýš 4000/);
+  A.D.noteDraft('K-KRITERIA', 'x'.repeat(4100)); A.NF.render(); assert.match(A.overlay(), /Neuloženo: poznámka je delší než 4000 znaků; zkraťte ji\./);
+  A.act('garantDecide', 'K-KRITERIA:rejected'); await advance(3000);
+  assert.equal(A.state('K-KRITERIA'), 'approved', 'dlouhá poznámka: změna rozhodnutí se nezapsala'); assert.equal(A.queue().length, 0); assert.match(A.page() + A.overlay(), /má 4100 znaků; uložit jde nejvýš 4000/);
   A.act('closeDrawer');
   assert.equal(A.D.saveNote('K-KRITERIA'), false, 'ani samotná poznámka'); assert.equal(A.D.noteField('K-KRITERIA').length, 4100, 'koncept zůstal');
   /* řádek s dlouhou poznámkou, který už je ve frontě (starší verze, jiná cesta): server ho odmítne, garant se dozví proč, rozhodnutí odejde zkrácené */
@@ -563,12 +569,40 @@ test('31 C3 + C5 + C7: decided_by podle role; nejdál = maximum scén; potvrzen�
 });
 test('31 C6: rozepsaná poznámka v poli s kurzorem se při zavírání stránky uloží a odejde; neuložený koncept vyvolá dotaz prohlížeče', async () => {
   makeServer(); const G = srv.user('u-g', 'garant@example.test', 'garant', 'pw'); const A = device({ session: srv.session(G) }); scene(A);
-  await advance(3000); A.D.noteDraft('C-CILE', 'koncept bez opuštění pole'); const doc = A.ctx.document;
+  A.act('garantDecide', 'C-CILE:approved'); A.act('garantDecide', 'R-NAVYKY:approved'); await advance(3000); A.D.noteDraft('C-CILE', 'koncept bez opuštění pole'); const doc = A.ctx.document;
   const ev0 = { preventDefault() { this.prevented = true; } }; A.fire('beforeunload', ev0); assert.ok(ev0.prevented, 'koncept bez kurzoru: dotaz'); assert.match(ev0.returnValue, /Poznámka ještě není uložená/);
   doc.activeElement = { getAttribute: k => k === 'data-gnote' ? 'R-NAVYKY' : null, value: 'píšu a zavírám' };
   srv.outage = true; const ev = { preventDefault() { this.prevented = true; } }; A.fire('beforeunload', ev); assert.ok(ev.prevented);
   assert.equal(A.note('R-NAVYKY'), 'píšu a zavírám', 'poznámka uložená jako při opuštění pole'); assert.ok(A.queue().some(x => x.item === 'R-NAVYKY' && x.kind === 'note'));
   srv.outage = false; srv.calls = []; A.fire('pagehide'); assert.ok(srv.calls.some(c => /keepalive/.test(c)), 'odejde s keepalive');
+});
+
+test('SCHEMA 83 (vlastník 2. 11. 2026): poznámka po rozhodnutí se ukládá sama po 1 s bez psaní, bez opuštění pole; „Ukládá se…“ → „Uloženo … na serveru“; opuštění pole uloží hned bez dvojího řádku; změna rozhodnutí poznámku zachová; správce vidí úpravy jako jednu řádku', async () => {
+  makeServer(); const G = srv.user('u-g', 'garant@example.test', 'garant', 'pw'), Ad = srv.user('u-admin', 'admin@example.test', 'admin', 'pw'); const A = device({ session: srv.session(G) }); scene(A);
+  await advance(3000);
+  const ta = (id, v) => ({ target: { getAttribute: k => k === 'data-gnote' ? id : null, value: v } });
+  const notes = () => A.D.garantLog().filter(d => d.item === 'R-NAVYKY' && d.kind === 'note');
+  const srvNotes = () => srv.rows.filter(r => r.item === 'R-NAVYKY' && r.kind === 'note');
+  A.act('garantDecide', 'R-NAVYKY:rejected'); await advance(3000);
+  A.docFire('input', ta('R-NAVYKY', 'Proč')); assert.equal(A.D.savedLine('R-NAVYKY'), 'Ukládá se…', 'během psaní');
+  await advance(600); A.docFire('input', ta('R-NAVYKY', 'Proč ne')); await advance(600); A.docFire('input', ta('R-NAVYKY', 'Proč ne: hodnota')); await advance(600);
+  assert.equal(notes().length, 0, 'při psaní s pauzami pod 1 s se neukládá');
+  await advance(500); assert.equal(notes().length, 1, 'po 1 s bez psaní uloženo, pole nikdo neopustil'); assert.equal(notes()[0].comment, 'Proč ne: hodnota'); assert.equal(notes()[0].status, 'rejected');
+  assert.match(A.D.savedLine('R-NAVYKY'), /^Uloženo \d{1,2}:\d\d v tomto prohlížeči; čeká na odeslání na server\.$/, 'pravdivě: zatím jen v prohlížeči');
+  await advance(3000); assert.equal(srvNotes().length, 1); assert.equal(srvNotes()[0].comment, 'Proč ne: hodnota'); assert.match(A.D.savedLine('R-NAVYKY'), /^Uloženo \d{1,2}:\d\d na serveru\.$/);
+  /* další pauza = další řádek (tabulka jen pro přidávání) */
+  A.docFire('input', ta('R-NAVYKY', 'Proč ne: hodnota 4,5')); await advance(1100); await advance(3000); assert.equal(srvNotes().length, 2);
+  /* opuštění pole před pauzou uloží hned; časovač se zruší, takže druhý řádek nevznikne */
+  A.docFire('input', ta('R-NAVYKY', 'Hodnota 4,5 je lepší')); A.docFire('focusout', ta('R-NAVYKY', 'Hodnota 4,5 je lepší')); assert.equal(notes().length, 3); await advance(1500); assert.equal(notes().length, 3, 'bez dvojího uložení');
+  /* změna rozhodnutí zachová poznámku (poznámka čekající ve frontě se sloučí do rozhodnutí, M8) */
+  A.act('garantDecide', 'R-NAVYKY:approved'); await advance(3000);
+  const ds = srv.rows.filter(r => r.item === 'R-NAVYKY' && r.kind === 'decision'); assert.equal(ds.slice(-1)[0].status, 'approved'); assert.equal(ds.slice(-1)[0].comment, 'Hodnota 4,5 je lepší');
+  assert.equal(A.D.garantNote('R-NAVYKY'), 'Hodnota 4,5 je lepší'); assert.equal(A.D.noteField('R-NAVYKY'), 'Hodnota 4,5 je lepší', 'pole se nevyprázdní');
+  /* správce: po sobě jdoucí úpravy téže poznámky jako jedna řádka historie, data celá */
+  const M = device({ session: srv.session(Ad) }); M.act('openResults'); await advance(200);
+  assert.ok(M.D.results.rows().filter(r => r.item === 'R-NAVYKY' && r.kind === 'note').length >= 2, 'všechny řádky načtené');
+  M.act('resultsTab', 'registr'); const ov = M.overlay(); assert.match(ov, /poznámka \(2 úpravy\) · „Proč ne: hodnota 4,5“/); assert.equal(/· poznámka · „Proč ne: hodnota“/.test(ov), false, 'mezikrok psaní není zvlášť');
+  assert.equal(srv.outside.length, 0, 'nic mimo falešný server');
 });
 
 test('31/03 B6: smazání rozhodnutí v jedné kartě druhá karta nevrátí – značka resetu nahradí její deník (storage) a starší záznamy se nezapíšou ani bez události', async () => {

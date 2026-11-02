@@ -64,6 +64,19 @@ function collapse(rs) {
     return !(b - a <= 10000);
   });
 }
+/* SCHEMA 83: poznámka se ukládá při psaní (každá pauza je řádek). Historie ukáže po sobě jdoucí úpravy téže poznámky (do 2 min od předchozí)
+   jako jednu řádku s posledním zněním a počtem úprav; data, stav, export ani „později“ se nemění. Vstup i výstup v pořadí od nejstaršího. */
+var EDIT_GAP_MS = 120000;
+function mergeEdits(rs) {
+  var out = [];
+  rs.forEach(function (r) {
+    var p = out[out.length - 1], a = p ? effOf(p) : null, b = effOf(r);
+    if (p && p.kind === 'note' && r.kind === 'note' && p.item === r.item && a && b && Math.abs(Date.parse(b) - Date.parse(a)) <= EDIT_GAP_MS) { out[out.length - 1] = Object.assign({}, r, { edits: (p.edits || 1) + 1 }); return; }
+    out.push(r);
+  });
+  return out;
+}
+function editsText(n) { return n > 1 ? ' (' + n + ' ' + (n < 5 ? 'úpravy' : 'úprav') + ')' : ''; }
 /* Platný stav položky z řádků decision/note: stav = poslední rozhodnutí, poznámka = text posledního řádku (rozhodnutí nebo poznámka). */
 function itemState(live, id) {
   var rs = collapse(sorted(live.filter(function (r) { return r.item === id && (r.kind === 'decision' || r.kind === 'note'); }))), lastD = null, last = null;
@@ -172,11 +185,11 @@ function registryTab(live, items) {
   return out + cats.map(function (c) {
     var xs = list.filter(function (x) { return x.it.cat === c[0]; }); if (!xs.length) return '';
     return '<h3>' + e(c[1]) + '</h3><ul class="plain results">' + xs.map(function (x) {
-      var d = x.c.lastD, hist = x.c.rows.slice().reverse();
+      var d = x.c.lastD, hist = mergeEdits(x.c.rows).reverse();
       return '<li class="res"><div class="res-head"><b>' + e(x.it.id) + ' · ' + e(x.it.title) + '</b>' + statusTag(x.c.status) + '</div>' +
         (x.c.note ? '<div class="res-comment">„' + e(x.c.note) + '“</div>' : '') +
         (d ? '<div class="small">' + e(fmt(effOf(d))) + (d.scene ? ' · scéna ' + e(String(d.scene)) + (d.scene_title ? ': ' + e(d.scene_title) : '') : '') + (d.params && WHERE[d.params.where] ? ' · ' + WHERE[d.params.where] : '') + (d.user_email ? ' · ' + e(d.user_email) : '') + (d.decided_by === 'spravce' ? ' · <span class="tag">zapsal správce</span>' : '') + '</div>' + verLine(d, x.it.id) : '<div class="small muted">zatím nerozhodnuto</div>') +
-        (hist.length ? '<details class="more"><summary>historie (' + hist.length + ')</summary><ul class="plain small">' + hist.map(function (h) { return '<li>' + e(fmt(effOf(h))) + ' · ' + (h.kind === 'note' ? (h.comment ? 'poznámka' : 'poznámka smazána') : (LABEL[h.status] || ['?'])[0]) + (h.comment ? ' · „' + e(h.comment) + '“' : '') + (h.scene ? ' · scéna ' + e(String(h.scene)) : '') + (h.params && WHERE[h.params.where] ? ' · ' + WHERE[h.params.where] : '') + '</li>'; }).join('') + '</ul></details>' : '') + '</li>';
+        (hist.length ? '<details class="more"><summary>historie (' + hist.length + ')</summary><ul class="plain small">' + hist.map(function (h) { return '<li>' + e(fmt(effOf(h))) + ' · ' + (h.kind === 'note' ? (h.comment ? 'poznámka' : 'poznámka smazána') + editsText(h.edits) : (LABEL[h.status] || ['?'])[0]) + (h.comment ? ' · „' + e(h.comment) + '“' : '') + (h.scene ? ' · scéna ' + e(String(h.scene)) : '') + (h.params && WHERE[h.params.where] ? ' · ' + WHERE[h.params.where] : '') + '</li>'; }).join('') + '</ul></details>' : '') + '</li>';
     }).join('') + '</ul>';
   }).join('');
 }

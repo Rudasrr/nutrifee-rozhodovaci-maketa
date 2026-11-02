@@ -39,6 +39,26 @@ function morphChildren(from, to) {
   }
   for (var j = fcs.length - 1; j >= tcs.length; j--) from.removeChild(fcs[j]);
 }
+/* SCHEMA 83: pole, do kterého se právě píše (poznámka se ukládá při psaní a ukládání překresluje), musí po překreslení zůstat s fokusem i kurzorem.
+   Když morph prvek nahradí (posun struktury nad ním), fokus a výběr se vrátí na nový prvek se stejným klíčem (data-gnote / data-bind). */
+NF.keepCaret = function (root, fn) {
+  var doc = global.document, a = doc && doc.activeElement, key = null, s0 = null, s1 = null, top = 0;
+  try {
+    if (a && root && root.contains && root.contains(a) && (a.nodeName === 'TEXTAREA' || a.nodeName === 'INPUT') && a.getAttribute) {
+      var g = a.getAttribute('data-gnote'), bd = a.getAttribute('data-bind');
+      key = g ? '[data-gnote="' + g + '"]' : bd ? '[data-bind="' + bd + '"]' : null;
+      if (key && a.selectionStart != null) { s0 = a.selectionStart; s1 = a.selectionEnd; top = a.scrollTop || 0; }
+    }
+  } catch (err) { key = null; }
+  fn();
+  if (!key) return;
+  try {
+    if (doc.activeElement === a && a.isConnected !== false) return;
+    var n = root.querySelector(key); if (!n || !n.focus) return;
+    if (n.value !== a.value && a.value != null) n.value = a.value;
+    n.focus({ preventScroll: true }); if (s0 != null && n.setSelectionRange) n.setSelectionRange(s0, s1); if (top) n.scrollTop = top;
+  } catch (err2) { }
+};
 function keepOpenDetails(root) {
   /* stav <details> se drží podle textu summary a pořadí mezi stejnými texty (P7) */
   var open = {}, count = {};
@@ -74,14 +94,14 @@ NF.render = function () {
     (NF.migrated ? '<div class="hint neutral mb-3" role="status">Uložený stav byl ze starší verze (' + e(NF.migrated) + '); začínáme znovu. Záloha zůstala v zařízení.</div>' : '') +
     '<main id="main" class="role-' + e(S.role) + '">' +
     (S.error ? '<div id="error" class="error" role="alert">' + e(S.error) + '</div>' : '') + page + '</main>';
-  html = NF.nbsp(html);
+  html = String(html).split(/(<textarea[\s\S]*?<\/textarea>)/).map(function (part, k) { return k % 2 ? part : NF.nbsp(part); }).join(''); /* SCHEMA 83: obsah textového pole (poznámka garanta) se sazbou nemění, jinak by se nezlomitelné mezery uložily do poznámky */
   var open = keepOpenDetails(root);
   if (typeof doc.createElement === 'function' && root.firstChild && root.innerHTML !== undefined && root.querySelectorAll) {
     var tmp = doc.createElement('div'); tmp.innerHTML = html;
     try {
       var seen = {};
       tmp.querySelectorAll('details').forEach(function (d) { var s = d.querySelector('summary'), k = s ? s.textContent : ''; seen[k] = (seen[k] || 0) + 1; if (open[k + '#' + seen[k]]) d.setAttribute('open', ''); });
-      morphChildren(root, tmp);
+      NF.keepCaret(root, function () { morphChildren(root, tmp); });
     } catch (err) { root.innerHTML = html; }
   } else root.innerHTML = html;
   renderDrawer();
@@ -169,7 +189,7 @@ function renderDrawer() {
   try {
     var tmp = doc.createElement('div'); tmp.innerHTML = html; var seen = {};
     tmp.querySelectorAll('details').forEach(function (d) { var sm = d.querySelector('summary'), k = sm ? sm.textContent : ''; seen[k] = (seen[k] || 0) + 1; if (open[k + '#' + seen[k]]) d.setAttribute('open', ''); });
-    morphChildren(el, tmp);
+    NF.keepCaret(el, function () { morphChildren(el, tmp); });
   } catch (err3) { el.innerHTML = html; }
   pnl = el.querySelector('.drawerpanel'); if (pnl && pnl.scrollTop !== top) pnl.scrollTop = top;
   if (had) { var now = doc.activeElement; if (!now || !el.contains(now) || focusKey(now) !== had) { try { var f = el.querySelector(had); if (f && f.focus) f.focus({ preventScroll: true }); else { var c2 = el.querySelector('.close'); if (c2) c2.focus({ preventScroll: true }); } } catch (err4) { } } }
@@ -186,7 +206,7 @@ function bind(key, value) {
   var parts = String(key).split('.');
   if (parts.length !== 2 && key !== 'notes') return;
   var str = function (n) { return value == null ? '' : typeof value === 'object' ? '' : String(value).slice(0, n); };
-  if (parts[0] === 'form') { if (/^(__proto__|constructor|prototype)$/.test(parts[1])) return; S.form = S.form || {}; S.form[parts[1]] = str(500); return; }
+  if (parts[0] === 'form') { if (/^(__proto__|constructor|prototype)$/.test(parts[1])) return; S.form = S.form || {}; S.form[parts[1]] = str(/^note_/.test(parts[1]) ? 4000 : 500); return; } /* poznámka garanta nejvýš 4000 znaků jako na serveru (31 B3) */
   if (parts[0] === 'meal' && S.meal && parts[1] === 'q') { S.meal.q = str(NF.NAME_MAX); S.meal.foodId = null; S.meal.newFood = null; return; }
   if (parts[0] === 'draft' && S.draft && parts[1] === 'medicationChecked') { S.draft.medicationChecked = value === true || value === 'true'; return; }
   if (parts[0] === 'draft' && S.draft && parts[1] === 'notes') { S.draft.notes = str(500); return; }
@@ -506,9 +526,11 @@ var A = {
 
   /* registr */
   regFilter: function (v) { var p = String(v).split(':'); if (['cat', 'status', 'touch'].indexOf(p[0]) < 0) return; S.reg = S.reg || {}; S.reg.keep = null; S.reg[p[0]] = S.reg[p[0]] === p[1] ? null : p[1]; },
-  /* Poznámka se uloží sama při opuštění pole (data-change); stav položky se nemění a nepočítá se jako rozhodnutí (R14). */
+  /* Poznámka se ukládá sama (SCHEMA 83): po 1 s bez psaní (data-autosave) a při opuštění pole (data-change); stav položky se nemění a nepočítá se jako rozhodnutí (R14).
+     Pole se ukazuje až po rozhodnutí, takže poznámka bez rozhodnutí nevzniká. */
   regNote: function (v) {
     var id = v || (S.reg && S.reg.open), r = id && NF.item(S, id); if (!r) return;
+    if (noteTimer) { if (global.clearTimeout) global.clearTimeout(noteTimer); noteTimer = null; }
     var key = 'note_' + id, c = S.form && S.form[key] != null ? String(S.form[key]) : null;
     if (c === null || c === NF.itemNote(S, id)) return;
     var res = NF.decideItem(S, id, null, c, { note: true }); if (!res.ok) return fail(res.error);
@@ -579,6 +601,7 @@ function renderFatal() {
 }
 
 /* ---------- události ---------- */
+var noteTimer = null; NF.NOTE_IDLE_MS = 1000;
 if (global.document && global.document.addEventListener) {
   global.document.addEventListener('click', function (ev) {
     clearToast(); /* B9: klepnutí kamkoli zavře oznámení (nové oznámení akce se ukáže po vykreslení) */
@@ -597,6 +620,12 @@ if (global.document && global.document.addEventListener) {
     var k = ev.target.dataset && ev.target.dataset.bind; if (!k || ev.target.type === 'checkbox') return;
     bind(k, ev.target.value); NF.save(S);
     if (k === 'meal.q') NF.render();
+    /* SCHEMA 83: poznámka k položce registru se uloží po 1 s bez psaní; vykreslí se morphem, pole s kurzorem zůstane, jak je */
+    var au = ev.target.dataset.autosave; if (au && global.setTimeout) {
+      var val = ev.target.dataset.value, line = global.document.querySelector && global.document.querySelector('[data-regsaved="' + val + '"]'); if (line) line.textContent = 'Ukládá se…';
+      if (noteTimer && global.clearTimeout) global.clearTimeout(noteTimer);
+      noteTimer = global.setTimeout(function () { noteTimer = null; act(au, val); }, NF.NOTE_IDLE_MS);
+    }
   });
   global.document.addEventListener('change', function (ev) {
     if (ev.target.type === 'file' && ev.target.dataset && ev.target.dataset.action === 'importFile') { /* export z aplikace senzoru: čte se jen v telefonu, nikam se neposílá */

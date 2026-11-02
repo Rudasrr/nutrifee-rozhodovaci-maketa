@@ -15,7 +15,7 @@ function intro(s) {
     /* S1 (19. 10. 2026): tři kroky nahoře, legenda barev hned v nich */
     '<ol class="intro-strip" aria-label="Jak ukázka probíhá">' +
     '<li><span class="n" aria-hidden="true">1</span><span><b>Čtěte ' + app + '.</b> Aplikace běží sama; <span class="btn primary sm intro-sample" aria-hidden="true">petrolejová</span> tlačítka klepe ukázka za vás.</span></li>' +
-    '<li><span class="n" aria-hidden="true">2</span><span><b>Rozhodujte ' + (nar ? 'v panelu dole' : 'vpravo') + '.</b> Ve <span class="pill">fialovém</span> panelu pravidla aplikace schválíte, nebo zamítnete; poznámku můžete připsat kdykoli.</span></li>' +
+    '<li><span class="n" aria-hidden="true">2</span><span><b>Rozhodujte ' + (nar ? 'v panelu dole' : 'vpravo') + '.</b> Ve <span class="pill">fialovém</span> panelu pravidla aplikace schválíte, nebo zamítnete; potom můžete připsat poznámku, proč.</span></li>' +
     '<li><span class="n" aria-hidden="true">3</span><span><b>Na konci potvrďte souhrn</b> všech rozhodnutí.</span></li></ol>' +
     '<p class="intro-time">Sledování hlavní části trvá asi 15 minut; k tomu počítejte čas na rozhodnutí ' + nRules + ' pravidel, celkem 45–60 minut. Dodatek s variantami zabere další 4 minuty. Ukázku můžete kdykoli přerušit; rozhodnutí se průběžně ukládají a po přihlášení se načtou zpět.</p>' + /* B02 (27. 10. 2026) */
     '<div class="intro-grid">' +
@@ -23,7 +23,7 @@ function intro(s) {
     '<li><b>' + (nar ? 'Dole' : 'Vpravo') + ' je fialový panel „Ovládání ukázky“.</b> Je to jediné, co ovládáte: <span class="pill">Dál ▶</span> odehraje další krok, <span class="pill">← Zpět</span> vrátí o krok.</li>' +
     '<li><b>' + (nar ? 'Nahoře' : 'Vlevo') + ' běží aplikace sama.</b> Vy do obrazovky neklikáte, jen sledujete, co se děje a proč.</li>' +
     '<li><b>Fialově <span class="xb-sample">podtečkované</span> věci vysvětlí bublina po klepnutí.</b> Hodí se, když si nejste jistí, co číslo nebo prvek znamená.</li>' + /* vysvětlivky (demo/explain.js, 26. 10. 2026) */
-    '<li><b>Panel položku nabídne v kroku, kde pravidlo na obrazovce působí</b> (štítek <span class="appr pend" aria-hidden="true">◌ ke schválení</span> u místa, kam se právě díváte), s vysvětlením. Rozhodnete tlačítkem <b>Schválit</b>, nebo <b>Zamítnout</b>. Chcete-li jinou hodnotu nebo znění, napište to do poznámky; poznámka je nepovinná a uloží se sama. Pokračovat lze až po rozhodnutí.</li>' +
+    '<li><b>Panel položku nabídne v kroku, kde pravidlo na obrazovce působí</b> (štítek <span class="appr pend" aria-hidden="true">◌ ke schválení</span> u místa, kam se právě díváte), s vysvětlením. Rozhodnete tlačítkem <b>Schválit</b>, nebo <b>Zamítnout</b>. Po rozhodnutí se pod tlačítky ukáže pole pro nepovinnou poznámku, proč jste tak rozhodli; chcete-li jinou hodnotu nebo znění, napište to tam. Poznámka se ukládá sama už při psaní a kdykoli ji změníte. Pokračovat lze až po rozhodnutí.</li>' +
     '<li><b>Obrazovky aplikace mluví o „schváleném registru“ a pravidlech „schválených garantem“.</b> Tak budou znít v ostrém provozu; maketa se chová, jako by schválení už proběhlo. Skutečně rozhodujete až vy, tady v ukázce.</li>' + /* kosm. 9 (27. 10. 2026) */
     '<li><b>Zamítnutí ukázku nezastaví.</b> Na místě uvidíte „Tahle část nefunguje“ s tlačítkem, které otevře rozhodnutí v panelu.</li>' +
     '<li><b>Rozhodnutí můžete kdykoli změnit</b> v zásuvce „Vaše rozhodnutí“, kterou otevře tlačítko „Ke schválení“ v liště nahoře. Příběh přitom stojí.</li>' +

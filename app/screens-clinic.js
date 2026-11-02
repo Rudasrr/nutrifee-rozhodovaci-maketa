@@ -573,7 +573,7 @@ V.registry = function (S) {
   var open = f.open ? NF.item(S, f.open) : null;
   var cur = f.touch ? 'touch:' + f.touch : f.status ? 'status:' + f.status : '';
   var sumTile = function (k, v, d, cls, key) { return '<button type="button" class="tile ' + cls + (cur === key ? ' open' : '') + '" data-action="regFilter" data-value="' + key + '"><div class="k">' + e(k) + '</div><div class="v">' + v + '</div><div class="d">' + e(d) + '</div></button>'; };
-  var out = pagehead('Garant', 'Schvalovací registr · Rozhodnuto ' + sum.touched + ' ' + NF.z(sum.total) + ' ' + sum.total, 'Vše, co aplikace počítá, radí a navrhuje, stojí na těchto ' + NF.garantItems(S).length + ' položkách. ' + V.demoText('registr') + 'Poznámka je nepovinná a rozhodnutí lze kdykoli změnit; historie se uchovává. Oprava pravidla je nová verze položky, která čeká na schválení.' + V.demoText('registr2'), /* B3 (31/03): věty o maketě a příběhu dodává ukázka */
+  var out = pagehead('Garant', 'Schvalovací registr · Rozhodnuto ' + sum.touched + ' ' + NF.z(sum.total) + ' ' + sum.total, 'Vše, co aplikace počítá, radí a navrhuje, stojí na těchto ' + NF.garantItems(S).length + ' položkách. ' + V.demoText('registr') + 'Po rozhodnutí můžete připsat nepovinnou poznámku, proč jste tak rozhodli; ukládá se sama už při psaní. Rozhodnutí i poznámku lze kdykoli změnit; historie se uchovává. Oprava pravidla je nová verze položky, která čeká na schválení.' + V.demoText('registr2'), /* B3 (31/03): věty o maketě a příběhu dodává ukázka */
     (NF.slots.syncStatus ? NF.slots.syncStatus(S) : '')) +
     impulseCard(S) +
     '<div class="tiles dense">' + sumTile('Ke schválení', String(sum.remaining), 'čeká na vaše rozhodnutí', sum.remaining ? 'c-warn' : 'c-ok', 'touch:todo') + sumTile('Schváleno', String(sum.approved), 'platí v aplikaci', 'c-ok', 'status:approved') + sumTile('Zamítnuto', String(sum.rejected), 'aplikace položku nepoužívá', 'c-bad', 'status:rejected') + '</div>' +
@@ -622,20 +622,42 @@ V.itemGuide = function (S, r, opts) {
 function histLine(S, r, h) {
   var when = h.rt ? NF.fmtShort(h.rt) + ' ' + NF.fmtClock(h.rt) : dateTime(h.at), who = h.model ? 'model (příběh)' : whoLabel(S, h.by);
   var fromSt = h.from && h.from.status;
-  var what = h.kind === 'note' ? (h.comment ? 'poznámka' : 'poznámka smazána') : h.kind === 'version' ? 'nová verze ' + e(h.to.version) + ' ke schválení' + (h.to.text && h.from.text !== h.to.text ? ' · nové znění: „' + e(sampleText(r, h.to.text, S)) + '“' : '') : /* M7: zástupné hodnoty s ukázkou */
+  var what = h.kind === 'note' ? (h.comment ? 'poznámka' : 'poznámka smazána') + V.editsText(h.edits) : h.kind === 'version' ? 'nová verze ' + e(h.to.version) + ' ke schválení' + (h.to.text && h.from.text !== h.to.text ? ' · nové znění: „' + e(sampleText(r, h.to.text, S)) + '“' : '') : /* M7: zástupné hodnoty s ukázkou */
     e(NF.STATUS[fromSt] || fromSt || '') + ' → <b>' + e(NF.STATUS[h.to.status] || h.to.status) + '</b>' + (h.to.version && h.to.version !== 'v1' ? ' (' + e(h.to.version) + ')' : '');
   return '<li>' + e(when) + ' · ' + e(who) + ': ' + what + (h.comment ? (h.kind === 'version' ? ' · ' + e(h.comment) : ' · „' + e(h.comment) + '“') : '') + '</li>';
 }
 V.histLine = histLine;
-/* Rozhodnutí v detailu položky: v ukázce tutéž kartu jako v panelu dodá prezentační vrstva (NF.slots.itemDecide); bez ní dvě rovnocenná tlačítka a poznámka. */
+/* SCHEMA 83: poznámka se ukládá při psaní (každá pauza = záznam). Po sobě jdoucí úpravy téže poznámky do 2 min od předchozí ukáže historie
+   jako jednu řádku s posledním zněním a počtem úprav; v historii stavu zůstávají všechny. Seznam je od nejnovějšího. */
+V.EDIT_GAP_MS = 120000;
+V.editsText = function (n) { return n > 1 ? ' (' + n + ' ' + (n < 5 ? 'úpravy' : 'úprav') + ')' : ''; };
+V.mergeNoteEdits = function (hs) {
+  var out = [], t = function (h) { return Date.parse(h.rt || h.at || 0); };
+  hs.forEach(function (h) {
+    var p = out[out.length - 1];
+    if (p && p.kind === 'note' && h.kind === 'note' && p.item === h.item && !!p.model === !!h.model && Math.abs(t(p) - t(h)) <= V.EDIT_GAP_MS) { out[out.length - 1] = Object.assign({}, p, { edits: (p.edits || 1) + 1 }); return; }
+    out.push(h);
+  });
+  return out;
+};
+/* Rozhodnutí v detailu položky: v ukázce tutéž kartu jako v panelu dodá prezentační vrstva (NF.slots.itemDecide); bez ní dvě rovnocenná tlačítka a poznámka.
+   SCHEMA 83 (vlastník 2. 11. 2026): pole poznámky až po rozhodnutí, s otázkou podle rozhodnutí; ukládá se samo při psaní (po 1 s bez psaní a při opuštění pole). */
+V.NOTE_LABEL = { approved: 'Proč jste schválili? (nepovinné)', rejected: 'Proč jste zamítli? (nepovinné)' };
+V.NOTE_HINT = { approved: 'Např. s čím souhlasíte nebo co doplnit', rejected: 'Např. co je špatně a jaké znění nebo hodnotu chcete' };
+V.regSavedLine = function (S, r) {
+  var key = 'note_' + r.id, c = S.form && S.form[key] != null ? String(S.form[key]) : null, n = NF.itemNote(S, r.id);
+  if (c !== null && c !== n) return 'Ukládá se…';
+  if (r.noteAt && n) return 'Uloženo ' + NF.fmtClock(r.noteAt) + '.';
+  return 'Poznámka se ukládá sama už při psaní.';
+};
 function decideBlock(S, r) {
   if (NF.slots.itemDecide) { var x = NF.slots.itemDecide(S, r); if (x) return x; }
-  var st = regState(S, r), key = 'note_' + r.id, val = S.form && S.form[key] != null ? S.form[key] : NF.itemNote(S, r.id);
+  var st = regState(S, r), key = 'note_' + r.id, val = S.form && S.form[key] != null ? S.form[key] : NF.itemNote(S, r.id), decided = st === 'approved' || st === 'rejected';
   var ch = function (label, v) { return '<button type="button" class="btn sm' + (st === v ? ' selected' : '') + '" data-action="regDecide" data-value="' + v + '" aria-pressed="' + (st === v ? 'true' : 'false') + '">' + (st === v ? NF.icon('check') : '') + e(label) + '</button>'; };
   return '<div class="actions mt-2" role="group" aria-label="Rozhodnutí">' + ch('Schválit', 'approved') + ch('Zamítnout', 'rejected') + '</div>' +
     (S.reg && S.reg.confirmReject === r.id ? hint('<b>Zamítnutím přestane fungovat ochrana pacientů:</b> ' + e(V.SAFETY_ITEMS[r.id]) + ' Opravdu zamítnout?<div class="actions mt-2">' + btn('Ano, zamítnout', 'regDecide', 'rejected', 'danger sm') + btn('Zpět', 'regConfirmCancel', null, 'sm') + '</div>', 'low') : '') +
-    '<label class="field mt-2"><span>Poznámka (nepovinná)</span><textarea rows="3" maxlength="4000" data-bind="form.' + key + '" data-change="regNote" data-value="' + e(r.id) + '" placeholder="Např. jakou hodnotu nebo znění chcete">' + e(val) + '</textarea></label>' +
-    '<p class="small muted mt-1">' + (r.noteAt && NF.itemNote(S, r.id) ? 'Uloženo ' + e(NF.fmtClock(r.noteAt)) + '. ' : '') + 'Poznámka se uloží sama, když pole opustíte.</p>';
+    (decided ? '<label class="field mt-2"><span>' + e(V.NOTE_LABEL[st]) + '</span><textarea rows="3" maxlength="4000" data-bind="form.' + key + '" data-change="regNote" data-autosave="regNote" data-value="' + e(r.id) + '" placeholder="' + e(V.NOTE_HINT[st]) + '">' + e(val) + '</textarea></label>' +
+    '<p class="small muted mt-1" data-regsaved="' + e(r.id) + '" aria-live="polite">' + e(V.regSavedLine(S, r)) + '</p>' : '');
 }
 /* Provozní pravidla (Q1, 27. 10. 2026): neschvaluje je nikdo; v registru jen jako popis pravidla aplikace, bez stavu a bez rozhodnutí. */
 function rulesList(S) {
@@ -671,8 +693,8 @@ function itemPanel(S, r0) {
 /* Kontrola 3, C8: rozhodnutí garanta dnes a modelové kroky příběhu (během studie, odst. 13) jsou dvě roviny – v historii zvlášť, modelové kroky v pořadí příběhu. */
 function histBlock(S, r, hist) {
   var mine = hist.filter(function (h) { return !h.model; }), model = hist.filter(function (h) { return h.model; }).slice().sort(function (a, b) { return a.at < b.at ? -1 : a.at > b.at ? 1 : 0; });
-  var list = function (hs) { return '<ul class="plain hist">' + hs.map(function (h) { return histLine(S, r, h); }).join('') + '</ul>'; };
-  return '<details class="more mt-3"><summary>Historie (' + hist.length + ')</summary>' + (!hist.length ? '<ul class="plain hist"><li class="muted">Zatím bez rozhodnutí garanta.</li></ul>' : !model.length ? list(mine) :
+  var list = function (hs) { return '<ul class="plain hist">' + V.mergeNoteEdits(hs).map(function (h) { return histLine(S, r, h); }).join('') + '</ul>'; };
+  return '<details class="more mt-3"><summary>Historie (' + (V.mergeNoteEdits(mine).length + V.mergeNoteEdits(model).length) + ')</summary>' + (!hist.length ? '<ul class="plain hist"><li class="muted">Zatím bez rozhodnutí garanta.</li></ul>' : !model.length ? list(mine) :
     '<div class="k mt-2">Vaše rozhodnutí dnes</div>' + (mine.length ? list(mine) : '<p class="small muted">Zatím bez vašeho rozhodnutí.</p>') + '<div class="k mt-2">' + (V.demoText('modelHist') || 'Kroky během studie') + '</div>' + list(model)) + '</details>';
 }
 /* Položky, které chrání pacienta: zamítnutí v registru chce potvrzení jednou větou, co přestane fungovat (rozhodnutí vlastníka 19. 10. 2026). */

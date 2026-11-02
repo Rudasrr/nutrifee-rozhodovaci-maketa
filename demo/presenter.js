@@ -104,7 +104,7 @@ D.garantClear = function () { glog = []; resetting = true; saveGlog(); resetting
 var EKEY = 'nutrifee-ended', ended = false;
 try { ended = !!(global.localStorage && global.localStorage.getItem(EKEY) === '1'); } catch (err) { ended = false; }
 function setEnded(v) { ended = !!v; try { if (global.localStorage) { if (ended) global.localStorage.setItem(EKEY, '1'); else global.localStorage.removeItem(EKEY); } } catch (err) { } }
-function land(n) { runId++; busy = false; openAfterRun = null; infoOpen = false; pinned = null; rejectAsk = null; if (returnTo && n.sceneIndex !== returnTo.scene) returnTo = null; showTrace = false; panelMsg = ''; setEnded(false); moreOpen = false; sumKeep = {}; sumRowTo = null; var s = S(); n.notes = s.notes || ''; n.tourRole = n.role; n.tourPage = n.page; focusSel = null; watchSel = null; running = null; NF.migrated = null; NF.setState(n); try { global.scrollTo(0, 0); } catch (err) { } try { if (n.sceneIndex != null) noteProgress(n.sceneIndex); } catch (err2) { } }
+function land(n) { kept = null; cardHold = null; runId++; busy = false; openAfterRun = null; infoOpen = false; pinned = null; rejectAsk = null; if (returnTo && n.sceneIndex !== returnTo.scene) returnTo = null; showTrace = false; panelMsg = ''; setEnded(false); moreOpen = false; sumKeep = {}; sumRowTo = null; var s = S(); n.notes = s.notes || ''; n.tourRole = n.role; n.tourPage = n.page; focusSel = null; watchSel = null; running = null; NF.migrated = null; NF.setState(n); try { global.scrollTo(0, 0); } catch (err) { } try { if (n.sceneIndex != null) noteProgress(n.sceneIndex); } catch (err2) { } }
 /* Kde v příběhu právě jsme vs. kam uživatel sám odešel (registr, jiná záložka). */
 function markTour() { var s = S(); s.tourRole = s.role; s.tourPage = s.page; }
 function away(s) { return !busy && running == null && !!(s.tourRole && (s.role !== s.tourRole || s.page !== s.tourPage)); } /* běžící krok, který přepne roli, není „mimo příběh“ (19. 10. 2026: panel na okamžik ukazoval „Mimo příběh“) */
@@ -201,8 +201,10 @@ D.offerStep = offerStep;
 D.decisionItems = function (idx) { return (decisionPlan()[idx] || []).slice(); };
 D.resetDecisionPlan = function () { decisionPlanCache = {}; };
 /* ---------- karta položky (27. 10. 2026): dvě rozhodnutí, poznámka na místě ----------
-   Schválit / Zamítnout zapíše rozhodnutí s poznámkou, která je právě v poli (prázdná nevadí). Poznámka bez rozhodnutí se uloží jako poznámka
-   (R14: není to rozhodnutí, Dál neodemkne). Bezpečnostní položky (V.SAFETY_ITEMS) se před zamítnutím ptají všude stejně. */
+   SCHEMA 83 (vlastník 2. 11. 2026): nejdřív Schválit / Zamítnout, pak se pod tlačítky ukáže pole „Proč jste schválili/zamítli? (nepovinné)“.
+   Poznámka se ukládá sama už při psaní (po 1 s bez psaní, při opuštění pole a při zavření stránky); změna rozhodnutí poznámku zachová.
+   Poznámka bez rozhodnutí v novém toku nevzniká (R14; starší záznamy note bez rozhodnutí se dál zobrazí). Bezpečnostní položky (V.SAFETY_ITEMS)
+   se před zamítnutím ptají všude stejně; pole se ukáže po potvrzení. */
 var rejectAsk = null, pinned = null;
 function nowIso() { return new Date().toISOString(); }
 function whereCtx(s) { return NF.currentDrawer && NF.currentDrawer() === 'decisions' ? 'zasuvka' : summaryActive(s) ? 'souhrn' : away(s) ? 'registr' : 'panel'; }
@@ -213,18 +215,27 @@ D.noteField = function (id) { return fieldText(id); };
 function saveNote(id) {
   var s = S(); if (!NF.item(s, id) || !hasDraft(id)) return false;
   var text = String(drafts[id]), had = gLast(id);
-  if (text.length > NOTE_MAX) { say('Poznámka u „' + NF.item(s, id).title + '“ má ' + text.length + ' znaků; uložit jde nejvýš ' + NOTE_MAX + '. Zkraťte ji, uloží se při opuštění pole.'); return false; } /* 31 B3 */
+  if (!gStatus(id)) return false; /* SCHEMA 83: poznámka jen k rozhodnutí (pole se bez rozhodnutí neukazuje); koncept zůstane a odejde s rozhodnutím */
+  if (text.length > NOTE_MAX) { say('Poznámka u „' + NF.item(s, id).title + '“ má ' + text.length + ' znaků; uložit jde nejvýš ' + NOTE_MAX + '. Zkraťte ji a uloží se sama.'); return false; } /* 31 B3 */
   delete drafts[id]; saveDrafts();
   if (text === gNote(id) && (had || !text)) return false;
   var res = NF.decideItem(s, id, null, text, { garant: true, note: true, status: gStatus(id), rt: nowIso(), where: whereCtx(s) });
   return !!res.ok;
 }
 D.saveNote = saveNote;
+/* SCHEMA 83: uložení po krátké pauze v psaní (NOTE_IDLE_MS bez stisku klávesy); jedno uložení = jeden řádek na serveru, proto ne při každém znaku */
+var NOTE_IDLE_MS = 1000, noteTimers = {};
+function cancelNoteTimer(id) { if (noteTimers[id] && global.clearTimeout) global.clearTimeout(noteTimers[id]); delete noteTimers[id]; }
+function armNoteTimer(id) {
+  cancelNoteTimer(id); if (!global.setTimeout) return;
+  noteTimers[id] = global.setTimeout(function () { delete noteTimers[id]; if (hasDraft(id)) { saveNote(id); setSavedLines(id); } }, NOTE_IDLE_MS);
+}
+D.NOTE_IDLE_MS = NOTE_IDLE_MS;
 /* 31 C6: neuložené koncepty (liší se od platné poznámky) a uložení pole s kurzorem při zavírání stránky (sync.js beforeunload / pagehide) */
-D.unsavedDrafts = function () { var s = S(); return Object.keys(drafts).filter(function (id) { return NF.item(s, id) && String(drafts[id]) !== gNote(id); }); };
+D.unsavedDrafts = function () { var s = S(); return Object.keys(drafts).filter(function (id) { return NF.item(s, id) && gStatus(id) && String(drafts[id]) !== gNote(id); }); }; /* SCHEMA 83: koncept k nerozhodnuté položce se neukládá, a tak se na něj prohlížeč neptá */
 D.commitFocusedDraft = function () {
   var a = doc && doc.activeElement, id = a && a.getAttribute && a.getAttribute('data-gnote'); if (!id || a.value == null) return false;
-  drafts[id] = String(a.value); saveDrafts(); return saveNote(id);
+  cancelNoteTimer(id); drafts[id] = String(a.value); saveDrafts(); return saveNote(id);
 };
 NF.demoActions.garantNote = function (id) { saveNote(id); };
 NF.demoActions.garantDecide = function (v) {
@@ -236,17 +247,20 @@ NF.demoActions.garantDecide = function (v) {
   if (String(fieldText(id)).length > NOTE_MAX) { say('Poznámka u „' + NF.item(s, id).title + '“ má ' + String(fieldText(id)).length + ' znaků; uložit jde nejvýš ' + NOTE_MAX + '. Zkraťte ji a rozhodněte znovu.'); return; } /* 31 B3: dlouhou poznámku by server odmítl i s rozhodnutím */
   var was = gStatus(id), r = NF.decideItem(s, id, status, fieldText(id), { garant: true, rt: nowIso(), where: whereCtx(s) });
   if (!r.ok) { s.error = r.error; return; }
-  delete drafts[id]; saveDrafts();
+  cancelNoteTimer(id); delete drafts[id]; saveDrafts();
   saveGlog();
   var ctx = whereCtx(s);
-  if (s.gOpen === id && ctx !== 'zasuvka') s.gOpen = null; /* karta se sbalí do řádku se stavem a poznámkou; v panelu se rozbalí další nerozhodnutá. Kontrola 4 (kosm. 6): v zásuvce zůstane otevřená i s poznámkou */
-  if (ctx === 'zasuvka') { s.gOpen = id; drawerFocus = id; focusAfter = '[data-action="garantDecide"][data-value="' + id + ':' + status + '"]'; } /* M1: zásuvka odroluje ke kartě, která se po rozhodnutí přesunula do své skupiny */
-  if (ctx === 'panel') { var nx = pendingNow(s).ids[0]; jumpTo = nx || id; tagTo = nx || null; } /* panel odroluje k další nerozhodnuté (na telefonu by jinak zůstala pod spodní lištou panelu); obrazovka k jejímu štítku (M10) */
-  if (ctx === 'souhrn') { if (!was) sumKeep[id] = 1; sumRowTo = id; flashId = id; } /* M6: řádek zůstane na místě a zůstane vidět */
+  /* SCHEMA 83 (vlastník 2. 11. 2026): karta zůstane otevřená a hned pod tlačítky je pole poznámky; fokus zůstane na zvoleném tlačítku */
+  focusAfter = '[data-action="garantDecide"][data-value="' + id + ':' + status + '"]';
+  if (ctx === 'zasuvka') { s.gOpen = id; drawerFocus = id; } /* M1: zásuvka odroluje ke kartě, která se po rozhodnutí přesunula do své skupiny */
+  if (ctx === 'panel') { var nx = pendingNow(s).ids[0]; if (s.gOpen === id) s.gOpen = null; kept = { id: id, scene: sceneIdx(s), step: s.tourStep || 0 }; jumpTo = id; settleId = id; tagTo = nx || null; } /* v panelu zůstane rozhodnutá karta otevřená s polem poznámky a rozbalí se i další nerozhodnutá; obrazovka odroluje k jejímu štítku (M10) */
+  if (ctx === 'souhrn') { s.gOpen = id; if (!was) sumKeep[id] = 1; sumRowTo = id; flashId = id; } /* M6: řádek zůstane na místě, otevřený s polem poznámky */
+  if (ctx === 'registr') s.gOpen = id;
   confirmAsk = false;
   var r0 = NF.item(s, id), nm = r0 ? '„' + r0.title + '“' : id;
-  var lastE = gLast(id), stx = ''; try { stx = lastE && lastE.sid && D.sync && D.sync.stateText && syncInfo().on ? ' ' + String(D.sync.stateText(lastE.sid, lastE.rt)).replace(/\.?$/, '.') : ''; } catch (err) { stx = ''; } /* předávka ukládání: pravdivý stav uložení i v hlášce */
-  say((status === 'rejected' ? rejectedMsg(s, id) : was === 'rejected' ? 'Schváleno: ' + nm + '. Část zase funguje.' : 'Schváleno: ' + nm + '. Zapsáno do historie.') + stx);
+  /* SCHEMA 83 (koordinátor 2. 11. 2026): hláška po rozhodnutí stav uložení neříká – zastarala by (zůstává v patičce, i když řádek mezitím došel na server).
+     Pravdivý stav ukládání je jen pod polem poznámky (setSavedLines, překreslení při D.sync.onChange) a v liště. */
+  say((status === 'rejected' ? rejectedMsg(s, id) : was === 'rejected' ? 'Schváleno: ' + nm + '. Část zase funguje.' : 'Schváleno: ' + nm + '. Zapsáno do historie.'));
 };
 var askFocus = null, focusAfter = null;
 NF.demoActions.garantRejectCancel = function () { rejectAsk = null; };
@@ -352,8 +366,16 @@ function syncBarBadge(s) {
   return '<span class="sync-badge bar-sync ' + w.cls + (bad ? '' : ' bar-wide') + '" role="status" title="' + e(w.t) + '"><span aria-hidden="true">' + NF.icon(w.ic) + '</span><span class="sync-t">' + e(short) + '</span><span class="sr-only"> ' + e(w.t) + '</span>' +
     (w.dead ? btn('Zkusit znovu', 'syncRetryDead', null, 'sm') : info.pending && info.err ? btn('Zkusit znovu', 'syncRetry', null, 'sm') : '') + '</span>';
 }
+/* SCHEMA 83: poznámka se ukládá při psaní, a tak fronta krátce čeká často. Patička panelu a zásuvka ukážou řádek „Ukládáme…“ až po FRESH_MS
+   nepřetržitého čekání (nebo hned při chybě či odmítnutí); stav říká i lišta a řádek pod polem. Na telefonu by jinak řádek zakryl pole poznámky. */
+var FRESH_MS = 5000, pendSince = null;
+function freshPending(info) {
+  if (!info.on || !info.pending || info.err || info.rejected || info.configured === false) { pendSince = null; return false; }
+  if (pendSince == null) { pendSince = Date.now(); if (global.setTimeout) global.setTimeout(function () { try { if (!busy) NF.render(); } catch (err) { } }, FRESH_MS + 50); }
+  return Date.now() - pendSince < FRESH_MS;
+}
 function syncLine(s, force) {
-  var info = syncInfo(); if (!info.on || (!force && info.saved)) return '';
+  var info = syncInfo(), fresh = freshPending(info); if (!info.on || (!force && (info.saved || fresh))) return '';
   var w = syncWord(info);
   return '<div class="sync-line ' + w.cls + '"><p class="small"><span aria-hidden="true">' + NF.icon(w.ic) + '</span> ' + e(w.t) + '</p>' + (w.dead ? '<div class="actions">' + btn('Zkusit znovu', 'syncRetryDead', null, 'sm') + '</div>' : !info.saved && (info.err || !info.configured || info.pending) ? '<div class="actions">' + btn('Zkusit znovu', 'syncRetry', null, 'sm') + '</div>' : '') + '</div>';
 }
@@ -734,6 +756,7 @@ function shownNarration(s) {
 D.shownNarration = function (s) { return shownNarration(s || S()); };
 function lastFocus(step) { var ops = (step.do || []).filter(function (o) { return o.sel; }); return step.watch || (ops.length ? ops[ops.length - 1].sel : null); }
 NF.demoActions.tourNext = function () {
+  cardHold = null; /* SCHEMA 83: další krok už polohu rozhodnuté karty nesrovnává */
   if (busy) return;
   if (away(S())) { NF.demoActions.tourReturn(); return; } /* mimo příběh: Další nejdřív vrátí do scény */
   storyHome = null; /* M6: garant pokračuje ve scéně, kam ho poslal registr */
@@ -899,16 +922,19 @@ function itemStatus(s, r) {
 /* Jedna karta položky všude (panel, zásuvka, souhrn, registr v ukázce; 27. 10. 2026): „co schvalujete“, Schválit · Zamítnout jako dvě rovnocenné volby
    (rozhodnutí 12 platí dál; plná je jen zvolená), poznámka předvyplněná platným textem se stavem uložení, kdo a kdy rozhodl, průvodce a historie. */
 var inPanel = false, autoOpen = null;
+/* SCHEMA 83: v panelu zůstane právě rozhodnutá karta otevřená (pole poznámky pod tlačítky) vedle další nerozhodnuté; platí do dalšího kroku */
+var kept = null;
+function keptId(s) { return kept && s && kept.scene === sceneIdx(s) && kept.step === (s.tourStep || 0) && whereCtx(s) === 'panel' ? kept.id : null; }
 function rtLabel(iso) { return iso ? NF.fmtShort(iso).replace(/ \d{4}$/, '') + ' ' + NF.fmtClock(iso) : ''; }
 function savedLine(id) {
   var last = gLast(id);
-  if (hasDraft(id) && String(drafts[id]) !== gNote(id)) return 'Neuloženo: uloží se, až pole opustíte.';
+  if (hasDraft(id) && String(drafts[id]) !== gNote(id)) return String(drafts[id]).length > NOTE_MAX ? 'Neuloženo: poznámka je delší než ' + NOTE_MAX + ' znaků; zkraťte ji.' : 'Ukládá se…'; /* SCHEMA 83: ukládá se samo po krátké pauze v psaní */
   /* kontrola 4 (B1): „Uloženo“ jen to, co je na serveru; jinak pravdivě v prohlížeči a čeká */
   var at = last && last.rt ? NF.fmtClock(last.rt) : '', stt = last ? entryState(last) : null, info = syncInfo();
   var where = stt === 'rejected' ? ' jen v tomto prohlížeči; server zápis odmítl' : stt === 'local' ? (info.err || !info.configured ? ' jen v tomto prohlížeči; na server se zatím nepodařilo odeslat' : ' v tomto prohlížeči; čeká na odeslání na server') : stt === 'server' ? ' na serveru' : '', ok = stt == null ? null : stt === 'server';
   if (last && last.comment) return 'Uloženo' + (at ? ' ' + at : '') + where + '.';
   if (last && last.kind === 'note') return 'Poznámka smazána' + (at ? ' ' + at : '') + (ok === false ? '; změna se zatím neodeslala na server' : '') + '.';
-  return 'Poznámka se uloží sama, až pole opustíte.';
+  return 'Poznámka se ukládá sama už při psaní.';
 }
 D.savedLine = savedLine;
 /* 31 A1: karta garanta (panel, zásuvka, souhrn) ukazuje znění položky z kódu, ne modelovou verzi příběhu (scénář 5 zakládá ve stavu v2).
@@ -924,6 +950,24 @@ D.garantView = function (s, id) { return garantView(s || S(), id); };
 NF.slots.garantView = garantView; /* pro obrazovku registru v jádře (V.shownItem, požadavek na jádro v 31-…/12-predavka-zaznam.md) */
 /* 31 B3: poznámka nejvýš NOTE_MAX znaků (CHECK comment_len na serveru); počítadlo se ukáže od 90 % limitu */
 var NOTE_MAX = (D.sync && D.sync.NOTE_MAX) || 4000;
+/* SCHEMA 83 (vlastník 2. 11. 2026): popisek a nápověda pole podle rozhodnutí */
+var NOTE_LABEL = { approved: 'Proč jste schválili? (nepovinné)', rejected: 'Proč jste zamítli? (nepovinné)' };
+var NOTE_HINT = { approved: 'Např. s čím souhlasíte nebo co doplnit', rejected: 'Např. co je špatně a jaké znění nebo hodnotu chcete' };
+D.NOTE_LABEL = NOTE_LABEL; D.NOTE_HINT = NOTE_HINT;
+/* SCHEMA 83: po sobě jdoucí úpravy téže poznámky (každá pauza v psaní je řádek) se v historii ukážou jako jedna řádka s posledním zněním;
+   v deníku i na serveru zůstávají všechny. Hranice: další úprava do EDIT_GAP_MS od předchozí. */
+var EDIT_GAP_MS = 120000;
+function mergeEdits(list, ms) {
+  var out = [];
+  list.forEach(function (d) {
+    var p = out[out.length - 1];
+    if (p && p.kind === 'note' && d.kind === 'note' && p.item === d.item && Math.abs(ms(d) - ms(p)) <= EDIT_GAP_MS) { out[out.length - 1] = Object.assign({}, d, { edits: (p.edits || 1) + 1 }); return; }
+    out.push(d);
+  });
+  return out;
+}
+function editsText(n) { return n > 1 ? ' (' + n + ' ' + (n < 5 ? 'úpravy' : 'úprav') + ')' : ''; }
+D.mergeEdits = mergeEdits; D.EDIT_GAP_MS = EDIT_GAP_MS;
 function countText(id) { var n = String(fieldText(id)).length; return n >= NOTE_MAX * 0.9 ? n + ' z ' + NOTE_MAX + ' znaků' : ''; }
 function gbody(s, r, o) {
   o = o || {};
@@ -932,17 +976,18 @@ function gbody(s, r, o) {
   var guide = ''; if (!o.noGuide) { inPanel = true; try { guide = NF.screens.itemGuide(s, garantView(s, r)); } finally { inPanel = false; } }
   var ds = gDecs(r.id), lastD = ds[ds.length - 1], all = gEntries(r.id);
   /* M8 (kontrola 4): poznámka, po které do 10 s přišlo rozhodnutí se stejným textem, je jeden záznam (ukládání ji sloučí) */
-  var hist = all.filter(function (d, k) { var nx = all[k + 1]; return !(d.kind === 'note' && nx && nx.kind === 'decision' && String(nx.comment || '') === String(d.comment || '') && Math.abs(Date.parse(nx.rt || 0) - Date.parse(d.rt || 0)) <= 10000); }).reverse();
+  var hist = mergeEdits(all.filter(function (d, k) { var nx = all[k + 1]; return !(d.kind === 'note' && nx && nx.kind === 'decision' && String(nx.comment || '') === String(d.comment || '') && Math.abs(Date.parse(nx.rt || 0) - Date.parse(d.rt || 0)) <= 10000); }), function (d) { return Date.parse(d.rt || 0); }).reverse();
   return '<div class="gb">' +
     (g.co ? '<p class="gco"><b>Co schvalujete:</b> ' + e(firstSentence(g.co)) + '</p>' : '') + laterLine(s, r.id) +
     '<div class="gchoices" role="group" aria-label="Rozhodnutí o položce">' + choice('Schválit', 'approved') + choice('Zamítnout', 'rejected', 'gno') + '</div>' +
     (rejectAsk === r.id && SAFE[r.id] ? '<div class="gask" role="alert"><p class="small"><b>Zamítnutím přestane fungovat ochrana pacientů:</b> ' + e(safeText(r.id)) + ' Opravdu zamítnout?</p><div class="actions">' + btn('Ano, zamítnout', 'garantDecide', r.id + ':rejected:ano', 'danger sm') + btn('Ne, zpět', 'garantRejectCancel', null, 'sm') + '</div></div>' : '') +
-    '<label class="field gnote-field"><span>Poznámka (nepovinná)</span><textarea rows="2" maxlength="' + NOTE_MAX + '" data-gnote="' + e(r.id) + '" placeholder="Např. jakou hodnotu nebo znění chcete">' + e(fieldText(r.id)) + '</textarea><span class="small muted" data-gcount="' + e(r.id) + '" aria-live="polite">' + e(countText(r.id)) + '</span></label>' +
-    '<p class="gsaved small muted" data-gsaved="' + e(r.id) + '" aria-live="polite">' + e(savedLine(r.id)) + '</p>' +
+    (cur ? '<label class="field gnote-field"><span>' + e(NOTE_LABEL[cur]) + '</span><textarea rows="2" maxlength="' + NOTE_MAX + '" data-gnote="' + e(r.id) + '" placeholder="' + e(NOTE_HINT[cur]) + '">' + e(fieldText(r.id)) + '</textarea><span class="small muted" data-gcount="' + e(r.id) + '" aria-live="polite">' + e(countText(r.id)) + '</span></label>' +
+    '<p class="gsaved small muted" data-gsaved="' + e(r.id) + '" aria-live="polite">' + e(savedLine(r.id)) + '</p>' : '') + /* SCHEMA 83: pole až po rozhodnutí, hned pod tlačítky */
+    (cur === 'rejected' ? '<p class="goff" data-off="' + e(r.id) + '"><b>' + offHead(r.id) + '</b> Změnit rozhodnutí můžete kdykoli tlačítky výše.</p>' : '') + /* SCHEMA 83: rozhodnutá karta zůstává otevřená, a tak co zamítnutí znamená, řekne i otevřená karta (dřív jen sbalený řádek) */
     (lastD ? '<p class="gwho small">Rozhodli jste: <b>' + e(NF.STATUS[lastD.status] || lastD.status) + '</b>' + (lastD.rt ? ' · ' + e(rtLabel(lastD.rt)) : '') + '</p>' : '') +
     (o.noGuide ? '' : '<details class="more gguide"><summary>Průvodce položkou: proč existuje, jak funguje, kde je použita a co se stane při zamítnutí</summary>' + guide + '</details>') +
     (hist.length ? '<details class="more ghist"><summary>Historie (' + hist.length + ')</summary><ul class="plain small">' + hist.map(function (d) {
-      return '<li>' + e(d.rt ? rtLabel(d.rt) : '') + ' · ' + (d.kind === 'note' ? (d.comment ? 'poznámka' : 'poznámka smazána') : '<b>' + e(NF.STATUS[d.status] || d.status) + '</b>') + (d.comment ? ' · „' + e(d.comment) + '“' : '') + '</li>';
+      return '<li>' + e(d.rt ? rtLabel(d.rt) : '') + ' · ' + (d.kind === 'note' ? (d.comment ? 'poznámka' : 'poznámka smazána') + editsText(d.edits) : '<b>' + e(NF.STATUS[d.status] || d.status) + '</b>') + (d.comment ? ' · „' + e(d.comment) + '“' : '') + '</li>';
     }).join('') + '</ul></details>' : '') + '</div>';
 }
 /* C9 (kontrola 2): položka se rozhoduje dřív, než garant viděl celé její chování – karta řekne, ve kterých dalších scénách ji uvidí. */
@@ -1005,10 +1050,11 @@ function approvalsBlock(s, idx, i, st, shown) {
   var offs = i > 0 ? offCards(s, all, 'V této scéně nefunguje', shown) : '';
   var moved = movedHere(s, idx, i, st, list);
   var movedP = moved.length ? '<p class="small gmoved">' + moved.map(function (id) { var r = NF.item(s, id), by = movedBy(id); return 'O položce „' + e(r ? r.title : id) + '“ rozhodnete v souhrnu na konci, protože ' + (by && by.length ? 'jste zamítli ' + e(titles(s, by)) + ' a její místo na obrazovce zmizelo.' : 'její místo na obrazovce po vašem zamítnutí zmizelo.'); }).join(' ') + '</p>' : '';
-  var out = (pin ? '<p class="gtitle"><b>Změnit rozhodnutí</b></p>' + gitem(s, NF.item(s, pin), open === pin) : '') +
+  var kp = keptId(s);
+  var out = (pin ? '<p class="gtitle"><b>Změnit rozhodnutí</b></p>' + gitem(s, NF.item(s, pin), open === pin || kp === pin) : '') +
     (list.length ? '<p class="gtitle"><b>' + (now.length ? 'Ke schválení teď' : 'Z této scény ještě ke schválení') + (undecided ? ' (' + undecided + ')' : '') + '</b></p>' +
-      '<p class="small">' + (undecided ? 'Rozhodněte, než budete pokračovat: Schválit, nebo Zamítnout. Poznámka je nepovinná.' : moved.length ? 'Nabídnuté položky jsou rozhodnuté; změnit lze kdykoli.' : 'Vše rozhodnuto; změnit lze kdykoli.') + '</p>' +
-      list.map(function (id) { return gitem(s, NF.item(s, id), open === id); }).join('') : '') + movedP + offs;
+      '<p class="small">' + (undecided ? 'Rozhodněte, než budete pokračovat: Schválit, nebo Zamítnout. Poznámku můžete připsat po rozhodnutí; je nepovinná.' : moved.length ? 'Nabídnuté položky jsou rozhodnuté; změnit lze kdykoli.' : 'Vše rozhodnuto; změnit lze kdykoli.') + '</p>' +
+      list.map(function (id) { return gitem(s, NF.item(s, id), open === id || kp === id); }).join('') : '') + movedP + offs;
   if (!out && i > 0 && all.length) out = '<p class="small muted gscene-count">V této scéně rozhodnuto ' + decided + ' z ' + all.length + '.</p>';
   return out ? '<div class="garant decide" id="tour-decide">' + out + '</div>' : '';
 }
@@ -1030,7 +1076,7 @@ function sceneIntroHint(s, ids, shown) {
   if (!ids.length) return '';
   ids.forEach(function (id) { shown[id] = 1; });
   var open = s.gOpen && s.gOpen !== '-' ? s.gOpen : null;
-  return '<div class="garant gintro"><p class="tour-next">V této scéně schvalujete: ' + ids.length + ' ' + plural(ids.length, 'položku', 'položky', 'položek') + '.</p>' + ids.map(function (id) { return gitem(s, NF.item(s, id), open === id); }).join('') + '</div>';
+  return '<div class="garant gintro"><p class="tour-next">V této scéně schvalujete: ' + ids.length + ' ' + plural(ids.length, 'položku', 'položky', 'položek') + '.</p>' + ids.map(function (id) { return gitem(s, NF.item(s, id), open === id || keptId(s) === id); }).join('') + '</div>';
 }
 /* ---------- průchod a souhrn (8. 10. 2026) ----------
    Kam se garant dostal (nejvyšší scéna) a zda potvrdil závěrečný souhrn; obojí se ukládá i na server (správce to vidí ve Výsledcích). */
@@ -1320,7 +1366,7 @@ D.returnTo = function () { return returnTo; };
 /* Průvodce položkou pro vysvětlující bublinu (demo/explain.js): „Kde je použita“ jen textem, aby odkaz garanta nevytrhl ze scény. */
 D.itemGuideHtml = function (s, r) { inPanel = true; try { return NF.screens.itemGuide(s, r); } finally { inPanel = false; } };
 /* Rozbalit / sbalit kartu; i automaticky rozbalenou první nerozhodnutou jde sbalit ('-' = žádná). */
-NF.demoActions.garantOpen = function (v) { var s = S(); rejectAsk = null; s.gOpen = s.gOpen === v || (!s.gOpen && autoOpen === v) ? '-' : v; if (s.gOpen === v && whereCtx(s) === 'panel') tagTo = v; if (whereCtx(s) === 'souhrn') sumRowTo = v; if (whereCtx(s) === 'zasuvka') drawerFocus = v; }; /* M1 (kontrola 4): zásuvka drží polohu a ukáže otevřenou kartu */
+NF.demoActions.garantOpen = function (v) { var s = S(); rejectAsk = null; if (keptId(s) === v) { kept = null; return; } kept = null; s.gOpen = s.gOpen === v || (!s.gOpen && autoOpen === v) ? '-' : v; if (s.gOpen === v && whereCtx(s) === 'panel') tagTo = v; if (whereCtx(s) === 'souhrn') sumRowTo = v; if (whereCtx(s) === 'zasuvka') drawerFocus = v; }; /* M1 (kontrola 4): zásuvka drží polohu a ukáže otevřenou kartu */
 /* Návrat do registru (jen „← Zpět do registru“, kam garanta poslal registr sám): detail položky se ukáže od začátku pod lištou (B3). */
 NF.demoActions.openAsideItem = function (v) { var s = S(); panelMsg = ''; s.role = 'doctor'; s.page = 'registry'; s.reg = s.reg || {}; s.reg.open = v; NF.scrollTarget = '.reg-side'; NF.closeDrawer(); };
 function decorate() {
@@ -1347,6 +1393,10 @@ function jumpAfterRender() {
   var el = null; try { el = doc.querySelector('.tour-panel [data-gitem="' + id + '"]'); } catch (err) { el = null; }
   if (!el) return;
   panelToCard(el);
+  /* SCHEMA 83: patička panelu po rozhodnutí ještě mění výšku (hláška); poloha karty s polem poznámky se po ustálení ověří znovu,
+     jen pokud garant mezitím panelem sám neroloval a nepíše */
+  if (settleId === id) { var pn0 = doc.querySelector('.tour-panel'); cardHold = { id: id, until: Date.now() + 5000, st: pn0 ? pn0.scrollTop : 0 }; if (global.setTimeout) [350, 1000].forEach(function (ms) { global.setTimeout(resettle, ms); }); }
+  settleId = null;
   var h = el.querySelector && el.querySelector('.gh'); if (h && h.focus) { try { h.focus({ preventScroll: true }); } catch (err) { } }
   global.setTimeout(function () { flashId = null; if (el.classList) el.classList.remove('gflash'); }, 1800);
 }
@@ -1356,12 +1406,32 @@ function panelToCard(el) {
   try {
     var pn = doc.querySelector('.tour-panel'); if (!pn || !pn.contains(el)) return;
     var hd = pn.querySelector('.tour-head'), ft = pn.querySelector('.tour-foot'), top = (hd ? hd.getBoundingClientRect().bottom : pn.getBoundingClientRect().top) + 8;
-    var bot = ft ? ft.getBoundingClientRect().top : pn.getBoundingClientRect().bottom, ch = el.querySelector('.gchoices'), r = el.getBoundingClientRect(), c = ch ? ch.getBoundingClientRect() : r;
+    var bot = ft ? ft.getBoundingClientRect().top : pn.getBoundingClientRect().bottom, ch = el.querySelector('.gnote-field') || el.querySelector('.gchoices'), r = el.getBoundingClientRect(), c = ch ? ch.getBoundingClientRect() : r;
     if (r.top >= top - 8 && c.bottom <= bot) return; /* hlavička karty i Schválit/Zamítnout jsou vidět: panel se nehýbe (na počítači zůstane vidět i nadpis kroku) */
     var dy = r.top - top; if (c.bottom - dy > bot - 4) dy = c.bottom - (bot - 4); /* nízké okno: karta se celá nevejde – Schválit/Zamítnout mají přednost před hlavičkou */
     if (Math.abs(dy) > 1) pn.scrollTop += dy;
   } catch (err) { }
 }
+/* SCHEMA 83: po rozhodnutí v panelu se poloha karty s polem poznámky srovná ještě několik sekund při každém překreslení (hláška a stav uložení
+   v patičce mění její výšku), dokud garant panelem sám nehne ani nezačne psát. */
+var cardHold = null, settleId = null;
+function resettle() {
+  try {
+    if (!cardHold || Date.now() > cardHold.until) { cardHold = null; return; }
+    var pn = doc.querySelector('.tour-panel'), a = doc.activeElement, el = pn && pn.querySelector('[data-gitem="' + cardHold.id + '"]');
+    if (!pn || !el || Math.abs(pn.scrollTop - cardHold.st) > 1 || (a && a.getAttribute && a.getAttribute('data-gnote'))) { cardHold = null; return; }
+    panelToCard(el); cardHold.st = pn.scrollTop;
+  } catch (err) { cardHold = null; }
+}
+/* SCHEMA 83: pole poznámky, do kterého se v panelu píše, nesmí zajet pod patičku (její výška se mění s hláškou o uložení) ani pod záhlaví. */
+function fieldInView() {
+  try {
+    var a = doc.activeElement, pn = doc.querySelector('.tour-panel'); if (!a || !pn || !pn.contains(a) || !a.getAttribute || !a.getAttribute('data-gnote')) return;
+    var hd = pn.querySelector('.tour-head'), ft = pn.querySelector('.tour-foot'), top = (hd ? hd.getBoundingClientRect().bottom : pn.getBoundingClientRect().top) + 4, bot = (ft ? ft.getBoundingClientRect().top : pn.getBoundingClientRect().bottom) - 4, r = a.getBoundingClientRect();
+    if (r.bottom > bot) pn.scrollTop += Math.min(r.bottom - bot, r.top - top); else if (r.top < top) pn.scrollTop -= top - r.top; /* nevejde-li se celé, je vidět jeho začátek */
+  } catch (err) { }
+}
+D.fieldInView = fieldInView;
 function cardAfterStep() { var s = S(), pn = pendingNow(s); if (!pn.ids.length) { try { var pl = doc.querySelector('.tour-panel'); if (pl) pl.scrollTop = 0; } catch (err0) { } return; } /* nový krok bez rozhodnutí: panel od začátku */ var id = s.gOpen && s.gOpen !== '-' ? s.gOpen : pn.ids[0]; var el = null; try { el = doc.querySelector('.tour-panel [data-gitem="' + id + '"]'); } catch (err) { el = null; } if (el) panelToCard(el); }
 /* ---------- panel vyprávění v DOM až za #app (přístupnost 23. 10. 2026, nález 10) ----------
    Vizuálně je panel přilepený (position:fixed), ale Tab z lišty DEMO jde nejdřív obrazovkou aplikace a pak do panelu, jak je to vidět.
@@ -1402,7 +1472,7 @@ function renderPanel(s) {
       var open = {}, count = {}, seen = {};
       el.querySelectorAll('details').forEach(function (d) { var sm = d.querySelector('summary'), k = sm ? sm.textContent : ''; count[k] = (count[k] || 0) + 1; if (d.open) open[k + '#' + count[k]] = 1; });
       tmp.querySelectorAll('details').forEach(function (d) { var sm = d.querySelector('summary'), k = sm ? sm.textContent : ''; seen[k] = (seen[k] || 0) + 1; if (open[k + '#' + seen[k]]) d.setAttribute('open', ''); });
-      morphKids(el, tmp);
+      if (NF.keepCaret) NF.keepCaret(el, function () { morphKids(el, tmp); }); else morphKids(el, tmp); /* SCHEMA 83: fokus a kurzor v poli poznámky přežijí i posun struktury */
     } catch (err) { el.innerHTML = html; }
   } else el.innerHTML = html;
 }
@@ -1418,7 +1488,7 @@ function sumRowAfterRender() {
   try { var a = doc.activeElement; if (!a || a === doc.body || !doc.contains(a)) { var b = el.querySelector('[data-action="garantOpen"]'); if (b && b.focus) b.focus({ preventScroll: true }); } } catch (err2) { } /* kontrola 4 (B3): fokus na řádek položky, ne na body */
   if (flashId === id) global.setTimeout(function () { if (flashId === id) flashId = null; if (el.classList) el.classList.remove('gflash'); }, 1800);
 }
-NF.slots.afterRender = function (s) { if (prevAfter) prevAfter(s); renderPanel(s); decorate(); measureBar(); jumpAfterRender(); drawerAfterRender(); panelToTop(); sumRowAfterRender(); tagAfterRender(); focusAfterRender(); toggleFocusAfter(); lockDescribe(); docTitle(s); };
+NF.slots.afterRender = function (s) { if (prevAfter) prevAfter(s); renderPanel(s); decorate(); measureBar(); jumpAfterRender(); drawerAfterRender(); panelToTop(); sumRowAfterRender(); tagAfterRender(); focusAfterRender(); fieldInView(); resettle(); toggleFocusAfter(); lockDescribe(); docTitle(s); };
 /* Přihlašovací brána kreslí #app sama a háček afterRender nevolá: panel za #app se musí vyprázdnit. */
 var gateRender = NF.render;
 NF.render = function () { gateRender(); if (D.auth && !D.auth.session()) { var t = tourRoot(); if (t) t.innerHTML = ''; } };
@@ -1531,25 +1601,26 @@ function lockDescribe() {
 /* Kontrola 4 (přístupnost C14): titulek okna podle scény (čtečka i záložky prohlížeče). */
 function docTitle(s) { try { if (!doc || doc.title == null) return; var t = summaryActive(s) ? 'Souhrn rozhodnutí' : ended ? 'Ukázka skončila' : sceneTitle(s); doc.title = (t ? t + ' · ' : '') + 'NutriFee · maketa'; } catch (err) { } }
 
-/* ---------- poznámka garanta: koncept při psaní, uložení při opuštění pole (O2, 27. 10. 2026) ----------
-   Psaní nepřekresluje (fokus i kurzor zůstanou); při opuštění pole se poznámka uloží bez překreslení a řádek pod polem řekne „Uloženo HH:MM“. */
+/* ---------- poznámka garanta: ukládá se sama (O2, 27. 10. 2026; SCHEMA 83, vlastník 2. 11. 2026) ----------
+   Psaní nepřekresluje (fokus i kurzor zůstanou); řádek pod polem říká „Ukládá se…“. Po 1 s bez psaní, při opuštění pole a při zavření stránky
+   se poznámka uloží bez překreslení a řádek řekne „Uloženo HH:MM“ (na serveru / v tomto prohlížeči). Žádné tlačítko „Uložit“. */
 function setSavedLines(id) {
   try { var els = doc.querySelectorAll('[data-gsaved="' + id + '"]'); for (var k = 0; k < els.length; k++) els[k].textContent = NF.nbspText ? NF.nbspText(savedLine(id)) : savedLine(id); } catch (err) { }
 }
 if (doc && doc.addEventListener) {
   doc.addEventListener('input', function (ev) {
     var t = ev.target, id = t && t.getAttribute && t.getAttribute('data-gnote'); if (!id) return;
-    drafts[id] = String(t.value); saveDrafts(); setSavedLines(id);
+    drafts[id] = String(t.value); saveDrafts(); setSavedLines(id); armNoteTimer(id); fieldInView();
     try { var cs = doc.querySelectorAll('[data-gcount="' + id + '"]'); for (var k = 0; k < cs.length; k++) cs[k].textContent = countText(id); } catch (err) { } /* 31 B3 */
   });
   doc.addEventListener('change', function (ev) {
     var t = ev.target, id = t && t.getAttribute && t.getAttribute('data-gnote'); if (!id) return;
-    drafts[id] = String(t.value); saveDrafts(); saveNote(id); setSavedLines(id);
+    cancelNoteTimer(id); drafts[id] = String(t.value); saveDrafts(); saveNote(id); setSavedLines(id);
   });
   /* M9 (kontrola 2): koncept obnovený po F5 se uloží i opuštěním pole bez úpravy (change u nezměněné hodnoty nevznikne) */
   doc.addEventListener('focusout', function (ev) {
     var t = ev.target, id = t && t.getAttribute && t.getAttribute('data-gnote'); if (!id || !hasDraft(id)) return;
-    drafts[id] = String(t.value); saveDrafts(); saveNote(id); setSavedLines(id);
+    cancelNoteTimer(id); drafts[id] = String(t.value); saveDrafts(); saveNote(id); setSavedLines(id);
   });
 }
 
@@ -1572,7 +1643,7 @@ var drawerFocus = null;
 function decisionsDrawer(s) {
   var sum = gSummary(s), groups = sceneGroups(s), open = s.gOpen && s.gOpen !== '-' ? s.gOpen : null;
   var todo = 0; groups.forEach(function (g) { todo += g.ids.filter(function (id) { return !gTouched(id); }).length; });
-  var out = '<div class="pres-drawer gdrawer"><h2>Vaše rozhodnutí</h2><p class="small muted">Příběh stojí; po zavření pokračujete tam, kde jste byli. Rozhodnuto ' + sum.touched + ' z ' + sum.total + '.</p>' + counts(sum) + syncLine(s, false) +
+  var out = '<div class="pres-drawer gdrawer"><h2>Vaše rozhodnutí</h2><p class="small muted">Příběh stojí; po zavření pokračujete tam, kde jste byli. Rozhodnuto ' + sum.touched + ' z ' + sum.total + '.</p>' + counts(sum) + '<div class="gsync">' + syncLine(s, false) + '</div>' + /* SCHEMA 83: stálý obal; řádek stavu ukládání se při psaní objevuje a mizí a struktura pod ním se nesmí posunout */
     '<div class="garant decide">' +
     (todo ? '<h3 data-dscene="todo">Nerozhodnuto (' + todo + ')</h3>' + groups.map(function (g) { var ids = g.ids.filter(function (id) { return !gTouched(id); }); return ids.length ? '<p class="gscene small muted">' + e(g.label) + '</p>' + ids.map(function (id) { return gitem(s, NF.item(s, id), open === id); }).join('') : ''; }).join('') : '<p class="small">Vše rozhodnuto. Změnit můžete kterékoli rozhodnutí níže.</p>') +
     groups.map(function (g) {
@@ -1606,7 +1677,7 @@ function drawerAfterRender() {
 function focusAfterRender() {
   var sel = askFocus ? '[data-action="garantDecide"][data-value="' + askFocus + ':rejected:ano"]' : focusAfter; askFocus = null; focusAfter = null;
   if (!sel || !doc || typeof doc.querySelector !== 'function') return;
-  try { var el = doc.querySelector('#overlay ' + sel) || doc.querySelector('.tour-panel ' + sel) || doc.querySelector('#app ' + sel); if (el && el.focus) el.focus({ preventScroll: false }); } catch (err) { }
+  try { var el = doc.querySelector('#overlay ' + sel) || doc.querySelector('.tour-panel ' + sel) || doc.querySelector('#app ' + sel); if (el && el.focus) el.focus({ preventScroll: !!(el.closest && el.closest('.tour-panel') && !doc.querySelector('#overlay ' + sel)) }); } catch (err) { } /* SCHEMA 83: v panelu polohu určí panelToCard (pole poznámky pod tlačítky musí zůstat vidět i na telefonu) */
 }
 function presenterPanel(s) {
   var here = sceneIdx(s), admin = !!(D.auth && D.auth.role && D.auth.role() === 'admin'), nTouched = NF.garantItems(s).filter(function (r) { return gEntries(r.id).length > 0; }).length;

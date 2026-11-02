@@ -8,12 +8,12 @@
 <meta name="description" content="Živý katalog designového systému NutriFee: tokeny, komponenty, pravidla a předání vývojáři. Čte přímo CSS makety.">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; form-action 'none'; base-uri 'none'">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%231A6E85'/%3E%3Cpath d='M11 29V11l18 18V11' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="../app/tokens.css?v=82">
-<link rel="stylesheet" href="../app/design.css?v=82">
-<link rel="stylesheet" href="../demo/demo.css?v=82">
-<link rel="stylesheet" href="catalog.css?v=82">
+<link rel="stylesheet" href="../app/tokens.css?v=83">
+<link rel="stylesheet" href="../app/design.css?v=83">
+<link rel="stylesheet" href="../demo/demo.css?v=83">
+<link rel="stylesheet" href="catalog.css?v=83">
 </head>
-<body class="ds" data-version="82">
+<body class="ds" data-version="83">
 <a class="skip" href="#main">Přeskočit na obsah</a>
 <header class="ds-head">
   <div class="ds-brand"><span class="brandmark" aria-hidden="true">N</span><div><b>NutriFee · designový systém</b><small>Živý katalog. Čte přímo <code>app/tokens.css</code>, <code>app/design.css</code> a <code>demo/demo.css</code> makety, proto se od ní nemůže rozejít.</small></div></div>
@@ -284,11 +284,11 @@
       </div>
     </div></article>
 
-  <article class="comp" id="c-vrstva-stitek"><header><h2>Štítek „ke schválení“ a rozhodnutí v kroku</h2><p>Položka registru, která čeká na garanta, nese na obrazovce aplikace štítek <code>.appr.pend</code> (čárkovaný kroužek, slovo „ke schválení“). V panelu, v zásuvce „Vaše rozhodnutí“, v souhrnu i v detailu registru je to tatáž karta <code>.gitem</code>: věta „Co schvalujete“, hned pod ní dvě rovnocenné volby <code>.gchoices</code> Schválit · Zamítnout (obrysové, plná je jen zvolená: <code>.on</code>, <code>aria-pressed</code>; zamítnutí plné červené), pod nimi nepovinná poznámka předvyplněná platným textem, která se uloží sama při opuštění pole (řádek <code>.gsaved</code> „Uloženo 14:32“), „Rozhodli jste“ se skutečným časem, rozbalitelný průvodce <code>.gguide</code> a historie. Po rozhodnutí se karta sbalí do řádku se stavem a první větou poznámky (<code>.gprev</code>). Rozhodnutí vlastníka 27. 10. 2026: „Upravit“ zrušeno. Primární je jen Dál.</p></header>
+  <article class="comp" id="c-vrstva-stitek"><header><h2>Štítek „ke schválení“ a rozhodnutí v kroku</h2><p>Položka registru, která čeká na garanta, nese na obrazovce aplikace štítek <code>.appr.pend</code> (čárkovaný kroužek, slovo „ke schválení“). V panelu, v zásuvce „Vaše rozhodnutí“, v souhrnu i v detailu registru je to tatáž karta <code>.gitem</code>: věta „Co schvalujete“, hned pod ní dvě rovnocenné volby <code>.gchoices</code> Schválit · Zamítnout (obrysové, plná je jen zvolená: <code>.on</code>, <code>aria-pressed</code>; zamítnutí plné červené), pod nimi až po rozhodnutí pole nepovinné poznámky s otázkou podle rozhodnutí („Proč jste schválili? (nepovinné)“ / „Proč jste zamítli? (nepovinné)“; od verze 83, vlastník 2. 11. 2026), předvyplněné platným textem; ukládá se samo už při psaní (po 1 s bez psaní, při opuštění pole a zavření stránky; řádek <code>.gsaved</code> „Ukládá se…“, pak „Uloženo 14:32“), „Rozhodli jste“ se skutečným časem, rozbalitelný průvodce <code>.gguide</code> a historie (po sobě jdoucí úpravy poznámky jako jedna řádka). Rozhodnutá karta zůstane otevřená s polem; sbalená ukazuje řádek se stavem a první větou poznámky (<code>.gprev</code>). Rozhodnutí vlastníka 27. 10. 2026: „Upravit“ zrušeno. Primární je jen Dál.</p></header>
     <div class="preview ds-demo">
       <div class="badges"><button type="button" class="appr pend"><span aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-dasharray="4 4"/></svg></span> Cíle glukózy <span class="st">· ke schválení</span></button></div>
       <div class="tour-panel ds-demo-panel" role="region" aria-label="Rozhodnutí v panelu (ukázka)"><div class="tour-body"><div class="garant decide"><p class="gtitle"><b>Ke schválení teď (1)</b></p><p class="small">Rozhodněte, než budete pokračovat. Změnit lze kdykoli.</p>
-        <div class="gitem"><button type="button" class="gh" aria-expanded="true"><span class="t">Cíle glukózy</span><span class="tag">ke schválení</span><span class="chev" aria-hidden="true">⌃</span></button><div class="gb"><p class="gco"><b>Co schvalujete:</b> dolní cíl 3,9, horní cíl po jídle 10,0 mmol/l.</p><div class="gchoices" role="group" aria-label="Rozhodnutí o položce"><button type="button" class="btn sm gchoice on" aria-pressed="true">✓ Schválit</button><button type="button" class="btn sm gchoice gno" aria-pressed="false">Zamítnout</button></div><label class="field gnote-field"><span>Poznámka (nepovinná)</span><textarea rows="2" placeholder="Např. jakou hodnotu nebo znění chcete">Horní cíl po jídle bych dal 9,5.</textarea></label><p class="gsaved small muted">Uloženo 14:32.</p><p class="gwho small">Rozhodli jste: <b>schváleno</b> · 27. 10. 14:30</p><details class="more gguide"><summary>Průvodce položkou: proč existuje · jak funguje · kde je použita · co se stane při zamítnutí</summary><p class="small">Pětidílný průvodce položkou.</p></details></div></div>
+        <div class="gitem"><button type="button" class="gh" aria-expanded="true"><span class="t">Cíle glukózy</span><span class="tag">ke schválení</span><span class="chev" aria-hidden="true">⌃</span></button><div class="gb"><p class="gco"><b>Co schvalujete:</b> dolní cíl 3,9, horní cíl po jídle 10,0 mmol/l.</p><div class="gchoices" role="group" aria-label="Rozhodnutí o položce"><button type="button" class="btn sm gchoice on" aria-pressed="true">✓ Schválit</button><button type="button" class="btn sm gchoice gno" aria-pressed="false">Zamítnout</button></div><label class="field gnote-field"><span>Proč jste schválili? (nepovinné)</span><textarea rows="2" placeholder="Např. s čím souhlasíte nebo co doplnit">Horní cíl po jídle bych dal 9,5.</textarea></label><p class="gsaved small muted">Uloženo 14:32.</p><p class="gwho small">Rozhodli jste: <b>schváleno</b> · 27. 10. 14:30</p><details class="more gguide"><summary>Průvodce položkou: proč existuje · jak funguje · kde je použita · co se stane při zamítnutí</summary><p class="small">Pětidílný průvodce položkou.</p></details></div></div>
         <div class="gitem"><button type="button" class="gh" aria-expanded="false"><span class="t">Rada: pořadí jídla</span><span class="tag bad">zamítnuto</span><span class="chev" aria-hidden="true">⌄</span></button><p class="gprev">„Zní to jako zákaz přílohy.“</p><p class="goff"><b>Tahle část nefunguje.</b> <button type="button" class="tour-link">Změnit rozhodnutí</button></p></div>
       </div></div></div>
     </div></article>
@@ -354,6 +354,6 @@
 </aside>
 </div>
 <div id="toast" aria-live="polite" aria-atomic="true"></div>
-<script src="catalog.js?v=82"></script>
+<script src="catalog.js?v=83"></script>
 </body>
 </html>

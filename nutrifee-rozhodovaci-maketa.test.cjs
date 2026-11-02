@@ -129,8 +129,9 @@ test('Jádro bez sítě a bez generativní AI; síť volá jen demo/sync.js (roz
   /* rozhodnutí garanta jde do fronty hned; bez nastaveného úložiště čeká a lišta to říká; export není */
   act('goScene', '19'); act('closeDrawer'); const before = D.sync.pending();
   act('garantDecide', 'R-PORADI:approved'); assert.equal(D.sync.pending(), before + 1);
-  D.noteDraft('R-SKORE', 'poznámka'); act('garantNote', 'R-SKORE'); assert.equal(D.sync.pending(), before + 2);
-  const r = D.sync.row(JSON.parse(store.get('nutrifee-sync-queue')).slice(-1)[0]); assert.equal(r.kind, 'note'); assert.equal(r.status, null, 'nerozhodnutá položka: stav null'); assert.equal(r.item, 'R-SKORE'); assert.equal(r.comment, 'poznámka'); assert.ok(r.client && r.at && r.schema === NF.SCHEMA); assert.equal(r.user_email, 'garant@example.test'); assert.equal(r.user_id, 'u-garant');
+  D.noteDraft('R-SKORE', 'poznámka'); act('garantNote', 'R-SKORE'); assert.equal(D.sync.pending(), before + 1, 'SCHEMA 83: k nerozhodnuté položce poznámka nevzniká');
+  D.noteDraft('R-PORADI', 'poznámka'); act('garantNote', 'R-PORADI'); assert.equal(D.sync.pending(), before + 2);
+  const r = D.sync.row(JSON.parse(store.get('nutrifee-sync-queue')).slice(-1)[0]); assert.equal(r.kind, 'note'); assert.equal(r.status, 'approved', 'poznámka nese stav garanta'); assert.equal(r.item, 'R-PORADI'); assert.equal(r.comment, 'poznámka'); assert.ok(r.client && r.at && r.schema === NF.SCHEMA); assert.equal(r.user_email, 'garant@example.test'); assert.equal(r.user_id, 'u-garant');
   const dn = () => JSON.parse(store.get('nutrifee-sync-queue') || '[]').filter(x => x.kind === 'decision' || x.kind === 'note').length, d0 = dn();
   act('goScene', '5'); act('closeDrawer'); assert.equal(dn(), d0, 'přehrání scény rozhodnutí znovu neodesílá (skok zapíše jen řádek „scene“)');
   const st = D.sync.status(); assert.equal(st.configured, true, 'Supabase je nastaveno v demo/sync-config.js'); assert.match(D.syncConfig.url, /^https:\/\/[a-z]+\.supabase\.co$/); assert.match(D.syncConfig.key, /^sb_publishable_/); assert.equal(D.syncConfig.table, 'garant_rozhodnuti');
@@ -823,9 +824,13 @@ test('Poznámka garanta v panelu vyprávění nemění stav ani se nepočítá j
   act('goScene', String(D.scenes.findIndex(s => D.chapters[s.ch].id === 'impact'))); act('closeDrawer');
   const before = NF.registrySummary(S());
   D.noteDraft('R-DOPLNEK', 'Nepodepisuji — doplněk po píchnutí.'); act('garantNote', 'R-DOPLNEK');
-  const after = NF.registrySummary(S());
-  assert.equal(after.touched, before.touched); assert.equal(after.remaining, before.remaining); assert.equal(after.noted, before.noted + 1);
-  assert.equal(NF.item(S(), 'R-DOPLNEK').status, 'approved'); assert.equal(NF.itemState(S(), 'R-DOPLNEK'), 'pending');
+  let after = NF.registrySummary(S());
+  /* SCHEMA 83 (vlastník 2. 11. 2026): poznámka bez rozhodnutí nevzniká; koncept zůstane a odejde s rozhodnutím */
+  assert.equal(after.touched, before.touched); assert.equal(after.remaining, before.remaining); assert.equal(after.noted, before.noted, 'bez rozhodnutí žádná poznámka');
+  assert.equal(NF.item(S(), 'R-DOPLNEK').status, 'approved'); assert.equal(NF.itemState(S(), 'R-DOPLNEK'), 'pending'); assert.equal(D.noteField('R-DOPLNEK'), 'Nepodepisuji — doplněk po píchnutí.');
+  /* starší záznam note bez rozhodnutí (před SCHEMA 83) se dál zobrazí a není rozhodnutím (R14) */
+  NF.decideItem(S(), 'R-DOPLNEK', null, 'Nepodepisuji — doplněk po píchnutí.', { garant: true, note: true, status: null });
+  after = NF.registrySummary(S()); assert.equal(after.touched, before.touched); assert.equal(after.noted, before.noted + 1); assert.equal(NF.itemState(S(), 'R-DOPLNEK'), 'pending');
   act('role', 'doctor'); act('page', 'registry'); assert.match(markup(), /„Nepodepisuji . doplněk po píchnutí\.“/, 'poznámka je vidět v řádku registru'); act('tourReturn');
   /* zamítnutí R-PROCHAZKA: u pacienta zmizí a v reportu se už nenavrhuje „Zachovat radu Procházka“ */
   act('garantDecide', 'R-PROCHAZKA:rejected:ano');
@@ -1158,14 +1163,18 @@ test('Registr jako seznam ke schválení: souhrn v hlavičce, tři dlaždice, fi
   assert.match(markup(), /Ke schválení/); assert.match(markup(), /Rozhodnuto/); assert.match(markup(), /ke schválení/); assert.equal(/schváleno předem|k potvrzení/.test(markup()), false);
   assert.equal((markup().match(/class="tile /g) || []).length, 3, 'tři dlaždice: ke schválení, schváleno, zamítnuto'); assert.equal(/Upraveno|upravené|jen komentář|okomentováno/.test(markup()), false);
   act('regOpen', 'R-SKORE'); assert.match(markup(), /class="garant decide reg-decide"/, 'v registru tatáž karta jako v panelu');
+  /* SCHEMA 83: před rozhodnutím karta pole poznámky nemá a poznámka bez rozhodnutí nevzniká */
+  assert.equal(/data-gnote="R-SKORE"/.test(markup()), false, 'pole až po rozhodnutí');
   D.noteDraft('R-SKORE', 'Hranice 80 % ověřit s diabetologem.'); act('garantNote', 'R-SKORE');
-  /* poznámka není rozhodnutí: položka zůstává „ke schválení“, stopa říká „poznámka“ (R14) */
-  sum = NF.registrySummary(S()); assert.equal(sum.touched, 0); assert.equal(sum.noted, 1); assert.equal(NF.item(S(), 'R-SKORE').status, 'approved');
-  assert.equal(NF.itemTouched(S(), 'R-SKORE'), false); assert.ok(S().events.some(e => e.what === 'registr.poznamka')); assert.equal(S().events.some(e => e.what === 'registr.rozhodnuti'), false);
-  assert.match(markup(), /„Hranice 80 % ověřit s diabetologem\.“/); assert.match(markup(), />Hranice 80 % ověřit s diabetologem\.<\/textarea>/, 'pole předvyplněné platnou poznámkou');
-  act('regOpen', 'R-PORADI'); act('garantDecide', 'R-PORADI:approved'); sum = NF.registrySummary(S()); assert.equal(sum.approved, 1); assert.equal(sum.remaining, sum.total - 1);
-  act('regFilter', 'touch:noted'); assert.match(markup(), /R-SKORE · /); assert.equal(/R-PORADI · /.test(markup()), false); act('regFilter', 'touch:noted');
-  act('regFilter', 'touch:todo'); assert.match(markup(), /R-SKORE · /, 'položka s poznámkou bez rozhodnutí stále zbývá'); act('regFilter', 'touch:todo');
+  sum = NF.registrySummary(S()); assert.equal(sum.touched, 0); assert.equal(sum.noted, 0); assert.equal(S().events.some(e => e.what === 'registr.poznamka'), false);
+  act('garantDecide', 'R-SKORE:rejected'); sum = NF.registrySummary(S()); assert.equal(sum.touched, 1); assert.equal(sum.noted, 1); assert.equal(sum.rejected, 1);
+  assert.match(markup(), /<span>Proč jste zamítli\? \(nepovinné\)<\/span>/); assert.match(markup(), /„Hranice 80 % ověřit s diabetologem\.“/); assert.match(markup(), />Hranice 80 % ověřit s diabetologem\.<\/textarea>/, 'pole předvyplněné platnou poznámkou');
+  /* starší záznam note bez rozhodnutí: zobrazí se v řádku, stav zůstává „ke schválení“ a stopa říká „poznámka“ (R14) */
+  NF.decideItem(S(), 'C-CILE', null, 'Stará poznámka bez rozhodnutí.', { garant: true, note: true, status: null }); NF.render();
+  assert.equal(NF.itemTouched(S(), 'C-CILE'), false); assert.ok(S().events.some(e => e.what === 'registr.poznamka')); assert.match(markup(), /„Stará poznámka bez rozhodnutí\.“/);
+  act('regOpen', 'R-PORADI'); act('garantDecide', 'R-PORADI:approved'); sum = NF.registrySummary(S()); assert.equal(sum.approved, 1); assert.equal(sum.remaining, sum.total - 2);
+  act('regFilter', 'touch:noted'); assert.match(markup(), /R-SKORE · /); assert.match(markup(), /C-CILE · /); assert.equal(/R-PORADI · /.test(markup()), false); act('regFilter', 'touch:noted');
+  act('regFilter', 'touch:todo'); assert.match(markup(), /C-CILE · /, 'položka se starou poznámkou bez rozhodnutí stále zbývá'); assert.equal(/R-SKORE · /.test(markup()), false); act('regFilter', 'touch:todo');
   bind('reg.q', 'diabetologem'); act('noop'); assert.match(markup(), /R-SKORE · /); assert.equal(/R-PORADI · /.test(markup()), false, 'fulltext hledá i v poznámkách');
   assert.match(markup(), /schváleno/);
 });
@@ -1621,10 +1630,11 @@ test('Souhrn rozhodnutí na celou šířku (V4, 21. 10. 2026): stránka vlevo, �
   /* panel: bez seznamu položek, jedinou akcí je potvrzení souhrnu */
   const panel = m.slice(m.indexOf('<aside'), m.indexOf('</aside>'));
   assert.equal(/class="gitem/.test(panel), false, 'v panelu není seznam položek'); assert.match(panel, /class="btn primary" data-action="garantConfirmSummary">Potvrdit souhrn</); assert.equal(/data-action="tourNext"/.test(panel), false);
-  /* změna rozhodnutí přímo na stránce: řádek se rozbalí s průvodcem a třemi rovnocennými volbami, po rozhodnutí se zavře */
+  /* změna rozhodnutí přímo na stránce: řádek se rozbalí s průvodcem a dvěma rovnocennými volbami; SCHEMA 83: pole poznámky až po rozhodnutí, řádek zůstane otevřený */
   D.noteDraft('D-CISTA', 'doplnit výjimku'); act('garantOpen', 'D-CISTA'); m = markup();
-  assert.match(m, /<tr class="gsum-detail" id="gsum-d-D-CISTA">/); assert.match(m, /data-action="garantDecide" data-value="D-CISTA:approved"/); assert.match(m, /Co schvalujete/);
-  act('garantDecide', 'D-CISTA:approved'); m = markup(); assert.equal(S().gOpen, null); assert.match(m, /„doplnit výjimku“/, 'poznámka v tabulce celá'); assert.equal(D.garantSummary(S()).touched, 4);
+  assert.match(m, /<tr class="gsum-detail" id="gsum-d-D-CISTA">/); assert.match(m, /data-action="garantDecide" data-value="D-CISTA:approved"/); assert.match(m, /Co schvalujete/); assert.equal(/data-gnote="D-CISTA"/.test(m), false, 'před rozhodnutím bez pole');
+  act('garantDecide', 'D-CISTA:approved'); m = markup(); assert.equal(S().gOpen, 'D-CISTA', 'řádek zůstane otevřený s polem poznámky'); assert.match(m, /<span>Proč jste schválili\? \(nepovinné\)<\/span><textarea[^>]*data-gnote="D-CISTA"[^>]*>doplnit výjimku<\/textarea>/); assert.match(m, /„doplnit výjimku“/, 'poznámka v tabulce celá'); assert.equal(D.garantSummary(S()).touched, 4);
+  act('garantOpen', 'D-CISTA'); assert.equal(S().gOpen, '-');
   /* stránka není zamčená; odkaz vrátí obrazovku stopy (zamčenou) a panel nabídne návrat */
   assert.match(fs.readFileSync(path.join(__dirname, 'demo/presenter.js'), 'utf8'), /locked = !away\(s0\) && !gsum/);
   act('gsumTrace'); m = markup(); assert.equal(/class="gsum-page"/.test(m), false); assert.match(m, /data-action="gsumTrace">Zpět na souhrn/); act('gsumTrace'); assert.match(markup(), /class="gsum-page"/);
@@ -2112,33 +2122,49 @@ for (const [f, what] of [['tokeny.test.cjs', 'tokeny vzhledu a katalog (B8, C1, 
 }
 
 /* ---------- SCHEMA 72: nový tok schvalování (rozhodnutí vlastníka 27. 10. 2026) ---------- */
-test('SCHEMA 72: jen dvě rozhodnutí; poznámka zůstane v poli po rozhodnutí, po přerenderování, po skoku i po F5; poznámka bez rozhodnutí neodemkne Dál', () => {
+test('SCHEMA 72 + 83: jen dvě rozhodnutí; pole poznámky až po rozhodnutí, hned pod tlačítky; poznámka zůstane v poli po rozhodnutí, změně rozhodnutí, překreslení, skoku i F5; bez rozhodnutí nevzniká', () => {
   act('goScene', '2'); act('closeDrawer'); toOffer();
   const pn = D.pendingNow(S()); assert.ok(pn.ids.length >= 1); const id = pn.ids[0];
+  const SAFE = NF.screens.SAFETY_ITEMS || {}, rej = id + ':rejected' + (SAFE[id] ? ':ano' : '');
   let m = markup(), panel = m.slice(m.indexOf('<aside'), m.indexOf('</aside>'));
   assert.match(panel, new RegExp('data-value="' + id + ':approved"')); assert.match(panel, new RegExp('data-value="' + id + ':rejected"'));
-  assert.equal(/Upravit|garantEdit|garantComment|edited|Uložit komentář/.test(panel), false, 'žádné Upravit ani samostatné ukládání komentáře');
+  assert.equal(/Upravit|garantEdit|garantComment|edited|Uložit komentář|Uložit poznámku/.test(panel), false, 'žádné Upravit ani tlačítko pro uložení poznámky');
+  assert.equal(new RegExp('data-gnote="' + id + '"').test(panel), false, 'SCHEMA 83: před rozhodnutím karta pole poznámky nemá');
+  assert.equal(/opustíte|opuštění pole/.test(m), false, 'žádné „až pole opustíte“');
   assert.equal(NF.decideItem(S(), id, 'edited', '', { garant: true }).ok, false, 'jádro zná jen approved / rejected');
-  /* koncept poznámky přežije skok na scénu a přehrání */
+  /* koncept (třeba ze starší verze) přežije skok na scénu a přehrání; bez rozhodnutí se neuloží (R14, SCHEMA 83) */
   D.noteDraft(id, 'Koncept A'); act('goScene', '6'); act('closeDrawer'); assert.equal(D.noteField(id), 'Koncept A');
-  act('goScene', '2'); act('closeDrawer'); toOffer(); assert.match(markup(), new RegExp('data-gnote="' + id + '"[^>]*>Koncept A</textarea>'));
-  assert.match(markup(), /Neuloženo: uloží se, až pole opustíte\./);
-  /* poznámka bez rozhodnutí: uloží se, ale Dál zůstane zamčené (R14) */
-  act('garantNote', id); assert.equal(D.garantLog().slice(-1)[0].kind, 'note'); assert.equal(D.garantLog().slice(-1)[0].status, null);
-  assert.ok(D.pendingNow(S()).ids.includes(id), 'poznámka není rozhodnutí'); const step = S().tourStep; app.act('tourNext'); assert.equal(S().tourStep, step, 'Dál zůstává zamčené');
-  assert.match(markup(), /Uloženo \d{1,2}:\d\d( v tomto prohlížeči| jen v tomto prohlížeči| na serveru)?/); /* SCHEMA 78: bez sítě pravdivě „v tomto prohlížeči“ */
-  /* rozhodnutí: poznámka jde s ním a pole se nevyprázdní; karta se sbalí do řádku s první větou poznámky */
+  act('goScene', '2'); act('closeDrawer'); toOffer();
+  act('garantNote', id); assert.equal(D.garantLog().filter(d => d.item === id).length, 0, 'poznámka bez rozhodnutí nevzniká');
+  assert.ok(D.pendingNow(S()).ids.includes(id)); const step = S().tourStep; app.act('tourNext'); assert.equal(S().tourStep, step, 'Dál zůstává zamčené');
+  /* rozhodnutí: koncept jde s ním; karta zůstane otevřená a pole je hned pod tlačítky s otázkou podle rozhodnutí */
   act('garantDecide', id + ':approved'); assert.equal(D.garantLog().slice(-1)[0].comment, 'Koncept A');
-  m = markup(); assert.match(m, new RegExp('data-gitem="' + id + '"[^>]*><button[^>]*aria-expanded="false"[\\s\\S]*?<p class="gprev">„Koncept A“</p>'), 'sbalený řádek nese poznámku');
-  act('garantOpen', id); m = markup(); assert.match(m, new RegExp('data-gnote="' + id + '"[^>]*>Koncept A</textarea>'), 'pole předvyplněné'); assert.match(m, /Rozhodli jste: <b>schváleno<\/b>/);
+  m = markup(); panel = m.slice(m.indexOf('<aside'), m.indexOf('</aside>'));
+  assert.match(panel, new RegExp('data-gitem="' + id + '"[^>]*><button[^>]*aria-expanded="true"'), 'rozhodnutá karta zůstane otevřená');
+  assert.match(panel, new RegExp('data-value="' + id + ':rejected"[^>]*>[^<]*</button></div><label class="field gnote-field"><span>Proč jste schválili\\? \\(nepovinné\\)</span><textarea[^>]*data-gnote="' + id + '" placeholder="Např. s čím souhlasíte nebo co doplnit">Koncept A</textarea>'), 'pole hned pod tlačítky');
+  assert.match(panel, /Uloženo \d{1,2}:\d\d( v tomto prohlížeči| jen v tomto prohlížeči| na serveru)?/); assert.match(m, /Rozhodli jste: <b>schváleno<\/b>/);
+  if (pn.ids.length > 1) assert.match(panel, new RegExp('data-value="' + pn.ids[1] + ':approved"'), 'další nerozhodnutá karta je rozbalená vedle');
   NF.render(); assert.match(markup(), />Koncept A<\/textarea>/, 'po překreslení');
+  /* psaní bez opuštění pole: „Ukládá se…“; uloží se po pauze (časovač, ukladani.test.cjs) nebo při opuštění pole */
+  D.noteDraft(id, 'Koncept B'); assert.equal(D.savedLine(id), 'Ukládá se…'); act('garantNote', id); assert.equal(D.garantNote(id), 'Koncept B'); assert.match(D.savedLine(id), /^Uloženo \d{1,2}:\d\d/);
+  /* změna rozhodnutí poznámku zachová a popisek se přepne */
+  act('garantDecide', rej); assert.equal(D.garantLog().slice(-1)[0].status, 'rejected'); assert.equal(D.garantLog().slice(-1)[0].comment, 'Koncept B');
+  m = markup(); assert.match(m, new RegExp('<span>Proč jste zamítli\\? \\(nepovinné\\)</span><textarea[^>]*data-gnote="' + id + '" placeholder="Např. co je špatně a jaké znění nebo hodnotu chcete">Koncept B</textarea>'));
+  act('garantDecide', id + ':approved'); assert.equal(D.garantNote(id), 'Koncept B'); assert.match(markup(), /<span>Proč jste schválili\? \(nepovinné\)<\/span>/);
   /* F5: nová instance se stejným úložištěm */
-  boot({ keepStore: true }); act('goScene', '2'); act('closeDrawer'); act('garantOpen', id); assert.match(markup(), new RegExp('data-gnote="' + id + '"[^>]*>Koncept A</textarea>'), 'po F5'); assert.equal(NF.itemState(S(), id), 'approved');
+  boot({ keepStore: true }); act('goScene', '2'); act('closeDrawer'); act('garantOpen', id); assert.match(markup(), new RegExp('data-gnote="' + id + '"[^>]*>Koncept B</textarea>'), 'po F5'); assert.equal(NF.itemState(S(), id), 'approved');
   D.noteDraft('R-POKYNY', 'rozepsáno'); boot({ keepStore: true }); assert.equal(D.noteField('R-POKYNY'), 'rozepsáno', 'rozepsaný koncept přežije F5');
   /* smazání poznámky je také změna: zapíše se prázdná poznámka a stav zůstane */
+  act('goScene', '2'); act('closeDrawer'); act('garantOpen', id);
   D.noteDraft(id, ''); act('garantNote', id); assert.equal(D.garantNote(id), ''); const last = D.garantLog().slice(-1)[0]; assert.equal(last.kind, 'note'); assert.equal(last.status, 'approved'); assert.equal(NF.itemState(S(), id), 'approved');
   /* stejný text se znovu neukládá */
   const n = D.garantLog().length; D.noteDraft(id, ''); act('garantNote', id); assert.equal(D.garantLog().length, n);
+  /* historie: po sobě jdoucí úpravy téže poznámky (do 2 min) jsou jedna řádka s posledním zněním; v deníku zůstávají všechny */
+  ['X1', 'X2', 'X3'].forEach(t => { D.noteDraft(id, t); act('garantNote', id); });
+  assert.equal(D.garantLog().filter(d => d.item === id && d.kind === 'note').length, 5, 'v deníku všechny úpravy');
+  m = markup(); const hist = m.slice(m.indexOf('class="more ghist"'), m.indexOf('</details>', m.indexOf('class="more ghist"')));
+  assert.match(hist, /poznámka \(4 úpravy\) · „X3“/); assert.equal(/„X1“|„X2“/.test(hist), false, 'mezikroky psaní v historii nejsou zvlášť');
+  assert.match(hist, /Historie \(4\)/, 'počet řádek historie po sloučení');
 });
 
 test('SCHEMA 72: zásuvka „Vaše rozhodnutí“ z lišty nad příběhem – příběh stojí, nic se nepřehrává; přehled scén ukazuje nerozhodnuté', () => {
@@ -2316,6 +2342,42 @@ test('SCHEMA 74 (vlastník 27. 10. 2026): garant nic nevymýšlí – registr an
   assert.match(t('I-VYSOKA'), /vypijte sklenici vody[\s\S]*změřte znovu[\s\S]*nepíchejte[\s\S]*záchrannou službu/);
   assert.match(t('I-NEMOC-JIDLO'), /Pijte často po malých doušcích[\s\S]*lékařskou pomoc[\s\S]*záchrannou službu/);
   for (const c of cat) { assert.doesNotMatch(c.text, CALL_RE, c.id); assert.doesNotMatch(c.text, /sněz(te)? víc|víc jídla/i, c.id); }
+});
+
+/* ---------- SCHEMA 83 (vlastník 2. 11. 2026): nejdřív rozhodnutí, pak volitelná poznámka; ukládá se ihned ---------- */
+test('SCHEMA 83: registr bez prezentační vrstvy – pole poznámky až po rozhodnutí s otázkou podle rozhodnutí, ukládá se po pauze (data-autosave), změna rozhodnutí poznámku zachová, historie slučuje úpravy', () => {
+  boot({ withDemo: false }); act('role', 'doctor'); act('page', 'registry'); act('regOpen', 'R-SKORE');
+  let m = markup(); assert.match(m, /data-action="regDecide" data-value="approved"/); assert.equal(/data-bind="form\.note_R-SKORE"/.test(m), false, 'před rozhodnutím bez pole');
+  assert.equal(/opustíte|opuštění pole|Poznámka \(nepovinná\)/.test(m), false);
+  act('regDecide', 'rejected'); m = markup();
+  assert.match(m, /<span>Proč jste zamítli\? \(nepovinné\)<\/span><textarea rows="3" maxlength="4000" data-bind="form\.note_R-SKORE" data-change="regNote" data-autosave="regNote" data-value="R-SKORE" placeholder="Např\. co je špatně a jaké znění nebo hodnotu chcete">/);
+  assert.match(m, /data-regsaved="R-SKORE"[^>]*>Poznámka se ukládá sama už při psaní\.</);
+  bind('form.note_R-SKORE', 'x'.repeat(600)); assert.equal(S().form['note_R-SKORE'].length, 600, 'poznámka nejvýš 4000 znaků, ne 500');
+  assert.equal(NF.screens.regSavedLine(S(), NF.item(S(), 'R-SKORE')), 'Ukládá se…');
+  bind('form.note_R-SKORE', 'Hranice 80 % je moc přísná.'); act('regNote', 'R-SKORE'); assert.equal(NF.itemNote(S(), 'R-SKORE'), 'Hranice 80 % je moc přísná.'); assert.equal(NF.itemState(S(), 'R-SKORE'), 'rejected');
+  assert.match(markup(), /data-regsaved="R-SKORE"[^>]*>Uloženo \d{1,2}:\d\d\.</);
+  act('regDecide', 'approved'); m = markup(); assert.equal(NF.itemNote(S(), 'R-SKORE'), 'Hranice 80 % je moc přísná.', 'změna rozhodnutí poznámku zachová');
+  assert.match(m, /<span>Proč jste schválili\? \(nepovinné\)<\/span><textarea[^>]*placeholder="Např\. s čím souhlasíte nebo co doplnit">Hranice 80 % je moc přísná\.<\/textarea>/);
+  const raw = elements.get('app').innerHTML, ta = raw.slice(raw.indexOf('data-bind="form.note_R-SKORE"')); assert.equal(ta.slice(0, ta.indexOf('</textarea>')).includes('\u00a0'), false, 'obsah pole bez nezlomitelných mezer (jinak by se uložily do poznámky)');
+  ['A', 'AB', 'ABC'].forEach(t => { bind('form.note_R-SKORE', t); act('regNote', 'R-SKORE'); });
+  m = markup(); const h = m.slice(m.indexOf('<summary>Historie ('));
+  assert.match(h, /^<summary>Historie \(4\)<\/summary>/, 'zamítnuto, poznámka, schváleno, sloučené úpravy poznámky po změně'); assert.match(h, /poznámka \(3 úpravy\) · „ABC“/); assert.equal(/„AB“<\/li>/.test(h), false);
+  assert.equal(S().registry.history.filter(x => x.item === 'R-SKORE' && x.kind === 'note').length, 4, 'v historii stavu zůstávají všechny');
+});
+
+test('SCHEMA 83: hláška po rozhodnutí v patičce panelu, v zásuvce ani v souhrnu neříká stav uložení (zastaral by); ten je jen pod polem poznámky a v liště', () => {
+  const status = () => { const m = markup(); const out = []; for (const re of [/class="tour-status"[^>]*>([^<]*)</g, /class="gsum-msg"[^>]*>([^<]*)</g]) { let x; while ((x = re.exec(m))) out.push(x[1]); } return out.join(' | '); };
+  const BAD = /Uložen|uložen|odeslání|na serveru|v tomto prohlížeči/;
+  act('goScene', '2'); act('closeDrawer'); toOffer(); const id = D.pendingNow(S()).ids[0];
+  act('garantDecide', id + ':approved'); assert.match(status(), /Schváleno: /); assert.equal(BAD.test(status()), false, 'panel: ' + status());
+  D.noteDraft(id, 'proč'); act('garantNote', id); assert.match(D.savedLine(id), /^Uloženo \d{1,2}:\d\d (jen )?v tomto prohlížeči/, 'stav uložení je pod polem'); assert.match(markup(), new RegExp('data-gsaved="' + id + '"[^>]*>Uloženo'));
+  act('garantDecide', id + ':rejected:ano'); assert.match(status(), /Zamítnuto: /); assert.equal(BAD.test(status()), false, 'panel po zamítnutí: ' + status());
+  act('openDecisions'); const zid = NF.garantItems(S()).map(r => r.id).find(x => !D.garantStatus(x) && !(NF.screens.SAFETY_ITEMS || {})[x]);
+  act('garantDecide', zid + ':approved'); const ov = plain(elements.get('overlay').innerHTML); assert.equal(/Schváleno: [^<]*(Uložen|odeslání|na serveru)/.test(ov + status()), false, 'zásuvka');
+  act('closeDrawer');
+  const fin = D.scenes.findIndex(x => !x.appendix && D.chapters[x.ch].id === 'trace'); act('goScene', String(fin)); act('closeDrawer'); S().tourStep = D.tour.stepsFor('trace', S().branches).length; NF.render();
+  const sid = NF.garantItems(S()).map(r => r.id).find(x => !D.garantStatus(x) && !(NF.screens.SAFETY_ITEMS || {})[x]);
+  act('garantOpen', sid); act('garantDecide', sid + ':rejected'); assert.match(status(), /Zamítnuto: /); assert.equal(BAD.test(status()), false, 'souhrn: ' + status());
 });
 
 console.log('');

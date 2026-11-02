@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 82;
+NF.SCHEMA = 83;
 NF.PAGES = ['today', 'foods', 'food', 'plan', 'safety', 'support', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 /* C8 (31/03): produkční sestavení (bez prezentační vrstvy) má vlastní klíč úložiště, aby na stejném původu neotevřelo rozehraný příběh ukázky.
