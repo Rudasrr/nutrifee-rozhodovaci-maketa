@@ -94,7 +94,7 @@ test('Jeden lékař a jiná dávka než v plánu (vlastník 1. 11. 2026, body 1 
   assert.equal(NF.doseElsewhere, undefined);
   assert.ok(!NF.FIXED_TRAINING.some(x => x[0] === 'doseElsewhere'), 'bod zaučení o jiném lékaři zrušen');
   const t = text(NF, s);
-  assert.ok(t.indexOf('Podle plánu z 5. 10.: 8 j.') >= 0, t.slice(0, 300));
+  assert.ok(t.indexOf('Ano, 8 j.podle plánu z 5. 10.') >= 0 || t.indexOf('Ano, 8 j. podle plánu z 5. 10.') >= 0, t.slice(0, 300)); /* SCHEMA 86 (návrh 1a): původ dávky je v podtitulu volby, ne samostatný řádek */
   assert.ok(!/mezitím změnil|jiný lékař|hospitaliz/.test(t), 'o jiném lékaři se nemluví');
   assert.match(html(NF, s), /data-action="mealBolus" data-value="other"[^>]*>.*Ano, jinak/);
   const s2 = at(D, 'lateMeal'), p = NF.activePlan(s2);
@@ -196,7 +196,7 @@ test('Seznam jídel a texty (02 C5–C11, zásada 9, 06 B7, B8, 07 B4, B10)', ({
   assert.doesNotMatch(NF.item(s, 'R-MILNIKY').texts.known, /poradit/);
   s.role = 'patient'; s.page = 'food'; const t = text(NF, s);
   assert.ok(t.indexOf('Kam se po něm glukóza dostávala') >= 0); assert.doesNotMatch(t, /Kam se po něm glukóza dostane|Co u vás pomohlo|bez krajních hodnot;/);
-  s.page = 'plan'; assert.ok(text(NF, s).indexOf('4–10,0 mmol/l') >= 0, 'pacient vidí hranici 4');
+  s.page = 'plan'; assert.ok(text(NF, s).indexOf('4–10 mmol/l') >= 0, 'pacient vidí hranici 4'); /* SCHEMA 86 (02 odd. 2): celá čísla, „4–10“ */
   const pv = at(D, 'preview'); pv.role = 'patient'; pv.page = 'preview'; assert.doesNotMatch(text(NF, pv), /pomohl/);
   assert.equal(NF.screens.peakAskCard, undefined, '06 C1: mrtvý kód s psaním desetinného čísla smazán');
 });

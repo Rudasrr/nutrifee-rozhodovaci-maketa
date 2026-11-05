@@ -5,5 +5,5 @@
 var D = global.NutriFeeDemo = global.NutriFeeDemo || {};
 D.syncConfig = { url: 'https://lswgqpozlmuxvvenxopd.supabase.co', key: 'sb_publishable_PtNto6lTGT_AXVXXFNtf9g_vUurjXnj', table: 'garant_rozhodnuti' };
 D.syncLabel = 'rozhodnutí k maketě (neformální)';
-D.build = 'schema-85'; /* sestavení = gitová značka schema-85 v repozitáři makety (export ho zapisuje do build.build) */
+D.build = 'schema-86'; /* sestavení = gitová značka schema-86 v repozitáři makety (export ho zapisuje do build.build) */
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -193,7 +193,7 @@ test('B14, C1, C11: otázka při rozchodu – nejvyšší hodnota slovem pacient
   const ep = s.episodes.find(e => e.id === 'E7c'); delete ep.divergeAsked; ep.context = null;
   const dv = NF.divergence(s, ep); assert.ok(dv, 'rozchod');
   s.page = 'today'; s.role = 'patient'; const html = NF.screens.patient(s);
-  assert.doesNotMatch(html, /vzestup/i); assert.match(html, /nejvyšší hodnota nad 15 mmol\/l, dřív kolem \d+/);
+  assert.doesNotMatch(html, /vzestup/i); assert.match(html, /class="state-big over">nad 15\u00a0mmol\/l/); assert.match(html, /Dřív bývala nejvyšší kolem \d+\./); /* SCHEMA 86 (návrh 4): výsledek jednou velkým písmem, rozdíl jednou větou */
   assert.match(html, /data-value="E7c:amount"/); assert.match(html, /Neobvyklý den \(stres, málo spánku, alkohol\)/);
   const r = NF.answerDivergence(s, 'E7c', 'amount'); assert.equal(r.ok, true); assert.equal(ep.portion, 'other'); assert.equal(NF.usableEp(s, ep), false);
   assert.match(NF.whyNotUsable(s, Object.assign({}, ep, { portion: 'usual', context: 'unusual' })), /neobvyklý den \(stres, málo spánku, alkohol\)/);
@@ -201,7 +201,7 @@ test('B14, C1, C11: otázka při rozchodu – nejvyšší hodnota slovem pacient
 test('B15: otázka na pokles u zápisu mladšího než 4 h zní „zatím“', ({ NF, D }) => {
   const s = at(D, 'lateMeal'); s.meal = { retro: true, step: 1, meal: 'breakfast', at: 7.5, bolus: 'as', units: 8, before: 7, beforeAsked: true, peak: 12, peakAsked: true, decisions: {} }; s.page = 'meal'; s.role = 'patient';
   assert.match(NF.screens.patient(s), /Klesla glukóza od jídla zatím pod 4 mmol\/l\?/);
-  s.meal.at = null; assert.match(NF.screens.patient(s), /Klesla glukóza do 4 hodin po jídle pod 4 mmol\/l\?/);
+  assert.equal(NF.screens.lowQ(s, null), 'Klesla glukóza do 4 hodin po jídle pod 4 mmol/l?'); /* SCHEMA 86: bez času jídla se zpětný zápis k hodnotám nedostane (čas je 2. otázka) */
 });
 
 /* ---------- C ---------- */

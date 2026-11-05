@@ -364,7 +364,14 @@ var A = {
   mealAt: function (v) { if (!needMeal()) return; var h = v == null || String(v).trim() === '' ? NaN : Number(v); if (!Number.isFinite(h) || h < 0 || h >= 24) return fail('Vyberte čas jídla.'); S.meal.at = h; }, /* jen hodina dne 0–23,99 (robustnost #4) */
   mealSkipAsk: function (v) { if (!NF.MEALS.some(function (m) { return m[0] === v; })) return; S.ask = S.ask && S.ask.meal === v ? null : { day: NF.day(S.clock), meal: v }; },
   mealSkip: function (v) { var p = String(v).split(':'); if (!NF.MEALS.some(function (m) { return m[0] === p[0]; }) || ['as', 'other', 'none', 'unknown'].indexOf(p[1]) < 0) return; var r = NF.skipMeal(S, p[0], p[1]); S.ask = null; toast(r.warn ? 'Zapsáno. Inzulin bez jídla – pravidlo máte na Dnes.' : 'Zapsáno: dnes ' + NF.mealText(p[0], 'without') + '.'); },
-  mealBolus: function (v) { if (!needMeal()) return; if (['as', 'other', 'before', 'unknown', 'none', 'snack'].indexOf(v) < 0) return; S.meal.bolus = v; S.meal.decisions = {}; S.meal.reasons = {}; },
+  mealBolus: function (v) { if (!needMeal()) return; if (['as', 'other', 'before', 'unknown', 'none', 'snack'].indexOf(v) < 0) return; S.meal.bolus = v; S.meal.decisions = {}; S.meal.reasons = {};
+    if (S.meal.qOpen !== 'ins') S.meal.q1done = v === 'as' || v === 'before' || (!!S.meal.retro && v === 'none'); }, /* SCHEMA 86: jednoznačná odpověď otázku sbalí, „jinak“ a „nevím“ čekají na Pokračovat */
+  /* SCHEMA 86 (rozhodnutí vlastníka 5. 11. 2026, bod 3): otázky kroku 1 jedna po druhé – „Změnit“ otevře zodpovězenou otázku, „Pokračovat“ ji sbalí. Do stopy nic nejde (odpovědi zapisují jejich vlastní akce). */
+  mealQ: function (v) { if (!needMeal()) return; var m = S.meal;
+    if (v === 'ins' || v === 'when' || v === 'atmeal') { m.qOpen = v; return; }
+    if (v === 'next:ins') { if (!m.bolus) return; m.q1done = true; m.qOpen = null; return; }
+    if (v === 'next:when') { if (m.at == null) return; m.whenOk = true; m.qOpen = null; return; }
+    if (v === 'next:atmeal') { if (!m.beforeAsked) return; m.atMealOk = true; m.qOpen = null; } },
   mealUnits: function (v) { if (!needMeal()) return; var d = NF.int(v, -60, 60, null); if (d == null) return; S.meal.units = Math.max(1, Math.min(60, (Number.isInteger(S.meal.units) && S.meal.units >= 1 ? S.meal.units : 1) + d)); },
   mealTime: function (v) { if (!needMeal()) return; if (['0', '-5', '-15', '-30', '15'].indexOf(String(v)) < 0) return; S.meal.offset = String(v); }, /* jen hodnoty z voliče (robustnost #5) */
   mealCancelAsk: function () { if (!S.meal) return; S.meal.cancelAsk = true; },

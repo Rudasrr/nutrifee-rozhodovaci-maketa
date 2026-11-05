@@ -55,21 +55,21 @@ test('A02 štítky položek tam, kde působí (R-REAKCE, R-SKORE, R-PODOBNOST, p
   const k = food('Ovesná kaše s mlékem a banánem');
   act('page', 'food'); act('foodOpen', k.id);
   let m = render();
-  assert.match(m, /data-value="R-REAKCE"/, 'R-REAKCE u stupnice v detailu jídla');
-  if (NF.confidence(S(), k.id).reaction) assert.match(m, /data-value="R-SKORE"/, 'R-SKORE u stupně');
+  assert.match(m, /data-item="R-REAKCE"/, 'R-REAKCE u stupnice v detailu jídla (SCHEMA 86: značka, štítek dokreslí prezentační vrstva)');
+  if (NF.confidence(S(), k.id).reaction) assert.match(m, /data-item="R-SKORE"/, 'R-SKORE u stupně');
   /* pokyn lékaře v doctorCard nese štítek pokynu */
   const card = NF.screens.doctorCard(S(), 'I-MENE', 'Méně jídla než obvykle', '');
   assert.match(plain(card), /data-value="I-MENE"/);
   /* přepínač nemoci nese P-NEMOC */
-  act('page', 'today'); m = render(); assert.match(m, /data-value="P-NEMOC"/);
+  act('page', 'today'); m = render(); assert.match(m, /data-item="P-NEMOC"/);
   /* zpětný zápis: otázka na pokles nese B-HYPO */
-  act('mealRetro', 'lunch'); m = render();
-  assert.match(m, /Klesla glukóza do 4 hodin po jídle pod 4 mmol\/l\?<\/b>/);
-  assert.match(m, /data-value="B-HYPO"/);
+  act('mealRetro', 'lunch'); Object.assign(S().meal, { bolus: 'as', at: 11, whenOk: true, beforeAsked: true, before: 7, atMealOk: true }); m = render(); /* SCHEMA 86: otázka na pokles je u nejvyšší hodnoty (4. otázka zpětného zápisu) */
+  assert.match(m, /Klesla glukóza (do 4 hodin po jídle|od jídla zatím) pod 4 mmol\/l\?<\/b>/);
+  assert.match(m, /data-item="B-HYPO"/);
   /* R-PODOBNOST u otázky „podobá se…“ při novém jídle */
   act('mealCancel'); act('startMeal', 'lunch'); act('mealBolus', 'before'); act('mealBefore', '7'); act('mealStep', '2');
   app.bind('meal.q', 'Zcela nové jídlo xyz'); act('mealNewFood'); m = render();
-  if (/Nepovinně: podobá se/.test(m)) assert.match(m, /data-value="R-PODOBNOST"/);
+  if (/Nepovinně: podobá se/.test(m)) assert.match(m, /data-item="R-PODOBNOST"/);
 });
 
 test('A03 zamítnutá R-REAKCE: milník „jídlo už známe“ se nevydává', () => {
@@ -220,7 +220,7 @@ test('A17 zpětný zápis: jedno poděkování, karta výsledku bez „Díky za 
   assert.equal(r.ok, true);
   const th = NF.thanks(S(), r.episode); assert.match(th, /^Díky za doplnění\./, 'jedno poděkování při uložení');
   const res = NF.lastResult(S()); assert.ok(res && res.ep.id === r.episode.id);
-  assert.equal(/Díky za pokus/.test(res.text), false); assert.match(res.text, /s procházkou/);
+  assert.equal(/Díky za pokus/.test(res.text), false); assert.match(res.text, /[Ss] procházkou/);
 });
 
 test('A18 nabídnutá shoda: „Žádné jídlo neodpovídá“ se neříká', () => {

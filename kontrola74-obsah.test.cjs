@@ -79,7 +79,7 @@ test('B1: pravidla v zařazení jsou vlastní blok, cíle se nabízejí až v kr
 });
 test('B2, B4: zpětná snídaně s čipem „nad 15“ ukáže pravidlo I-VYSOKA a otázku při rozchodu', ({ NF, D }) => {
   const st = D.tour.stepsFor('lateMeal', D.defaults);
-  assert.ok(st.some(k => (k.do || []).some(o => o.act === 'mealPeak' && o.val === 'high') && k.watch === '.card.doc.high-now'));
+  assert.ok(st.some(k => (k.do || []).some(o => o.act === 'mealPeak' && o.val === 'high') && /^\.card\.doc\.high-past(,|$)/.test(String(k.watch)))); /* SCHEMA 86 (33/06 odd. 2): vysoká hodnota z minulosti má kartu .high-past (po zamítnutí I-VYSOKA zůstává .high-now s oznámením) */
   assert.ok(st.some(k => (k.do || []).some(o => o.act === 'foodDiverge')));
   const sc = D.sceneItems[D.scenes.findIndex(x => D.chapters[x.ch].id === 'lateMeal')]; assert.ok(sc.targets['I-VYSOKA'] > 0);
   const s = at({ NF, D }, 'advice'), e = s.episodes.find(x => x.id === 'E7c');
@@ -112,7 +112,7 @@ test('B14, B16: nový plán říká proč; Bezpečí „schválil je odborný ga
   assert.match(text({ NF, D }, b), /Tato pravidla připravil NutriFee a posoudil je lékař\./); /* SCHEMA 78 (rozhodnutí 10) */ /* slovo „garant“ pacient nevidí (hlavní test) */ assert.doesNotMatch(text({ NF, D }, b), /schválil je lékař/);
 });
 test('B17, B18: zamítnutá B-HYPO skryje otázku na pokles; zamítnutá I-MENE ukáže oznámení na místě pravidla', ({ NF, D }) => {
-  const s = at({ NF, D }, 'firstResult'); NF.setManualPeak(s, 'E1', 12); reject(NF, s, 'B-HYPO');
+  const s = at({ NF, D }, 'firstResult'); s.meal.bolus = s.meal.bolus || 'as'; /* SCHEMA 86: dotaz k minulému jídlu je druhá otázka kroku 1 */ NF.setManualPeak(s, 'E1', 12); reject(NF, s, 'B-HYPO');
   assert.doesNotMatch(P.screenHtml(NF, s), /data-action="lowChip"/, 'otázka na pokles se neptá'); assert.match(P.screenHtml(NF, s), /data-off="B-HYPO"/);
   const h = at({ NF, D }, 'hypo'); reject(NF, h, 'I-MENE'); h.meal.step = 3;
   const html = P.screenHtml(NF, h); assert.match(html, /data-off="I-MENE"/); assert.doesNotMatch(P.norm(P.screenText(P.parse(html))), /řiďte se bezpečnostními pravidly v Bezpečí/);

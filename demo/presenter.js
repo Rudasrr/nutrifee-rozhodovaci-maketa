@@ -5,6 +5,11 @@
 'use strict';
 var NF = global.NutriFee, e = NF.esc;
 NF.slots.demoBar = true; /* lišta ukázky nese štítek DEMO; jádro ho pak neopakuje (vlastník 26. 10. 2026) */
+/* SCHEMA 86 (rozhodnutí vlastníka 5. 11. 2026, bod 1; 33/06 odd. 1): pacient štítky schvalování nevidí – jádro u pacienta kreslí jen značku data-item.
+   Ukázku ale čte garant (případně správce): prezentační vrstva mu štítek u značky dokreslí, aby u pacientské obrazovky viděl, která položka na místě působí,
+   a mohl ji otevřít a rozhodnout. Štítek je přesně ten, který jádro kreslí lékaři (stav ◌ / ✓ / ✕); provozní položky štítek nemají (jádro je ani nepředá).
+   Produkční sestavení (bez demo/) slot nemá, takže pacient štítky nevidí. */
+NF.slots.patientTag = function (s, id, html) { return html || ''; };
 var D = global.NutriFeeDemo, T = D.tour;
 var doc = global.document;
 var btn = function (l, a, v, c, x) { return NF.screens.btn(l, a, v, c, x); };
@@ -132,7 +137,7 @@ function homeScene(s) { return storyHome && D.scenes[storyHome.scene] ? storyHom
    kapitoly (štítek tam musí být ve výřezu cíle; SCHEMA 75, B6: B-HYPO u karty po druhém poklesu, ne už u otázky). Zbytek jde do souhrnu ve finále. */
 D.itemScene = {
   'I-MENE': { ch: 'afterBolus' }, 'I-NEVIM': { ch: 'afterBolus' }, /* pokyn na obrazovce po menší porci a po „Nevím“ (C07) */
-  'B-HYPO': { ch: 'hypo', step: 5 }, 'I-HYPO': { ch: 'hypo' }, /* scéna „menší porce a pokles pod 4“ (C24, Q5); B-HYPO u karty „Druhý pokles za 7 dní“ (B6, SCHEMA 75) */
+  'B-HYPO': { ch: 'hypo', step: 5 }, 'I-HYPO': { ch: 'hypo', step: 4 }, /* SCHEMA 86: otázka na pokles (krok 3) nese pravidlo k nízké glukóze krátce, ale rámeček je na odpovědích – I-HYPO se rozhoduje u karty „Pokles pod 4 je zapsaný“ (krok 4) jako dřív */ /* scéna „menší porce a pokles pod 4“ (C24, Q5); B-HYPO u karty „Druhý pokles za 7 dní“ (B6, SCHEMA 75) */
   'I-VYSOKA': { ch: 'lateMeal' }, /* karta „Nejvyšší hodnota po jídle nad 15“ ve zpětném zápisu (B2, SCHEMA 75) */
   'I-KONTAKT': { ch: 'doses', step: 6 }, /* M6 (kontrola 2): vlastní krok s řádkem kontaktů; v seznamu pravidel je 1300 px pod jeho začátkem */
   'D-PRAND': { ch: 'reviewProposals' }, /* SCHEMA 84 (32/03 B4): u karty ke snídani v kroku 2 kontroly („Proč návrh vznikl“), ne u tabulky jídel dne v kroku 1, kde má štítek také */
@@ -1259,7 +1264,7 @@ function actOverview(s, idx) {
 }
 /* Co je právě vlevo na obrazovce – panel to říká vždy, aby vyprávění nikdy nebylo „pozadu“ (8. 10. 2026). */
 /* V8 (21. 10. 2026): každá obrazovka má název; syrový klíč se nikdy neukáže. */
-var PAGE_NOM = { intro: 'Úvod', registry: 'Schvalovací registr', trace: 'Verze a stopa', review: 'Kontrola', enroll: 'Zařazení a plán', training: 'Zaučení', today: 'Dnes', foods: 'Jídla', food: 'Detail jídla', plan: 'Plán', safety: 'Bezpečí', preview: 'Přehled před kontrolou', meal: 'Zápis jídla', understand: 'Převzetí plánu', takeover: 'Převzetí plánu', newplan: 'Nový plán', import: 'Dnes', importPage: 'Nahrát export' };
+var PAGE_NOM = { intro: 'Úvod', registry: 'Schvalovací registr', trace: 'Verze a stopa', review: 'Kontrola', enroll: 'Zařazení a plán', training: 'Zaučení', today: 'Dnes', foods: 'Jídla', food: 'Detail jídla', plan: 'Můj plán', safety: 'Bezpečí', preview: 'Přehled před kontrolou', meal: 'Zápis jídla', understand: 'Převzetí plánu', takeover: 'Převzetí plánu', newplan: 'Nový plán', import: 'Dnes', importPage: 'Nahrát export' };
 D.pageNames = PAGE_NOM;
 function whereNow(s) {
   if (s.page === 'intro') return ''; /* S12: úvod není obrazovka lékaře */

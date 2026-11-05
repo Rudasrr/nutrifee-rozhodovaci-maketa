@@ -73,7 +73,8 @@ D.explain = [
   { id: 'result', sel: '.card.result', box: true, title: 'Jak to dopadlo',
     text: function (S) { return 'Když pacient opíše nejvyšší hodnotu po jídle, ukážeme mu věcný výsledek: v cíli znamená nejvýš ' + dec(tg(S, 'high')) + ' mmol/l. Za přijatou radu poděkujeme jednou, hodnotu glukózy nikdy nechválíme ani nekáráme. Opsané hodnoty později upřesní export ze senzoru.'; },
     item: 'R-REAKCE' },
-  { id: 'advice-portion', sel: '.advice .tag.warn', box: true, title: 'Rada, která mění množství jídla',
+  /* SCHEMA 86 (33/06 odd. 3): štítek „mění množství jídla“ zrušen – vysvětlení je u hlavní rady, když je to rada k porci */
+  { id: 'advice-portion', sel: '.advice-card .advice.main', has: '[data-value="portion:yes"]', box: true, title: 'Rada, která mění množství jídla',
     text: 'Rada k porci má nejpřísnější pravidla. Před píchnutím vede k obvyklé porci oběma směry, po píchnutí a při „nevím“ jen z větší porce zpět k obvyklé. Nikdy neřekne „snězte víc“.',
     item: 'R-PORCE' },
   { id: 'advice', sel: '.advice .text', box: true, title: 'Rada před jídlem',
@@ -89,11 +90,11 @@ D.explain = [
   { id: 'doc-voice', sel: '.doc-voice', box: true, title: 'Bezpečnostní pravidlo',
     text: 'Obecné pravidlo NutriFee, stejné pro všechny pacienty, schválené garantem. Nemá uvozovky ani podpis lékaře, protože ho lékař nepíše ani nevybírá. Aplikace k němu nic nepřidává; hodnotu lze změnit jen u konkrétního pacienta při vydání plánu.',
     item: 'R-POKYNY' },
-  { id: 'path', sel: '.card.path', box: true, title: 'Cesta ke kontrole',
-    text: 'Pacient vidí, kolik dní zbývá do kontroly a jak mu přibývají zápisy. Připomíná mu, proč zapisuje: data otevře lékař až s ním v ordinaci. Mezi kontrolami je nikdo nečte.',
+  { id: 'path', sel: '.card.path', box: true, title: 'Cesta ke kontrole', /* SCHEMA 86: karta je v Mém plánu (příběh tam zajde ve scéně „otevřel aplikaci až v 10:15“) */
+    text: 'V Mém plánu pacient vidí, kolik dní zbývá do kontroly a jak mu přibývají zápisy. Připomíná mu, proč zapisuje: data otevře lékař až s ním v ordinaci. Mezi kontrolami je nikdo nečte.',
     item: null }, /* C10: karta je provozní (S-CESTA) */
-  { id: 'sick', sel: '.sick', box: true, title: 'Není mi dobře',
-    text: function (S) { return 'Přepínač zapíná pacient sám. Během nemoci aplikace k jídlu neradí, ukazuje jen pravidla pro nemoc a zápisy se nepočítají do učení ani do návrhů k dávce. Po ' + prm(S, 'P-NEMOC', 'dny') + ' dnech přidá kartu s pravidlem k nemoci; nemoc ukončuje zase pacient.'; },
+  { id: 'sick', sel: '.sick-chip', box: true, title: 'Není mi dobře', /* SCHEMA 86: malé tlačítko v řádku pozdravu */
+    text: function (S) { return 'Tlačítko vedle pozdravu zapíná pacient sám. Během nemoci aplikace k jídlu neradí, ukazuje jen pravidla pro nemoc a zápisy se nepočítají do učení ani do návrhů k dávce. Po ' + prm(S, 'P-NEMOC', 'dny') + ' dnech přidá kartu s pravidlem k nemoci; nemoc ukončuje zase pacient.'; },
     item: 'P-NEMOC' },
 
   /* ----- lékař: zařazení a plán ----- */

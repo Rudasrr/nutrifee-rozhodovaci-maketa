@@ -476,7 +476,7 @@ D.nightSpec = function () { var x = seriesRun && seriesRun.fin.specs.filter(func
 D.nightFinish = function (S, B) {
   var sp = D.nightSpec(); series(S, B || S.branches, sp ? NF.addMin(sp.at, 1) : D.NIGHT_SCENE);
   S.clock = sp ? NF.addMin(sp.at, 2) : S.clock; S.meal = null; S.page = 'today';
-  if (sp && S.episodes.some(function (x) { return x.id === sp.id && x.manual && x.manual.nightLow; })) S.lowNotice = { at: S.clock }; /* karta „Pokles pod 4 je zapsaný“ na Dnes, jako po uložení v aplikaci */
+  if (sp && S.episodes.some(function (x) { return x.id === sp.id && x.manual && x.manual.nightLow; })) S.lowNotice = { at: S.clock, night: true }; /* karta „Pokles pod 4 je zapsaný“ na Dnes, jako po uložení v aplikaci (SCHEMA 86, 33/06 odd. 4: night jako NF.saveEpisode) */
 };
 D.firstQuestion = function (S) {
   var page = S.page, role = S.role, html = '';

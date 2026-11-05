@@ -943,3 +943,70 @@ details.path-compact>summary .ico{width:var(--nf-icon-sm);height:var(--nf-icon-s
 .night-low .choice.chip{width:auto;padding-inline:var(--nf-s4)}
 /* SCHEMA 80 (31/02 B3): HbA1c voličem – hodnota mřížkou a datum odběru výběrem */
 .hba-field select{min-height:var(--nf-tap);font:inherit}
+/* ---------- SCHEMA 86 „méně je víc“ (rozhodnutí vlastníka 5. 11. 2026; vzory z navrhy-designu/33/navrhy/navrh.css, hodnoty jen z tokenů) ---------- */
+/* Krok 1: zodpovězená otázka jako řádek se „Změnit“, čekající jako šedý řádek s číslem, číslo otevřené otázky */
+.qdone{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:var(--nf-s3);padding:var(--nf-s3) var(--nf-s4);background:var(--nf-surface);border-radius:var(--nf-r-md);box-shadow:var(--nf-sh-card);margin-bottom:var(--nf-s3)}
+.qdone .ck{width:var(--nf-radio);height:var(--nf-radio);border-radius:50%;background:var(--nf-ok-bg);color:var(--nf-ok-text);display:grid;place-items:center}
+.qdone .ck svg.ico{width:var(--nf-icon-3xs);height:var(--nf-icon-3xs);stroke-width:3}
+.qdone small{display:block;color:var(--nf-muted);font-size:var(--nf-fs-xs)}
+.qdone b{font-size:var(--nf-fs-md)}
+.qdone .tag{margin-left:var(--nf-s1)}
+.qnext{display:flex;align-items:center;gap:var(--nf-s3);padding:var(--nf-s2) var(--nf-s4);color:var(--nf-muted);font-size:var(--nf-fs-sm)}
+.qnext .n{width:var(--nf-radio);height:var(--nf-radio);border-radius:50%;border:var(--nf-bw) solid var(--nf-line-strong);display:grid;place-items:center;font-size:var(--nf-fs-xs);font-weight:var(--nf-w-strong);flex:none}
+.qnum{display:inline-grid;place-items:center;width:var(--nf-radio);height:var(--nf-radio);border-radius:50%;background:var(--nf-primary);color:var(--nf-on-primary);font-size:var(--nf-fs-xs);font-weight:var(--nf-w-strong);margin-right:var(--nf-s2)}
+.q-h{display:flex;align-items:center}
+/* Řádek „co bude dál“ pod hlavním tlačítkem (P6) */
+.next-line{font-size:var(--nf-fs-sm);color:var(--nf-muted);text-align:center;margin:var(--nf-s2) 0 0}
+.next-line.ta-l{text-align:left}
+.next-line svg.ico{width:var(--nf-icon-3xs);height:var(--nf-icon-3xs);vertical-align:var(--nf-ico-valign-sm)}
+/* Výsledek jednou, velkým písmem a se štítkem stavu */
+.state-big{display:flex;align-items:center;flex-wrap:wrap;gap:var(--nf-s2);font-family:var(--nf-font-display);font-size:var(--nf-fs-xl);font-weight:var(--nf-w-display-strong);margin:var(--nf-s2) 0}
+.state-big.over{color:var(--nf-over-text)}.state-big.ok{color:var(--nf-ok-text)}.state-big.low{color:var(--nf-low-text)}
+/* Řádek se šipkou na stránku (vzor „víc o datech“) */
+.rowlink{display:flex;align-items:center;justify-content:space-between;gap:var(--nf-s2);width:100%;min-height:var(--nf-tap);padding:var(--nf-s2) 0;margin-top:var(--nf-s2);border:0;border-top:1px solid var(--nf-line);background:transparent;color:var(--nf-primary-strong);font:inherit;font-weight:var(--nf-w-strong);text-align:left;cursor:pointer}
+.rowlink svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm);flex:none}
+.rowlink span small{display:block;color:var(--nf-muted);font-weight:var(--nf-w-text);font-size:var(--nf-fs-xs)}
+/* Rada: hlavní rada plná, další rady jako řádky v téže kartě */
+.advice-card .advice.main{border:0;padding:0;margin:0;background:transparent}
+.advice-card .advice.main.taken{background:transparent}
+.adv-line{display:grid;grid-template-columns:1fr;gap:var(--nf-s2);padding:var(--nf-s3) 0 0;margin-top:var(--nf-s3);border-top:1px solid var(--nf-line)}
+.adv-line.advice{border-radius:0;border-width:1px 0 0;border-style:solid;border-color:var(--nf-line);background:transparent}
+.adv-line.advice.taken{background:transparent;border-color:var(--nf-ok)}
+.adv-line .t{font-weight:var(--nf-w-strong)}
+.adv-line .choice-row{display:flex;gap:var(--nf-s2);margin-top:0}
+.adv-line .choice-row .choice{flex:1}
+.bul{margin:var(--nf-s2) 0 var(--nf-s3);padding-left:var(--nf-s5)}
+.bul li{margin:var(--nf-s1) 0}
+/* Dnes: pozdrav a „Není mi dobře“ v jednom řádku */
+.head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--nf-s3);margin-bottom:var(--nf-s3)}
+.head-row h1{margin:0}
+.head-row.mb-0{margin-bottom:0;align-items:center}
+.sick-chip{display:inline-flex;align-items:center;gap:var(--nf-s1);min-height:var(--nf-tap);padding:0 var(--nf-s3);border-radius:var(--nf-r-pill);border:var(--nf-bw) solid var(--nf-border-control);background:var(--nf-surface);color:var(--nf-ink);font:inherit;font-size:var(--nf-fs-xs);font-weight:var(--nf-w-strong);white-space:nowrap;cursor:pointer;flex:none}
+.sick-chip svg.ico{width:var(--nf-icon-xs);height:var(--nf-icon-xs)}
+.mini-card{padding:var(--nf-s3) var(--nf-s5)}
+.foodrow{display:flex;align-items:center;gap:var(--nf-s3)}
+.foodrow .name{font-weight:var(--nf-w-strong);font-size:var(--nf-fs-md)}
+.q2col{display:grid;grid-template-columns:1fr 1fr;gap:var(--nf-s2)}.q2col .choice{width:100%;justify-content:center}.q2col .wide{grid-column:1 / -1}
+/* Bezpečnostní pravidlo krátce: první krok velkým písmem, „Co dál“ v bodech, celé znění na klepnutí */
+.rule-first{margin:var(--nf-s2) 0 0;font-size:var(--nf-fs-lg);font-weight:var(--nf-w-strong);line-height:1.35;color:var(--nf-ink)}
+.rule-short{margin:var(--nf-s1) 0 0;font-weight:var(--nf-w-semi);color:var(--nf-ink)}
+.rule-next li{font-weight:var(--nf-w-semi)}
+.doc-q.full{font-size:var(--nf-fs-md);font-weight:var(--nf-w-text)}
+.rule-list>li{padding:var(--nf-s1) 0;border-top:1px solid var(--nf-line)}
+.rule-list>li:first-child{border-top:0}
+.rule-list details.more>summary{font-size:var(--nf-fs-md);color:var(--nf-ink)}
+/* Jak si vedu: jedna věta slovem a ikonou */
+.how-line{display:flex;align-items:flex-start;gap:var(--nf-s2);margin:var(--nf-s1) 0;font-weight:var(--nf-w-strong);color:var(--nf-ink)}
+.how-line svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm);flex:none;margin-top:var(--nf-s05)}
+.how-line.ok svg.ico{color:var(--nf-ok-text)}.how-line.over svg.ico,.how-line.mixed svg.ico{color:var(--nf-over-text)}.how-line.few svg.ico{color:var(--nf-muted)}
+/* Můj plán: plnění plánu za týden s fajfkami (jen činy) */
+.habit-week{margin:0}
+.hweek{display:flex;align-items:center;justify-content:space-between;gap:var(--nf-s3);padding:var(--nf-s2) 0;border-top:1px solid var(--nf-line)}
+.hweek:first-child{border-top:0}
+.hweek .marks{display:flex;gap:var(--nf-s1);flex:none}
+.hweek .marks i{width:var(--nf-check);height:var(--nf-check);border-radius:50%;display:grid;place-items:center;border:var(--nf-bw) solid var(--nf-border-control)}
+.hweek .marks i.ok{background:var(--nf-ok);border-color:var(--nf-ok);color:var(--nf-on-primary)}
+.hweek .marks i.future{border-style:dashed;border-color:var(--nf-line-strong)}
+.hweek .marks svg.ico{width:var(--nf-icon-4xs);height:var(--nf-icon-4xs);stroke-width:2.4}
+.fix-ins .btn.link{min-height:var(--nf-tap)}
+.export-how ol{margin-top:var(--nf-s2)}

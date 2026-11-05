@@ -140,7 +140,8 @@ test('C07, C14: scéna 12 ukáže „Nevím“ s pokynem I-NEVIM; menší porce 
   const st = D.tour.stepsFor('afterBolus', D.defaults);
   assert.ok(st.some(k => (k.needs || []).includes('I-NEVIM')));
   const smaller = st.find(k => /menší porce/.test(k.t));
-  assert.ok(/„Méně jídla než obvykle“/.test(smaller.co) && /„Procházka po jídle: teď neradíme“/.test(smaller.co));
+  assert.ok(/„Méně jídla než obvykle“/.test(smaller.co) && /„Proč teď neradíme“/.test(smaller.co)); /* SCHEMA 86 (33/07 bod 6): řádek „Procházka po jídle: teď neradíme“ zrušen, důvody jsou pod „Proč teď neradíme“ */
+  assert.equal(/„Procházka po jídle: teď neradíme“/.test(String(smaller.co)), false, 'SCHEMA 86: vyprávění necituje zrušený řádek');
   assert.equal(/Vyzkoušeno 1×/.test(st.map(k => k.co).join(' ')), false);
 });
 

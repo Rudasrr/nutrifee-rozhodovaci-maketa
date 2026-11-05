@@ -171,7 +171,7 @@ test('C1, C2, C3, C13: výčet pravidel podle seznamu, „nevím“ bez tvrzení
   assert.ok(it); assert.doesNotMatch(it.text, /který už máte v těle/, 'C2'); assert.match(it.text, /Bereme to, jako by inzulin v těle byl/);
   const sm = NF.advise(h, f.id, 'smaller', 'as', 'lunch').blocked.find(b => b.lever === 'portion');
   if (sm && /pravidlem/.test(sm.why)) assert.match(sm.why, /pravidlem „Méně jídla než obvykle“/, 'C3');
-  h.meal.step = 1; assert.match(text(NF, h), /Nevíte, jestli byl inzulin píchnutý\?/, 'C13'); assert.doesNotMatch(text(NF, h), /jste si píchli/);
+  h.meal.step = 1; h.meal.qOpen = 'ins'; /* SCHEMA 86: zodpovězená otázka se otevře „Změnit“ */ assert.match(text(NF, h), /Nevíte, jestli byl inzulin píchnutý\?/, 'C13'); assert.doesNotMatch(text(NF, h), /jste si píchli/);
 });
 
 test('C9, C10: průvodce nežádá poznámku povinně; provozní položky nemají „Co schvalujete“ ani „Co se stane při zamítnutí“', ({ NF, D, S }) => {

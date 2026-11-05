@@ -137,8 +137,8 @@ test('02 B7, C2, C3, C4, C7: bazál „v noci na“, večeře 16. a 17. 10., jme
 
 /* ---------- rozhodnutí vlastníka 1. 11. 2026, bod 7: noční pokles čipem u snídaně ---------- */
 test('Bod 7: čip „V noci klesla glukóza pod 4“ jen u snídaně, bez rodu, se štítkem B-HYPO; počítá se do poklesů za 7 dní; ne na noc, na kterou se ptá otázka po večeři', ({ NF, D }) => {
-  const s = at({ NF, D }, 'firstMeal'); const h = NF.screens.patient(s);
-  assert.match(h, /data-action="mealNightLow"/); assert.match(plain(h), /V noci klesla glukóza pod 4/); assert.match(h, /data-value="B-HYPO"/);
+  const s = at({ NF, D }, 'firstMeal'); s.meal.bolus = 'before'; /* SCHEMA 86: čip je u otázky „glukóza teď“ (třetí otázka kroku 1) */ const h = NF.screens.patient(s);
+  assert.match(h, /data-action="mealNightLow"/); assert.match(plain(h), /V noci klesla glukóza pod 4/); assert.match(h, /data-item="B-HYPO"|data-value="B-HYPO"/);
   assert.doesNotMatch(NF.item(s, 'B-HYPO').texts.nocCip + NF.item(s, 'B-HYPO').texts.nocCipPomoc, /jsem|měl\(a\)|byl\(a\)/);
   s.meal.meal = 'lunch'; assert.doesNotMatch(NF.screens.patient(s), /mealNightLow/, 'jen u snídaně');
   const r = at({ NF, D }, 'firstMeal'); r.meal.nightLow = true; const ep = NF.saveEpisode(r, { meal: 'breakfast', foodId: r.foods[0].id, portion: 'usual', bolusState: 'before', advice: [], insulin: { confirmed: 'as', units: 8, time: '07:00' }, nightLow: true, before: 7 }).episode;
@@ -150,7 +150,7 @@ test('Bod 7: v příběhu pacient zapíše noční poklesy 25. 12. a 1. 1.; kart
   const s = at({ NF, D }, 'preview'), nl = NF.nightLows(s).map(x => NF.day(x.at)); assert.equal(nl.join(), '2026-12-25,2027-01-01');
   const ni = D.scenes.findIndex(x => D.chapters[x.ch].id === 'nightLow'); assert.ok(ni > 0 && !D.scenes[ni].appendix);
   app.act('goScene', String(ni)); app.act('closeDrawer'); for (let i = 0; i < 12 && S().page === 'meal'; i++) { const pn = D.pendingNow(S()); pn.ids.forEach(id => app.act('garantDecide', id + ':approved')); app.act('tourNext'); }
-  const t = text({ NF, D }, S()); assert.match(t, /Pokles pod 4 je zapsaný/); assert.match(t, /1 ze 2/); assert.equal(NF.hypoAlert(S()), null);
+  const t = text({ NF, D }, S()); assert.match(t, /Pokles pod 4 je zapsaný/); assert.match(t, /Pokles jsme zapsali\. Lékař ho uvidí na kontrole\./); assert.doesNotMatch(t, /1 ze 2/); /* SCHEMA 86 (oprava 05): bez odpočtu */ assert.equal(NF.hypoAlert(S()), null);
   const r = at({ NF, D }, 'reviewProposals'); r.role = 'doctor'; r.page = 'review'; r.review.step = 1;
   assert.match(plain(NF.screens.doctor(r)), /Noční pokles pod 4, který pacient sám zapsal u snídaně: v noci na 25\. 12\., v noci na 1\. 1\./);
   assert.match(plain(NF.screens.doctor(r)), /hlášené poklesy po jídle: 2 /, 'noční poklesy nejsou „po jídle“');
