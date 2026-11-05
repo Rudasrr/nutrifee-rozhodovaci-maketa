@@ -137,12 +137,12 @@ test('B2: nejvyšší hodnota „nad 15“ z minulosti začíná „Podívejte s
 /* ---------- prohlížeč B1, M2 ---------- */
 test('Prohlížeč B1: zamítnutí D-BAZAL během kontroly odebere návrh k bazálu; další návrh je snídaně; po schválení se vrátí', ({ NF, D }) => {
   const s = at(D, 'reviewProposals'); s.role = 'doctor';
-  assert.equal(NF.nextProposal(s).id, 'PR-BAZAL');
+  assert.equal(NF.nextProposal(s).id, 'PR-BREAKFAST'); assert.ok(s.review.proposals.some(p => p.id === 'PR-BAZAL' && !p.row), 'karta bazálu je (SCHEMA 84: bez přednosti, za jídly)');
   decide(NF, s, 'D-BAZAL', 'rejected');
-  assert.equal(s.review.proposals.some(p => p.id === 'PR-BAZAL'), false); assert.equal(NF.nextProposal(s).id, 'PR-BREAKFAST');
+  assert.equal(s.review.proposals.some(p => p.id === 'PR-BAZAL' && !p.row), false); assert.equal(NF.nextProposal(s).id, 'PR-BREAKFAST'); /* SCHEMA 84: řádek bazálu bez návrhu není karta */
   assert.equal(s.review.newDoses.basal.units, NF.activePlan(s).doses.basal.units);
   assert.doesNotMatch(text(NF, s), /Posoudit bazální dávku/);
-  decide(NF, s, 'D-BAZAL', 'approved'); assert.equal(NF.nextProposal(s).id, 'PR-BAZAL');
+  decide(NF, s, 'D-BAZAL', 'approved'); assert.ok(s.review.proposals.some(p => p.id === 'PR-BAZAL' && !p.row), 'po schválení se karta vrátí'); assert.equal(NF.nextProposal(s).id, 'PR-BREAKFAST');
   /* D-POSTUP zamítnutý během kontroly: karty ztratí body a větve */
   decide(NF, s, 'D-POSTUP', 'rejected'); assert.equal(s.review.proposals.every(p => !p.branches.length), true);
 });

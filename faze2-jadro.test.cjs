@@ -250,7 +250,7 @@ test('A21 A22 texty zaučení a výchozích hodnot; A23 obráceně (SCHEMA 74): 
   assert.match(NF.FIXED_TRAINING.find(x => x[0] === 'export')[1], /před kontrolou pošle do ordinace export ze senzoru/);
   chapter('enroll'); act('role', 'doctor'); act('page', 'enroll');
   const m = render();
-  assert.match(m, /Hodnoty převezměte voličem ze souhrnu v aplikaci senzoru za poslední měsíc před zařazením\./);
+  assert.match(m, /Hodnoty převezměte posuvníkem ze souhrnu v aplikaci senzoru za poslední měsíc před zařazením\./); /* SCHEMA 84 (rozhodnutí 9, agent P+D) */
   assert.doesNotMatch(m, /data-value="shared"|nasdíl|klinick\S* účt/);
   NF.ELIGIBILITY.forEach(c => NF.setEligibility(S(), c[0], true)); assert.equal(S().enrollment.eligible, true, 'čtyři podmínky stačí');
   review(); const r = render();

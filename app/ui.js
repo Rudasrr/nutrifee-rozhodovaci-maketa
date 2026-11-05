@@ -167,7 +167,7 @@ function focusKey(a) {
 }
 function drawerLabel(name) {
   var l = ''; try { l = NF.slots.drawerLabel ? NF.slots.drawerLabel(name) : ''; } catch (err) { l = ''; }
-  return l || (name === 'safety' ? 'Bezpečí' : name === 'acute' ? 'Akutní problém' : name.indexOf('item:') === 0 ? 'Položka registru' : 'Podrobnosti');
+  return l || (name === 'safety' ? 'Bezpečí' : name === 'acute' ? 'Pravidla a kontakty' : name.indexOf('item:') === 0 ? 'Položka registru' : 'Podrobnosti');
 }
 function renderDrawer() {
   var el = global.document && global.document.getElementById('overlay'); if (!el) return;
@@ -245,7 +245,6 @@ function newMeal(meal) {
 var A = {
   noop: function () { },
   useHere: function () { S = NF.load(); locked = false; }, /* B7: pokračovat v tomto okně se stavem, který uložilo jiné okno */
-  enrollPad: function () { S.enrollment.pad = !S.enrollment.pad; },
   animReplay: function (v) { /* restart CSS animace: odebrat a vrátit třídu play; stav se nemění, stopa nic nezapisuje */
     var d = global.document; if (!d || !d.querySelector) return;
     try { var el = d.querySelector('[data-anim="' + v + '"]'); if (!el) return; el.classList.remove('play'); void el.offsetWidth; el.classList.add('user'); el.classList.add('play'); } catch (err) { } /* „user“: přehrát i při omezení pohybu, když o to člověk sám požádá (04 #13) */
@@ -274,7 +273,12 @@ var A = {
   exclusion: function () { NF.setEligibility(S, NF.EXCLUSION[0], NF.excluded(S)); },
   targetPreset: function (v) { if (S.draft) NF.setTargetPreset(S, S.draft.targets, v); },
   nurseCheck: function (v) { var p = String(v).split(':'), cur = NF.nurseAnswer(S, p[0]), val = p[1] === 'yes' ? true : p[1] === 'no' ? false : null; NF.setNurseCheck(S, p[0], cur === val ? null : val); },
-  nurseMeds: function (v) { if (!NF.setNurseMeds(S, v).ok) return fail('Vyberte, zda se léky měnily.'); },
+  nurseMeds: function (v) { if (!NF.setNurseMeds(S, v).ok) return fail('Vyberte, zda pacient začal brát jiný lék na diabetes.'); },
+  /* SCHEMA 84 (bod 5, C8): zdravotní stav je druhá otázka sestry a kroku 1 */
+  nurseHealth: function (v) { if (!NF.setNurseHealth(S, v).ok) return fail('Vyberte, zda se změnil zdravotní stav.'); },
+  /* SCHEMA 84 (bod 6): hmotnost pro kontrolu vybere sestra (posuvník po 1 kg a ±1); zámek jako u HbA1c sestry */
+  nurseWeightSet: function (v) { if (hbaLocked('sestra')) return; var r = NF.setWeight(S, 'sestra', NF.int(v, 30, 250, null)); if (!r.ok) return fail(r.error); },
+  nurseWeightStep: function (v) { if (hbaLocked('sestra')) return; var w = NF.weightFor(S, NF.activePlan(S), S.clock).now, d = NF.int(v, -10, 10, null); if (!w || d == null) return; var r = NF.setWeight(S, 'sestra', w.kg + d, w.date); if (!r.ok) return fail(r.error); },
   /* B3 (31/02): HbA1c voličem – hodnota mřížkou nebo ±1, datum odběru výběrem; src „karta“ (zařazení) nebo „sestra“ (pro kontrolu) */
   hbaSet: function (v) { var p = String(v).split(':'); if (['karta', 'sestra'].indexOf(p[0]) < 0 || hbaLocked(p[0])) return; var cur = hbaEntry(p[0]); var r = NF.setHba1c(S, p[0], NF.int(p[1], 20, 150, null), cur ? cur.date : null); if (!r.ok) return fail(r.error); if (p[0] === 'sestra' && S.nurseCheck) S.nurseCheck.hbaNone = false; },
   hbaStep: function (v) { var p = String(v).split(':'), cur = hbaEntry(p[0]), d = NF.int(p[1], -10, 10, null); if (!cur || d == null || hbaLocked(p[0])) return; var r = NF.setHba1c(S, p[0], cur.v + d, cur.date); if (!r.ok) return fail(r.error); },
@@ -292,6 +296,11 @@ var A = {
   dose: function (v) { var p = String(v).split(':'), d = NF.int(p[1], -60, 60, null); if (!S.draft || d == null || ['basal', 'breakfast', 'lunch', 'dinner'].indexOf(p[0]) < 0) return; NF.setDose(S, p[0], d); },
   basalTime: function (v) { if (S.draft && /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v))) S.draft.doses.basal.time = v; }, /* čas bazálu voličem (15, odst. 4.3) */
   target: function (v) { var p = String(v).split(':'), d = NF.int(p[1], -10, 10, null); if (S.draft && d != null) NF.setTarget(S.draft.targets, p[0], d); },
+  /* Posuvník hodnoty (rozhodnutí 9): cíle a hodnoty pravidel se nastavují přímo hodnotou; meze a krok drží jádro (NF.TARGET_STEPS, katalog pravidel) */
+  targetSet: function (v) { var p = String(v).split(':'); if (S.draft) NF.setTargetValue(S.draft.targets, p[0], Number(p[1])); },
+  revTargetSet: function (v) { var p = String(v).split(':'); if (S.review && !S.review.planIssued) NF.setTargetValue(S.review.newTargets, p[0], Number(p[1])); },
+  instrSet: function (v) { var p = String(v).split(':'), c = NF.instructionCatalog().filter(function (x) { return x.id === p[0]; })[0], ex = S.draft && S.draft.instructions.filter(function (x) { return x.id === p[0]; })[0]; if (!ex || !c || c.fixed || !Number.isFinite(Number(p[1]))) return; ex.value = NF.instrClamp(c, Number(p[1])); },
+  revInstrSet: function (v) { var p = String(v).split(':'), c = NF.instructionCatalog().filter(function (x) { return x.id === p[0]; })[0], r = S.review, ex = r && !r.planIssued && r.newInstructions.filter(function (x) { return x.id === p[0]; })[0]; if (!ex || !c || c.fixed || !Number.isFinite(Number(p[1]))) return; ex.value = NF.instrClamp(c, Number(p[1])); },
   revTarget: function (v) { var p = String(v).split(':'), d = NF.int(p[1], -10, 10, null); if (S.review && !S.review.planIssued && d != null) NF.setTarget(S.review.newTargets, p[0], d); },
   revInstrToggle: function (v) {
     var c = NF.instructionCatalog().filter(function (x) { return x.id === v; })[0], r = S.review; if (!r) return;
@@ -385,13 +394,19 @@ var A = {
   mealPeak: function (v) { if (!needMeal()) return; var c = NF.chip(v); S.meal.peak = c.mmol; S.meal.peakBound = c.bound; S.meal.peakAsked = true; if (c.bound === 'under') { S.meal.low = true; S.meal.lowAsked = true; } if (c.bound === 'over') NF.noteHigh(S, 'peak'); }, /* u zpětného zápisu: nejvyšší po jídle; „pod 4“ = pokles */
   mealLow: function (v) { if (!needMeal()) return; S.meal.low = v === 'yes' ? true : v === 'no' ? false : null; S.meal.lowAsked = true; },
   mealExpand: function (v) { if (!needMeal()) return; S.meal.compact = S.meal.compact || {}; delete S.meal.compact[v]; },
-  peakChip: function (v) { var p = v.split(':'); var c = NF.chip(p[1]); var r = NF.setManualPeak(S, p[0], c.mmol == null ? null : c.mmol, c.bound); if (!r.ok) return fail(r.error); if (r.low) S.lowNotice = { at: S.clock }; else if (!r.skipped) { if (c.bound === 'over') NF.noteHigh(S, 'peak', p[0]); toast('Díky. Výsledek je na Dnes.'); } },
+  peakChip: function (v) { var p = v.split(':'); var c = NF.chip(p[1]); var r = NF.setManualPeak(S, p[0], c.mmol == null ? null : c.mmol, c.bound); if (!r.ok) return fail(r.error); if (S.vsPick) delete S.vsPick['peak-' + p[0]]; if (r.low) S.lowNotice = { at: S.clock }; else if (!r.skipped) { if (c.bound === 'over') NF.noteHigh(S, 'peak', p[0]); toast('Díky. Výsledek je na Dnes.'); } },
   lowChip: function (v) { var p = v.split(':'); var r = NF.setManualLow(S, p[0], p[1]); if (!r.ok) return fail(r.error); if (p[1] === 'yes') S.lowNotice = { at: S.clock }; if (S.meal) { S.meal.prevDone = S.meal.prevDone || []; if (S.meal.prevDone.indexOf(p[0]) < 0) S.meal.prevDone.push(p[0]); } },
+  /* Posuvník v režimu potvrzení (SCHEMA 84, rozhodnutí 9): volba se jen podrží, uloží ji „Uložit“ (nejvyšší hodnota po minulém jídle). Hodnota jako čip: 4–15, low, high. */
+  vsPick: function (v) {
+    var i = String(v).lastIndexOf('|'); if (i < 1) return; var id = String(v).slice(0, i), t = String(v).slice(i + 1), c = NF.chip(t);
+    if (!/^peak-[\w-]+$/.test(id) || (t !== 'low' && t !== 'high' && (c.mmol == null || c.mmol < 4 || c.mmol > 15))) return;
+    S.vsPick = S.vsPick || {}; S.vsPick[id] = t === 'low' ? 3 : t === 'high' ? 16 : Math.round(c.mmol);
+  },
   /* „Změnit“ u sbaleného řádku minulého jídla: otázky se znovu otevřou (jen během rozpracovaného zápisu) */
-  prevReopen: function (v) { if (!needMeal()) return; var ep = S.episodes.filter(function (x) { return x.id === v; })[0]; if (!ep || !ep.manual) return; ep.manual.peak = null; ep.manual.peakBound = null; ep.manual.lowAsked = false; ep.manual.low = null; ep.peak = NF.epPeak(S, ep); ep.rise = NF.epRise(S, ep); S.meal.prevDone = (S.meal.prevDone || []).filter(function (x) { return x !== v; }); },
+  prevReopen: function (v) { if (!needMeal()) return; var ep = S.episodes.filter(function (x) { return x.id === v; })[0]; if (!ep || !ep.manual) return; ep.manual.peak = null; ep.manual.peakBound = null; ep.manual.lowAsked = false; ep.manual.low = null; ep.peak = NF.epPeak(S, ep); ep.rise = NF.epRise(S, ep); S.meal.prevDone = (S.meal.prevDone || []).filter(function (x) { return x !== v; }); if (S.vsPick) delete S.vsPick['peak-' + v]; },
   /* odpověď „ano, pod 4“ nezmizí v toastu: na Dnes zůstane karta s pravidlem, dokud ji pacient nepotvrdí (19. 10. 2026) */
   hypoAnswer: function (v) { var p = v.split(':'); var r = NF.answerHypoWatch(S, p[0], p[1]); if (!r.ok) return fail(r.error); if (r.low) S.lowNotice = { at: S.clock }; else toast('Zapsáno.'); },
-  lowNoticeSeen: function () { S.lowNotice = null; },
+  lowNoticeSeen: function () { S.lowNotice = null; S.hypoRuleSeen = S.clock; }, /* C4 (32/01): pravidlo I-HYPO pacient viděl */
   hypoAlertSeen: function () { NF.hypoAlertSeen(S); }, /* karta po opakovaných poklesech se zavírá „Rozumím“ (SCHEMA 74) */
   pendingInsulin: function (v) { var p = v.split(':'); var r = NF.confirmPendingInsulin(S, p[0], p[1]); if (!r.ok) return fail(r.error); toast(p[1] === 'as' ? 'Inzulin je zapsaný.' : 'Zapsáno.'); },
   takeoverPage: function (v) { var trained = !!(S.training && S.training.result === 'done'); S.onboarding.page = trained ? NF.int(v, 1, 6, 1) : 1; }, /* bez zaučení dál než na první stránku nepustí (A26) */
@@ -471,7 +486,14 @@ var A = {
     r.step = n; S.error = '';
   },
   reviewTile: function (v) { if (!S.review) return; S.review.tile = S.review.tile === v ? null : v; },
-  reviewMeds: function (v) { if (reviewLocked()) return; var r = NF.setReviewMeds(S, v); if (!r.ok) return fail('Vyberte, zda se léky měnily.'); },
+  reviewMeds: function (v) { if (reviewLocked()) return; var r = NF.setReviewMeds(S, v); if (!r.ok) return fail('Vyberte, zda pacient začal brát jiný lék na diabetes.'); },
+  reviewHealth: function (v) { if (reviewLocked()) return; if (!NF.setReviewHealth(S, v).ok) return fail('Vyberte, zda se změnil zdravotní stav.'); },
+  /* SCHEMA 84 (bod 1): volič u každé dávky v kroku 3 – změna vytvoří nebo přepíše rozhodnutí u karty / řádku dané dávky */
+  revDose: function (v) { if (reviewLocked()) return; var p = String(v).split(':'), d = NF.int(p[1], -60, 60, null); if (d == null || !S.review.newDoses[p[0]]) return; var r = NF.stepPlanDose(S, p[0], d); if (!r.ok) return fail(r.error || 'Dávku nejde nastavit.'); },
+  revDoseSet: function (v) { if (reviewLocked()) return; var p = String(v).split(':'); var r = NF.setPlanDose(S, p[0], NF.int(p[1], 1, 60, null)); if (!r.ok) return fail(r.error || 'Vyberte dávku.'); },
+  /* SCHEMA 84 (bod 6): návyky přepínačem a platnost plánu voličem v kroku 3 */
+  revHabit: function (v) { if (reviewLocked()) return; NF.toggleReviewHabit(S, v); },
+  revValidity: function (v) { if (reviewLocked()) return; if (!NF.setReviewValidity(S, NF.int(v, 1, 365, null)).ok) return fail('Vyberte platnost plánu.'); },
   propVerify: function (v) { if (reviewLocked()) return; var p = String(v).split(':'); if (!S.review.proposals.some(function (x) { return x.id === p[0]; }) || NF.int(p[1], 0, 20, null) == null || ['yes', 'no'].indexOf(p[2]) < 0) return; S.review.verify[p[0]] = S.review.verify[p[0]] || {}; S.review.verify[p[0]][p[1]] = p[2] === 'yes'; },
   propVerifyAll: function (v) { if (reviewLocked()) return; NF.verifyAll(S, v); NF.focusSel = '.prop.current h3'; },
   propKeepAll: function () { if (reviewLocked()) return; if (S.role !== 'doctor') return fail('Rozhoduje lékař.'); NF.keepAll(S); },
@@ -483,13 +505,17 @@ var A = {
   supportIssue: function (v) { if (!NF.SUPPORT_ISSUES.some(function (x) { return x[0] === v; })) return; S.support.issue = v; S.support.sent = false; },
   supportSend: function () { if (!S.support.issue) return fail('Vyberte, co nefunguje.'); S.support.sent = true; toast('Zpráva je odeslaná technické podpoře.' + (V.demoText('podpora') ? ' ' + V.demoText('podpora') : '')); }, /* B3 (31/03): věta o ukázce ze slotu */
   safetyOpen: function () { if (!drawer) drawerOpener = global.document && global.document.activeElement; drawer = 'safety'; },
-  /* Volič dávky je činný, jen když ověření vedlo k větvi, která dávku mění (zvýšit/snížit), nebo postup větev nemá (nález 1, 23. 10. 2026). */
+  /* SCHEMA 84 (rozhodnutí vlastníka 4. 11. 2026, bod 1): volič „jiná dávka“ u každé dávky – i u větve „ponechat“ a u řádků „Dávky bez návrhu“ (pr.row) */
   propUnits: function (v) {
-    if (reviewLocked()) return; var p = v.split(':'); var pr = S.review.proposals.filter(function (x) { return x.id === p[0]; })[0]; if (!pr || !pr.dose) return;
-    var br = V.proposalBranch ? V.proposalBranch(S, pr) : null;
-    if (!br || ['up', 'down', 'free'].indexOf(br.action) < 0) return fail('Nejdřív dokončete ověření; dávku jde nastavit až u větve, která ji mění.');
+    if (reviewLocked()) return; var p = String(v).split(':'); var pr = S.review.proposals.filter(function (x) { return x.id === p[0]; })[0]; if (!pr || !pr.dose) return;
+    if (!pr.row) { var br = V.proposalBranch ? V.proposalBranch(S, pr) : null; if (!br || br.action === 'wait') return fail('Nejdřív dokončete ověření; dávku jde nastavit, až postup ukáže větev.'); }
     var d = NF.int(p[1], -60, 60, null); if (d == null) return;
-    S.review.newDoses[pr.dose].units = Math.max(1, Math.min(60, S.review.newDoses[pr.dose].units + d));
+    NF.setReviewDose(S, pr.dose, Math.max(1, Math.min(60, S.review.newDoses[pr.dose].units + d)));
+  },
+  propDoseSet: function (v) {
+    if (reviewLocked()) return; var p = String(v).split(':'), pr = S.review.proposals.filter(function (x) { return x.id === p[0]; })[0]; if (!pr || !pr.dose) return;
+    if (!pr.row) { var br = V.proposalBranch ? V.proposalBranch(S, pr) : null; if (!br || br.action === 'wait') return fail('Nejdřív dokončete ověření.'); }
+    if (!NF.setReviewDose(S, pr.dose, NF.int(p[1], 1, 60, null)).ok) return fail('Vyberte dávku.');
   },
   propOther: function (v) { if (!S.review) return; S.review.other = S.review.other === v ? null : v; },
   propDecide: function (v) {
@@ -500,6 +526,12 @@ var A = {
     /* „Ponechat beze změny“ a „Zamítnout s důvodem“ nepotřebují dokončené ověření (02 #2, 23. 10. 2026); větev pak není (null). Ověření chce jen „Souhlasím“. */
     if (waiting && p[1] !== 'keep' && p[1] !== 'reject') return fail('Nejdřív u každého bodu označte, zda sedí, nebo nesedí.');
     if (waiting) branch = { action: null };
+    /* SCHEMA 84 (bod 1): „Jiná dávka“ – jednotky z voliče; zapíše se jako rozhodnuto jinak než postup (+ proti datům při blokujícím poklesu, jádro) */
+    if (p[1] === 'other') {
+      if (pr.kind !== 'dose') return;
+      var ro = NF.decideOtherDose(S, pr.id, S.review.newDoses[pr.dose].units, pr.row ? null : (branch.action || null)); if (!ro.ok) return fail(ro.error);
+      S.review.other = null; S.error = ''; NF.focusSel = pr.row ? '.prop.rows h3' : '.prop.current h3'; return;
+    }
     var dec = { choice: p[1], branch: branch.action }; /* A4 (31/03): bez volného komentáře; důvod zamítnutí je volbou */
     if (branch.action === 'swap' && p[1] === 'agree') { var st = S.review.swapTo && S.review.swapTo[pr.id], opts = NF.swapOptions(S, pr); dec.swapTo = st === 'none' ? null : (st && opts.indexOf(st) >= 0 ? st : opts[0] || null); }
     if (p[1] === 'agree' && pr.kind === 'dose' && (branch.action === 'up' || branch.action === 'down' || branch.action === 'free') && S.review.newDoses[pr.dose].units === NF.activePlan(S).doses[pr.dose].units) return fail('Nastavte novou dávku voličem.');
@@ -600,11 +632,36 @@ function renderFatal() {
   root.innerHTML = '<main id="main"><div class="error" role="alert">NutriFee se nepodařilo zobrazit. Uložený stav je zřejmě poškozený.</div><div class="actions"><button type="button" class="btn primary" data-action="startOver">Začít znovu</button></div></main>';
 }
 
+/* ---------- posuvník hodnoty (rozhodnutí vlastníka 5. 11. 2026, bod 9) ----------
+   Nativní input type=range nese tažení, klepnutí na dráhu, šipky a přístupnost; vykreslený jezdec a hodnota se při tažení jen přesouvají (náhled),
+   uloží se až při puštění (change) nebo klávesou – jedna akce jádra se stejnou hodnotou jako dřív klepnutí do mřížky. */
+function vsIsInput(el) { return !!(el && el.classList && el.classList.contains('vs-input')); }
+function vsCfg(w) {
+  var d = w.dataset, n = function (x) { return x == null || x === '' ? null : Number(x); };
+  return { kind: d.vsKind || 'plain', min: n(d.vsMin), max: n(d.vsMax), step: n(d.vsStep) || 1, dec: n(d.vsDec) || 0, lo: n(d.vsLo), hi: n(d.vsHi), goal: n(d.vsGoal), better: d.vsBetter || 'min' };
+}
+function vsPreview(inp) {
+  var w = inp.closest && inp.closest('.vslider'); if (!w || !V.vsState) return;
+  try {
+    var c = vsCfg(w), v = Number(inp.value), lo = c.kind === 'glu' ? c.min - c.step : c.min, hi = c.kind === 'glu' ? c.max + c.step : c.max, st = V.vsState(c, v);
+    var tr = w.querySelector('.vs-track'); if (tr) tr.style.setProperty('--vs-f', String(Math.max(0, Math.min(1, (v - lo) / (hi - lo)))));
+    w.setAttribute('data-zone', st.zone); w.classList.remove('unset');
+    var b = w.querySelector('.vs-val b'); if (b) b.textContent = st.text;
+    var sw = w.querySelector('.vs-state'); if (sw) sw.innerHTML = st.word ? NF.icon(st.icon || { ok: 'check', warn: 'arrow-up', low: 'alert' }[st.zone] || 'check') + '<span>' + e(st.word) + '</span>' : '';
+  } catch (err) { }
+}
+function vsCommit(inp) {
+  var w = inp.closest && inp.closest('.vslider'); if (!w || !V.vsState) return;
+  var st = V.vsState(vsCfg(w), Number(inp.value)); if (st.token == null) return;
+  act(inp.getAttribute('data-vs-action'), (inp.getAttribute('data-vs-prefix') || '') + st.token);
+}
+
 /* ---------- události ---------- */
 var noteTimer = null; NF.NOTE_IDLE_MS = 1000;
 if (global.document && global.document.addEventListener) {
   global.document.addEventListener('click', function (ev) {
     clearToast(); /* B9: klepnutí kamkoli zavře oznámení (nové oznámení akce se ukáže po vykreslení) */
+    if (vsIsInput(ev.target)) { if (ev.target.hasAttribute('data-vs-unset') && !ev.target.disabled) vsCommit(ev.target); return; } /* klepnutí přímo na naznačenou polohu nezmění hodnotu, a tak nevyvolá change */
     var b = ev.target.closest && ev.target.closest('[data-action]');
     if (!b || b.disabled) return;
     /* Okamžik potvrzení po uložení jídla (19. 10. 2026): tlačítko se na chvíli promění ve fajfku „Uloženo“, pak návrat na Dnes.
@@ -617,6 +674,7 @@ if (global.document && global.document.addEventListener) {
     act(b.dataset.action, b.dataset.value);
   });
   global.document.addEventListener('input', function (ev) {
+    if (vsIsInput(ev.target)) { vsPreview(ev.target); return; }
     var k = ev.target.dataset && ev.target.dataset.bind; if (!k || ev.target.type === 'checkbox') return;
     bind(k, ev.target.value); NF.save(S);
     if (k === 'meal.q') NF.render();
@@ -628,6 +686,7 @@ if (global.document && global.document.addEventListener) {
     }
   });
   global.document.addEventListener('change', function (ev) {
+    if (vsIsInput(ev.target)) { vsCommit(ev.target); return; }
     if (ev.target.type === 'file' && ev.target.dataset && ev.target.dataset.action === 'importFile') { /* export z aplikace senzoru: čte se jen v telefonu, nikam se neposílá */
       var f = ev.target.files && ev.target.files[0]; if (!f || !global.FileReader) return;
       var rd = new global.FileReader(); rd.onload = function () { act('importText', String(rd.result || '')); }; rd.readAsText(f); return;
@@ -637,6 +696,7 @@ if (global.document && global.document.addEventListener) {
     if (c) act(c, ev.target.dataset.value); else NF.render(); /* data-change: akce při opuštění pole (poznámka k položce registru se uloží sama) */
   });
   global.document.addEventListener('keydown', function (ev) {
+    if (vsIsInput(ev.target) && (ev.key === 'Enter' || ev.key === ' ') && ev.target.hasAttribute('data-vs-unset') && !ev.target.disabled) { ev.preventDefault(); vsCommit(ev.target); return; } /* bez volby: Enter vybere naznačenou hodnotu */
     if (ev.key === 'Escape' && drawer) { drawer = null; renderDrawer(); return; }
     /* Tab v dialogu krouží mezi jeho prvky, nejde „nikam“ na body (04 #6). */
     if (ev.key === 'Tab' && drawer) {

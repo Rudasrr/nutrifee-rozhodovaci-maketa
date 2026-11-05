@@ -476,6 +476,9 @@ function milestoneCard(S) {
 function weekCard(S) {
   var w = NF.weekSummary(S), T = NF.texts(S, 'S-TYDEN'); if (!NF.usable(S, 'S-TYDEN')) return off(S, 'S-TYDEN'); if (!w || !T) return '';
   var lines = [NF.fillText(T.meals, { meals: w.meals, slots: w.slots, usual: w.usual })];
+  /* B9 (32/01, SCHEMA 84): i v týdnu bez rad má karta obsah – kolik zápisů šlo do učení a kterému jídlu chybí nejméně do „známe ho“ */
+  if (T.learned && w.learned != null) lines.push(NF.fillText(T.learned, { k: w.learned, n: w.meals }));
+  if (T.near && w.near) lines.push(NF.fillText(T.near, { food: e(w.near.food), left: NF.plural(w.near.left, 'zápis', 'zápisy', 'zápisů') }));
   if (w.best) lines.push(NF.fillText(T.helped, { lever: NF.LEVERS[w.best.lever].label, k: w.best.k, n: w.best.n }));
   if (w.milestones.length) lines.push(T.milestone ? NF.fillText(T.milestone, { n: w.milestones.length }) + ' ' + w.milestones[w.milestones.length - 1].text.replace(/<\/?strong>/g, '') : ''); /* text milníku je už escapovaný (P4) */
   if (w.suggest) lines.push(NF.fillText(T.suggest, { food: w.suggest.food, lever: NF.leverNoun(w.suggest.lever), k: w.suggest.k, n: w.suggest.n }));
@@ -498,7 +501,7 @@ function pathBody(S, ps, T, withPreview, asCard) {
     /* posledních 7 dní jako tkanina místo dlaždic (Podpis C, 20. 10. 2026); celé období vidí jen lékař */
     (ps.gone >= 1 || ps.weekMeals ? '<' + hl + ' class="weave-h">' + (ps.weave.days.length === 1 ? 'Dnešní den' : ps.weave.days.length <= 4 ? 'Poslední ' + ps.weave.days.length + ' dny' : 'Posledních ' + ps.weave.days.length + ' dní') + '</' + hl + '>' + weave(ps.weave, true) +
       '<p class="small muted mt-2 mb-0">Mezery nejsou chyba. Lékař uvidí celé období najednou.</p>' + /* 21. 10. 2026: tkanina není série s trestem */
-      (ps.repeated ? '<p class="small mt-3 mb-0">Vašich častých jídel známe ' + frac(ps.known, ps.repeated) + '.</p>' : '')
+      (ps.repeated ? '<p class="small mt-3 mb-0">' + (ps.known ? 'Známe už ' + NF.plural(ps.known, 'vaše jídlo', 'vaše jídla', 'vašich jídel') + '.' : 'Vaše jídla se zatím učíme.') + '</p>' : '') /* B6 (32/01, SCHEMA 84): bez jmenovatele – „4 z 28“ zní jako neúspěch; jmenovatel vidí lékař */
       : '<p class="small muted mt-3">Po prvních zápisech tu uvidíte, které dny máte zapsané a kolik jídel už známe.</p>') + /* nulový stav místo „0 z 0“ (19. 10. 2026) */
     (withPreview ? '<p class="small muted mt-3 mb-0">' + T.visit + '</p>' : '') + /* na Dnes by věta opakovala závěrečnou nápovědu */
     (withPreview ? '<div class="actions mt-3">' + btn('Co uvidí lékař →', 'page', 'preview', 'sm') + '</div>' : '') +
@@ -531,13 +534,105 @@ function frac(a, b) { return '<span class="frac">' + a + ' <span class="of">' + 
 V.frac = frac;
 
 /* ---------- data ze senzoru bez napojení (Z-GLUKOZA, Z-IMPORT, B-HYPO) ---------- */
-/* Čipy po celých mmol/l místo klávesnice (vlastník 18. 10. 2026): 4–15, pod 4, nad 15, nemám. */
-function glucoseChips(action, prefix, current, asked, bound) {
-  var vals = [], cur = asked ? (current == null ? 'none' : bound === 'under' ? 'low' : bound === 'over' ? 'high' : String(Math.round(current))) : null;
-  vals.push(['low', 'pod 4']); for (var v = 4; v <= 15; v++) vals.push([String(v), String(v)]); vals.push(['high', 'nad 15']); vals.push(['none', 'nemám hodnotu']);
-  /* pravidelná mřížka 4 sloupců: čísla vždy na stejném místě (19. 10. 2026) */
-  return '<div class="chips glu" role="group" aria-label="Glukóza v mmol/l">' + vals.map(function (x) { return choice(x[1], action, (prefix ? prefix + ':' : '') + x[0], cur === x[0], 'chip' + (x[0] === 'none' ? ' quiet' : x[0] === 'low' ? ' low' : x[0] === 'high' ? ' high' : '')); }).join('') + '</div>';
+/* Do SCHEMA 84 mřížka čipů po celých mmol/l (vlastník 18. 10. 2026); od 5. 11. 2026 posuvník se stejnými hodnotami (rozhodnutí 9). */
+/* ---------- posuvník hodnoty (rozhodnutí vlastníka 5. 11. 2026, bod 9; SCHEMA 84) ----------
+   Jeden prvek pro každou volbu čísla v ordinaci i u pacienta (nahrazuje mřížky „pilulek“ a samotná −/+): velká hodnota s jednotkou nahoře,
+   pod ní široká dráha s kroky a tlačítka −/+ na doladění. Ovládání: tažení myší i prstem, klepnutí na dráhu, šipky (nativní input type=range),
+   −/+ (dotykový cíl ≥ 44 px). V ordinaci se nepíše (zásada 8) – posuvník je výběr. Hodnota se nikdy nepředvyplňuje: bez volby je jezdec
+   jen naznačený (čárkovaně) a hodnota „–“; uloží se až po pohybu, klepnutí nebo Enter.
+   Druhy (cfg.kind): 'glu' = glukóza po celých mmol/l s pásmy podle rolí barev (červená pod 4, zelená v cíli do horního cíle pacienta, oranžová nad cílem)
+   a konci „pod 4“ / „nad 15“ (hranice se značkou, NF.chip); 'goal' = hodnota se značkou cíle pacienta (C-CILE) a slovem stavu; 'plain' = bez stavu
+   (hmotnost, dávky – u dávky jen značka „dnes“, aplikace výši nenavrhuje). Stav je vždy slovem a ikonou (15a), nikdy jen barvou.
+   Režim potvrzení (cfg.confirm): volba se jen podrží (S.vsPick) a uloží ji tlačítko „Uložit“ – u nejvyšší hodnoty po minulém jídle, kde uložení hned mění otázku. */
+var VS_ICON = { ok: 'check', warn: 'arrow-up', low: 'alert', none: 'circle-dashed' };
+function vsNum(v, dec) { return dec ? String(Math.round(v * Math.pow(10, dec)) / Math.pow(10, dec)).replace('.', ',') : String(Math.round(v)); }
+/* Stav hodnoty (zóna, slovo, ikona, text). Sdílí ho vykreslení i živý náhled při tažení (ui.js). v = číslo polohy jezdce, null = nevybráno. */
+function vsState(c, v) {
+  if (v == null || !Number.isFinite(Number(v))) return { zone: 'none', word: c.noneWord || '', text: '–', token: null };
+  v = Number(v);
+  if (c.kind === 'glu') {
+    if (v < c.min) return { zone: 'low', word: 'nízká glukóza', text: 'pod 4', token: 'low', aria: 'pod 4 mmol/l, nízká glukóza' };
+    if (v > c.max) return { zone: 'warn', word: 'nad 15', text: 'nad 15', token: 'high', aria: 'nad 15 mmol/l, nad cílem' };
+    var z = v < c.lo ? 'low' : v > c.hi ? 'warn' : 'ok';
+    return { zone: z, word: z === 'low' ? 'nízká glukóza' : z === 'warn' ? 'nad cílem' : 'v cíli', text: vsNum(v, 0), token: vsNum(v, 0).replace(',', '.') };
+  }
+  var t = { zone: 'none', word: '', text: vsNum(v, c.dec), token: String(Math.round(v * Math.pow(10, c.dec || 0)) / Math.pow(10, c.dec || 0)) };
+  if (c.kind === 'goal' && c.goal != null) {
+    var ok = c.better === 'max' ? v >= c.goal : v <= c.goal;
+    t.zone = ok ? 'ok' : 'warn'; t.word = ok ? (c.better === 'max' ? 'splňuje cíl' : 'v cíli') : (c.better === 'max' ? 'pod cílem' : 'nad cílem');
+    t.icon = ok ? 'check' : c.better === 'max' ? 'arrow-down' : 'arrow-up'; /* SCHEMA 84 (integrace): šipka ukazuje směr od cíle – „pod cílem“ dolů, „nad cílem“ nahoru */
+  }
+  return t;
 }
+V.vsState = vsState;
+/* Poloha 0–1 na dráze. U glukózy má dráha navíc konce „pod 4“ (min − 1) a „nad 15“ (max + 1). */
+function vsLo(c) { return c.kind === 'glu' ? c.min - c.step : c.min; }
+function vsHi(c) { return c.kind === 'glu' ? c.max + c.step : c.max; }
+function vsFrac(c, v) { var lo = vsLo(c), hi = vsHi(c); return Math.max(0, Math.min(1, (v - lo) / (hi - lo))); }
+function vsPct(x) { return Math.round(x * 10000) / 100 + '%'; }
+/* cfg: id, action, prefix, value (číslo nebo null), kind, min, max, step, dec, unit, label, lo/hi (glu), goal/better/goalText (goal), ref/refText (značka „dnes“),
+   base (poloha naznačeného jezdce bez volby; u dávek a hodnot v ordinaci začátek dráhy – nic se nenavrhuje), none (volba „nemám hodnotu“: { label, on }),
+   confirm ({ action, prefix, label }), pick (podržená volba v režimu potvrzení), disabled, size ('sm'), hint (věta pod hodnotou). */
+function slider(c) {
+  c.step = c.step || 1; c.dec = c.dec || 0;
+  var lo = vsLo(c), hi = vsHi(c), conf = !!c.confirm;
+  var val = conf ? (c.pick != null ? c.pick : null) : c.value;
+  var set = val != null && Number.isFinite(Number(val)), st = vsState(c, set ? Number(val) : null);
+  var base = set ? Number(val) : (c.base != null ? Math.max(lo, Math.min(hi, c.base)) : lo);
+  var fireAct = conf ? 'vsPick' : c.action, firePre = conf ? c.id + '|' : (c.prefix || '');
+  var tok = function (v) { var s2 = vsState(c, v); return s2.token; };
+  var clamp = function (n) { return Math.max(lo, Math.min(hi, Math.round(n * 1000) / 1000)); };
+  var minus = clamp(base - c.step), plus = clamp(base + c.step); /* bez volby vedou −/+ od naznačené polohy */
+  var unitTxt = c.unit ? ' ' + c.unit : '';
+  var noneOn = !!(c.none && c.none.on && !set);
+  var valTxt = set ? st.text : '–';
+  var aria = set ? (st.aria || st.text + unitTxt + (st.word ? ', ' + st.word : '')) : noneOn ? 'vybráno: ' + (c.none.label || 'nemám hodnotu') : 'nevybráno';
+  var dis = c.disabled ? ' disabled' : '';
+  var stepBtn = function (sign, v) {
+    var lbl = (sign < 0 ? 'Méně' : 'Více') + (set ? ': ' + vsState(c, v).text + unitTxt : '');
+    var at = sign < 0 ? base <= lo && set : base >= hi && set;
+    return '<button type="button" class="vs-step" data-action="' + e(fireAct) + '" data-value="' + e(firePre + tok(v)) + '" aria-label="' + e(lbl) + '"' + (c.disabled || at ? ' disabled' : '') + '>' + NF.icon(sign < 0 ? 'minus' : 'plus') + '</button>';
+  };
+  var zones = c.kind === 'glu' ? ';--vs-z1:' + vsPct(vsFrac(c, c.lo - c.step / 2)) + ';--vs-z2:' + vsPct(vsFrac(c, c.hi + c.step / 2)) : '';
+  /* Značka cíle (C-CILE) nebo „dnes“ je čárka na dráze; její popisek je pod dráhou (nad dráhou ho zakrýval jezdec). */
+  var mv = c.kind === 'goal' && c.goal != null ? c.goal : c.ref != null ? c.ref : null, mf = mv != null ? Math.round(vsFrac(c, mv) * 10000) / 10000 : null;
+  var mText = mv == null ? '' : c.kind === 'goal' && c.goal != null ? (c.goalText || 'cíl ' + vsNum(c.goal, c.dec) + unitTxt) : (c.refText || 'dnes ' + vsNum(c.ref, c.dec) + unitTxt);
+  var mark = mv != null ? '<span class="vs-mark' + (c.kind === 'goal' ? '' : ' ref') + '" style="--vs-m:' + mf + '" aria-hidden="true"></span>' : '';
+  /* Popisky konců dráhy. U glukózy jsou konce „pod 4“ a „nad 15“ zároveň tlačítka (bezpečnostní signál jedním klepnutím, hodnota jako dřívější čip), uprostřed horní cíl. */
+  var endBtn = function (t, txt) { return '<button type="button" class="vs-end ' + (t === 'low' ? 'low' : 'high') + '" data-action="' + e(fireAct) + '" data-value="' + e(firePre + t) + '" aria-pressed="' + (set && st.token === t) + '"' + dis + '>' + txt + '</button>'; };
+  var scale = c.kind === 'glu'
+    ? '<div class="vs-scale">' + endBtn('low', 'pod 4') + '<span class="vs-tick" style="--vs-m:' + Math.round(vsFrac(c, c.hi) * 10000) / 10000 + '" aria-hidden="true">' + vsNum(c.hi, 0) + '</span>' + endBtn('high', 'nad 15') + '</div>'
+    : mv != null ? '<div class="vs-scale" aria-hidden="true"><span class="vs-tick' + (c.kind === 'goal' ? ' goal' : '') + '" style="--vs-m:' + mf + '">' + e(mText) + '</span></div>'
+    : '<div class="vs-scale" aria-hidden="true"><span>' + vsNum(lo, c.dec) + '</span><span>' + vsNum(hi, c.dec) + '</span></div>';
+  var quick = '';
+  var data = ' data-vs-kind="' + e(c.kind || 'plain') + '" data-vs-min="' + c.min + '" data-vs-max="' + c.max + '" data-vs-step="' + c.step + '" data-vs-dec="' + c.dec + '"' + (c.unit ? ' data-vs-unit="' + e(c.unit) + '"' : '') +
+    (c.kind === 'glu' ? ' data-vs-lo="' + c.lo + '" data-vs-hi="' + c.hi + '"' : '') + (c.kind === 'goal' && c.goal != null ? ' data-vs-goal="' + c.goal + '" data-vs-better="' + e(c.better || 'min') + '"' : '');
+  return '<div class="vslider' + (c.kind === 'glu' ? ' glu' : '') + (set ? '' : ' unset') + (c.disabled ? ' off' : '') + (c.size === 'sm' ? ' sm' : '') + '" data-vs="' + e(c.id) + '" data-zone="' + st.zone + '"' + data + '>' +
+    /* −/+ po stranách velké hodnoty, dráha pod nimi na celou šířku (na telefonu 390 px tak dráha nepřijde o 112 px) */
+    '<div class="vs-head">' + stepBtn(-1, minus) + '<div class="vs-mid"><output class="vs-val" for="vs-' + e(c.id) + '"><b>' + e(valTxt) + '</b>' + (c.unit ? '<small>' + e(c.unit) + '</small>' : '') + '</output>' +
+    '<span class="vs-state">' + (set && st.word ? NF.icon(st.icon || VS_ICON[st.zone] || 'check') + '<span>' + e(st.word) + '</span>' : noneOn ? NF.icon('circle-dashed') + '<span>vybráno: ' + e(c.none.label || 'nemám hodnotu') + '</span>' : !set ? '<span>' + e(c.prompt || 'Posuňte nebo klepněte na dráhu') + '</span>' : '') + '</span></div>' + stepBtn(1, plus) + '</div>' +
+    '<div class="vs-track" style="--vs-f:' + Math.round(vsFrac(c, base) * 10000) / 10000 + zones + '"><span class="vs-rail" aria-hidden="true"></span>' + (c.kind !== 'glu' ? '<span class="vs-fill" aria-hidden="true"></span>' : '') + mark + '<span class="vs-thumb" aria-hidden="true"></span>' +
+    '<input type="range" class="vs-input" id="vs-' + e(c.id) + '" min="' + lo + '" max="' + hi + '" step="' + c.step + '" value="' + base + '" aria-label="' + e(c.label) + '" aria-valuetext="' + e(aria) + '" data-vs-action="' + e(fireAct) + '" data-vs-prefix="' + e(firePre) + '"' + (set ? '' : ' data-vs-unset=""') + dis + '></div>' + scale +
+    (c.none || c.confirm || quick ? '<div class="vs-foot">' + quick + (c.none ? choice(e(c.none.label || 'nemám hodnotu'), c.none.action || c.action, (c.none.prefix != null ? c.none.prefix : (c.prefix || '')) + 'none', !!c.none.on && !set, 'quiet sm vs-none') : '') +
+      (c.confirm ? btn(set ? e(c.confirm.label || 'Uložit') + ' · ' + e(st.text) + unitTxt : e(c.confirm.label || 'Uložit'), c.confirm.action, set ? (c.confirm.prefix || '') + st.token : null, 'primary sm vs-save', set && !c.disabled ? '' : ' disabled') : '') + '</div>' : '') +
+    (c.hint ? '<p class="small muted mt-1 mb-0">' + c.hint + '</p>' : '') + '</div>';
+}
+V.slider = slider;
+/* Glukóza po celých mmol/l (Z-GLUKOZA): posuvník s pásmy a konci „pod 4“ / „nad 15“, „nemám hodnotu“ vedle. Hodnoty akcí jsou tytéž jako u dřívějších čipů
+   (4–15, 'low', 'high', 'none'), takže pravidla I-HYPO / I-VYSOKA, otázky a stopa se chovají stejně. base = poslední opsaná hodnota (jen naznačená poloha). */
+function gluSlider(S, o) {
+  var t = NF.targets(S), cur = o.asked && o.current != null ? (o.bound === 'under' ? 3 : o.bound === 'over' ? 16 : Math.round(o.current)) : null;
+  return slider({ id: o.id, action: o.action, prefix: o.prefix || '', kind: 'glu', min: 4, max: 15, step: 1, lo: 4, hi: Math.max(5, Math.min(14, Math.floor(t.high || 10))), unit: 'mmol/l', label: o.label || 'Glukóza v mmol/l',
+    value: cur, base: o.base != null ? o.base : 7, none: { label: 'nemám hodnotu', on: !!o.asked && o.current == null, action: o.noneAction, prefix: o.nonePrefix }, confirm: o.confirm, pick: o.pick, prompt: o.prompt });
+}
+V.gluSlider = gluSlider;
+/* Naznačená poloha bez volby: poslední opsaná hodnota (před jídlem, nebo nejvyšší po jídle; u nejvyšší nejdřív u téhož jídla). Nikdy se neuloží sama. */
+function lastManual(S, key, foodId) {
+  var eps = (S.episodes || []).filter(function (x) { return x.manual && x.manual[key] != null && !x.manual[key + 'Bound']; });
+  var same = foodId ? eps.filter(function (x) { return x.foodId === foodId; }) : [];
+  var l = (same.length ? same : eps).slice(-1)[0]; return l ? Math.max(4, Math.min(15, Math.round(l.manual[key]))) : null;
+}
+V.lastManual = lastManual;
 function yesNoChips(action, prefix, current) {
   return '<div class="chips" role="group" aria-label="Klesla glukóza pod 4?">' + [['yes', 'Ano, pod 4'], ['no', 'Ne'], ['unknown', 'Nevím']].map(function (x) { return choice(x[1], action, prefix ? prefix + ':' + x[0] : x[0], current === x[0], 'chip'); }).join('') + '</div>'; /* bez předpony (zpětný zápis) jen „yes/no/unknown“ – ui.mealLow čte holou hodnotu (27. 10. 2026) */
 }
@@ -553,6 +648,9 @@ V.LOW_Q_EARLY = LOW_Q_EARLY;
 function lowQ(S, at) { return at && NF.minutesDiff(at, S.clock) < 240 ? LOW_Q_EARLY : LOW_Q; }
 V.lowQ = lowQ;
 function timeHead(ic, text) { return '<p class="eyebrow time-h">' + NF.icon(ic) + ' ' + e(text) + '</p>'; }
+/* B7 (32/01, SCHEMA 84): věta, jak najít nejvyšší hodnotu v grafu senzoru – okno jídla a vrchol křivky. */
+function peakHow(ep) { return 'V grafu senzoru najděte úsek ' + NF.fmtClock(ep.at) + '–' + NF.fmtClock(NF.addMin(ep.at, 120)) + ' a vyberte nejvyšší hodnotu, které tam křivka dosáhla.'; }
+V.peakHow = peakHow;
 function prevLabel(ep) { return 'Po ' + NF.mealLabel(ep.meal, 'ke').replace(/^ke? /, ''); }
 function prevAskBlock(S) {
   var pend = NF.pendingPeakAsk(S).concat(S.episodes.filter(function (e) { return e.manual && e.manual.peak != null && !e.manual.lowAsked && !NF.hasImport(e) && NF.minutesDiff(e.at, S.clock) <= 24 * 60 && NF.minutesDiff(e.at, S.clock) >= 120; })).slice(0, 2);
@@ -564,7 +662,8 @@ function prevAskBlock(S) {
     var f = NF.foodById(S, ep.foodId);
     var peakDone = ep.manual && ep.manual.peak != null;
     return card(timeHead('plate', prevLabel(ep) + ' · ' + NF.fmtClock(ep.at) + '–' + NF.fmtClock(NF.addMin(ep.at, 120)) + (f ? ' · ' + f.name : '')) +
-      (!peakDone ? ttl('Nejvyšší hodnota za první dvě hodiny <span class="unit">mmol/l</span>') + '<p class="small muted mt-1 mb-2">Podle grafu v aplikaci senzoru.</p>' + glucoseChips('peakChip', ep.id, null, false)
+      (!peakDone ? ttl('Nejvyšší hodnota za první dvě hodiny <span class="unit">mmol/l</span>') + '<p class="small muted mt-1 mb-2">' + e(peakHow(ep)) + '</p>' + /* B7 (32/01): jak najít vrchol v grafu senzoru */
+          gluSlider(S, { id: 'peak-' + ep.id, action: 'peakChip', prefix: ep.id + ':', asked: false, base: lastManual(S, 'peak', ep.foodId) || 10, label: 'Nejvyšší hodnota po jídle v mmol/l', confirm: { action: 'peakChip', prefix: ep.id + ':', label: 'Uložit' }, pick: S.vsPick && S.vsPick['peak-' + ep.id], noneAction: 'peakChip', nonePrefix: ep.id + ':', prompt: 'Posuňte na nejvyšší hodnotu z grafu' })
         : !NF.usable(S, 'B-HYPO') ? '<p class="small muted mt-1 mb-2">Nejvyšší hodnota po jídle: <b>' + e(NF.mmolB(ep.manual.peak, ep.manual.peakBound)) + '</b>.</p>' + off(S, 'B-HYPO') /* B17: otázka na pokles patří k B-HYPO; zamítnutá položka = otázka se neptá */
         : ttl(lowQ(S, ep.at)) + '<p class="small muted mt-1 mb-2">Nejvyšší hodnota po jídle: <b>' + e(NF.mmolB(ep.manual.peak, ep.manual.peakBound)) + '</b>.</p>' + yesNoChips('lowChip', ep.id, null)) +
       (S.page === 'meal' && !peakDone ? '' : '<div class="small mt-2">' + appr(S, peakDone ? 'B-HYPO' : 'Z-GLUKOZA') + '</div>'), 'prev-ask') +
@@ -615,7 +714,8 @@ function hypoAlertCard(S) {
   var a = NF.hypoAlert(S); if (!a || a.seen) return '';
   var T = NF.texts(S, 'B-HYPO') || {};
   return card('<div class="now-row"><div>' + ttl(hypoAlertTitle(a)) + '<p class="mt-1 mb-0">' + e(NF.dropRuleRefs(S, T.opakovane || '')) + '</p>' + /* bez odkazu na chybějící pravidlo (kontrola 4, B6) */
-    (instructionText(S, 'I-HYPO') ? '<p class="eyebrow doc-h mt-3">' + NF.icon('shield') + ' Nízká glukóza</p>' + instructionText(S, 'I-HYPO') + rules(S, ['I-HYPO']) : '') +
+    (instructionText(S, 'I-HYPO') ? (S.hypoRuleSeen ? '<details class="more mt-3 rule-fold"><summary>' + NF.icon('shield') + ' <span>Pravidlo k nízké glukóze</span></summary>' + instructionText(S, 'I-HYPO') + rules(S, ['I-HYPO']) + '</details>' /* C4 (32/01, SCHEMA 84): pravidlo, které pacient už viděl, je řádek k rozbalení */
+      : '<p class="eyebrow doc-h mt-3">' + NF.icon('shield') + ' Nízká glukóza</p>' + instructionText(S, 'I-HYPO') + rules(S, ['I-HYPO'])) : '') +
     '<div class="actions mt-3">' + btn('Rozumím', 'hypoAlertSeen', null, 'primary sm') + '</div></div></div><div class="small mt-2">' + appr(S, 'B-HYPO') + '</div>', 'low repeat');
 }
 /* Odpověď „ano, pod 4“: karta s pravidlem zůstane, dokud ji pacient nepotvrdí; řekne, kolik poklesů se počítá (19. 10. 2026). Bez věty o volání (SCHEMA 74).
@@ -722,6 +822,7 @@ V.today = function (S) {
       '<div class="actions col mt-4">' + btn('' + NF.icon('apple') + ' Zapsat svačinu', 'startMeal', 'snack', 'big') + '</div>');
   }
   out += lowNoticeCard(S);
+  var back = NF.returnAfterGap && NF.returnAfterGap(S); if (back) out += card('<p class="mt-0 mb-0"><b>Vítejte zpět, pokračujeme tam, kde jste skončili.</b></p>', 'flat welcome-back'); /* C5 (32/01, SCHEMA 84): po ≥ 7 dnech bez zápisu jedna věta, žádná výčitka */
   out += pendingInsulinCard(S);
   out += fixInsulinCard(S);
   out += doseOffPlanCard(S); /* S-DAVKA (vlastník 1. 11. 2026, bod 5): dvakrát po sobě jiná dávka než v plánu u téhož jídla dne */
@@ -872,12 +973,11 @@ function nightChip(S, m) {
 V.nightChip = nightChip;
 /* Karta opsaných hodnot ze senzoru (Z-GLUKOZA): teď / při jídle; u zpětného zápisu i nejvyšší do 2 h a „pod 4“. Jedna karta pro živý i zpětný zápis (23. 10. 2026). */
 function glucoseCard(S, m) {
-  return card((m.retro ? '' : timeHead('clock', 'Teď · ' + NF.fmtClock(S.clock))) + '<h2>' + (m.retro ? 'Glukóza při jídle podle grafu senzoru' : 'Kolik ukazuje senzor teď') + ' <span class="unit">mmol/l</span></h2><p class="small muted mt-1 mb-2">Opište celé číslo z aplikace senzoru. Když ho nemáte, klepněte na „nemám hodnotu“ – jídlo zapíšeme i tak. Hodnotu doplní sestra na kontrole z dat senzoru.</p>' +
-    '<div class="small mb-2">' + appr(S, 'Z-GLUKOZA') + '</div>' + /* SCHEMA 82 (31/16 C5): štítek hodnot ze senzoru nad mřížkou, hned u řádku „Vybráno teď“ – posun k položce na telefonu nechá vybranou hodnotu na obrazovce (štítek pod mřížkou ji vytlačil nad výřez) */
-    /* Kontrola 4 (07 B1): po výběru se mřížka „teď“ sbalí na řádek se „Změnit“ (jako blok k předchozímu jídlu), aby se dvě stejné mřížky pod sebou nepletly */
-    (m.beforeAsked && !m.retro ? '<details class="more chips-done"><summary><span class="chosen-note">Vybráno teď: ' + (m.before == null ? 'nemám hodnotu' : e(NF.mmolB(m.before, m.beforeBound)) + ' mmol/l') + '</span> <span class="small">· Změnit</span></summary>' + glucoseChips('mealBefore', '', m.before, true, m.beforeBound) + '</details>'
-      : glucoseChips('mealBefore', '', m.before, !!m.beforeAsked, m.beforeBound) + (m.beforeAsked ? '<p class="chosen-note">Vybráno: ' + (m.before == null ? 'nemám hodnotu' : e(NF.mmolB(m.before, m.beforeBound)) + ' mmol/l') + '</p>' : '')) +
-    (m.retro ? '<b class="field-q">Nejvyšší hodnota za dvě hodiny po jídle</b>' + glucoseChips('mealPeak', '', m.peak, !!m.peakAsked, m.peakBound) + (m.peakBound === 'under' ? '<p class="chosen-note">Nejvyšší hodnota pod 4: počítáme to jako pokles.</p>' : !NF.usable(S, 'B-HYPO') ? off(S, 'B-HYPO') : '<b class="field-q">' + lowQ(S, m.at != null ? NF.retroAt(S, m.at) : null) + '</b>' + yesNoChips('mealLow', '', m.lowAsked ? (m.low === true ? 'yes' : m.low === false ? 'no' : 'unknown') : null) + rules(S, ['B-HYPO'])) : '') + /* otázka na pokles nese B-HYPO (A02, A24); zamítnutá B-HYPO = otázka se neptá (B17) */
+  return card((m.retro ? '' : timeHead('clock', 'Teď · ' + NF.fmtClock(S.clock))) + '<h2>' + (m.retro ? 'Glukóza při jídle podle grafu senzoru' : 'Kolik ukazuje senzor teď') + ' <span class="unit">mmol/l</span></h2><p class="small muted mt-1 mb-2">Posuňte na celé číslo z aplikace senzoru a případně dolaďte tlačítky − a +. Když hodnotu nemáte, klepněte na „nemám hodnotu“ – jídlo zapíšeme i tak. Hodnotu doplní sestra na kontrole z dat senzoru.</p>' +
+    '<div class="glu-pick"><div class="small mb-2">' + appr(S, 'Z-GLUKOZA') + '</div>' + /* SCHEMA 84: štítek a posuvník v bloku .glu-pick (rámeček kroku); SCHEMA 82 (31/16 C5): štítek hodnot ze senzoru nad posuvníkem (dřív nad mřížkou a řádkem „Vybráno teď“) – posun k položce na telefonu nechá vybranou hodnotu na obrazovce (štítek pod mřížkou ji vytlačil nad výřez) */
+    /* SCHEMA 84 (rozhodnutí 9): posuvník místo mřížky čipů; hodnota je velká nahoře se slovem stavu, takže se dřívější sbalení na řádek „Vybráno teď“ nepotřebuje */
+    gluSlider(S, { id: 'before', action: 'mealBefore', current: m.before, asked: !!m.beforeAsked, bound: m.beforeBound, base: lastManual(S, 'before'), label: m.retro ? 'Glukóza při jídle v mmol/l' : 'Glukóza teď v mmol/l', prompt: 'Posuňte na hodnotu ze senzoru' }) + '</div>' +
+    (m.retro ? '<b class="field-q">Nejvyšší hodnota za dvě hodiny po jídle</b><p class="small muted mt-1 mb-2">V grafu senzoru najděte dvě hodiny po jídle a vyberte nejvyšší hodnotu, které tam křivka dosáhla.</p>' + gluSlider(S, { id: 'peak', action: 'mealPeak', current: m.peak, asked: !!m.peakAsked, bound: m.peakBound, base: lastManual(S, 'peak') || 10, label: 'Nejvyšší hodnota po jídle v mmol/l', prompt: 'Posuňte na nejvyšší hodnotu z grafu' }) + (m.peakBound === 'under' ? '<p class="chosen-note">Nejvyšší hodnota pod 4: počítáme to jako pokles.</p>' : !NF.usable(S, 'B-HYPO') ? off(S, 'B-HYPO') : '<b class="field-q">' + lowQ(S, m.at != null ? NF.retroAt(S, m.at) : null) + '</b>' + yesNoChips('mealLow', '', m.lowAsked ? (m.low === true ? 'yes' : m.low === false ? 'no' : 'unknown') : null) + rules(S, ['B-HYPO'])) : '') + /* otázka na pokles nese B-HYPO (A02, A24); zamítnutá B-HYPO = otázka se neptá (B17) */
     nightChip(S, m));
 }
 V.meal = function (S) {
@@ -923,7 +1023,7 @@ V.meal = function (S) {
         choice(opt('Ano, jinak', 'jiné množství nebo čas'), 'mealBolus', 'other', m.bolus === 'other', 'opt') +
         choice(opt('Ještě ne', 'inzulin až před jídlem'), 'mealBolus', 'before', m.bolus === 'before', 'opt') +
         choice(opt('Nevím', 'pro jistotu počítáme, že už je'), 'mealBolus', 'unknown', m.bolus === 'unknown', 'opt') + '</div>' +
-        (m.bolus === 'unknown' ? '<div class="mt-3"><p class="small mb-2"><b>Nevíte, jestli byl inzulin píchnutý?</b> Bereme to, jako by inzulin v těle byl.</p>' + (instructionText(S, 'I-NEVIM') ? instructionText(S, 'I-NEVIM') + rules(S, ['I-NEVIM']) /* štítek pravidla i v živém kroku 1 (integrace SCHEMA 73, B01) */ : ruleOff(S, 'I-NEVIM')) + '</div>' : '') +
+        (m.bolus === 'unknown' ? '<div class="mt-3 unknown-rule"><p class="small mb-2"><b>Nevíte, jestli byl inzulin píchnutý?</b> Bereme to, jako by inzulin v těle byl.</p>' + (instructionText(S, 'I-NEVIM') ? instructionText(S, 'I-NEVIM') + rules(S, ['I-NEVIM']) /* štítek pravidla i v živém kroku 1 (integrace SCHEMA 73, B01) */ : ruleOff(S, 'I-NEVIM')) + '</div>' : '') +
         (m.bolus === 'other' ? '<div class="box mt-3"><b>Kolik jednotek?</b><div class="actions mt-2"><div class="stepper">' + btn(NF.icon('minus'), 'mealUnits', '-1', '', ' aria-label="méně"') + '<span class="val">' + m.units + ' j.<small>předepsáno ' + dose.units + '</small></span>' + btn(NF.icon('plus'), 'mealUnits', '1', '', ' aria-label="více"') + '</div></div><b class="field-q">Kdy?</b>' + timeChips(m) + '</div>' : '') +
         (m.bolus === 'as' ? '<div class="box mt-3"><b>Kdy byl inzulin?</b>' + timeChips(m) + tolNote(S) + '</div>' : '') +
         insulinAxis(S, m) +
@@ -991,7 +1091,7 @@ V.meal = function (S) {
   var conf = res.conf;
   out += stepHead(S, m, 3) + head(S, stepLabel(3), snack ? 'Zápis svačiny' : 'Rada a zápis') + steps;
   out += card('<div class="media">' + foodIcon(S, food, conf) + '<div><div class="name name-lg">' + e(food.name) + '</div><div class="badges">' + foodBadges(conf) + '</div>' +
-    (conf.reaction ? rules(S, ['R-SKORE'], 'mt-1') : '') + '<div class="learn">' + (conf.level === 'known' ? 'Známe ho · ' + NF.plural(conf.st.n, 'zápis', 'zápisy', 'zápisů') : conf.level === 'similar' ? 'Zatím ho neznáme – podobné jídlo bývalo ' + (conf.pool && conf.pool.dir === 'in' ? 'spíš v cíli' : 'spíš nad cílem') : conf.level === 'unstable' ? 'Zápisy se liší, jídlo zatím neznáme' : conf.level === 'learning' && conf.impression === 'mixed' ? 'Zápisy se liší; bude známé, až se shodnou' : 'Zatím nic neodhadujeme – zapište ho ' + (conf.min || 4) + '×') + '</div></div></div>' +
+    (conf.reaction ? rules(S, ['R-SKORE'], 'mt-1') : '') + '<div class="learn">' + (conf.level === 'known' ? 'Známe ho · ' + NF.plural(conf.st.n, 'zápis', 'zápisy', 'zápisů') : conf.level === 'similar' ? 'Zatím ho neznáme – podobné jídlo bývalo ' + (conf.pool && conf.pool.dir === 'in' ? 'spíš v cíli' : 'spíš nad cílem') : conf.level === 'unstable' ? 'Zápisy se liší, jídlo zatím neznáme' : conf.level === 'learning' && conf.impression === 'mixed' ? 'Zápisy se liší; bude známé, až se shodnou' : 'Zatím nic neodhadujeme – zapište ho ' + (conf.min || 4) + '×' + (conf.level === 'unknown' ? '. U jídla, které jíte zřídka, pomůže přirovnání „Je to jako…“, když ho zakládáte' : '')) + '</div></div></div>' + /* C2 (32/01, SCHEMA 84) */
     (snack || conf.level === 'unknown' ? '' : conf.level === 'none' ? '<p class="sum mt-3">' + e(conf.why) + '</p>' : routineScale(S, food, conf, res, m))); /* svačina bez stupnice (kontrola 4, 07 C3) */
   /* Bezpečnostní větev nezávisí na bráně rad (kontrola 2, A2, 29. 10. 2026): pravidlo k nízké glukóze, pravidlo „Méně jídla než obvykle“ a věta o nemoci
      se ukážou i se zamítnutou R-REAKCE a před převzetím plánu; brána zastaví jen rady. */
@@ -1090,7 +1190,7 @@ function foodCard(S, f, open, page) {
   else if (c.level === 'known') sum = 'Zapsáno ' + st.eaten + '×, v cíli ' + st.inTarget + ' ' + NF.z(st.n) + ' ' + st.n + ' započítaných.' + (c.reaction.settled ? '' : ' S dalšími zápisy se to může změnit.'); /* reakci nese štítek (slovo + ikona), věta nese čísla (řemeslo 9) */
   else if (c.level === 'similar') sum = 'Zapsáno ' + st.eaten + '×, ještě ' + NF.plural(c.min - st.n, 'zápis', 'zápisy', 'zápisů') + ' a budeme ho znát. Podobá se jídlu, po kterém ' + (c.pool && c.pool.dir === 'in' ? 'spíš zůstáváte v cíli' : 'býváte spíš nad cílem') + '.'; /* jen směr (A15) */
   else if (c.level === 'unstable') sum = 'Zapsáno ' + st.eaten + '×, zápisy se ani po ' + NF.plural(st.n, 'zápisu', 'zápisech', 'zápisech') + ' neshodly. Lékař to uvidí v podkladech. Zkuste jídlo dělat pokaždé stejně, nebo ho rozdělte na dvě.';
-  else sum = 'Zapsáno ' + st.eaten + '×. Zatím nic neodhadujeme; po ' + (c.min || 4) + ' zápisech se všemi údaji budeme vědět víc.';
+  else sum = 'Zapsáno ' + st.eaten + '×. Zatím nic neodhadujeme; po ' + (c.min || 4) + ' zápisech se všemi údaji budeme vědět víc. U jídel, která jíte zřídka, pomáhá přirovnání „Je to jako…“ při zakládání.'; /* C2 (32/01, SCHEMA 84) */
   var slots = NF.slotStates(S, f.id), slotWhy = open ? NF.slotWhyText(S, f.id) : ''; /* učení po jídlech dne (25. 10. 2026) */
   if (slotWhy) sum += ' ' + slotWhy;
   var learnLine = slots.length ? '<div class="learn">' + slots.join(' · ') + '</div>' : c.level !== 'known' ? '<div class="learn">Učíme se: ' + Math.min(st.n, c.min || 4) + ' ' + NF.z(c.min || 4) + ' ' + (c.min || 4) + ' zápisů</div>' : '';

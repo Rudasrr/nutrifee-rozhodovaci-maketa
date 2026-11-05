@@ -100,8 +100,10 @@ test('A1: každý postup D-POSTUP má větev pro každý bod; žádná větev ne
 
 test('A1: bod s poklesem pod 4 má přednost před pořadím; bez větve „ponechat“; bez postupu zvýšení jde proti datům', ({ NF, D, S }) => {
   const s = at(D, 'reviewProposals'); s.role = 'doctor';
+  /* SCHEMA 84 (rozhodnutí 3): poklesy po menší porci neblokují; test blokace běží s D-POSTUP poklesy_jen_ciste = 0 (každý pokles blokuje, jako do SCHEMA 83) */
+  NF.item(s, 'D-POSTUP').params.poklesy_jen_ciste = 0; NF.refreshReview(s);
   const r = s.review, pr = r.proposals.find(p => p.kind === 'dose' && p.dose === 'lunch');
-  assert.ok(pr, 'návrh k obědu'); assert.ok(pr.lowBlock, 'oběd má poklesy pod 4');
+  assert.ok(pr, 'návrh k obědu'); assert.ok(pr.lowBlock, 'oběd má poklesy pod 4 při obvyklé porci');
   const blockIdx = pr.verify.findIndex((_, i) => NF.verifyBlocked(pr, i)); assert.ok(blockIdx >= 0);
   /* bod 2 (technika) nesedí a bod s poklesem nesedí podle dat → větev bodu s poklesem */
   r.verify[pr.id] = {}; pr.verify.forEach((_, i) => { r.verify[pr.id][i] = i !== 1; });

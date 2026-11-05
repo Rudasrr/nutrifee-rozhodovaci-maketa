@@ -49,16 +49,16 @@ D.explain = [
   { id: 'reaction', sel: '.badges .tag.over,.badges .tag.ok', box: true, title: 'Reakce na jídlo',
     text: function (S) { return '„Většinou v cíli“ znamená, že aspoň ' + pct(prm(S, 'R-SKORE', 'mirna')) + ' započítaných zápisů skončilo s nejvyšší hodnotou v cíli, jinak je jídlo „častěji nad cílem“. Štítek se ukáže od ' + prm(S, 'R-SKORE', 'odKolika') + ' zápisů a počítá se z posledních ' + prm(S, 'R-SKORE', 'oknoZapisu') + '. Je to srovnání s pacientovými vlastními jídly, ne známka.'; },
     item: 'R-SKORE' },
-  { id: 'glu-low', sel: '.chips.glu .chip.low', box: true, title: 'Pokles pod 4',
+  { id: 'glu-low', sel: '.vslider.glu .vs-end.low', box: true, title: 'Pokles pod 4',
     text: function (S) { return 'Klepnutí na „pod 4“ hned ukáže pravidlo k nízké glukóze a v tomto zápisu aplikace neradí vůbec. Když se pokles zopakuje ' + prm(S, 'B-HYPO', 'poklesy') + '× za ' + prm(S, 'B-HYPO', 'dny') + ' dní, ukáže na Dnes kartu s obecnou radou, co dělat. K volání do ordinace aplikace nevyzývá; poklesy uvidí lékař na kontrole.'; },
     item: 'B-HYPO' },
-  { id: 'glu-high', sel: '.chips.glu .chip.high', box: true, title: 'Hodnota nad stupnicí',
+  { id: 'glu-high', sel: '.vslider.glu .vs-end.high', box: true, title: 'Hodnota nad stupnicí',
     text: 'Senzor ukazuje víc, než čipy nabízejí, a zápis si to pamatuje. Klepnutí na „nad 15“ hned ukáže pravidlo k vysoké glukóze a zapíše se do stopy; v Bezpečí ho má pacient vždy. Živou glukózu aplikace nesleduje, na vysoké hodnoty upozorňuje aplikace senzoru.',
     item: 'I-VYSOKA' },
-  { id: 'glu-none', sel: '.chips.glu [data-value=none]', box: true, title: 'Nemám hodnotu',
+  { id: 'glu-none', sel: '.vslider.glu .vs-none', box: true, title: 'Nemám hodnotu',
     text: 'Zápis se uloží i bez čísla, třeba když senzor zrovna nejde přečíst. Do učení se ale nezapočítá, dokud chybějící hodnotu nedoplní export ze senzoru, který nahraje sestra na kontrole.',
     item: 'Z-GLUKOZA' },
-  { id: 'glu', sel: '.chips.glu', box: true, title: 'Opsaná glukóza',
+  { id: 'glu', sel: '.vslider.glu .vs-track', box: true, title: 'Opsaná glukóza',
     text: 'Pacient klepne na celé číslo, které právě ukazuje aplikace senzoru. Na senzor nejsme napojení, proto stačí jeden pohled na jídlo a nic se nepíše. Přesný průběh později doplní export ze senzoru.',
     item: 'Z-GLUKOZA' },
   { id: 'daystrip', sel: '.daystrip', box: true, title: 'Pás dne',
@@ -100,10 +100,10 @@ D.explain = [
   { id: 'eligibility', sel: '.check', has: '[data-action=eligibility]', box: true, title: 'Podmínka zařazení',
     text: 'Aplikace stojí na pevné dávce inzulinu, proto pacient musí splnit všechny čtyři podmínky. Údaje předvyplní karta pacienta, potvrzení je vaše. Pacienta s premixem zařadit nelze, protože jeho dávku nejde přiřadit k jídlu.',
     item: 'K-KRITERIA' },
-  { id: 'baseline', sel: '.dose-row', has: '[data-action=baseline]', box: true, title: 'Výchozí hodnoty ze senzoru',
+  { id: 'baseline', sel: '.dose-row', has: '[data-action=baselineSet]', box: true, title: 'Výchozí hodnoty ze senzoru',
     text: function (S) { return 'Čas v cíli a čas pod ' + dec(prm(S, 'C-CILE', 'low')) + ' mmol/l za měsíc před zařazením se načtou z karty pacienta; lékař je jen potvrdí voličem, nic nepíše (C17, kontrola 2). Při další kontrole tyto hodnoty porovnáme a uvidíte, jestli se zlepšily.'; },
     item: 'S-SEMAFOR' },
-  { id: 'targets', sel: '.dose-row', has: '[data-action=target]', box: true, title: 'Cíle glukózy',
+  { id: 'targets', sel: '.dose-row', has: '[data-action=targetSet]', box: true, title: 'Cíle glukózy',
     text: function (S) { var c = function (k) { return prm(S, 'C-CILE', k); }; return 'Výchozí cíle jsou glukóza ' + dec(c('low')) + ' až ' + dec(c('high')) + ' mmol/l, ráno nalačno do ' + dec(c('fastingHigh')) + ' mmol/l, čas v cíli alespoň ' + c('tirGoal') + ' % a HbA1c do ' + c('hba1cGoal') + ' mmol/mol. Podle nich aplikace počítá, co je v cíli, a barví dlaždice na kontrole. U konkrétního pacienta je můžete změnit.'; },
     item: 'C-CILE' },
   { id: 'dose-grid', sel: '.dose-grid', box: true, title: 'Dávky inzulinu',
@@ -221,10 +221,11 @@ function hintEl() {
 }
 D.explainDecorate = function () {
   if (!doc || typeof doc.querySelector !== 'function') return;
-  var main = doc.getElementById ? doc.getElementById('main') : null; if (!main || !main.querySelectorAll) return;
+  /* SCHEMA 84 (32/03): vysvětlivky i v panelu vyprávění a v zásuvkách (průvodce položkou, karta), ne jen v obrazovce aplikace */
+  var roots = ['main', 'tour', 'overlay'].map(function (id) { return doc.getElementById ? doc.getElementById(id) : null; }).filter(function (r) { return r && r.querySelectorAll; }); if (!roots.length) return;
   hintEl();
   D.explain.forEach(function (x) {
-    var list; try { list = main.querySelectorAll(x.sel); } catch (err) { return; }
+    var list = []; roots.forEach(function (root) { try { Array.prototype.push.apply(list, Array.prototype.slice.call(root.querySelectorAll(x.sel))); } catch (err) { } });
     for (var i = 0; i < list.length; i++) {
       var el = list[i];
       if (el.hasAttribute('data-nf-explain') || !D.explainOk(x, el)) continue;
@@ -285,12 +286,12 @@ D.explainHide = function (refocus) {
 D.explainOpen = function () { return open ? open.id : null; };
 
 /* Klepnutí mimo zamčení: vysvětlí neovládací prvek; u ovládacích má přednost akce aplikace. V zamčené obrazovce rozhoduje D.lockedTap (presenter.js). */
-var OUT = '.tour-panel,.tour-min,.pres-bar,#overlay,.drawer,.pres-drawer,.lock-bubble,.gsum-page';
+var OUT = '.pres-bar,.lock-bubble,.gsum-page'; /* SCHEMA 84: panel vyprávění a zásuvky vysvětlivky mají (dřív jen obrazovka aplikace) */
 D.explainTap = function (ev) {
   var t = ev && ev.target; if (!t || !t.closest) return false;
   if (t.closest(OUT)) return false;
   var ex = t.closest('[data-nf-explain]'); if (!ex) return false;
-  var main = doc.getElementById ? doc.getElementById('main') : null; if (!main || !main.contains || !main.contains(ex)) return false;
+  var inRoot = ['main', 'tour', 'overlay'].some(function (id) { var r = doc.getElementById ? doc.getElementById(id) : null; return !!(r && r.contains && r.contains(ex)); }); if (!inRoot) return false;
   if (t.closest(D.CONTROL_SEL)) return false;
   return D.explainShow(ex, ev.clientX, ev.clientY, false);
 };

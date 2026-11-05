@@ -135,7 +135,12 @@
   --nf-check:24px;            /* zaškrtávátko a značka návyku */
   --nf-radio:22px;            /* kolečko volby (.choice.opt) a čtvereček návyku v zařazení */
   --nf-toggle-w:80px;--nf-toggle-knob:40px;--nf-toggle-travel:32px; /* přepínač: šířka, knoflík, posun (= šířka − knoflík − 2 × --nf-s1) */
-  --nf-chip:52px;             /* čip glukózy */
+  --nf-chip:52px;             /* čip (odpověď ano/ne, noční pokles); do SCHEMA 84 i čip glukózy */
+  /* posuvník hodnoty (rozhodnutí vlastníka 5. 11. 2026, bod 9; SCHEMA 84): dráha, jezdec, značka cíle; tlačítka −/+ mají --nf-tap-sm (ordinace) a --nf-tap (glukóza u pacienta) */
+  --nf-vs-rail:8px;           /* výška dráhy */
+  --nf-vs-thumb:32px;         /* průměr jezdce (i šířka jezdce nativního input type=range, aby poloha seděla) */
+  --nf-vs-mark:24px;          /* výška značky cíle nebo „dnes“ na dráze */
+  --nf-vs-min:14rem;          /* nejmenší šířka posuvníku vedle textu (řádek dávky bez návrhu, blok Rozhodnout) */
   --nf-row-h:72px;            /* řádek jídla a bod pásu dne */
   --nf-plate-h:84px;--nf-plate-ico:40px; /* volba porce s talířem */
   --nf-tab-max:120px;--nf-tab-pill-w:64px;--nf-tab-pill-h:32px; /* lišta záložek: tlačítko a pilulka kolem ikony */
@@ -228,7 +233,7 @@
   --nf-demo-notch-h:34px;     /* výška výřezu */
   --nf-demo-notch-inset:56px; /* pruh nad obsahem telefonu: odsazení výřezu (--nf-s3) + výška + mezera */
   --nf-demo-sheet-h:45vh;     /* panel vyprávění na telefonu (list dole) */
-  --nf-demo-sheet-h-decide:60vh; /* týž list, když čeká rozhodnutí: karta položky i Schválit/Zamítnout se vejdou nad patičku (M9, 27. 10. 2026) */
+  --nf-demo-sheet-h-decide:50vh; /* týž list, když čeká rozhodnutí: karta položky i Schválit/Zamítnout se vejdou nad patičku (M9, 27. 10. 2026); SCHEMA 84 (32/03 B1): nejvýš polovina výšky telefonu */
   --nf-demo-sheet-h-low:56vh; /* list na nízkém telefonu (výška do 760 px): vyprávění má aspoň pár řádků (M8, kontrola 2, 29. 10. 2026) */
   --nf-demo-gsum-st-w:10rem;  /* souhrn: sloupec Stav (pevná šířka – sloupec Poznámka po změně neposkočí, K6) */
   --nf-demo-gsum-act-w:10rem;  /* souhrn: sloupec s tlačítkem Změnit */

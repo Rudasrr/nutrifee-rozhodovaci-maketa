@@ -112,7 +112,7 @@ test('Bod 7: body, které nejdou ověřit z dat, ověří sestra; „Vše sedí�
   const s = at(D, 'reviewProposals'), keys = NF.nurseKeys(s);
   assert.equal(keys.join(), 'technika,jidlo,vecer,stres'); /* 31/02 B1 (SCHEMA 80): jídlo po jídle a jídlo pozdě večer a v noci jsou dva body sestry */
   assert.equal(NF.nurseAnswer(s, 'vecer'), false, '31/02 B1: o svátcích pacient jedl pozdě večer – sestra „Nesedí“, stejně jako lékař u bazálu');
-  assert.equal(s.review.meds, 'same', 'léky zjistila sestra před lékařem');
+  assert.equal(s.review.meds, 'no', 'jiný lék na diabetes zjistila sestra před lékařem (SCHEMA 84: Ne / Ano)'); assert.equal(s.review.health, 'no');
   const pr = s.review.proposals.find(x => x.id === 'PR-BREAKFAST');
   assert.ok(pr && pr.nurse.filter(Boolean).length === 3, 'prandHigh má tři body sestry');
   s.review.verify[pr.id] = {}; s.role = 'doctor';
@@ -122,7 +122,7 @@ test('Bod 7: body, které nejdou ověřit z dat, ověří sestra; „Vše sedí�
   s.nurseCheck.points.technika = false; assert.equal(NF.verifyState(s, pr, pr.nurse.indexOf('technika')), false);
   s.page = 'review'; s.review.step = 2; s.review.proposals.forEach(x => { if (x.id !== pr.id && s.review.proposals.indexOf(x) < s.review.proposals.indexOf(pr)) NF.decideProposal(s, x.id, { choice: 'keep', branch: 'keep' }); });
   assert.match(html(NF, s), /sestra s pacientem: (sedí|nesedí)/);
-  assert.ok(NF.setReviewMeds(s, 'health').ok, 'změnil se zdravotní stav');
+  assert.ok(NF.setReviewMeds(s, 'health').ok, 'změnil se zdravotní stav'); assert.equal(s.review.health, 'yes', 'SCHEMA 84: zdravotní stav je druhá otázka');
   const s0 = at(D, 'reviewSummary'); s0.role = 'doctor'; s0.page = 'review';
   assert.match(html(NF, s0), /Sestra · S pacientem před lékařem[\s\S]*data-action="nurseMeds"[\s\S]*data-action="nurseCheck"/);
 });
@@ -203,9 +203,9 @@ test('Seznam jídel a texty (02 C5–C11, zásada 9, 06 B7, B8, 07 B4, B10)', ({
 
 test('07 A2, B3, B8: volič dávky mřížkou, zapomenutý zápis ze včerejška, spolehlivost dat na kontrole', ({ NF, D }) => {
   const s = at(D, 'doses');
-  assert.match(html(NF, s), /data-action="doseSet" data-value="breakfast:40"/);
+  /* SCHEMA 84 (rozhodnutí 9, agent P+D): posuvník hodnoty místo mřížky a stepperu */ assert.match(html(NF, s), /id="vs-dose-breakfast" min="1" max="40"[^>]*data-vs-action="doseSet" data-vs-prefix="breakfast:"/);
   assert.ok(NF.setDoseValue(s, 'lunch', 12).ok); assert.equal(s.draft.doses.lunch.units, 12); assert.equal(NF.setDoseValue(s, 'lunch', 41).ok, false);
-  const e = at(D, 'enroll'); assert.match(html(NF, e), /data-action="baselineSet" data-value="tir:60"/);
+  const e = at(D, 'enroll'); /* SCHEMA 84 (rozhodnutí 9, agent P+D): posuvník hodnoty místo mřížky a stepperu */ assert.match(html(NF, e), /id="vs-bl-tir" min="0" max="100"[^>]*data-vs-action="baselineSet" data-vs-prefix="tir:"/);
   const y = at(D, 'lateMeal'), gaps = NF.yesterdayGaps(y);
   assert.ok(gaps.some(g => g.meal === 'dinner' && g.day === '2026-10-12'), 'včerejší večeře chybí');
   y.role = 'patient'; y.page = 'today'; assert.match(html(NF, y), /data-action="mealRetroYesterday" data-value="dinner"/);

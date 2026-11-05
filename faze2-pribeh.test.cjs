@@ -114,7 +114,7 @@ test('C03 (obráceno SCHEMA 74): zařazení bez kroku sdílení dat ze senzoru; 
 
 test('C04: cíle glukózy mají vlastní krok s cílem na mřížce cílů', () => {
   const st = D.tour.stepsFor('doses', D.defaults);
-  assert.ok(st.some(k => (k.do || []).some(o => /data-action="target"/.test(String(o.sel)))));
+  assert.ok(st.some(k => (k.do || []).some(o => /targets-row/.test(String(o.sel))))); /* SCHEMA 84 (rozhodnutí 9): cíle posuvníky v .targets-row */
 });
 
 test('C02, C17, C18: dodatek zaučení a převzetí jen v krocích, kterými se liší', () => {
@@ -165,9 +165,11 @@ test('C10, Q6: export nahraje sestra před kontrolou; noci jen z exportu; návrh
   assert.ok(st.slice(0, iImp).some(k => k.do[0].act === 'nurseMeds') && st.slice(0, iImp).some(k => k.do[0].act === 'nurseCheck'), 'kroky sestry před zahájením kontroly');
   const s = D.play(D.indexOf('reviewProposals'));
   assert.ok(s.sensorImport.filled >= 3 && s.sensorImport.agree.n >= 3 && s.sensorImport.agree.ok < s.sensorImport.agree.n, 'doplněná jídla a shoda X z Y');
-  assert.equal(s.review.proposals[0].id, 'PR-BAZAL'); assert.ok(/pod cílem/.test(s.review.proposals[0].title));
+  const bz = s.review.proposals.find(p => p.id === 'PR-BAZAL'); assert.ok(bz && /pod cílem/.test(bz.title));
+  /* SCHEMA 84 (32/02 B10): sestra uvedla jídlo pozdě večer a v noci → karta bazálu je zařazená bez přednosti, až za kartami k jídlům */
+  assert.ok(s.review.proposals.indexOf(bz) > s.review.proposals.findIndex(p => p.id === 'PR-BREAKFAST')); assert.match(bz.why, /nemá přednost/);
   const d = D.play(D.indexOf('reviewProposals'), { response: 'declines' });
-  assert.equal(d.review.proposals.some(p => p.id === 'PR-BAZAL'), false, 'v dodatku jiná historie bez nočních poklesů');
+  assert.equal(d.review.proposals.some(p => p.id === 'PR-BAZAL' && !p.row), false, 'v dodatku jiná historie bez nočních poklesů'); /* SCHEMA 84: bazál bez karty má jen řádek */
 });
 
 test('C15, Q4: zvýšit jen snídani (8 → 10 j.), oběd ponechán; nad cílem víc než dvě jídla', () => {

@@ -53,13 +53,13 @@ test('B1, M4: po „Potvrdit přesto“ nerozhodnuté položky dodatek neblokuj�
 
 test('M1: zamítnutí v kroku, který položku ukazuje – krok je „note“, ne „přeskakujeme“; úsek počítá jen kroky, které přijdou; Zpět nejde dopředu', () => {
   const idx = sceneOf('reviewProposals'); goScene(idx);
-  runTo(1); assert.ok(D.offeredNow(S()).includes('D-BAZAL'));
+  const kb = D.offerStep(idx, 'D-BAZAL'); runTo(kb); assert.ok(D.offeredNow(S()).includes('D-BAZAL')); /* SCHEMA 84: bazál je až třetí návrh */
   act('garantDecide', 'D-BAZAL:rejected:ano');
   let n = narr(); assert.equal(n.mode, 'note'); assert.match(n.co, /Ukázka krok provedla|Krok ukazuje obrazovku jen zčásti/); assert.equal(/Přeskočili/.test(n.co), false);
   act('tourNext'); n = narr(); assert.equal(n.mode, 'skip');
-  const r = D.skipRanges(S()); assert.equal(r.length, 1); assert.equal(r[0][0], 1, 'úsek začíná krokem, který teprve přišel');
-  const m = n.co.match(/Přeskočili jsme (\d+)/); assert.ok(m); assert.equal(Number(m[1]), r[0][1] - r[0][0]);
-  const at = S().tourStep; act('tourBack'); assert.ok(S().tourStep < at, 'Zpět jde zpět'); assert.ok(S().tourStep <= 1);
+  const r = D.skipRanges(S()); assert.equal(r.length, 1); assert.equal(r[0][0], kb, 'úsek začíná krokem, který teprve přišel');
+  const m = n.co.match(/Přeskočili jsme (\d+ )?krok/); assert.ok(m, n.co); assert.equal(m[1] ? Number(m[1]) : 1, r[0][1] - r[0][0]);
+  const at = S().tourStep; act('tourBack'); assert.ok(S().tourStep < at, 'Zpět jde zpět'); assert.ok(S().tourStep <= kb);
 });
 
 test('M8: věta o přeskočení jmenuje kroky, zamítnutou položku a položky, které se rozhodnou v souhrnu', () => {

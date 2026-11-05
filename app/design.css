@@ -177,6 +177,73 @@ ol.bullets{list-style:decimal}
 .stepper button svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm);stroke-width:2.5}
 .stepper .val{flex:1;min-width:0;text-align:center;font-family:var(--nf-font-display);font-weight:var(--nf-w-display-strong);font-size:var(--nf-fs-xl);line-height:1.1;font-variant-numeric:tabular-nums}
 .stepper .val small{display:block;font-family:var(--nf-font-text);font-weight:var(--nf-w-text);color:var(--nf-muted);font-size:var(--nf-fs-2xs)}
+
+/* ---------- posuvník hodnoty (rozhodnutí vlastníka 5. 11. 2026, bod 9; SCHEMA 84) ----------
+   Velká hodnota s jednotkou a slovem stavu · dráha s jezdcem a −/+ po stranách · popisky konců. Barva hodnoty a jezdce podle pásma (zelená v cíli,
+   oranžová nad cílem, červená pod 4); stav vždy i slovem a ikonou. Nativní input type=range leží neviditelně přes dráhu (tažení, klepnutí, šipky, čtečka). */
+.vslider{--vs-c:var(--nf-primary);--vs-tx:var(--nf-ink);--vs-bg:var(--nf-primary-tint);display:flex;flex-direction:column;gap:var(--nf-s2);width:100%;max-width:var(--nf-measure);min-width:0} /* nejvýš šířka řádku textu: −/+ zůstanou u hodnoty i na širokém poli */
+.vslider[data-zone="ok"]{--vs-c:var(--nf-ok);--vs-tx:var(--nf-ok-text);--vs-bg:var(--nf-ok-bg)}
+.vslider[data-zone="warn"]{--vs-c:var(--nf-over);--vs-tx:var(--nf-over-text);--vs-bg:var(--nf-over-bg)}
+.vslider[data-zone="low"]{--vs-c:var(--nf-low);--vs-tx:var(--nf-low-text);--vs-bg:var(--nf-low-bg)}
+.vs-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--nf-s2);min-width:0}
+.vs-mid{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--nf-s1) var(--nf-s3);min-width:0;text-align:center}
+.vs-val{display:inline-flex;align-items:baseline;gap:var(--nf-s1);font-family:var(--nf-font-display);font-weight:var(--nf-w-display-strong);font-size:var(--nf-fs-num-sm);line-height:1;letter-spacing:var(--nf-track-num);color:var(--vs-tx);font-variant-numeric:tabular-nums;white-space:nowrap}
+.vs-val small{font-family:var(--nf-font-text);font-size:var(--nf-fs-sm);font-weight:var(--nf-w-semi);letter-spacing:0;color:var(--nf-muted)}
+.vslider.glu .vs-val{font-size:var(--nf-fs-num)}
+.vslider.sm .vs-val{font-size:var(--nf-fs-xl)}
+.vslider.unset .vs-val b{color:var(--nf-muted);font-weight:var(--nf-w-semi)}
+.vs-state{display:inline-flex;align-items:center;gap:var(--nf-s1);padding:var(--nf-s05) var(--nf-s2);border-radius:var(--nf-r-pill);background:var(--vs-bg);color:var(--vs-tx);font-weight:var(--nf-w-strong);font-size:var(--nf-fs-sm)}
+.vs-state:empty{display:none}
+.vs-state svg.ico{width:var(--nf-icon-2xs);height:var(--nf-icon-2xs);stroke-width:2.5}
+.vslider.unset .vs-state,.vslider[data-zone="none"] .vs-state{background:transparent;padding-inline:0;color:var(--nf-muted);font-weight:var(--nf-w-semi)}
+.vs-step{flex:none;width:var(--nf-tap-sm);height:var(--nf-tap-sm);display:grid;place-items:center;padding:0;border:var(--nf-bw) solid var(--nf-border-control);border-radius:var(--nf-r-pill);background:var(--nf-surface);color:var(--nf-primary-strong);transition:background var(--nf-t-fast) var(--nf-ease),transform var(--nf-t-press) var(--nf-ease)}
+.vslider.glu .vs-step{width:var(--nf-tap);height:var(--nf-tap)}
+.vs-step:hover:not(:disabled){background:var(--nf-primary-tint)}
+.vs-step:active:not(:disabled){transform:scale(.94)}
+.vs-step svg.ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm);stroke-width:2.5}
+.vs-track{position:relative;width:100%;min-width:0;height:var(--nf-tap)}
+.vs-rail,.vs-fill{position:absolute;top:50%;height:var(--nf-vs-rail);transform:translateY(-50%);border-radius:var(--nf-r-pill);pointer-events:none}
+.vs-rail{left:calc(var(--nf-vs-thumb) / 2);right:calc(var(--nf-vs-thumb) / 2);background:var(--nf-bg-2);box-shadow:var(--nf-sh-inset)}
+.vslider.glu .vs-rail{box-shadow:none;background:linear-gradient(90deg,var(--nf-low) 0 var(--vs-z1),var(--nf-surface) var(--vs-z1) calc(var(--vs-z1) + var(--nf-tir-gap)),var(--nf-ok) calc(var(--vs-z1) + var(--nf-tir-gap)) var(--vs-z2),var(--nf-surface) var(--vs-z2) calc(var(--vs-z2) + var(--nf-tir-gap)),var(--nf-over) calc(var(--vs-z2) + var(--nf-tir-gap)) 100%)}
+.vs-fill{left:calc(var(--nf-vs-thumb) / 2);width:calc(var(--vs-f) * (100% - var(--nf-vs-thumb)));background:var(--vs-c);transition:width var(--nf-t-fast) var(--nf-ease-move)}
+.vslider.unset .vs-fill{display:none}
+.vs-thumb{position:absolute;top:50%;left:calc(var(--nf-vs-thumb) / 2 + var(--vs-f) * (100% - var(--nf-vs-thumb)));width:var(--nf-vs-thumb);height:var(--nf-vs-thumb);transform:translate(-50%,-50%);border-radius:50%;background:var(--nf-surface);border:var(--nf-bw-xl) solid var(--vs-c);box-shadow:var(--nf-sh-knob);pointer-events:none;transition:left var(--nf-t-fast) var(--nf-ease-move),border-color var(--nf-t-fast) var(--nf-ease)}
+.vslider.unset .vs-thumb{border-style:dashed;border-color:var(--nf-border-control);background:var(--nf-surface-2);box-shadow:none}
+.vs-track:has(.vs-input:focus-visible) .vs-thumb{outline:var(--nf-focus-w) solid var(--nf-focus);outline-offset:var(--nf-focus-offset-sm)}
+.vs-mark{position:absolute;top:50%;left:calc(var(--nf-vs-thumb) / 2 + var(--vs-m) * (100% - var(--nf-vs-thumb)));width:var(--nf-bw);height:var(--nf-vs-mark);transform:translate(-50%,-50%);background:var(--nf-ink);border-radius:var(--nf-r-pill);pointer-events:none}
+.vs-mark.ref{background:var(--nf-muted)}
+.vs-input{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer;-webkit-appearance:none;appearance:none;background:transparent;touch-action:pan-y}
+.vs-input::-webkit-slider-runnable-track{height:100%;background:transparent;border:0}
+.vs-input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:var(--nf-vs-thumb);height:var(--nf-tap);border:0;background:transparent}
+.vs-input::-moz-range-thumb{width:var(--nf-vs-thumb);height:var(--nf-tap);border:0;background:transparent}
+.vs-input::-moz-range-track{background:transparent;border:0}
+.vs-input:disabled{cursor:not-allowed}
+.vslider.off{opacity:.55}
+.vs-scale{position:relative;display:flex;justify-content:space-between;align-items:center;margin-top:calc(var(--nf-s2) * -1);padding:0 calc(var(--nf-vs-thumb) / 2);font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-semi);color:var(--nf-muted);font-variant-numeric:tabular-nums;line-height:1.2}
+.vslider.glu .vs-scale{padding:0;font-size:var(--nf-fs-xs)}
+.vs-scale>span:not(.vs-tick):first-child{transform:translateX(-50%)}.vs-scale>span:not(.vs-tick):last-child{transform:translateX(50%)}
+.vs-scale .vs-tick{position:absolute;top:0;left:calc(var(--nf-vs-thumb) / 2 + var(--vs-m) * (100% - var(--nf-vs-thumb)));transform:translateX(calc(var(--vs-m) * -100%));white-space:nowrap} /* popisek se k okraji dráhy přimkne, nikdy nepřeteče */
+.vs-scale .vs-tick.goal{color:var(--nf-ink);font-weight:var(--nf-w-strong)}
+.vs-scale:has(.vs-tick:only-child){min-height:var(--nf-axis-h)}
+.vs-scale .vs-end{min-height:var(--nf-tap-sm);padding:0 var(--nf-s2);border:0;border-radius:var(--nf-r-pill);background:transparent;font-weight:var(--nf-w-strong);text-decoration:underline;text-underline-offset:var(--nf-underline-offset)}
+.vs-scale .vs-end.low{color:var(--nf-low-text)}.vs-scale .vs-end.high{color:var(--nf-over-text)}
+.vs-scale .vs-end[aria-pressed="true"]{background:var(--vs-bg);text-decoration:none}
+.vs-scale .vs-end:hover:not(:disabled){background:var(--nf-surface-2)}
+.vs-foot{display:flex;flex-wrap:wrap;align-items:center;gap:var(--nf-s2)}
+.vs-foot .choice{min-height:var(--nf-tap-sm)}
+.vs-foot .vs-save{margin-left:auto}
+.dose-field .vslider{margin-top:var(--nf-s1)}
+.decide .vslider{flex:1 1 var(--nf-vs-min)}
+.decide.other-dose{margin-top:0}
+.targets-row{grid-template-columns:repeat(auto-fill,minmax(var(--nf-vs-min),1fr))}
+.instr .vslider{width:var(--nf-vs-min);max-width:100%}
+.keep-list.dose-rows li{grid-template-columns:minmax(0,1fr) minmax(var(--nf-vs-min),1fr)}
+.keep-list.dose-rows .keep-act{display:flex;flex-wrap:wrap;align-items:center;gap:var(--nf-s2);justify-self:stretch}
+.keep-list.dose-rows .keep-act .vslider{flex:1 1 100%}
+.weight-field select,.hba-field select{min-height:var(--nf-tap);font:inherit}
+.card.meals-overview th[scope=row]{font-weight:var(--nf-w-strong);text-align:left}
+@media (max-width:600px){.keep-list.dose-rows li{grid-template-columns:minmax(0,1fr)}.instr .vslider{width:100%}}
+@media (prefers-reduced-motion:reduce){.vs-thumb,.vs-fill,.vs-step{transition:none}}
 .segmented{display:flex;gap:var(--nf-s1);padding:var(--nf-s1);border-radius:var(--nf-r-pill);background:var(--nf-surface-2);border:1px solid var(--nf-line)}
 .segmented{flex-wrap:wrap}.segmented button{flex:1 1 auto;white-space:nowrap;border:0;background:transparent;border-radius:var(--nf-r-pill);padding:var(--nf-s3) 0;min-height:var(--nf-tap);font-weight:var(--nf-w-strong);color:var(--nf-muted);font-size:var(--nf-fs-sm)}
 .segmented button.on,.segmented [aria-pressed="true"]{background:var(--nf-primary);color:var(--nf-on-primary)}
@@ -585,10 +652,6 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .chips{display:flex;flex-wrap:wrap;gap:var(--nf-s2)}
 .chips .choice.chip{min-height:var(--nf-chip);min-width:var(--nf-chip);padding:var(--nf-s2) var(--nf-s3);font-size:var(--nf-fs-lg);border-radius:var(--nf-r-md);flex:0 0 auto;font-variant-numeric:tabular-nums}
 .chips .choice.chip.quiet{color:var(--nf-muted);font-weight:var(--nf-w-semi);font-size:var(--nf-fs-sm)}
-.chips.glu{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
-.chips.glu .choice.chip{min-width:0;width:100%;font-weight:var(--nf-w-strong);padding:0}
-.chips.glu .chip.low,.chips.glu .chip.high{grid-column:span 2}
-.chips.glu .chip.quiet{grid-column:1 / -1;min-height:var(--nf-tap);font-size:var(--nf-fs-sm);font-weight:var(--nf-w-semi)}
 
 /* ---------- zaučení sestry: náhled telefonu vedle seznamu ---------- */
 .split-wrap{container-type:inline-size}
@@ -843,10 +906,7 @@ main h1[tabindex="-1"]:focus{outline:none}
 @page{size:A4;margin:14mm}
 /* ---------- kontrola 4 (SCHEMA 78): nové prvky jádra ---------- */
 /* mřížky čísel: výchozí hodnoty ze senzoru a volič dávky 1–40 (07 A2) */
-.chips.num-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--nf-tap-desk) + var(--nf-s3)),1fr));gap:var(--nf-s1);margin-top:var(--nf-s2)}
-.chips.num-grid.dose-grid{grid-template-columns:repeat(8,minmax(0,1fr))}
-.chips.num-grid .chip{min-width:0;min-height:var(--nf-tap-desk);padding:var(--nf-s1);justify-content:center;font-variant-numeric:tabular-nums}
-@media (max-width:600px){.chips.num-grid.dose-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+/* mřížky čísel (.chips.num-grid) zrušeny 5. 11. 2026 (rozhodnutí 9): nahradil je posuvník hodnoty (.vslider) */
 /* oznámení telefonu (rozhodnutí 4): nad obrazovkou pacienta, jako systémové oznámení telefonu */
 .phone-notices{display:grid;gap:var(--nf-s2);padding:var(--nf-s2) var(--nf-s3) 0}
 .patient-shell.has-notice{position:relative}
@@ -857,9 +917,7 @@ main h1[tabindex="-1"]:focus{outline:none}
 .phone-notice .pn-app .ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm)}
 .phone-notice .pn-text{font-size:var(--nf-fs-sm);line-height:var(--nf-lh)}
 /* sbalené části: vybraná hodnota teď, stupnice u rutinních rad, cesta ke kontrole jako řádek (07 B1, B5) */
-details.chips-done{margin-top:var(--nf-s2)}
-details.chips-done>summary{display:flex;flex-wrap:wrap;gap:var(--nf-s2);align-items:center;font-weight:var(--nf-w-strong);color:var(--nf-ink)}
-details.chips-done .chosen-note{color:var(--nf-ok-text)}
+/* sbalená mřížka glukózy (details.chips-done) zrušena 5. 11. 2026: posuvník ukazuje vybranou hodnotu velkým číslem */
 details.scale-compact>summary,details.path-compact>summary{display:flex;gap:var(--nf-s2);align-items:center;font-size:var(--nf-fs-sm);color:var(--nf-ink)}
 details.path-compact>summary .ico{width:var(--nf-icon-sm);height:var(--nf-icon-sm);color:var(--nf-primary-strong);flex:none}
 /* karty na Dnes a v Plánu */

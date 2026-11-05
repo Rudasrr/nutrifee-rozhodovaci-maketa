@@ -83,3 +83,7 @@ code{font:600 .92em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(-
 .ds-tok b{flex:none;font:600 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--nf-ink);white-space:nowrap}
 .ds-tok span{min-width:0;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--nf-muted);text-align:right;overflow-wrap:anywhere}
 .ds-group small{font-weight:500}
+
+/* Posuvník hodnoty: ukázka fokusu z klávesnice ve statickém katalogu (skutečný fokus kreslí :focus-visible v design.css) */
+.ds-focus .vs-thumb{outline:var(--nf-focus-w) solid var(--nf-focus);outline-offset:var(--nf-focus-offset-sm)}
+.ds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}

@@ -8,7 +8,7 @@
 .pres-bar .flag-short{display:none}
 /* S11: název scény na jeden řádek, celý v title */
 .pres-bar .where{flex:1;min-width:0;color:var(--nf-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pres-bar .btn{min-height:36px;padding:var(--nf-s1) var(--nf-s3);font-size:var(--nf-fs-2xs)}
+.pres-bar .btn{min-height:var(--nf-tap-sm);padding:var(--nf-s1) var(--nf-s3);font-size:var(--nf-fs-2xs)}
 .pres-bar .btn.ok{background:var(--nf-ok-bg);color:var(--nf-ok-text);border-color:var(--nf-ok-bg)}
 .pres-bar .bar-more{display:none}
 .pres-bar .t-short{display:none}
@@ -21,6 +21,7 @@
 .tour-panel .btn[disabled]{opacity:.45}
 .tour-panel .btn.is-blocked{opacity:.55}
 .tour-panel .btn:focus-visible,.pres-bar .btn:focus-visible,.reg-decide .btn:focus-visible,.pres-drawer .btn:focus-visible,.gsum-page .btn:focus-visible,.tour-link:focus-visible,.tour-status-link:focus-visible,.tour-icon:focus-visible,.tour-info:focus-visible{outline:3px solid var(--nf-demo-focus);outline-offset:2px}
+.tour-panel h2[tabindex="-1"]:focus-visible,.tour-panel .tour-min-t[tabindex="-1"]:focus-visible{outline:3px solid var(--nf-demo-focus);outline-offset:2px;border-radius:var(--nf-r-sm)} /* SCHEMA 84 (32/03 C9): po Dál z klávesnice je vidět, kde fokus je */
 
 /* ---------- rámeček telefonu pro pacienta ---------- */
 body.pres-patient #main{display:flex;justify-content:center;align-items:flex-start;padding:var(--nf-s5) var(--nf-s4) var(--nf-s8);background:var(--nf-demo-stage);min-height:calc(100vh - var(--barh,64px))}
@@ -41,6 +42,11 @@ body.pres-patient #main .error{position:absolute;top:70px;left:50%;transform:tra
 .tour-info::before{content:"";position:absolute;inset:calc((var(--nf-tap-desk) - 24px) / 2);border:2px solid currentColor;border-radius:var(--nf-r-pill)}
 .tour-info[aria-expanded="true"]::before{background:var(--nf-on-primary)}.tour-info[aria-expanded="true"]{color:var(--nf-demo-strong)}.tour-info>*{position:relative}
 .tour-info-text{margin:0;padding:var(--nf-s2) var(--nf-s4);background:var(--nf-demo-bg);color:var(--nf-text);border-bottom:1px solid var(--nf-demo-line)} /* K5 (kontrola 3) */
+.tour-info-box{background:var(--nf-demo-bg);color:var(--nf-text);border-bottom:1px solid var(--nf-demo-line);padding-bottom:var(--nf-s2)} /* SCHEMA 84 (32/03 C6): celá nápověda a tlačítko Zpět k úvodu */
+.tour-info-box .tour-info-text{border-bottom:0}.tour-info-box p{margin:0;padding:var(--nf-s1) var(--nf-s4)}.tour-info-box .actions{padding:var(--nf-s2) var(--nf-s4) 0}
+.garant .gitem.gfuture{background:var(--nf-demo-bg);border-style:dashed}.garant .gh-static{display:flex;flex-wrap:wrap;gap:var(--nf-s1) var(--nf-s2);align-items:baseline;padding:var(--nf-s2) var(--nf-s3);font-weight:var(--nf-w-strong);font-size:var(--nf-fs-xs)}.garant .gh-static .t{flex:1 1 auto} /* SCHEMA 84 (32/03 B2): položka z budoucí scény bez tlačítek */
+.garant .gearlier{margin-top:var(--nf-s2);padding-top:var(--nf-s1);border-top:1px dashed var(--nf-demo-line)} /* SCHEMA 84: dřív v této scéně rozhodnuté položky jen řádkem */
+.off-notice .off-more{margin:var(--nf-s1) 0}.off-notice .off-more summary{font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-strong);cursor:pointer} /* SCHEMA 84 (32/03 C3) */
 .tour-icon{min-width:var(--nf-tap-desk);min-height:var(--nf-tap-desk);border:0;border-radius:var(--nf-r-pill);background:transparent;color:var(--nf-on-primary);font-size:var(--nf-fs-md);cursor:pointer}
 .tour-icon:hover{background:var(--nf-demo)}
 .tour-body{padding:var(--nf-s3) var(--nf-s4) var(--nf-s3)}
@@ -52,7 +58,7 @@ body.pres-patient #main .error{position:absolute;top:70px;left:50%;transform:tra
 .tour-rows dt{font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong);color:var(--nf-demo-strong)}
 .tour-rows dd{margin:2px 0 0;font-size:var(--nf-fs-sm);line-height:var(--nf-lh)}
 .tour-lead{margin:0 0 var(--nf-s1);font-size:var(--nf-fs-sm);line-height:var(--nf-lh)}
-.tour-link,.tour-status-link{display:inline-flex;align-items:center;min-height:32px;padding:0;border:0;background:transparent;color:var(--nf-demo-strong);font:inherit;font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.tour-link,.tour-status-link{display:inline-flex;align-items:center;min-height:var(--nf-tap-sm);padding:0;border:0;background:transparent;color:var(--nf-demo-strong);font:inherit;font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .tour-hint{margin:var(--nf-s3) 0 0;font-size:var(--nf-fs-2xs);color:var(--nf-demo-strong);background:var(--nf-demo-bg);border-radius:var(--nf-r-sm);padding:var(--nf-s2)}
 .tour-next{color:var(--nf-muted);margin:var(--nf-s2) 0 0;font-size:var(--nf-fs-2xs)}
 .tour-act{margin:var(--nf-s2) 0 0}
@@ -318,14 +324,14 @@ body.pres-nurse .phone-preview{zoom:.85}
 /* ---------- zamítnutá položka: oznámení na místě (jádro přes slot) a ve scéně (panel) ---------- */
 .off-notice{display:flex;gap:var(--nf-s2);align-items:flex-start;background:var(--nf-low-bg);color:var(--nf-low-text);border:1px solid var(--nf-low);border-radius:var(--nf-r-sm);padding:var(--nf-s2) var(--nf-s3);margin:var(--nf-s2) 0;font-size:var(--nf-fs-xs);line-height:var(--nf-lh);text-align:left}
 .off-notice .x{font-weight:var(--nf-w-display-strong);font-size:var(--nf-fs-lg);line-height:1.2}
-.off-notice .btn{display:inline-flex;margin-top:var(--nf-s1);min-height:32px;width:auto}
+.off-notice .btn{display:inline-flex;margin-top:var(--nf-s1);min-height:var(--nf-tap-sm);width:auto}
 .off-notice.compact{font-size:var(--nf-fs-2xs);padding:var(--nf-s2)}
 .off-scene{margin:0 0 var(--nf-s2)}
 
 /* v příběhu ovládá garant jen panel: obrazovka vlevo nereaguje na klepnutí (8. 10. 2026) */
 body.pres-locked main{pointer-events:none}
 /* V7 (27. 10. 2026): „Změnit rozhodnutí“ v oznámení „Tahle část nefunguje“ a rozbalovací části úvodu fungují i v zamčené obrazovce */
-body.pres-locked main .off-notice .btn,body.pres-locked main .intro summary{pointer-events:auto}
+body.pres-locked main .off-notice .btn,body.pres-locked main .off-notice summary,body.pres-locked main .intro summary{pointer-events:auto}
 .off-notice .off-note{display:block;margin-top:var(--nf-s1);font-style:italic}
 body.pres-locked main .tour-focus{pointer-events:none}
 /* S4 (21. 10. 2026): klepnutí do zamčené obrazovky ukáže na 3 s bublinu u místa klepnutí (presenter.js); bublina sama klepnutí nechytá */

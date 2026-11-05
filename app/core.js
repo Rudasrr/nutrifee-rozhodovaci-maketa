@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 83;
+NF.SCHEMA = 84;
 NF.PAGES = ['today', 'foods', 'food', 'plan', 'safety', 'support', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 /* C8 (31/03): produkční sestavení (bez prezentační vrstvy) má vlastní klíč úložiště, aby na stejném původu neotevřelo rozehraný příběh ukázky.
@@ -404,7 +404,7 @@ NF.registrySummary = function (S) {
 /* ---------- zařazení ---------- */
 NF.ELIGIBILITY = [
   ['adult', 'Dospělý s diabetem 2. typu'],
-  ['insulinOnly', 'Inzulin v pevných dávkách (tablety nebo GLP-1 navíc nevadí; premixy ne)'],
+  ['insulinOnly', 'Inzulin v pevných dávkách a žádný jiný lék na diabetes (ani tablety, ani GLP-1; premixy ne)'], /* SCHEMA 84 (rozhodnutí vlastníka 4. 11. 2026, bod 5): kohorta jen inzulin; nahrazuje 18. 10. 2026 */
   ['regimen', 'Bazál 1× večer + prandiální inzulin ke třem hlavním jídlům, pevné dávky'],
   ['cgm', 'Senzor glukózy (CGM)']
 ]; /* SCHEMA 74 (vlastník 27. 10. 2026): povinné zaškrtnutí sdílení dat ze senzoru zrušeno; export pošle pacient před kontrolou do ordinace a nahraje ho sestra */
@@ -533,14 +533,20 @@ NF.setTarget = function (t, key, delta) {
   t[key] = v;
   if (key === 'tirGoal' || key === 'tbrGoal') t.preset = null; /* ručně upravené cíle už nejsou jedna ze sad */
 };
+/* Posuvník hodnoty (rozhodnutí vlastníka 5. 11. 2026, bod 9): cíl se nastaví přímo hodnotou; krok, meze a vztahy cílů hlídá NF.setTarget. */
+NF.setTargetValue = function (t, key, value) {
+  var st = NF.TARGET_STEPS[key], v = Number(value); if (!st || !t || !Number.isFinite(v)) return;
+  var cur = typeof t[key] === 'number' ? t[key] : NF.DEFAULT_TARGETS[key];
+  var d = Math.round((v - cur) / st[0]); if (d) NF.setTarget(t, key, d);
+};
 /* Meze parametrů registru (min, max): garant krokuje jen uvnitř nich (C6, 6. 10. 2026). */
 NF.PARAM_BOUNDS = {
   'C-CILE': { low: [3.0, 5.0], high: [7.0, 14.0], fastingHigh: [5.0, 10.0], tirGoal: [30, 90], tbrGoal: [1, 10], hba1cGoal: [42, 75], tirGoalMirnejsi: [30, 90], tbrGoalMirnejsi: [0.5, 10] },
   'R-REAKCE': { minKnown: [1, 10], okno_min: [60, 240], okno_tucne_min: [0, 300], vzestup_max: [1, 6], shoda_mmol: [1, 8], rozchod_mmol: [1, 8], maxUceni: [3, 12] }, 'Z-IMPORT': { po_jidle_min: [120, 300], shoda_mmol: [0.5, 3] }, 'S-TYDEN': { nabidka: [0, 1] }, 'Z-GLUKOZA': { pripominka_min: [60, 240] }, 'B-HYPO': { poklesy: [1, 5], dny: [3, 14], pripominka_min: [30, 120], dalsi_slot_h: [2, 5] }, 'R-SKORE': { mirna: [0.5, 1], odKolika: [2, 6], oknoZapisu: [3, 12], ustaleneOd: [3, 12] } /* bez `stredni`: dva stupně (A32) */,
   'R-PODOBNOST': { minJidel: [1, 6], minZapisu: [2, 20], shoda: [0.5, 1], vaha: [0, 5], maxNaJidlo: [1, 10] }, 'S-SILNA': { silnych: [2, 6], dvaNad_mmol: [1, 6], maxJidel: [1, 10] },
   'D-PRAND': { dny: [7, 120], minJidel: [3, 30], podil: [0.5, 1], radyPrve: [0, 10], hypo: [1, 10], medianNad: [0, 3], hypoPodil: [0, 0.5], odmitnutiMin: [1, 20], odmitnutiPodil: [0.3, 1], podilDvouJidel: [0.5, 1] },
-  'D-BAZAL': { dny: [7, 120], nociPod: [1, 10], minNoci: [3, 30] }, 'D-POSTUP': { poklesy_od: [1, 5], shoda_podil: [0.5, 1], shoda_min: [1, 20], v_cili_podil: [0.5, 1], hba_rezerva: [0, 15] }, 'S-DAVKA': { po_sobe: [2, 5] }, 'S-PRIPOMINKY': { max_denne: [1, 4] }, 'D-CISTA': { pred_min: [0, 60], po_min: [0, 60] },
-  'S-SEMAFOR': { smer_pb: [0, 10], tir_zluta: [30, 70], tbr3_max: [0.5, 5], min_dni: [7, 30], porce_ok: [0.5, 1], porce_varovani: [0.3, 0.9], inzulin_ok: [0.5, 1], inzulin_varovani: [0.3, 0.9], mimo_dni: [1, 30] }, 'R-PROCHAZKA': { minut: [5, 60], okno_min: [15, 180] }, 'R-DOPLNEK': { stahnout_po: [1, 10] },
+  'D-BAZAL': { dny: [7, 120], nociPod: [1, 10], minNoci: [3, 30] }, 'D-POSTUP': { poklesy_od: [1, 5], poklesy_jen_ciste: [0, 1], shoda_podil: [0.5, 1], shoda_min: [1, 20], v_cili_podil: [0.5, 1], hba_rezerva: [0, 15] }, 'S-DAVKA': { po_sobe: [2, 5] }, 'S-PRIPOMINKY': { max_denne: [1, 4] }, 'D-CISTA': { pred_min: [0, 60], po_min: [0, 60] },
+  'S-SEMAFOR': { smer_pb: [0, 10], smer_mmol: [0.3, 3], vyvoj_tydny: [2, 8], tir_zluta: [30, 70], tbr3_max: [0.5, 5], min_dni: [7, 30], porce_ok: [0.5, 1], porce_varovani: [0.3, 0.9], inzulin_ok: [0.5, 1], inzulin_varovani: [0.3, 0.9], mimo_dni: [1, 30] }, 'R-PROCHAZKA': { minut: [5, 60], okno_min: [15, 180] }, 'R-DOPLNEK': { stahnout_po: [1, 10] },
   'S-SOUHRN': { min_n: [3, 30], rozdil_mmol: [0.3, 3] }, 'P-NEMOC': { dny: [1, 14] }
 };
 NF.clampParam = function (id, key, v) { var b = NF.PARAM_BOUNDS[id] && NF.PARAM_BOUNDS[id][key]; if (!b) return Math.max(0, v); return Math.max(b[0], Math.min(b[1], v)); };
@@ -932,15 +938,21 @@ function foodStatsRaw(S, foodId, filter, meal) {
   var flags = usable.map(function (e) { return NF.epInTarget(S, e, food); });
   /* Shoda zápisů (vlastník 15. 10. 2026): jídlo je známé, až když se aspoň minKnown zápisů z posledních maxUceni shoduje (rozdíl vzestupů ≤ shoda_mmol). */
   var minK = NF.param(S, 'R-REAKCE', 'minKnown', 3), maxU = NF.param(S, 'R-REAKCE', 'maxUceni', 6), shoda = NF.param(S, 'R-REAKCE', 'shoda_mmol', 3);
-  var rr = rises.slice(-maxU).filter(function (x) { return x != null; }).sort(function (a, b) { return a - b; }), consistent = false;
-  for (var ci = 0; ci + minK <= rr.length; ci++) if (rr[ci + minK - 1] - rr[ci] <= shoda) { consistent = true; break; }
+  var winOk = function (win) { var rr = win.filter(function (x) { return x != null; }).sort(function (a, b) { return a - b; }); for (var ci = 0; ci + minK <= rr.length; ci++) if (rr[ci + minK - 1] - rr[ci] <= shoda) return true; return false; };
+  /* B3 (32/01, SCHEMA 84): hystereze – jednou známé jídlo zůstane známé, dokud shoda neselže ve dvou po sobě jdoucích oknech (okno = posledních maxUceni zápisů
+     po každém novém zápisu). Jedno sváteční nebo stresové jídlo tak štítek „Známe ho“ neshodí; pacient nic nezměnil, štítek se nemá měnit. */
+  var consistent = false, misses = 0, nowOk = false;
+  for (var wi = 1; wi <= rises.length; wi++) {
+    nowOk = winOk(rises.slice(Math.max(0, wi - maxU), wi));
+    if (nowOk) { consistent = true; misses = 0; } else if (consistent && ++misses >= 2) { consistent = false; misses = 0; }
+  }
   var unstableFinal = !consistent && usable.length >= maxU;
   var inT = flags.filter(Boolean).length;
   /* Do R-REAKCE.minQuantile (8) zápisů je rozmezí nejnižší–nejvyšší (percentily z mála hodnot kryjí jen část rozptylu); od té doby 10.–90. percentil (R9, 6. 10. 2026). */
   var q = usable.length >= NF.param(S, 'R-REAKCE', 'minQuantile', 8);
   var k = NF.param(S, 'R-SKORE', 'oknoZapisu', 6), rf = flags.slice(-k);
   return { eaten: eps.length, n: usable.length, peaks: peaks, flags: flags, lo: NF.r1(q ? NF.quantile(peaks, 0.1) : (peaks.length ? Math.min.apply(null, peaks) : null)), hi: NF.r1(q ? NF.quantile(peaks, 0.9) : (peaks.length ? Math.max.apply(null, peaks) : null)), quantile: q,
-    med: NF.r1(NF.median(peaks)), inTarget: inT, recent: { n: rf.length, inTarget: rf.filter(Boolean).length }, list: eps, usable: usable, rises: rises, consistent: consistent, unstableFinal: unstableFinal };
+    med: NF.r1(NF.median(peaks)), inTarget: inT, recent: { n: rf.length, inTarget: rf.filter(Boolean).length }, list: eps, usable: usable, rises: rises, consistent: consistent, held: consistent && !nowOk, unstableFinal: unstableFinal };
 }
 /* Stupeň reakce (R29, A32 27. 10. 2026): dva stupně – „většinou v cíli“ (podíl v cíli ≥ R-SKORE.mirna) / „častěji nad cílem“; od R-SKORE.odKolika zápisů,
    podíl z posledních R-SKORE.oknoZapisu s hysterezí (mění se, jen když by platil i s jedním zápisem jinak); „ustálené“ od R-SKORE.ustaleneOd. Třetí stupeň zrušen. */
@@ -1507,10 +1519,12 @@ NF.lowEvents = function (S, days) {
   S.episodes.forEach(function (e) {
     if (from && NF.parse(e.at) < NF.parse(from)) return;
     var pts = (e.points || []).some(function (x) { return x.mmol != null && x.min <= 240 && x.mmol < t.low; });
-    if (pts) out.push({ at: e.at, source: 'senzor', meal: e.meal, epId: e.id });
-    else if (e.manual && e.manual.low === true) out.push({ at: e.at, source: 'pacient', meal: e.meal, epId: e.id });
+    /* SCHEMA 84 (rozhodnutí vlastníka 4. 11. 2026, bod 3): „čistý“ pokles = při obvyklé porci a dávce potvrzené podle plánu a včas; jen takový blokuje větev „zvýšit“ (D-POSTUP poklesy_jen_ciste). */
+    var clean = e.portion === 'usual' && !!(e.insulin && e.insulin.confirmed === 'as') && NF.onTime(S, e), why = e.portion === 'smaller' ? 'menší porce' : e.portion === 'bigger' ? 'větší porce' : !(e.insulin && e.insulin.confirmed === 'as') ? 'jiná nebo nepotvrzená dávka' : !NF.onTime(S, e) ? 'dávka mimo čas' : null;
+    if (pts) out.push({ at: e.at, source: 'senzor', meal: e.meal, epId: e.id, clean: clean, why: why });
+    else if (e.manual && e.manual.low === true) out.push({ at: e.at, source: 'pacient', meal: e.meal, epId: e.id, clean: clean, why: why });
   });
-  (S.hypoWatch || []).forEach(function (w) { if (w.answer === 'yes' && !w.epId && (!from || NF.parse(w.at) >= NF.parse(from))) out.push({ at: w.at, source: 'pacient', meal: w.meal }); });
+  (S.hypoWatch || []).forEach(function (w) { if (w.answer === 'yes' && !w.epId && (!from || NF.parse(w.at) >= NF.parse(from))) out.push({ at: w.at, source: 'pacient', meal: w.meal, clean: false, why: 'vynechané jídlo s inzulinem' }); });
   /* Noční pokles (rozhodnutí vlastníka 1. 11. 2026, bod 7): nepovinný čip u snídaně „V noci klesla glukóza pod 4“. Pokles patří k noci před snídaní
      (datum dne snídaně, 0:00), počítá se do B-HYPO a v reportu je u bazálu. Noc, na kterou se už ptala otázka po menší nebo vynechané večeři, se nepočítá podruhé. */
   NF.nightLows(S).forEach(function (x) { if (!from || NF.parse(x.at) >= NF.parse(from)) out.push(x); });
@@ -1533,7 +1547,7 @@ NF.hypoAlert = function (S) {
   var n = NF.param(S, 'B-HYPO', 'poklesy', 2), d = NF.param(S, 'B-HYPO', 'dny', 7), ev = NF.lowEvents(S, d);
   return ev.length >= n ? { count: ev.length, days: d, events: ev, last: ev[ev.length - 1].at, seen: !!(S.hypoAlertSeen && NF.parse(S.hypoAlertSeen) >= NF.parse(ev[ev.length - 1].at)) } : null;
 };
-NF.hypoAlertSeen = function (S) { var a = NF.hypoAlert(S); if (!a) return; S.hypoAlertSeen = a.last; S.lowNotice = null; NF.log(S, 'hypo.opakovane', a.count + ' za ' + a.days + ' dní', { count: a.count, days: a.days, item: 'B-HYPO' }); };
+NF.hypoAlertSeen = function (S) { var a = NF.hypoAlert(S); if (!a) return; S.hypoAlertSeen = a.last; S.hypoRuleSeen = S.clock; S.lowNotice = null; /* C4 (32/01): pravidlo I-HYPO pacient viděl – příště v kartě sbalené */ NF.log(S, 'hypo.opakovane', a.count + ' za ' + a.days + ' dní', { count: a.count, days: a.days, item: 'B-HYPO' }); };
 /* Čip „nad 15“ (glukóza teď před jídlem nebo nejvyšší po jídle): obrazovka hned ukáže pravidlo k vysoké glukóze (I-VYSOKA) a zápis jde do stopy
    (vlastník 27. 10. 2026, SCHEMA 74). Aplikace živou glukózu nevidí, „déle než 3 hodiny“ nepozná – spouštěčem je čip. */
 NF.noteHigh = function (S, where, epId) {
@@ -1661,10 +1675,10 @@ NF.importReadings = function (S, readings) {
     ep.points = pts; ep.importedAt = S.clock; ep.peak = NF.epPeak(S, ep); ep.rise = NF.epRise(S, ep); ep.at2h = NF.at2h(ep.points); filled++;
   });
   var lowT = NF.targets(S).low;
-  var byDay = {}; readings.forEach(function (r) { var d = r.at.slice(0, 10), h = Number(r.at.slice(11, 13)); if (h < 6) { byDay[d] = byDay[d] || { min: r.mmol, fasting: null, lowFrom: null, lowTo: null }; byDay[d].min = Math.min(byDay[d].min, r.mmol); if (r.mmol < lowT) { if (!byDay[d].lowFrom) byDay[d].lowFrom = r.at; byDay[d].lowTo = r.at; } } if (h === 6 && byDay[d] && byDay[d].fasting == null) byDay[d].fasting = r.mmol; });
+  var byDay = {}, bed = {}; readings.forEach(function (r) { var d = r.at.slice(0, 10), h = Number(r.at.slice(11, 13)); if (h >= 21) bed[NF.day(NF.addDays(r.at, 1))] = r.mmol; /* poslední hodnota večera = „před spaním“ následující noci (32/02 B6) */ if (h < 6) { byDay[d] = byDay[d] || { min: r.mmol, fasting: null, lowFrom: null, lowTo: null }; byDay[d].min = Math.min(byDay[d].min, r.mmol); if (r.mmol < lowT) { if (!byDay[d].lowFrom) byDay[d].lowFrom = r.at; byDay[d].lowTo = r.at; } } if (h === 6 && byDay[d] && byDay[d].fasting == null) byDay[d].fasting = r.mmol; });
   /* Noci z exportu přepíší dosavadní (export je přesnější, 15 odst. 6a; A08, Q6): noční poklesy se dostanou do návrhu k bazálu.
      B7 (31/02): u noci i čas, kdy byla glukóza pod dolním cílem (první a poslední měření), aby lékař nečetl „ráno“ jako hodnotu nalačno. */
-  Object.keys(byDay).forEach(function (d) { if (byDay[d].fasting == null) return; S.nights = S.nights.filter(function (n) { return n.date !== d; }).concat([{ date: d, fasting: byDay[d].fasting, min: byDay[d].min, lowFrom: byDay[d].lowFrom, lowTo: byDay[d].lowTo, source: 'import' }]); nights++; });
+  Object.keys(byDay).forEach(function (d) { if (byDay[d].fasting == null) return; S.nights = S.nights.filter(function (n) { return n.date !== d; }).concat([{ date: d, fasting: byDay[d].fasting, min: byDay[d].min, lowFrom: byDay[d].lowFrom, lowTo: byDay[d].lowTo, bed: bed[d] != null ? bed[d] : null, source: 'import' }]); nights++; });
   S.nights.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
   var rdays = {}; readings.forEach(function (r) { rdays[r.at.slice(0, 10)] = 1; }); /* počet dní exportu: karta „Data ze senzoru“ uvádí stejné období a dny jako dlaždice (02 #1, 25. 10. 2026) */
   S.sensorImport = { at: S.clock, readings: readings.length, from: readings[0].at, to: readings[readings.length - 1].at, days: Object.keys(rdays).length, filled: filled, manualOnly: manualOnly, nights: nights, agree: agree, tol: tol, skipped: readings.skipped || 0 };
@@ -1807,7 +1821,10 @@ NF.weekSummary = function (S) {
       if (c.level === 'known' && c.reaction && c.reaction.key !== 'mild' && !NF.leverStats(S, e.foodId).some(function (x) { return x.lever === best; })) sugg = { food: NF.foodById(S, e.foodId).name, lever: best, k: lv[best].inT, n: lv[best].n };
     });
   }
-  return { id: id, week: wk, start: start, end: end, meals: eps.length, slots: NF.MEALS.length * 7, usual: usual, best: best ? { lever: best, k: lv[best].inT, n: lv[best].n } : null,
+  /* B9 (32/01, SCHEMA 84): obsah i bez rad – kolik zápisů týdne šlo do učení a které jídlo je nejblíž k „známému“ (kolik zápisů mu chybí) */
+  var learned = eps.filter(function (e) { return NF.usableEp(S, e); }).length, minK = NF.param(S, 'R-REAKCE', 'minKnown', 3), near = null, seenN = {};
+  eps.forEach(function (e) { if (seenN[e.foodId] || NF.isSnack(e.meal)) return; seenN[e.foodId] = 1; var st = NF.foodStats(S, e.foodId), f = NF.foodById(S, e.foodId); if (!f || st.consistent || !st.n || st.n >= minK) return; var left = minK - st.n; if (!near || left < near.left || (left === near.left && st.n > near.n)) near = { food: f.name, left: left, n: st.n }; });
+  return { id: id, week: wk, start: start, end: end, meals: eps.length, slots: NF.MEALS.length * 7, usual: usual, learned: learned, near: near, best: best ? { lever: best, k: lv[best].inT, n: lv[best].n } : null,
     milestones: fb.milestones.filter(function (m) { return m.at >= start && m.at < end; }), suggest: sugg };
 };
 NF.closeWeek = function (S, id) { fbState(S).weeksSeen[id] = S.clock; NF.log(S, 'tyden.zobrazen', id); };
@@ -1908,7 +1925,12 @@ NF.summary = function (S, planId) {
   var unknown = eps.filter(function (e) { return !e.insulin || e.insulin.confirmed === 'unknown'; }).length;
   var pl = NF.planById(S, planId), since = pl ? NF.day(pl.issuedAt) : '0000';
   var basalDays = pl ? Math.max(1, NF.daysBetween(since + 'T00:00:00', NF.day(S.clock) + 'T00:00:00')) : S.basalLog.length;
-  var basalAs = S.basalLog.filter(function (b) { return b.confirmed === 'as' && b.date >= since; }).length;
+  var today = NF.day(S.clock), basalAs = S.basalLog.filter(function (b) { return b.confirmed === 'as' && b.date >= since && b.date < today; }).length; /* C1 (32/02): jen dny před dneškem – stejný jmenovatel i čitatel v celé kontrole */
+  var basalLowerL = S.basalLog.filter(function (b) { return b.confirmed === 'other' && b.date >= since && b.date < today && b.units != null && b.units < b.prescribed; }), uniqU = function (l, f) { return l.map(f).filter(function (x, i, a) { return x != null && a.indexOf(x) === i; }).sort(function (a, b) { return a - b; }).join(', '); };
+  /* 32/02 B5: dávky, které si pacient sám snížil – téma rozhovoru, ne jen číslo */
+  var selfLower = {}, selfLowerUnits = {}; NF.MEALS.forEach(function (m) { var l = eps.filter(function (e) { return e.meal === m[0] && e.insulin && e.insulin.confirmed === 'other' && e.insulin.units != null && e.insulin.units < e.insulin.prescribed; }); if (l.length) { selfLower[m[0]] = l.length; selfLowerUnits[m[0]] = uniqU(l, function (e) { return e.insulin.units; }); } });
+  /* B1 (32/01, SCHEMA 84): menší porce ohlášená před píchnutím (pacient věděl dopředu, že sní méně) – samostatný signál pro lékaře: dávka se nastavuje na porci, kterou pacient opravdu jí */
+  var smallerPlanned = eps.filter(function (e) { return e.portion === 'smaller' && e.bolusAtAdvice === 'before' && !NF.isSnack(e.meal); }).length;
   var onTime = eps.filter(function (e) { return e.insulin && e.insulin.confirmed === 'as' && NF.onTime(S, e); }).length;
   var ill = eps.filter(function (e) { return NF.inIllness(S, e); }).length;
   var incomplete = eps.filter(function (e) { return !NF.complete(e); }).length;
@@ -1924,7 +1946,8 @@ NF.summary = function (S, planId) {
   return { slotsAll: slotsAll, withPeak: withPeak, meals: meals, snacks: snacks, usual: usual, usualPct: pctDown(usual, meals), asPlan: asPlan, asPct: pctDown(asPlan, meals), other: other, none: none, unknown: unknown,
     basalAs: basalAs, basalDays: basalDays, onTime: onTime, ill: ill, illDays: NF.illnessDays(S), illLong: NF.illnessLongPeriods(S), incomplete: incomplete, sensor: ss, tirState: tirState, advice: adv,
     hba1c: (function () { var h = NF.hba1cFor(S, pl, pl && pl.id !== S.activePlanId ? pl.validUntil : S.clock); return h.before && h.now ? [h.before.v, h.now.v] : h.before ? [h.before.v] : h.now ? [h.now.v] : null; })(),
-    hba1cInfo: NF.hba1cFor(S, pl, pl && pl.id !== S.activePlanId ? pl.validUntil : S.clock), habitsDone: NF.activeHabits(S).length };
+    hba1cInfo: NF.hba1cFor(S, pl, pl && pl.id !== S.activePlanId ? pl.validUntil : S.clock), habitsDone: NF.activeHabits(S).length,
+    selfLower: selfLower, selfLowerUnits: selfLowerUnits, smallerPlanned: smallerPlanned, basalLower: basalLowerL.length, basalLowerUnits: uniqU(basalLowerL, function (b) { return b.units; }), weight: NF.weightFor(S, pl, pl && pl.id !== S.activePlanId ? pl.validUntil : S.clock) };
 };
 /* Prahy dlaždic kontroly z položky S-SEMAFOR (A14, 27. 10. 2026): obvyklá porce a inzulin podle plánu (podíl jídel), dny „mimo učení“. Výchozí = návrh autora. */
 NF.semafor = function (S) {
@@ -2024,6 +2047,49 @@ NF.basalNights = function (S, days) {
   var lowExp = nights.filter(function (n) { return n.min < low; }).map(function (n) { var c = NF.clone(n); c.alsoSelf = self[n.date] || null; return c; });
   return { exportN: nights.length, selfAll: selfAll, selfOnly: selfOnly, notConfirmed: notConfirmed, low: lowExp.concat(selfOnly).sort(function (a, b) { return a.date < b.date ? -1 : 1; }), assessed: nights.length + selfOnly.length, from: from };
 };
+
+/* ---------- SCHEMA 84 (rozhodnutí vlastníka 4. 11. 2026): vývoj v čase, ranní hodnoty, okolnosti nocí ---------- */
+/* Vývoj v čase (bod 4; S-SEMAFOR smer_mmol, vyvoj_tydny): medián v první polovině období a v posledních N týdnech, slovo směru až od rozdílu smer_mmol. Dvě čísla, ne graf (odst. 18). */
+NF.trendOf = function (S, items, from, to) {
+  var vals = (items || []).filter(function (x) { return x && x.v != null && x.at; }); if (!from || !to || vals.length < 2) return null;
+  var weeks = NF.param(S, 'S-SEMAFOR', 'vyvoj_tydny', 4), lim = NF.param(S, 'S-SEMAFOR', 'smer_mmol', 1.0), semOff = !!NF.item(S, 'S-SEMAFOR') && !NF.usable(S, 'S-SEMAFOR');
+  var mid = new Date((NF.parse(from).getTime() + NF.parse(to).getTime()) / 2), lastFrom = NF.parse(NF.addDays(to, -7 * weeks));
+  var first = vals.filter(function (x) { return NF.parse(x.at) < mid; }).map(function (x) { return x.v; }), last = vals.filter(function (x) { return NF.parse(x.at) >= lastFrom; }).map(function (x) { return x.v; });
+  if (!first.length || !last.length) return null;
+  var mf = NF.r1(NF.median(first)), ml = NF.r1(NF.median(last)), d = NF.r1(ml - mf);
+  var dir = semOff ? (d > 0 ? 'worse' : d < 0 ? 'better' : 'same') : (Math.abs(d) >= lim ? (d > 0 ? 'worse' : 'better') : 'same'); /* vyšší glukóza = zhoršuje se; se zamítnutou S-SEMAFOR jen znaménko (jako u procent, 31/16 C2) */
+  var word = { worse: 'zhoršuje se', better: 'zlepšuje se', same: 'beze změny' }[dir];
+  return { first: mf, last: ml, nFirst: first.length, nLast: last.length, diff: d, dir: dir, word: word, weeks: weeks,
+    text: 'první polovina období medián ' + NF.mmol1(mf) + ' mmol/l (n = ' + first.length + ') · poslední ' + NF.plural(weeks, 'týden', 'týdny', 'týdnů') + ' ' + NF.mmol1(ml) + ' mmol/l (n = ' + last.length + ') · ' + word + (dir === 'same' && !semOff ? ' (rozdíl pod ' + NF.mmol1(lim) + ' mmol/l)' : '') };
+};
+/* Ranní hodnoty před snídaní, které pacient za období opsal (nebo je doplnil export) – 32/02 B9: bez exportu jediný údaj o bazálu. */
+NF.morningValues = function (S, planId) {
+  var t = NF.targets(S), vals = [];
+  NF.periodEpisodes(S, planId).forEach(function (e) { if (e.meal !== 'breakfast') return; var g = NF.glucoseOf(S, e, NF.foodById(S, e.foodId)); if (g.before != null) vals.push({ at: e.at, v: g.before }); });
+  var nums = vals.map(function (x) { return x.v; });
+  return { n: vals.length, med: NF.r1(NF.median(nums)), above: nums.filter(function (v) { return v > t.fastingHigh; }).length, vals: vals };
+};
+/* Okolnosti nocí pod cílem (32/02 B6): večeře předchozího dne (čas, jídlo, porce), bazál (čas, dávka), hodnota před spaním z exportu, ranní hodnota. */
+NF.nightCircumstances = function (S, nights) {
+  return (nights || []).map(function (n) {
+    var prev = NF.day(NF.addDays(n.date + 'T12:00:00', -1)), din = S.episodes.filter(function (e) { return e.meal === 'dinner' && NF.day(e.at) === prev; })[0], bz = S.basalLog.filter(function (b) { return b.date === prev; })[0];
+    var morn = n.fasting != null ? n.fasting : (function () { var b = S.episodes.filter(function (e) { return e.meal === 'breakfast' && NF.day(e.at) === n.date; })[0]; return b ? NF.glucoseOf(S, b, NF.foodById(S, b.foodId)).before : null; })();
+    var PL = { usual: 'obvyklá porce', bigger: 'větší porce', smaller: 'menší porce' };
+    var parts = ['večeře ' + (din ? NF.fmtTime(din.at) + ' ' + ((NF.foodById(S, din.foodId) || {}).name || '') + (PL[din.portion] ? ' (' + PL[din.portion] + ')' : '') + (din.context === 'unusual' ? ', neobvyklý den' : '') : 'bez zápisu'),
+      'bazál ' + (bz ? (bz.confirmed === 'as' ? (bz.time || '') + ' podle plánu' : bz.confirmed === 'none' ? 'nepodán' : (bz.time || '') + ' jinak (' + bz.units + ' j.)') : 'bez potvrzení'),
+      'před spaním ' + (n.bed != null ? NF.mmol1(n.bed) + ' mmol/l' : '–'), 'ráno ' + (morn != null ? NF.mmol1(morn) + ' mmol/l' : '–')];
+    return { date: n.date, morning: morn, text: parts.join(' · ') };
+  });
+};
+/* Platnost plánu voličem (32/02 C9): výchozí 92 dní, po změně dávky lze 6 týdnů. */
+NF.VALIDITY_DEFAULT = 92; NF.VALIDITY_OPTIONS = [[92, '92 dní (příští kontrola)'], [42, '6 týdnů (kontrola po změně dávky)']];
+NF.setReviewValidity = function (S, days) { var r = S.review, d = Number(days); if (!r || r.planIssued || !NF.VALIDITY_OPTIONS.some(function (o) { return o[0] === d; })) return { ok: false }; r.validDays = d; return { ok: true }; };
+/* Návyky a cíle na kontrole (rozhodnutí 6, 32/02 B8): krok 3 má přepínače návyků z katalogu; výchozí „beze změny“ = návyky kontrolovaného plánu. */
+NF.reviewHabits = function (S) { var r = S.review, p = r && NF.planById(S, r.planId); if (!r || !p) return []; return r.newHabits || p.habits.slice(); };
+NF.toggleReviewHabit = function (S, catalogId) {
+  var r = S.review; if (!r || r.planIssued || !NF.habitCatalog().some(function (h) { return h.id === catalogId; })) return { ok: false };
+  var h = NF.reviewHabits(S); r.newHabits = h.indexOf(catalogId) >= 0 ? h.filter(function (x) { return x !== catalogId; }) : NF.uniq(h.concat([catalogId])); return { ok: true };
+};
 NF.proposals = function (S, planId, catalog) {
   var out = [], t = NF.targets(S), p = NF.planById(S, planId);
   if (!p) return out;
@@ -2049,7 +2115,11 @@ NF.proposals = function (S, planId, catalog) {
   var vyrovnani = sm.sensor || hbaNow != null ? { text: (sm.sensor ? 'čas v cíli ' + sm.sensor.tir + ' % (cíl ' + t.tirGoal + ' %)' : 'souhrn ze senzoru chybí') + (hbaNow != null ? ' · HbA1c ' + hbaNow + ' mmol/mol' + hbaWhen + ' (cíl do ' + t.hba1cGoal + ')' : ' · nový výsledek HbA1c chybí'), against: tirOk === true && hbaOk === true } : { text: 'souhrn ze senzoru i nový výsledek HbA1c chybí' };
   /* N14: mez pro čas pod dolním cílem (S-SEMAFOR tbr_max), proto s jednotkou a vysvětlením */
   var bal = (sm.sensor ? 'čas v cíli ' + sm.sensor.tir + ' % (cíl ' + t.tirGoal + ' %) · pod ' + NF.mmol1(t.low) + ' mmol/l: ' + sm.sensor.below + ' % času (mez: méně než ' + t.tbrGoal + ' % času)' : 'souhrn ze senzoru chybí') + (sm.hba1cInfo && (sm.hba1cInfo.before || sm.hba1cInfo.now) ? ' · HbA1c ' + [sm.hba1cInfo.before, sm.hba1cInfo.now].filter(Boolean).map(function (x) { return x.v + (x.date ? ' (' + NF.fmtShort(x.date + 'T12:00:00') + ')' : ''); }).join(' → ') + ' mmol/mol (cíl do ' + t.hba1cGoal + ')' : '');
-  /* --- bazál: nízké noční hodnoty mají přednost --- */
+  /* --- bazál --- */
+  /* SCHEMA 84 (rozhodnutí vlastníka 4. 11. 2026; 32/02 A4, B6, B9, B10): odpověď sestry „pozdě večer a v noci“ na kartě, okolnosti nocí, ranní opsané hodnoty za období, přednost jen bez takového vysvětlení nebo pod 3,0. */
+  var mornings = NF.morningValues(S, planId), morningsTxt = mornings.n ? 'ranní hodnoty před snídaní opsané za období: medián ' + NF.mmol1(mornings.med) + ' mmol/l · nad ' + NF.mmol1(t.fastingHigh) + ': ' + mornings.above + ' ' + NF.z(mornings.n) + ' ' + mornings.n : 'ranní hodnoty před snídaní pacient za období neopsal';
+  var fastTrend = NF.trendOf(S, mornings.vals, p.effectiveFrom || p.issuedAt, S.clock), fastTrendRow = fastTrend ? { label: 'Vývoj ranních hodnot v čase', text: fastTrend.text } : null;
+  var nurseVecer = NF.nurseAnswer(S, 'vecer');
   if (NF.usable(S, 'D-BAZAL')) {
     var bdays = NF.param(S, 'D-BAZAL', 'dny', 14), minNoci = NF.param(S, 'D-BAZAL', 'minNoci', 10);
     var nights = S.nights.filter(function (n) { return n.date >= NF.day(NF.addDays(S.clock, -bdays)); });
@@ -2057,27 +2127,53 @@ NF.proposals = function (S, planId, catalog) {
     var bn = NF.basalNights(S, bdays), lowNights = bn.low, lowN = lowNights.length, veryLow = nights.filter(function (n) { return n.min < 3.0; }).length;
     var fastMed = NF.r1(NF.median(nights.map(function (n) { return n.fasting; })));
     /* C3 (31/02): bazál potvrzený „X z Y dnů plánu“ – stejný jmenovatel jako podklady (NF.summary), ne počet záznamů bazálu */
-    var basalAs = sm.basalAs, basalN = sm.basalDays, bazalFakt = { text: 'potvrzeno ' + basalAs + ' ' + NF.z(basalN) + ' ' + NF.plural(basalN, 'dne', 'dnů', 'dnů') + ' plánu' };
+    var basalAs = sm.basalAs, basalN = sm.basalDays, bazalFakt = { text: 'potvrzeno ' + basalAs + ' ' + NF.z(basalN) + ' ' + NF.plural(basalN, 'dne', 'dnů', 'dnů') + ' plánu' + (sm.basalLower ? ' · ' + sm.basalLower + '× nižší dávka (' + sm.basalLowerUnits + ' j.)' : '') };
     var dm = function (d) { return NF.fmtDM(d + 'T12:00:00'); }, via = function (n) { return n.via === 'otazka' ? 'hlásil pacient ráno na otázku' : 'zapsal pacient u snídaně'; };
     var nightTxt = function (n) { return n.source === 'pacient' ? 'v noci na ' + dm(n.date) + ' pod 4 · ' + via(n) : 'v noci na ' + dm(n.date) + (n.lowFrom ? ' mezi ' + NF.fmtClock(n.lowFrom) + ' a ' + NF.fmtClock(n.lowTo) : '') + ' nejnižší ' + NF.mmol1(n.min) + ' mmol/l · z exportu' + (n.alsoSelf ? ', ' + (n.alsoSelf === 'otazka' ? 'hlásil i pacient' : 'zapsal i pacient') : ''); };
     var notConfTxt = bn.notConfirmed.length ? NF.plural(bn.notConfirmed.length, 'noc zapsanou pacientem', 'noci zapsané pacientem', 'nocí zapsaných pacientem') + ' export nepotvrdil (' + bn.notConfirmed.map(function (n) { return 'v noci na ' + dm(n.date) + ' nejnižší ' + NF.mmol1(n.min) + ' mmol/l'; }).join(', ') + '); v okně exportu rozhoduje export' : '';
     var assessed = bn.assessed, enough = bn.exportN ? assessed >= minNoci : bn.selfOnly.length > 0; /* bez exportu stačí noci ze zápisu (bod 8); s exportem práh minNoci nad všemi posouzenými nocmi */
+    var mornRow = { label: 'Ranní hodnoty za období', text: morningsTxt };
     if (enough && (lowN >= NF.param(S, 'D-BAZAL', 'nociPod', 2) || veryLow >= 1)) {
-      out.push(withPostup({ id: 'PR-BAZAL', kind: 'dose', dose: 'basal', cat: 'davka', priority: 0, title: 'Posoudit bazální dávku – noční hodnoty pod cílem',
-        why: (bn.exportN ? lowN + ' ' + NF.z(assessed) + ' ' + assessed + ' nocí' + (bn.selfOnly.length ? ' (' + bn.exportN + ' z exportu, ' + bn.selfOnly.length + ' jen ze zápisu pacienta mimo okno exportu)' : '') + ' za posledních ' + bdays + ' dní kleslo' : NF.plural(lowN, 'noc', 'noci', 'nocí') + ' za posledních ' + bdays + ' dní ' + (lowN === 1 ? 'klesla' : lowN < 5 ? 'klesly' : 'kleslo')) + ' pod ' + NF.mmol1(t.low) + ' mmol/l' + (veryLow ? ', z toho ' + veryLow + '× pod 3,0' : '') + ' (' + lowNights.map(nightTxt).join(' · ') + ').' + (bn.selfOnly.length ? ' Noci, které má jen zápis pacienta, se počítají jako noc pod cílem; číslo z nich není k dispozici.' : '') + ' Noční pokles je nejdůležitější signál a má přednost před ostatními.', /* B12: data nocí, aby šel ověřit bod o večeřích */
-        context: bal, weak: (veryLow ? ['hodnota pod 3,0 z jednoho bodu může být i artefakt senzoru (tlak na senzor ve spánku)'] : []).concat(notConfTxt ? [notConfTxt] : []), nightsSelf: bn.selfAll.map(function (n) { return n.date; }), item: 'D-BAZAL' } /* integrace SCHEMA 73: věta o artefaktu jen při hodnotě pod 3,0 */, 'bazalLow', { as: basalAs, n: basalN }, { bazal: bazalFakt }));
+      /* B10: přednost jen bez vysvětlení „jídlo pozdě večer a v noci“ od sestry, nebo při noci pod 3,0 */
+      var prio = veryLow >= 1 || nurseVecer !== false ? 0 : 2.5;
+      var circ = NF.nightCircumstances(S, lowNights), circRows = circ.map(function (c) { return { label: 'Noc na ' + dm(c.date), text: c.text }; });
+      var afterLate = nurseVecer === false ? [NF.plural(lowN, 'noc následuje', 'noci následují', 'nocí následuje') + ' po dnech, u kterých sestra s pacientem uvedla jídlo pozdě večer a v noci (bod 2 podle sestry nesedí); ranní hodnoty po těch nocích ' + (circ.every(function (c) { return c.morning != null; }) ? circ.map(function (c) { return NF.mmol1(c.morning); }).join(' a ') + ' mmol/l' : 'viz okolnosti nocí') + ' – snížení bazálu by zhoršilo hodnoty po jídle'] : [];
+      var nociFakt = { text: 'ráno po těch nocích ' + (circ.some(function (c) { return c.morning != null; }) ? circ.filter(function (c) { return c.morning != null; }).map(function (c) { return NF.mmol1(c.morning); }).join(', ') + ' mmol/l' : 'bez opsané hodnoty') + ' · ' + morningsTxt };
+      out.push(withPostup({ id: 'PR-BAZAL', kind: 'dose', dose: 'basal', cat: 'davka', priority: prio, title: 'Posoudit bazální dávku – noční hodnoty pod cílem',
+        why: (bn.exportN ? lowN + ' ' + NF.z(assessed) + ' ' + assessed + ' nocí' + (bn.selfOnly.length ? ' (' + bn.exportN + ' z exportu, ' + bn.selfOnly.length + ' jen ze zápisu pacienta mimo okno exportu)' : '') + ' za posledních ' + bdays + ' dní kleslo' : NF.plural(lowN, 'noc', 'noci', 'nocí') + ' za posledních ' + bdays + ' dní ' + (lowN === 1 ? 'klesla' : lowN < 5 ? 'klesly' : 'kleslo')) + ' pod ' + NF.mmol1(t.low) + ' mmol/l' + (veryLow ? ', z toho ' + veryLow + '× pod 3,0' : '') + ' (' + lowNights.map(nightTxt).join(' · ') + ').' + (bn.selfOnly.length ? ' Noci, které má jen zápis pacienta, se počítají jako noc pod cílem; číslo z nich není k dispozici.' : '') + (prio === 0 ? ' Noční pokles je nejdůležitější signál a má přednost před ostatními.' : ' Sestra s pacientem uvedla jídlo pozdě večer a v noci, proto karta nemá přednost před ostatními.'), /* B12: data nocí, aby šel ověřit bod o večeřích */
+        context: bal, rows: circRows.concat([mornRow], fastTrendRow ? [fastTrendRow] : []), weak: afterLate.concat(veryLow ? ['hodnota pod 3,0 z jednoho bodu může být i artefakt senzoru (tlak na senzor ve spánku)'] : []).concat(notConfTxt ? [notConfTxt] : []), nightsSelf: bn.selfAll.map(function (n) { return n.date; }), item: 'D-BAZAL', stats: { mornings: mornings, trend: fastTrend } } /* integrace SCHEMA 73: věta o artefaktu jen při hodnotě pod 3,0 */, 'bazalLow', { as: basalAs, n: basalN }, { bazal: bazalFakt, noci: nociFakt }));
     } else if (nights.length >= minNoci && fastMed != null && fastMed > t.fastingHigh && lowN === 0) {
       out.push(withPostup({ id: 'PR-BAZAL', kind: 'dose', dose: 'basal', cat: 'davka', priority: 2, title: 'Posoudit bazální dávku – ranní hodnoty nad cílem',
         why: 'Medián ranních hodnot za ' + bdays + ' dní je ' + NF.mmol1(fastMed) + ' mmol/l (cíl do ' + NF.mmol1(t.fastingHigh) + ' mmol/l) a žádná noc neklesla pod ' + NF.mmol1(t.low) + ' mmol/l.',
-        context: bal, weak: hbaWeak.concat(notConfTxt ? [notConfTxt] : []), nightsSelf: bn.selfAll.map(function (n) { return n.date; }), item: 'D-BAZAL' }, 'bazalHigh', { as: basalAs, n: basalN, tirGoal: t.tirGoal }, { bazal: bazalFakt, vyrovnani: vyrovnani }));
+        context: bal, rows: [mornRow].concat(fastTrendRow ? [fastTrendRow] : []), weak: hbaWeak.concat(notConfTxt ? [notConfTxt] : []), nightsSelf: bn.selfAll.map(function (n) { return n.date; }), item: 'D-BAZAL', stats: { mornings: mornings, trend: fastTrend } }, 'bazalHigh', { as: basalAs, n: basalN, tirGoal: t.tirGoal }, { bazal: bazalFakt, vyrovnani: vyrovnani }));
     }
   }
   /* --- prandiální podle jídla --- */
   var radyLevers = [], odmMinAll = NF.param(S, 'D-PRAND', 'odmitnutiMin', 5), odmPodilAll = NF.param(S, 'D-PRAND', 'odmitnutiPodil', 0.6); /* prahy návrhů k radám (A13) */
-  if (NF.usable(S, 'D-PRAND')) NF.MEALS.forEach(function (m) {
+  var jenCiste = NF.param(S, 'D-POSTUP', 'poklesy_jen_ciste', 1) >= 1, lowOd = NF.param(S, 'D-POSTUP', 'poklesy_od', 1);
+  /* SCHEMA 84 (rozhodnutí 3): blokující poklesy = při obvyklé porci a dávce podle plánu (D-POSTUP poklesy_jen_ciste); ostatní jsou varování. */
+  var lowsFor = function (meal) {
+    var lowEv = NF.lowEvents(S).filter(function (x) { return x.meal === meal && x.at >= since; }), blocking = jenCiste ? lowEv.filter(function (x) { return x.clean; }) : lowEv, warn = lowEv.filter(function (x) { return blocking.indexOf(x) < 0; });
+    var line = function (x) { return NF.fmtDM(x.at) + ' ' + NF.fmtTime(x.at) + ' · ' + (x.source === 'senzor' ? 'ze senzoru' : 'hlásil pacient') + (x.why ? ' · ' + x.why : ''); };
+    var days = function (l) { return l.map(function (x) { return NF.fmtDM(x.at); }).join(', '); };
+    var block = blocking.length >= lowOd;
+    var fakt = { text: blocking.length ? NF.plural(blocking.length, 'pokles', 'poklesy', 'poklesů') + ' pod 4 ' + NF.MEAL_PO[meal] + ' při obvyklé porci a dávce podle plánu (' + days(blocking) + ')' + (warn.length ? '; ' + NF.plural(warn.length, 'další pokles', 'další poklesy', 'dalších poklesů') + ' po menší porci nebo s jinou dávkou' : '') : (warn.length ? 'žádný pokles při obvyklé porci a dávce podle plánu; ' + NF.plural(warn.length, 'pokles', 'poklesy', 'poklesů') + ' po menší porci nebo s jinou dávkou (' + days(warn) + ') je varování' : 'žádný pokles pod 4 ' + NF.MEAL_PO[meal]), against: block, block: block };
+    var weak = (blocking.length ? [NF.plural(blocking.length, 'pokles', 'poklesy', 'poklesů') + ' pod 4 ' + NF.MEAL_PO[meal] + ' při obvyklé porci a dávce podle plánu (' + days(blocking) + ')' + (block ? '; podle postupu blokují větev „zvýšit“' : '')] : []).concat(warn.length ? [NF.plural(warn.length, 'pokles', 'poklesy', 'poklesů') + ' pod 4 ' + NF.MEAL_PO[meal] + ' ' + (warn.every(function (x) { return x.why === 'menší porce'; }) ? 'po menší porci' : 'po menší porci, vynechaném jídle nebo s jinou dávkou') + ' (' + days(warn) + ') – poučit pacienta; větev „zvýšit“ neblokují, o dávce k obvyklé porci nic neříkají'] : []);
+    return { all: lowEv, blocking: blocking, warn: warn, block: block, fakt: fakt, weak: weak, list: lowEv.map(line) };
+  };
+  var selfLowerWeak = function (meal) { var n = sm.selfLower && sm.selfLower[meal]; return n ? ['pacient si ' + n + '× sám dal nižší dávku ' + NF.mealLabel(meal, 'ke') + ' (' + sm.selfLowerUnits[meal] + ' j.): zvýšení dávky u pacienta, který ji sám snižuje, je k ověření s ním (proč – strach z nízké glukózy, zapomínání)'] : []; }; /* 32/02 B5 */
+  var slotRow = function (meal, stats, reason) { /* SCHEMA 84 (rozhodnutí 1): jídlo dne bez karty má řádek s čísly a stejným voličem dávky */
+    var lw = lowsFor(meal);
+    out.push({ id: 'PR-' + meal.toUpperCase(), kind: 'dose', dose: meal, cat: 'davka', priority: 7, row: true, title: NF.mealLabel(meal, true) + ' – bez návrhu', why: stats.text + ' · bez návrhu (' + reason + ')', weak: lw.weak, verify: [], branches: [], facts: [], nurse: [], lowBlock: lw.block, lows: lw.list, lowsTitle: 'Poklesy pod 4 ' + NF.MEAL_PO[meal] + ' v období', item: NF.usable(S, 'D-PRAND') ? 'D-PRAND' : null, stats: stats });
+  };
+  var slotStats = function (meal, eps, above, medPeak) { var tr = NF.trendOf(S, eps.map(function (e) { return { at: e.at, v: NF.epPeak(S, e) }; }), p.effectiveFrom || p.issuedAt, S.clock); return { n: eps.length, above: above, med: medPeak, trend: tr, text: eps.length ? above + ' ' + NF.z(eps.length) + ' ' + eps.length + ' nad cílem' + (medPeak != null ? ' · medián vrcholu ' + NF.mmol1(medPeak) + ' mmol/l' : '') : 'žádné čisté jídlo' }; };
+  var minNAll = NF.param(S, 'D-PRAND', 'minJidel', 8), shareAll = NF.param(S, 'D-PRAND', 'podil', 2 / 3), medNadAll = NF.param(S, 'D-PRAND', 'medianNad', 0.5);
+  NF.MEALS.forEach(function (m) {
     var meal = m[0], eps = cleanEps(S, planId, meal, since);
-    var minN = NF.param(S, 'D-PRAND', 'minJidel', 8), share = NF.param(S, 'D-PRAND', 'podil', 2 / 3), medNad = NF.param(S, 'D-PRAND', 'medianNad', 0.5);
+    var minN = minNAll, share = shareAll, medNad = medNadAll;
     var all = NF.periodEpisodes(S, planId).filter(function (e) { return e.meal === meal && e.at >= since; });
+    var aboveAll = eps.filter(function (e) { return NF.epPeak(S, e) > t.high; }), medAll = NF.r1(NF.median(eps.map(function (e) { return NF.epPeak(S, e); }))), stats = slotStats(meal, eps, aboveAll.length, medAll);
+    if (!NF.usable(S, 'D-PRAND')) { slotRow(meal, stats, 'návrhy k prandiální dávce nejsou v registru schválené'); return; }
     var lowEpIds = {}; NF.lowEvents(S).forEach(function (x) { if (x.epId) lowEpIds[x.epId] = 1; });
     var excludedList = all.filter(function (e) { return !NF.usableForDose(S, e); }).map(function (e) { return { at: e.at, why: (lowEpIds[e.id] ? 'pokles pod 4 · ' : '') + NF.whyNotForDose(S, e) }; }); /* A1: pokles pod 4 jako první důvod */
     var excluded = excludedList.length, excludedText = NF.plural(excluded, 'zápis vyřazen', 'zápisy vyřazeny', 'zápisů vyřazeno') + ' z návrhu (jiná porce, nepotvrzený nebo pozdní inzulin, svačina do 2 h, zpětný zápis, nemoc, chybějící data)';
@@ -2090,17 +2186,17 @@ NF.proposals = function (S, planId, catalog) {
       var lowUsual = lowsAll.filter(function (e) { return e.portion === 'usual'; }).length, lowAs = lowsAll.filter(function (e) { return e.insulin && e.insulin.confirmed === 'as' && NF.onTime(S, e); }).length;
       out.push(withPostup({ id: 'PR-' + meal.toUpperCase(), kind: 'dose', dose: meal, cat: 'davka', priority: 1, title: 'Posoudit prandiální dávku ' + NF.mealLabel(meal, 'ke') + ' – hodnoty pod cílem',
         why: lowsAll.length + ' ' + NF.z(all.length) + ' ' + all.length + ' ' + NF.MEAL_GPL[meal] + ' za ' + winDays + ' dní: glukóza do 4 h po jídle klesla pod ' + NF.mmol1(t.low) + ' mmol/l' + (veryLowAll.length ? ', z toho ' + veryLowAll.length + '× pod 3,0' : '') + '.',
-        context: bal, weak: (unclean.length ? ['z toho ' + unclean.length + ' mimo čistá data: ' + unclean.map(function (e) { return NF.whyNotForDose(S, e); }).filter(function (x, i, a) { return a.indexOf(x) === i; }).join(', ')] : []).concat(excluded ? [excludedText] : []), excluded: excludedList,
+        context: bal, rows: stats.trend ? [{ label: 'Vývoj vrcholů v čase', text: stats.trend.text }] : [], weak: (unclean.length ? ['z toho ' + unclean.length + ' mimo čistá data: ' + unclean.map(function (e) { return NF.whyNotForDose(S, e); }).filter(function (x, i, a) { return a.indexOf(x) === i; }).join(', ')] : []).concat(excluded ? [excludedText] : []), excluded: excludedList, stats: stats,
         item: 'D-PRAND' }, 'prandLow', { meal: NF.mealLabel(meal, 'ke') }, {
           porcePoklesy: { text: 'obvyklá u ' + lowUsual + ' ' + NF.z(lowsAll.length) + ' ' + lowsAll.length + ' poklesů', against: lowUsual < lowsAll.length },
           davkaPoklesy: { text: 'potvrzená včas u ' + lowAs + ' ' + NF.z(lowsAll.length) + ' ' + lowsAll.length + ' poklesů', against: lowAs < lowsAll.length } }));
       return;
     }
-    if (eps.length < minN) return;
-    var above = eps.filter(function (e) { return NF.epPeak(S, e) > t.high; });
-    if (above.length / eps.length < share) return;
-    var medPeak = NF.r1(NF.median(eps.map(function (e) { return NF.epPeak(S, e); })));
-    if (medPeak != null && medPeak <= t.high + medNad) return; /* hraniční jídla návrh nespouštějí (R2) */
+    if (eps.length < minN) { slotRow(meal, stats, 'méně než ' + minN + ' čistých jídel'); return; }
+    var above = aboveAll;
+    if (above.length / eps.length < share) { slotRow(meal, stats, 'práh ' + (share === 2 / 3 || Math.abs(share - 0.67) < 0.01 ? '2/3' : Math.round(share * 100) + ' %') + ' nad cílem'); return; }
+    var medPeak = medAll;
+    if (medPeak != null && medPeak <= t.high + medNad) { slotRow(meal, stats, 'medián vrcholu do ' + NF.mmol1(t.high + medNad) + ' mmol/l'); return; } /* hraniční jídla návrh nespouštějí (R2) */
     /* Rozpad po jídlech (R1): jednotka návrhu je slot dne, ale lékař vidí, které jídlo za tím stojí. */
     var byFood = {};
     eps.forEach(function (e) { var f = NF.foodById(S, e.foodId), nm = f ? f.name : e.foodId; byFood[nm] = byFood[nm] || { n: 0, above: 0 }; byFood[nm].n++; if (NF.epPeak(S, e) > t.high) byFood[nm].above++; });
@@ -2110,37 +2206,39 @@ NF.proposals = function (S, planId, catalog) {
     var inTargetFoods = breakdown.filter(inTgt);
     var heteroWeak = inTargetFoods.length ? [(inTargetFoods.length > 1 ? 'jídla ' : 'jídlo ') + inTargetFoods.map(function (b) { return '„' + b.food + '“ (v cíli ' + (b.n - b.above) + ' ' + NF.z(b.n) + ' ' + b.n + ')'; }).join(', ') + (inTargetFoods.length > 1 ? ' zůstala v cíli' : ' zůstalo v cíli') + ' aspoň u ' + Math.round(vCili * 100) + ' % zápisů, takže příčina může být v konkrétních jídlech, ne v dávce. Změna dávky by dopadla i na ' + (inTargetFoods.length > 1 ? 'dny s těmito jídly' : 'dny s tímto jídlem')] : [];
     var acceptedAdvice = eps.filter(function (e) { return NF.countedAdvice(S, e).some(function (a) { return a.accepted === true && a.lever !== 'portion'; }); });
-    /* Rady první: dávka se neposuzuje, dokud pacient rady nepřijal aspoň radyPrve×, ani když je v okně většinou odmítal
-       (podíl odmítnutých ≥ D-PRAND.odmitnutiPodil z nejméně D-PRAND.odmitnutiMin nabídek; A13, 27. 10. 2026 – prahy z registru, ne z kódu). */
+    /* Rady první (SCHEMA 84, rozhodnutí vlastníka 4. 11. 2026, bod 2): karta k dávce vzniká vždy; když pacient rady přijal méně než radyPrve× nebo je většinou odmítal
+       (podíl ≥ D-PRAND.odmitnutiPodil), vznikne před ní karta „Nejdřív rady“ a bod 10 postupu podle dat nesedí (větev „ponechat dávku, posílit radu“).
+       Brána platí jen od D-PRAND.odmitnutiMin nabídek – u jídla, kde aplikace rady skoro nenabízela, pacienta netrestá (01 A1, 02 A2). */
     var offered = 0, declinedN = 0, acceptedN = 0;
     all.forEach(function (e) { NF.countedAdvice(S, e).forEach(function (a) { if (a.lever === 'portion') return; offered++; if (a.accepted === false) declinedN++; if (a.accepted === true) acceptedN++; }); });
-    var odmMin = NF.param(S, 'D-PRAND', 'odmitnutiMin', 5), odmPodil = NF.param(S, 'D-PRAND', 'odmitnutiPodil', 0.6);
+    var odmMin = NF.param(S, 'D-PRAND', 'odmitnutiMin', 5), odmPodil = NF.param(S, 'D-PRAND', 'odmitnutiPodil', 0.6), radyPrve = NF.param(S, 'D-PRAND', 'radyPrve', 3);
+    var radyNabidka = 'nabídnuto ' + offered + '×, přijato ' + acceptedN + '×' + (declinedN ? ', odmítnuto ' + declinedN + '×' : '');
     var radyFakt = { text: 'nabídek rad ' + offered + ': přijato ' + acceptedN + ', odmítnuto ' + declinedN }; /* jednotka „nabídek rad“ (A25) */
-    if (acceptedAdvice.length < NF.param(S, 'D-PRAND', 'radyPrve', 3) || (offered >= odmMin && declinedN / offered >= odmPodil)) {
+    var gate = offered >= odmMin && (acceptedAdvice.length < radyPrve || declinedN / offered >= odmPodil);
+    /* C3 (32/02): srovnání s radou a bez ní u tohoto jídla dne, jen když je v obou skupinách dost zápisů */
+    var MIN_C = NF.param(S, 'S-SOUHRN', 'min_n', 8), pkAcc = acceptedAdvice.map(function (e) { return NF.epPeak(S, e); }), pkNo = eps.filter(function (e) { return acceptedAdvice.indexOf(e) < 0; }).map(function (e) { return NF.epPeak(S, e); });
+    var cmpTxt = pkAcc.length >= MIN_C && pkNo.length >= MIN_C ? ' S přijatou radou byl medián vrcholu ' + NF.mmol1(NF.median(pkAcc)) + ' mmol/l, bez ní ' + NF.mmol1(NF.median(pkNo)) + ' mmol/l' + (Math.abs(NF.median(pkAcc) - NF.median(pkNo)) < NF.param(S, 'S-SOUHRN', 'rozdil_mmol', 1.0) ? ' (bez rozdílu).' : '.') : '';
+    if (gate) {
       var declined = {};
       all.forEach(function (e) { NF.countedAdvice(S, e).forEach(function (a) { if (a.lever !== 'portion' && a.accepted === false) declined[a.lever] = (declined[a.lever] || 0) + 1; }); });
       var usableLevers = Object.keys(NF.LEVERS).filter(function (l) { return l !== 'portion' && NF.usable(S, NF.LEVERS[l].item); });
       var worst = Object.keys(declined).filter(function (l) { return usableLevers.indexOf(l) >= 0; }).sort(function (a, b) { return declined[b] - declined[a]; })[0] || usableLevers[0];
-      if (!worst) return; /* bez schválené rady k jídlu není co posílit */
-      radyLevers.push(worst); /* o téže radě nevznikne zvláštní návrh „vyměnit“ – obě větve (posílit / vyměnit) nese tento návrh (02 #21) */
-      /* A12 (27. 10. 2026): návrh stojí na prazích D-PRAND a větvích D-POSTUP (postup „nejdřív rady“) – nese jejich štítky, ne R-NAVYKY. */
-      out.push(withPostup({ id: 'PR-' + meal.toUpperCase() + '-RADY', kind: 'habit', cat: 'plan', priority: 3, lever: worst, title: 'Nejdřív rady ' + NF.mealLabel(meal, 'ke') + ' – dávka až po radách',
-        why: above.length + ' ' + NF.z(eps.length) + ' ' + eps.length + ' ' + NF.MEAL_GPL[meal] + ' skončilo nad cílem, ale rada k jídlu byla přijata jen u ' + acceptedAdvice.length + ' z nich' + (declined[worst] ? ' (nejčastěji odmítnutá rada „' + NF.LEVERS[worst].label + '“)' : '') + '. Podle schváleného postupu jde jídlo před dávkou.',
-        weak: [], item: 'D-PRAND', needs: ['D-CISTA'] }, 'prandAdviceFirst', { lever: NF.LEVERS[worst].label }, { rady: radyFakt }));
-      return;
+      if (worst) {
+        radyLevers.push(worst); /* o téže radě nevznikne zvláštní návrh „vyměnit“ – obě větve (posílit / vyměnit) nese tento návrh (02 #21) */
+        /* A12 (27. 10. 2026): návrh stojí na prazích D-PRAND a větvích D-POSTUP (postup „nejdřív rady“) – nese jejich štítky, ne R-NAVYKY. */
+        out.push(withPostup({ id: 'PR-' + meal.toUpperCase() + '-RADY', kind: 'habit', cat: 'plan', priority: 3, lever: worst, title: 'Nejdřív rady ' + NF.mealLabel(meal, 'ke') + ' – dávka až po radách',
+          why: above.length + ' ' + NF.z(eps.length) + ' ' + eps.length + ' ' + NF.MEAL_GPL[meal] + ' skončilo nad cílem; rada k jídlu: ' + radyNabidka + (declined[worst] ? ' (nejčastěji odmítnutá rada „' + NF.LEVERS[worst].label + '“)' : '') + '. Podle schváleného postupu jde jídlo před dávkou; návrh k dávce je další karta a lékař o ní rozhodne.',
+          weak: [], item: 'D-PRAND', needs: ['D-CISTA'] }, 'prandAdviceFirst', { lever: NF.LEVERS[worst].label }, { rady: radyFakt }));
+      }
     }
     /* Ověřovací bod „Nad cílem nejsou jen jedno nebo dvě jídla“ (A11, Q4, 27. 10. 2026): z rozpadu po jídlech. Když dvě jídla s nejvíc zápisy nad cílem tvoří
        aspoň D-PRAND.podilDvouJidel všech zápisů nad cílem a pacient jí i jiné jídlo (aspoň 2×), data bodu odporují – větev „ponechat dávku, řešit jídlo“. */
     var byAbove = breakdown.filter(function (b) { return b.above > 0; }).sort(function (a, b) { return b.above - a.above; }), aboveN = above.length;
     var top2 = byAbove.slice(0, 2), top2N = top2.reduce(function (x, b) { return x + b.above; }, 0), others = breakdown.filter(function (b) { return top2.indexOf(b) < 0 && inTgt(b); }); /* SCHEMA 81 (bod 9): jiné jídlo, které je v cíli aspoň u 90 % zápisů */
     var dvaPodil = NF.param(S, 'D-PRAND', 'podilDvouJidel', 0.67), soustredeno = aboveN > 0 && others.length > 0 && top2N / aboveN >= dvaPodil;
-    /* A1 (nezávislá kontrola 27. 10. 2026): poklesy pod 4 u tohoto jídla dne v období (opsané „pod 4“, odpověď na otázku po menší porci, export).
-       Bod „U jídla nebyl v období pokles pod 4“ podle dat nesedí (block: lékař ho nepřepne) a blokuje větev „zvýšit“; karta poklesy vypíše v „Proč“ i v „Co návrh oslabuje“. */
-    var lowEv = NF.lowEvents(S).filter(function (x) { return x.meal === meal && x.at >= since; }), lowOd = NF.param(S, 'D-POSTUP', 'poklesy_od', 1);
-    var lowList = lowEv.map(function (x) { return NF.fmtDM(x.at) + ' ' + NF.fmtTime(x.at) + ' · ' + (x.source === 'senzor' ? 'ze senzoru' : 'hlásil pacient'); });
-    var lowDays = lowEv.map(function (x) { return NF.fmtDM(x.at); }).join(', ');
-    var poklesyFakt = { text: lowEv.length ? NF.plural(lowEv.length, 'pokles', 'poklesy', 'poklesů') + ' pod 4 ' + NF.MEAL_PO[meal] + ' (' + lowDays + ')' : 'žádný pokles pod 4 ' + NF.MEAL_PO[meal], against: lowEv.length >= lowOd, block: lowEv.length >= lowOd };
-    var lowWeak = lowEv.length ? [NF.plural(lowEv.length, 'pokles', 'poklesy', 'poklesů') + ' pod 4 ' + NF.MEAL_PO[meal] + ' v období (' + lowDays + ')' + (lowEv.length >= lowOd ? '; podle postupu blokují větev „zvýšit“' : '')] : [];
+    /* A1 (nezávislá kontrola 27. 10. 2026) + SCHEMA 84 (rozhodnutí 3): poklesy pod 4 u tohoto jídla dne v období; blokuje jen pokles při obvyklé porci a dávce podle plánu,
+       ostatní poklesy jsou varování v „Co návrh oslabuje“. Bod „U jídla nebyl v období pokles pod 4 …“ podle dat nesedí (block: lékař ho nepřepne). */
+    var lw = lowsFor(meal);
     var jidlaFakt = { text: soustredeno ? 'nad cílem hlavně ' + top2.map(function (b) { return '„' + b.food + '“'; }).join(' a ') + ': ' + top2N + ' ' + NF.z(aboveN) + ' ' + aboveN + ' zápisů nad cílem' : 'nad cílem ' + NF.plural(byAbove.length, 'jídlo', 'různá jídla', 'různých jídel') + (byAbove.length > 2 ? ', dvě s nejvíc zápisy nad cílem (' + top2.map(function (b) { return '„' + b.food + '“ ' + b.above + '×'; }).join(', ') + ') tvoří ' + Math.round(top2N / aboveN * 100) + ' %' : ''), against: soustredeno };
     /* Kontrola 4 (06 B5): vrcholy v návrhu stojí hlavně na opsaných hodnotách – bod 9 „Opsané nejvyšší hodnoty se shodují s exportem“ (D-POSTUP shoda_podil, shoda_min)
        a v „Co návrh oslabuje“ kolik vrcholů je jen opsaných. Shoda do Z-IMPORT.shoda_mmol jako u nahrání exportu. */
@@ -2148,13 +2246,15 @@ NF.proposals = function (S, planId, catalog) {
     var agreeN = cmp.filter(function (e) { var mp = NF.peakOf(e.points, NF.windowFor(S, NF.foodById(S, e.foodId))); return mp != null && NF.peakAgrees(e.manual, mp, tolS); }).length;
     var shodaMin = NF.param(S, 'D-POSTUP', 'shoda_min', 5), shodaPodil = NF.param(S, 'D-POSTUP', 'shoda_podil', 0.8);
     var shodaFakt = cmp.length ? { text: 'shoda u ' + agreeN + ' ' + NF.z(cmp.length) + ' ' + cmp.length + ' ' + NF.MEAL_GPL[meal] + ' s exportem (do ' + NF.mmol1(tolS) + ' mmol/l)', against: cmp.length < shodaMin || agreeN / cmp.length < shodaPodil } : { text: 'export k těmto jídlům zatím není – vrcholy jsou jen opsané', against: true };
+    var radyBod = { text: radyNabidka + (offered < odmMin ? ' (méně než ' + odmMin + ' nabídek, brána rad se neuplatní)' : ''), against: gate }; /* SCHEMA 84: bod 10 */
     var onlyCopied = eps.filter(function (e) { return !NF.hasImport(e); }).length;
     var copiedWeak = onlyCopied ? [onlyCopied + ' ' + NF.z(eps.length) + ' ' + eps.length + ' vrcholů v návrhu je jen opsaných, bez průběhu z exportu'] : [];
-    out.push(withPostup({ id: 'PR-' + meal.toUpperCase(), kind: 'dose', dose: meal, cat: 'davka', priority: 2, title: 'Posoudit prandiální dávku ' + NF.mealLabel(meal, 'ke') + ' – hodnoty nad cílem',
-      why: above.length + ' ' + NF.z(eps.length) + ' ' + eps.length + ' ' + NF.MEAL_GPL[meal] + ' za ' + winDays + ' dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad ' + NF.mmol1(t.high) + ' mmol/l (medián vrcholu ' + NF.mmol1(medPeak) + ' mmol/l), i když rada k jídlu byla přijata u ' + acceptedAdvice.length + ' z nich.',
-      breakdown: breakdown, context: bal, weak: lowWeak.concat(hbaWeak, heteroWeak, copiedWeak, excluded ? [excludedText] : []), excluded: excludedList, lows: lowList, lowsTitle: 'Poklesy pod 4 ' + NF.MEAL_PO[meal] + ' v období',
-      lowBlock: lowEv.length >= lowOd, /* kontrola 3, A1: blok „zvýšit“ platí i bez schváleného postupu */
-      item: 'D-PRAND', needs: ['D-CISTA'] }, 'prandHigh', { meal: NF.mealLabel(meal, 'ke'), tirGoal: t.tirGoal }, {
+    var gateWeak = gate ? ['pacient rady k tomuto jídlu dne zkoušel jen ' + acceptedAdvice.length + '× (' + radyNabidka + '); podle postupu jde jídlo před dávkou, karta „Nejdřív rady“ je výš'] : [];
+    out.push(withPostup({ id: 'PR-' + meal.toUpperCase(), kind: 'dose', dose: meal, cat: 'davka', priority: gate ? 3.5 : 2, title: 'Posoudit prandiální dávku ' + NF.mealLabel(meal, 'ke') + ' – hodnoty nad cílem',
+      why: above.length + ' ' + NF.z(eps.length) + ' ' + eps.length + ' ' + NF.MEAL_GPL[meal] + ' za ' + winDays + ' dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad ' + NF.mmol1(t.high) + ' mmol/l (medián vrcholu ' + NF.mmol1(medPeak) + ' mmol/l). Rada k jídlu: ' + radyNabidka + '.' + cmpTxt,
+      breakdown: breakdown, context: bal, rows: stats.trend ? [{ label: 'Vývoj vrcholů v čase', text: stats.trend.text }] : [], weak: lw.weak.concat(gateWeak, selfLowerWeak(meal), hbaWeak, heteroWeak, copiedWeak, excluded ? [excludedText] : []), excluded: excludedList, lows: lw.list, lowsTitle: 'Poklesy pod 4 ' + NF.MEAL_PO[meal] + ' v období',
+      lowBlock: lw.block, /* kontrola 3, A1: blok „zvýšit“ platí i bez schváleného postupu */ stats: stats,
+      item: 'D-PRAND', needs: ['D-CISTA'] }, 'prandHigh', { meal: NF.mealLabel(meal, 'ke'), tirGoal: t.tirGoal, radyPrve: radyPrve, odmitnutiMin: odmMin }, {
         davky: (function () { /* C4 (31/02): u návrhu ke zvýšení lékař vidí i to, kolikrát si pacient dal jinou dávku a kolikrát nevěděl */
           var lower = all.filter(function (e) { return e.insulin && e.insulin.confirmed === 'other' && e.insulin.units != null && e.insulin.units < e.insulin.prescribed; }), higher = all.filter(function (e) { return e.insulin && e.insulin.confirmed === 'other' && e.insulin.units != null && e.insulin.units > e.insulin.prescribed; }), unk = all.filter(function (e) { return e.insulin && e.insulin.confirmed === 'unknown'; }).length;
           var u = function (l) { return l.map(function (e) { return e.insulin.units; }).filter(function (x, i, a) { return a.indexOf(x) === i; }).sort(function (a, b) { return a - b; }).join(', ') + ' j.'; };
@@ -2163,8 +2263,10 @@ NF.proposals = function (S, planId, catalog) {
         vrcholy: { text: above.length + ' ' + NF.z(eps.length) + ' ' + eps.length + ' nad cílem · medián ' + NF.mmol1(medPeak) + ' mmol/l' },
         svacina: (function (n) { return { text: n ? 'svačina do 2 h u ' + NF.plural(n, 'zápisu', 'zápisů', 'zápisů') + ' – vyřazeno' : 'svačina do 2 h ani jednou' }; })(all.filter(function (e) { return NF.snackAfter(S, e); }).length),
         nemoc: (function (n) { return { text: n ? NF.plural(n, 'zápis', 'zápisy', 'zápisů') + ' z nemoci – vyřazeno' : 'žádný zápis z nemoci' }; })(all.filter(function (e) { return NF.inIllness(S, e); }).length),
-        vyrovnani: vyrovnani, jidla: jidlaFakt, poklesy: poklesyFakt, shoda: shodaFakt }));
+        vyrovnani: vyrovnani, jidla: jidlaFakt, poklesy: lw.fakt, shoda: shodaFakt, rady: radyBod }));
   });
+  /* Bazál bez karty (rozhodnutí 1): řádek s ranními hodnotami a stejným voličem. */
+  if (!out.some(function (x) { return x.id === 'PR-BAZAL'; })) out.push({ id: 'PR-BAZAL', kind: 'dose', dose: 'basal', cat: 'davka', priority: 7, row: true, title: 'Bazál – bez návrhu', why: morningsTxt + ' · bez návrhu' + (NF.usable(S, 'D-BAZAL') ? ' (noci bez poklesu, ranní hodnoty v cíli nebo málo nocí z exportu)' : ' (návrh k bazálu není v registru schválený)'), weak: [], verify: [], branches: [], facts: [], nurse: [], rows: fastTrendRow ? [fastTrendRow] : [], item: NF.usable(S, 'D-BAZAL') ? 'D-BAZAL' : null, stats: { mornings: mornings, trend: fastTrend } });
   /* --- návyky ---
      A12 (27. 10. 2026): karty „Probrat / Vyměnit / Zachovat radu“ stojí na prazích D-PRAND a postupu D-POSTUP „adviceReview“ (bod a větve z registru). */
   var adv = NF.adviceOutcome(S, planId);
@@ -2207,7 +2309,10 @@ NF.proposals = function (S, planId, catalog) {
 };
 /* Návrhy „beze změny“ tvoří jednu kartu; ostatní se rozhodují jeden po druhém. */
 NF.proposalIsSingle = function (S, pr) { return !pr.group || !!(S.review && S.review.single && S.review.single[pr.id]); };
-NF.nextProposal = function (S) { var r = S.review; if (!r) return null; return r.proposals.filter(function (pr) { return !r.decisions[pr.id] && NF.proposalIsSingle(S, pr); })[0] || null; };
+NF.nextProposal = function (S) { var r = S.review; if (!r) return null; return r.proposals.filter(function (pr) { return !pr.row && !r.decisions[pr.id] && NF.proposalIsSingle(S, pr); })[0] || null; };
+/* Řádky „bez návrhu“ (SCHEMA 84, rozhodnutí 1) nejsou karty: nevyžadují rozhodnutí, lékař u nich může zvolit jinou dávku. */
+NF.reviewRows = function (S) { var r = S.review; return r ? r.proposals.filter(function (pr) { return pr.row; }) : []; };
+NF.reviewCards = function (S) { var r = S.review; return r ? r.proposals.filter(function (pr) { return !pr.row; }) : []; };
 NF.HABIT_OF = { walk: 'H-PROCHAZKA' }; /* rada svázaná s návykem plánu */
 NF.swapOptions = function (S, pr) {
   var r = S.review, off = (NF.planAdvice(S).off || []).slice();
@@ -2227,7 +2332,37 @@ NF.nurseAnswer = function (S, key) { var n = S.nurseCheck && S.nurseCheck.points
 NF.verifyByNurse = function (S, pr, i) { var v = (S.review && S.review.verify[pr.id]) || {}; return v[i] === undefined && NF.nurseAnswer(S, NF.nurseKey(pr, i)) !== undefined; };
 NF.verifyState = function (S, pr, i) { if (NF.verifyBlocked(pr, i)) return false; var v = (S.review && S.review.verify[pr.id]) || {}; return v[i] !== undefined ? v[i] : NF.nurseAnswer(S, NF.nurseKey(pr, i)); };
 NF.verifyAll = function (S, id) { var r = S.review, pr = r && r.proposals.filter(function (x) { return x.id === id; })[0]; if (!pr) return; var v = r.verify[id] = r.verify[id] || {}; pr.verify.forEach(function (_, i) { if (!NF.verifyAgainst(pr, i) && !NF.nurseKey(pr, i)) v[i] = true; }); };
-NF.NURSE_MEDS = [['same', 'Beze změny'], ['changed', 'Měnily se'], ['health', 'Změnil se zdravotní stav (těhotenství, ledviny, hospitalizace)']];
+/* SCHEMA 84 (rozhodnutí vlastníka 4. 11. 2026, bod 5): kohorta jen inzulin – na kontrole otázka „Začal pacient brát jiný lék na diabetes?“ Ne / Ano (K-KRITERIA).
+   Zdravotní stav je druhá otázka (32/02 C8): volby podle pohlaví pacienta (S.patient.sex 'm' | 'f'; bez údaje se těhotenství uvádí). Starší hodnoty same / changed / health se čtou dál. */
+NF.NURSE_MEDS = [['no', 'Ne'], ['yes', 'Ano']];
+NF.NURSE_HEALTH = [['no', 'Ne'], ['yes', 'Ano']];
+NF.MEDS_QUESTION = 'Začal pacient brát jiný lék na diabetes?';
+NF.healthQuestion = function (S) { var sex = S.patient && S.patient.sex; return 'Změnil se zdravotní stav (' + (sex === 'm' ? 'ledviny, játra, hospitalizace' : 'těhotenství, ledviny, játra, hospitalizace') + ')?'; };
+NF.medsValue = function (v) { return v === 'same' ? 'no' : v === 'changed' ? 'yes' : v === 'health' ? 'no' : v; }; /* starší uložený stav */
+NF.healthValue = function (n) { return !n ? undefined : n.health ? n.health : n.meds === 'health' ? 'yes' : undefined; };
+NF.MEDS_LOG = { no: 'žádný jiný lék na diabetes', yes: 'začal jiný lék na diabetes' };
+NF.medsText = function (v) { v = NF.medsValue(v); return v === 'yes' ? 'Zapsáno do stopy. Pacient začal brát jiný lék na diabetes: zápisy z období po změně se ve studii hodnotí zvlášť a posuďte, zda NutriFee pro pacienta dál platí (podmínky zařazení: jen inzulin).' : v === 'no' ? 'Zapsáno do stopy.' : 'Odpověď se jen zapíše do stopy; na dávky inzulinu nemá vliv.'; };
+NF.healthText = function (v) { return v === 'yes' ? 'Zapsáno do stopy. Posuďte, zda NutriFee pro pacienta dál platí (těhotenství, ledviny, játra a hospitalizace jsou vylučovací kritéria).' : v === 'no' ? 'Zapsáno do stopy.' : 'Odpověď se jen zapíše do stopy.'; };
+/* Hmotnost (rozhodnutí vlastníka 4. 11. 2026, bod 6; 32/02 B7): při zařazení z karty pacienta, na kontrole ji vybere sestra voličem (mřížka po 5 kg a ±1); dlaždice „Hmotnost dříve · teď“. */
+NF.WEIGHT_GRID = (function () { var g = []; for (var k = 50; k <= 150; k += 5) g.push(k); return g; })();
+NF.weightLog = function (S) { var p = S.patient || {}; return Array.isArray(p.weightLog) ? p.weightLog : []; };
+NF.weightFor = function (S, plan, until) {
+  var log = NF.weightLog(S).filter(function (x) { return Number.isFinite(x.kg); }), start = plan ? NF.day(plan.issuedAt || plan.effectiveFrom) : null, end = until ? NF.day(until) : NF.day(S.clock);
+  var before = null, now = null;
+  log.forEach(function (x) { var d = x.date || '0000-00-00'; if (!start || d <= start) { if (!before || d >= (before.date || '0000-00-00')) before = x; } else if (d <= end) { if (!now || d >= (now.date || '')) now = x; } });
+  return { before: before, now: now };
+};
+NF.setWeight = function (S, src, kg, date) {
+  var v = Number(kg);
+  if (!Number.isFinite(v) || Math.round(v) !== v || v < 30 || v > 250) return { ok: false, error: 'Vyberte hmotnost.' };
+  S.patient = S.patient || {}; var log = S.patient.weightLog = NF.weightLog(S).slice();
+  var p = NF.activePlan(S), start = p ? NF.day(p.issuedAt) : null;
+  var mine = log.filter(function (x) { return x.src === src && (src !== 'sestra' || !start || !x.date || x.date > start); })[0];
+  if (!mine) { mine = { src: src }; log.push(mine); }
+  mine.kg = v; mine.date = date !== undefined ? date : (mine.date || NF.day(S.clock)); mine.at = S.clock;
+  NF.log(S, 'hmotnost', v + ' kg · ' + (src === 'sestra' ? 'vybrala sestra' : 'karta pacienta'), { kg: v, date: mine.date, src: src });
+  return { ok: true, entry: mine };
+};
 NF.nurseKeys = function (S) { var r = NF.item(S, 'D-POSTUP'); return r && NF.usable(S, 'D-POSTUP') && r.sestra ? Object.keys(r.sestra) : []; };
 /* B5 (31/03): odpovědi sestry patří k období aktivního plánu; po vydání dalšího plánu začíná sestra s prázdnou částí. */
 NF.nurseCheckFor = function (S) { var p = NF.activePlan(S), n = S.nurseCheck; return n && (!n.planId || (p && n.planId === p.id)) ? n : {}; };
@@ -2241,10 +2376,17 @@ NF.setNurseCheck = function (S, key, value) {
   return { ok: true };
 };
 NF.setNurseMeds = function (S, v) {
-  if (!NF.NURSE_MEDS.some(function (x) { return x[0] === v; })) return { ok: false };
+  v = NF.medsValue(v); if (!NF.NURSE_MEDS.some(function (x) { return x[0] === v; })) return { ok: false };
   var n = nurseBox(S); n.meds = v; n.at = S.clock;
   if (S.review && !S.review.planIssued) S.review.meds = v;
-  NF.log(S, 'kontrola.leky', NF.NURSE_MEDS.filter(function (x) { return x[0] === v; })[0][1].toLowerCase() + ' (zapsala sestra)', { item: 'K-KRITERIA', by: 'sestra' });
+  NF.log(S, 'kontrola.leky', NF.MEDS_LOG[v] + ' (zapsala sestra)', { item: 'K-KRITERIA', by: 'sestra', value: v });
+  return { ok: true };
+};
+NF.setNurseHealth = function (S, v) {
+  if (!NF.NURSE_HEALTH.some(function (x) { return x[0] === v; })) return { ok: false };
+  var n = nurseBox(S); n.health = v; n.at = S.clock;
+  if (S.review && !S.review.planIssued) S.review.health = v;
+  NF.log(S, 'kontrola.stav', (v === 'yes' ? 'změnil se zdravotní stav' : 'zdravotní stav beze změny') + ' (zapsala sestra)', { item: 'K-KRITERIA', by: 'sestra', value: v });
   return { ok: true };
 };
 NF.keepAll = function (S) {
@@ -2258,14 +2400,21 @@ NF.keepAll = function (S) {
 NF.startReview = function (S, catalog) {
   var p = NF.activePlan(S); if (!p) return { ok: false, error: 'Není plán.' };
   var props = NF.proposals(S, p.id, catalog);
-  S.review = { planId: p.id, startedAt: S.clock, step: 1, index: 0, summary: NF.summary(S, p.id), proposals: props, decisions: {}, verify: {}, newDoses: NF.clone(p.doses), newInstructions: NF.clone(p.instructions || []), newTargets: NF.clone(p.targets || NF.defaultTargets(S)), meds: (S.nurseCheck && S.nurseCheck.meds) || undefined };
+  S.review = { planId: p.id, startedAt: S.clock, step: 1, index: 0, summary: NF.summary(S, p.id), proposals: props, decisions: {}, verify: {}, newDoses: NF.clone(p.doses), newInstructions: NF.clone(p.instructions || []), newTargets: NF.clone(p.targets || NF.defaultTargets(S)), meds: NF.medsValue((S.nurseCheck && S.nurseCheck.meds) || undefined), health: NF.healthValue(S.nurseCheck), validDays: NF.VALIDITY_DEFAULT };
   NF.log(S, 'kontrola.zahajena', p.id, { summary: S.review.summary, proposals: props.map(function (x) { return { id: x.id, title: x.title, item: x.item }; }) });
   return { ok: true };
 };
 /* Léky mimo inzulin (tablety, GLP-1, jiné) od minulé kontroly: beze změny / měnily se. Jen záznam do stopy pro očištění analýzy (21. 10. 2026). */
 NF.setReviewMeds = function (S, v) {
-  var r = S.review; if (!r || !NF.NURSE_MEDS.some(function (x) { return x[0] === v; })) return { ok: false }; /* třetí volba „změnil se zdravotní stav“ (kontrola 4, 06 B4) */
-  r.meds = v; NF.log(S, 'kontrola.leky', v === 'changed' ? 'měnily se' : v === 'health' ? 'změnil se zdravotní stav' : 'beze změny', { planId: r.planId, item: 'K-KRITERIA' });
+  var r = S.review; if (!r) return { ok: false };
+  if (v === 'health') return NF.setReviewHealth(S, 'yes'); /* starší volání: třetí volba „změnil se zdravotní stav“ (kontrola 4, 06 B4) je od SCHEMA 84 druhá otázka */
+  v = NF.medsValue(v); if (!NF.NURSE_MEDS.some(function (x) { return x[0] === v; })) return { ok: false };
+  r.meds = v; NF.log(S, 'kontrola.leky', NF.MEDS_LOG[v], { planId: r.planId, item: 'K-KRITERIA', value: v });
+  return { ok: true };
+};
+NF.setReviewHealth = function (S, v) {
+  var r = S.review; if (!r || !NF.NURSE_HEALTH.some(function (x) { return x[0] === v; })) return { ok: false };
+  r.health = v; NF.log(S, 'kontrola.stav', v === 'yes' ? 'změnil se zdravotní stav' : 'zdravotní stav beze změny', { planId: r.planId, item: 'K-KRITERIA', value: v });
   return { ok: true };
 };
 NF.decideProposal = function (S, id, decision) {
@@ -2277,7 +2426,8 @@ NF.decideProposal = function (S, id, decision) {
     var pl = NF.activePlan(S), cu = pl && pl.doses[pr.dose] ? pl.doses[pr.dose].units : null;
     if (cu != null && decision.units > cu) { decision = NF.clone(decision); decision.choice = 'other'; decision.againstBranch = true; decision.againstData = true; }
   }
-  r.decisions[id] = { choice: decision.choice, reason: decision.reason || null, comment: decision.comment || '', at: S.clock, branch: decision.branch || null, units: decision.units != null ? decision.units : null, swapTo: decision.swapTo || null, againstBranch: !!decision.againstBranch, againstData: !!decision.againstData, bulk: !!decision.bulk };
+  if (pr.row && decision.choice !== 'other' && decision.choice !== 'keep') return { ok: false, error: 'U jídla bez návrhu lze jen zvolit jinou dávku, nebo ji ponechat.' }; /* SCHEMA 84: řádek bez karty */
+  r.decisions[id] = { choice: decision.choice, reason: decision.reason || null, comment: decision.comment || '', at: S.clock, branch: decision.branch || null, units: decision.units != null ? decision.units : null, swapTo: decision.swapTo || null, againstBranch: !!decision.againstBranch, againstData: !!decision.againstData, bulk: !!decision.bulk, noProposal: !!pr.row, viaPlan: !!decision.viaPlan };
   if (pr.kind === 'dose') {
     /* Vydávanou dávku mění jen „Souhlasím“ (větev zvýšit/snížit) nebo výslovné „jiná dávka“ s jednotkami; „ponechat“ a „zamítnout“ vrátí volič na dávku plánu (nález 1, 23. 10. 2026). */
     var p0 = NF.activePlan(S);
@@ -2289,6 +2439,28 @@ NF.decideProposal = function (S, id, decision) {
   if (i === r.index && r.index < r.proposals.length - 1) r.index++;
   return { ok: true };
 };
+/* SCHEMA 84 (rozhodnutí vlastníka 4. 11. 2026, bod 1): volič „jiná dávka“ u každé dávky – u karty s větví „ponechat“, u řádku bez karty i v kroku potvrzení plánu.
+   Změna proti větvi se zapíše jako „rozhodnuto jinak než postup“; zvýšení u jídla s blokujícím poklesem navíc jako rozhodnutí proti datům (decideProposal). Výši nikdy nenavrhuje aplikace. */
+NF.setReviewDose = function (S, key, units) {
+  var r = S.review, u = Number(units); if (!r || r.planIssued || !r.newDoses[key] || !Number.isFinite(u) || Math.round(u) !== u || u < 1 || u > 60) return { ok: false };
+  r.newDoses[key].units = u; return { ok: true };
+};
+NF.decideOtherDose = function (S, id, units, branchAction) {
+  var r = S.review, pr = r && r.proposals.filter(function (x) { return x.id === id; })[0]; if (!pr || pr.kind !== 'dose') return { ok: false, error: 'Návrh nenalezen.' };
+  var p = NF.activePlan(S), cu = p && p.doses[pr.dose] ? p.doses[pr.dose].units : null, u = Number(units);
+  if (!Number.isFinite(u) || Math.round(u) !== u || u < 1 || u > 60) return { ok: false, error: 'Vyberte dávku.' };
+  if (u === cu) return { ok: false, error: 'Jiná dávka musí být jiná než dnes (' + cu + ' j.). Ponechat dávku můžete tlačítkem „Ponechat beze změny“.' };
+  return NF.decideProposal(S, id, { choice: 'other', units: u, branch: branchAction || null, againstBranch: !!branchAction && branchAction !== 'free' });
+};
+NF.setPlanDose = function (S, key, units) {
+  var r = S.review; if (!r || r.planIssued) return { ok: false };
+  var pr = r.proposals.filter(function (x) { return x.kind === 'dose' && x.dose === key; })[0]; if (!pr) return { ok: false, error: 'Dávka nenalezena.' };
+  var p = NF.activePlan(S), cu = p && p.doses[key] ? p.doses[key].units : null, u = Number(units), dec = r.decisions[pr.id];
+  if (!Number.isFinite(u) || Math.round(u) !== u || u < 1 || u > 60) return { ok: false };
+  if (u === cu) { if (dec && dec.units != null) return NF.decideProposal(S, pr.id, { choice: 'keep', branch: dec.branch || null, viaPlan: true }); r.newDoses[key].units = cu; return { ok: true }; }
+  return NF.decideProposal(S, pr.id, { choice: 'other', units: u, branch: dec ? dec.branch : null, againstBranch: !!(dec && dec.branch && dec.branch !== 'free'), viaPlan: true });
+};
+NF.stepPlanDose = function (S, key, delta) { var r = S.review, d = Number(delta); if (!r || !r.newDoses[key] || !Number.isFinite(d)) return { ok: false }; return NF.setPlanDose(S, key, Math.max(1, Math.min(60, r.newDoses[key].units + d))); };
 /* Kontrola je uzavřená, když pacient převzal plán, který z ní vzešel; další kontrola pak začíná znovu. */
 NF.reviewClosed = function (S) { var r = S.review, p = NF.activePlan(S); return !!(r && r.planIssued && p && p.id === r.planIssued && p.understood); };
 /* Dvě a více změn dávek v jedné kontrole (rozhodnutí vlastníka 25. 10. 2026): neutrální věta z položky D-POSTUP (texts.postupne), žádný zámek ani směr. */
@@ -2296,16 +2468,16 @@ NF.manyDosesText = function (S, n) {
   if (n < 2) return ''; var T = NF.texts(S, 'D-POSTUP'), tpl = (T && T.postupne) || 'Měníte {n} najednou; posuďte, zda je změnit postupně.';
   return NF.fillText(tpl, { n: NF.plural(n, 'dávku', 'dávky', 'dávek') });
 };
-NF.reviewComplete = function (S) { var r = S.review; return !!r && r.proposals.every(function (p) { return r.decisions[p.id]; }); };
+NF.reviewComplete = function (S) { var r = S.review; return !!r && r.proposals.every(function (p) { return p.row || r.decisions[p.id]; }); };
 /* Nový plán z rozhodnutí kontroly (dávky, návyky, rady, pokyny) – stejný výpočet pro náhled i vydání. */
 NF.planFromReview = function (S) {
   var r = S.review, prev = NF.activePlan(S); if (!r || !prev) return null;
-  var d = NF.newDraft(S);
+  var d = NF.newDraft(S); d.validUntil = NF.addDays(S.clock, r.validDays || NF.VALIDITY_DEFAULT); /* platnost voličem (32/02 C9) */
   /* Dávky nového plánu se skládají z dávek plánu a rozhodnutí s jednotkami – ne z pracovní kopie voliče (nález 1, 23. 10. 2026). */
   d.doses = NF.clone(prev.doses);
   r.proposals.forEach(function (pr) { var dec = r.decisions[pr.id]; if (pr.kind === 'dose' && dec && (dec.choice === 'agree' || dec.choice === 'other') && dec.units != null && d.doses[pr.dose]) d.doses[pr.dose].units = dec.units; });
   d.instructions = NF.clone(r.newInstructions || prev.instructions); d.targets = NF.clone(r.newTargets || prev.targets);
-  d.habits = prev.habits.slice(); d.advice = NF.clone(NF.planAdvice(S, prev)); d.medicationChecked = true; d.instructionsChecked = true;
+  d.habits = NF.reviewHabits(S).slice(); d.advice = NF.clone(NF.planAdvice(S, prev)); d.medicationChecked = true; d.instructionsChecked = true; /* návyky z kroku 3 kontroly (rozhodnutí 6) */
   var habitOf = NF.HABIT_OF;
   r.proposals.forEach(function (pr) {
     var dec = r.decisions[pr.id]; if (!dec) return;
@@ -2327,13 +2499,14 @@ NF.planFromReview = function (S) {
     /* B14 (nezávislá kontrola 27. 10. 2026): u změny jedna věta proč – z toho, co návrh pozoroval, bez čísel dávky */
     var upDose = dec.units != null && prev.doses[pr.dose] && dec.units > prev.doses[pr.dose].units;
     var doseWhy = pr.kind === 'dose' ? (pr.dose === 'basal' ? (upDose ? ' Ráno bývala glukóza nad cílem.' : ' V noci glukóza klesala pod cíl.') : ' ' + NF.cap(NF.MEAL_PO[pr.dose] || 'po jídle') + (upDose ? ' bývala glukóza nad cílem i s radami.' : ' glukóza klesala pod cíl.')) : '';
-    if ((dec.choice === 'agree' || dec.choice === 'other') && dec.units != null) txt = 'lékař nastavil ' + dec.units + ' j. (dřív ' + prev.doses[pr.dose].units + ' j.).' + doseWhy;
+    if ((dec.choice === 'agree' || dec.choice === 'other') && dec.units != null) txt = 'lékař nastavil ' + dec.units + ' j. (dřív ' + prev.doses[pr.dose].units + ' j.).' + (pr.row ? (upDose ? ' ' + NF.cap(NF.MEAL_PO[pr.dose] || 'po jídle') + ' bývala glukóza častěji nad cílem.' : '') : doseWhy);
     else if (swapped) txt = 'lékař ji nahradil radou „' + NF.LEVERS[swapped].label + '“. Původní rada vám v běžném dni nešla použít.';
     else if (dec.branch === 'swap' && dec.choice === 'agree') txt = 'lékař ji vypnul. V běžném dni vám nešla použít.';
     else if (dec.branch === 'edit' && dec.choice === 'agree') txt = 'lékař je upravil; najdete je v Bezpečí a v Plánu';
     else if (dec.choice === 'reject') txt = 'lékař náš návrh zamítl, nic se nemění';
+    else if (pr.row) return; /* řádek bez návrhu a beze změny: pacientovi není co říkat (SCHEMA 84) */
     /* B7 (31/02): ponechaná dávka kvůli poklesům pod 4 – pacient se dozví proč, bez čísel dávky a bez rady k jídlu (rada je dohoda z ordinace) */
-    else if (pr.kind === 'dose' && (/pod cílem/.test(pr.title) || pr.lowBlock)) txt = 'beze změny. ' + (pr.dose === 'basal' ? 'V noci glukóza klesala pod 4' : NF.cap(NF.MEAL_PO[pr.dose] || 'po jídle') + ' glukóza klesla pod 4') + '; lékař dávku ponechal a probral to s vámi.';
+    else if (pr.kind === 'dose' && (/pod cílem/.test(pr.title) || pr.lowBlock || (pr.lows && pr.lows.length))) txt = 'beze změny. ' + (pr.dose === 'basal' ? 'V noci glukóza klesala pod 4' : NF.cap(NF.MEAL_PO[pr.dose] || 'po jídle') + ' glukóza klesla pod 4') + '; lékař dávku ponechal a probral to s vámi.';
     else txt = 'beze změny';
     if (!d.decisions.some(function (x) { return x.title === subj && x.text === txt; })) d.decisions.push({ id: pr.id, title: subj, text: txt }); /* žádný řádek „Proč lékař rozhodl takto“ dvakrát (A27) */
   });
@@ -2418,10 +2591,19 @@ NF.doseOffPlan = function (S) {
 
 /* ---------- zapomenutý zápis ze včerejška (kontrola 4, 07 B3) ----------
    Ráno a během dne karta „Včera chybí … – doplnit?“ se stejným zpětným zápisem, do 24 h od konce slotu (stejné okno jako otázka na nejvyšší hodnotu). */
+/* C5 (32/01, SCHEMA 84): návrat po ≥ 7 dnech bez zápisu – jedna věta na Dnes, žádná výčitka; zmizí s prvním novým zápisem. */
+NF.returnAfterGap = function (S) {
+  var p = NF.activePlan(S); if (!p || !p.understood || S.participation !== 'active') return null;
+  var last = null; (S.episodes || []).forEach(function (e) { if (e.at <= S.clock && (!last || e.at > last)) last = e.at; }); (S.basalLog || []).forEach(function (b) { var d = b.date + 'T21:00:00'; if (d <= S.clock && (!last || d > last)) last = d; });
+  if (!last) return null; var days = NF.daysBetween(NF.day(last) + 'T00:00:00', NF.day(S.clock) + 'T00:00:00');
+  return days >= 7 ? { days: days, last: last } : null;
+};
 NF.yesterdayGaps = function (S) {
   var p = NF.activePlan(S); if (!p || !p.understood || S.participation !== 'active') return [];
+  if (NF.ill(S)) return []; /* B2 (32/01, SCHEMA 84): při nemoci nic nedoplňovat – zápisy z nemoci do učení nejdou a nemocného člověka práce navíc jen zatíží */
   var yday = NF.day(NF.addDays(S.clock, -1)); if (NF.day(p.effectiveFrom) > yday) return [];
   var sk = (S.skipped && S.skipped[yday]) || {}, took = p.understoodAt || p.effectiveFrom;
+  if (took && NF.day(took) === yday) return []; /* C1 (32/01): den převzetí plánu se nedoptává celý – první ráno nezačíná dluhem */
   /* C3 (31/03): slot, který začal dřív, než pacient plán převzal (snídaně v den převzetí v 9:55), se nedoptává. Začátek slotu = konec předchozího. */
   var startOf = function (meal) { var i = NF.MEALS.map(function (m) { return m[0]; }).indexOf(meal); return yday + 'T' + (i > 0 ? NF.fmtHour(NF.DAYPART_END[NF.MEALS[i - 1][0]]).replace(/^(\d):/, '0$1:') : '00:00') + ':00'; };
   return NF.MEALS.map(function (m) { return m[0]; }).filter(function (meal) {

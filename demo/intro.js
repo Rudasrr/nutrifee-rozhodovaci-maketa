@@ -15,9 +15,10 @@ function intro(s) {
     /* S1 (19. 10. 2026): tři kroky nahoře, legenda barev hned v nich */
     '<ol class="intro-strip" aria-label="Jak ukázka probíhá">' +
     '<li><span class="n" aria-hidden="true">1</span><span><b>Čtěte ' + app + '.</b> Aplikace běží sama; <span class="btn primary sm intro-sample" aria-hidden="true">petrolejová</span> tlačítka klepe ukázka za vás.</span></li>' +
-    '<li><span class="n" aria-hidden="true">2</span><span><b>Rozhodujte ' + (nar ? 'v panelu dole' : 'vpravo') + '.</b> Ve <span class="pill">fialovém</span> panelu pravidla aplikace schválíte, nebo zamítnete; potom můžete připsat poznámku, proč.</span></li>' +
+    '<li><span class="n" aria-hidden="true">2</span><span><b>Rozhodujte ' + (nar ? 'v panelu dole' : 'vpravo') + '.</b> Ve <span class="pill">fialovém</span> panelu ' + nRules + ' klinických pravidel aplikace schválíte, nebo zamítnete; potom můžete připsat poznámku, proč. Jde o neformální podklad pro autora, ne o podpis. Provozní pravidla – formáty, texty obrazovek, milníky – neschvalujete; v registru jsou jen popsaná.</span></li>' + /* SCHEMA 84 (32/03 B5) */
     '<li><span class="n" aria-hidden="true">3</span><span><b>Na konci potvrďte souhrn</b> všech rozhodnutí.</span></li></ol>' +
-    '<p class="intro-time">Sledování hlavní části trvá asi 15 minut; k tomu počítejte čas na rozhodnutí ' + nRules + ' pravidel, celkem 45–60 minut. Dodatek s variantami zabere další 4 minuty. Ukázku můžete kdykoli přerušit; rozhodnutí se průběžně ukládají a po přihlášení se načtou zpět.</p>' + /* B02 (27. 10. 2026) */
+    /* SCHEMA 84 (rozhodnutí vlastníka 7, 4. 11. 2026): poctivý čas; v panelu je po celou dobu „zbývá asi N minut“ */
+    '<p class="intro-time">Celá ukázka trvá asi 60 minut: čtení vyprávění hlavní linie asi 40 minut a rozhodnutí ' + nRules + ' pravidel dalších asi 20. Dá se přerušit a vrátit: rozhodnutí se průběžně ukládají, po přihlášení se načtou zpět a v panelu vidíte, kolik času asi zbývá. Dodatek s variantami zabere další 4 minuty.</p>' +
     '<div class="intro-grid">' +
     '<section class="card"><h2>Jak ukázku ovládat</h2><ol class="intro-steps">' +
     '<li><b>' + (nar ? 'Dole' : 'Vpravo') + ' je fialový panel „Ovládání ukázky“.</b> Je to jediné, co ovládáte: <span class="pill">Dál ▶</span> odehraje další krok, <span class="pill">← Zpět</span> vrátí o krok.</li>' +

@@ -87,7 +87,7 @@ test('03 B5: po vydání P2 hlavička kontroly „začíná dnes“, sestra bez 
 });
 test('03 C3, C4, C5, C6, C7, C9: hrany', ({ NF, D, app, S }) => {
   const s = at({ NF, D }, 'firstMeal'); s.clock = '2026-10-06T07:00:00'; const g = NF.yesterdayGaps(s).map(x => x.meal);
-  assert.equal(g.indexOf('breakfast'), -1, 'C3: snídaně před převzetím plánu se nedoptává'); assert.ok(g.indexOf('lunch') >= 0);
+  assert.equal(g.indexOf('breakfast'), -1, 'C3: snídaně před převzetím plánu se nedoptává'); assert.equal(g.length, 0, 'SCHEMA 84 (32/01 C1, agent P+D): den převzetí plánu se nedoptává celý');
   assert.match(NF.screens.frac(0, 1), /0 <span class="of">z<\/span> 1/, 'C4');
   app.act('goScene', String(D.scenes.findIndex(x => D.chapters[x.ch].id === 'handover'))); S().toast = 'x'; app.act('role', 'patient'); assert.equal(S().toast, '', 'C5');
   const r = at({ NF, D }, 'reviewProposals'), csv = D.demoCsv(r), again = NF.importReadings(r, NF.parseSensorCsv(csv));
@@ -128,7 +128,7 @@ test('02 B1, B3: sestra potvrzuje jen to, co data neukážou; HbA1c s datem odb�
 test('02 B7, C2, C3, C4, C7: bazál „v noci na“, večeře 16. a 17. 10., jmenovatel bazálu, dávky u snídaně, nezdařené zaučení', ({ NF, D }) => {
   const s = at({ NF, D }, 'reviewProposals'), b = s.review.proposals.find(p => p.id === 'PR-BAZAL');
   assert.match(b.why, /v noci na 25\. 12\. mezi 2:00 a 5:00 nejnižší 3,6/); assert.doesNotMatch(b.why, /ráno 25/); assert.match(b.why, /nejnižší 3,6 mmol\/l · z exportu, zapsal i pacient/, 'SCHEMA 81: zdroj u každé noci');
-  assert.match(b.facts[0].text, /^potvrzeno \d+ z 92 dnů plánu$/); assert.equal(b.facts[0].text, 'potvrzeno ' + s.review.summary.basalAs + ' z ' + s.review.summary.basalDays + ' dnů plánu');
+  assert.match(b.facts[0].text, /^potvrzeno \d+ z 92 dnů plánu( · \d+× nižší dávka \(\d+ j\.\))?$/); assert.ok(b.facts[0].text.indexOf('potvrzeno ' + s.review.summary.basalAs + ' z ' + s.review.summary.basalDays + ' dnů plánu') === 0); /* SCHEMA 84 (B5): i nižší bazál, který si pacient dal sám */
   const p = s.review.proposals.find(x => x.id === 'PR-BREAKFAST'); assert.match(p.facts[0].text, /6× nižší dávka \(6 j\.\) · 3× nevím/);
   ['2026-10-16', '2026-10-17'].forEach(d => assert.ok(s.episodes.some(e => e.meal === 'dinner' && NF.day(e.at) === d), 'večeře ' + d));
   const np = at({ NF, D }, 'newplan'), dl = NF.activePlan(np).decisions.find(x => /obědu/.test(x.title)); assert.match(dl.text, /^beze změny\. Po obědě glukóza klesla pod 4; lékař dávku ponechal a probral to s vámi\.$/);
@@ -186,12 +186,12 @@ test('81 bod 11: slovo směru u procent až od 2 procentních bodů', ({ NF, D }
 test('82 B3: v okně exportu rozhoduje export; noc ze zápisu mimo okno navíc i ve jmenovateli; práh minNoci nad posouzenými nocmi', ({ NF, D }) => {
   const mk = () => { const s = at({ NF, D }, 'reviewSummary'); s.role = 'doctor'; const rd = NF.parseSensorCsv(D.demoCsv(s)).filter(r => r.at >= '2026-12-28T00:00:00'); NF.importReadings(s, rd); NF.setHba1c(s, 'sestra', 55, '2027-01-03'); return s; };
   let s = mk(), bn = NF.basalNights(s, 14); assert.equal(bn.selfOnly.map(x => x.date).join(), '2026-12-25'); assert.equal(bn.assessed, bn.exportN + 1);
-  NF.startReview(s, NF.habitCatalog()); assert.equal(s.review.proposals.some(p => p.id === 'PR-BAZAL'), bn.assessed >= 10, 'práh minNoci nad posouzenými nocmi');
+  NF.startReview(s, NF.habitCatalog()); assert.equal(s.review.proposals.some(p => p.id === 'PR-BAZAL' && !p.row), bn.assessed >= 10, 'práh minNoci nad posouzenými nocmi'); /* SCHEMA 84: řádek bazálu bez návrhu není karta */
   s = mk(); NF.item(s, 'D-BAZAL').params.minNoci = 5; NF.startReview(s, NF.habitCatalog());
-  const b = s.review.proposals.find(p => p.id === 'PR-BAZAL'); assert.ok(b);
+  const b = s.review.proposals.find(p => p.id === 'PR-BAZAL' && !p.row); assert.ok(b);
   assert.ok(b.why.indexOf('2 z ' + (bn.exportN + 1) + ' nocí (' + bn.exportN + ' z exportu, 1 jen ze zápisu pacienta mimo okno exportu)') >= 0, b.why);
   const r = at({ NF, D }, 'reviewProposals'); r.nights.forEach(n => { if (n.date === '2026-12-25' || n.date === '2027-01-01') n.min = 4.6; }); NF.startReview(r, NF.habitCatalog());
-  assert.equal(r.review.proposals.some(p => p.id === 'PR-BAZAL' && /pod cílem/.test(p.title)), false, 'export noci nepotvrdil → noc se nepočítá');
+  assert.equal(r.review.proposals.some(p => p.id === 'PR-BAZAL' && !p.row && /pod cílem/.test(p.title)), false, 'export noci nepotvrdil → noc se nepočítá');
   assert.equal(NF.basalNights(r, 14).notConfirmed.length, 2);
   r.review.step = 1; r.page = 'review'; assert.match(plain(NF.screens.doctor(r)), /Export tyto noci nepotvrdil \(v noci na 25\. 12\., v noci na 1\. 1\.\); pro návrh k bazálu rozhoduje export\./);
 });
@@ -208,7 +208,7 @@ test('82 B2, C1, C2, C7: Bezpečnost jen s návrhem k bazálu, bez dvojité teč
 test('82 B1, C4, C5: vyprávění podle R-PROCHAZKA; rozklik času v cíli; krok s hodnotou míří na sbalený řádek', ({ D }) => {
   const c = D.tour.stepsFor('custom', D.defaults).find(k => k.t === 'Rada „Pořadí jídla“'); assert.equal(typeof c.co, 'function');
   assert.ok(D.tour.stepsFor('reviewSummary', D.defaults).some(k => k.t === 'Rozklik: čas v cíli'));
-  assert.equal(D.tour.stepsFor('firstMeal', D.defaults).find(k => k.t === 'Hodnota ze senzoru: 7').watch, 'details.chips-done > summary');
+  assert.equal(D.tour.stepsFor('firstMeal', D.defaults).find(k => k.t === 'Hodnota ze senzoru: 7').watch, '.glu-pick'); /* integrace SCHEMA 84 (panel = rámeček): posuvník i se štítkem Z-GLUKOZA */ /* SCHEMA 84 (rozhodnutí 9): posuvník ukazuje vybranou hodnotu sám, sbalený řádek zrušen */
 });
 
 /* ---------- předávka Z (12-predavka-zaznam.md) ---------- */

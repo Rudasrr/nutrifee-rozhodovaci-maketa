@@ -9,6 +9,8 @@ NF.clockModel = true; /* A3 (31/03): hodiny řídí příběh (modelové dny); j
 var T0 = '2026-09-28T10:00:00'; /* modelové schválení registru garantem */
 /* B3 (31/02): HbA1c s datem a původem – při zařazení z karty pacienta (62, odběr 23. 9. 2026); pro kontrolu ho sestra vybere voličem z karty (55, odběr 3. 1. 2027). */
 D.HBA_CARD = { v: 62, date: '2026-09-23' }; D.HBA_REVIEW = { v: 55, date: '2027-01-03' };
+/* SCHEMA 84 (rozhodnutí vlastníka 4. 11. 2026, bod 6): hmotnost při zařazení z karty (92 kg, 23. 9. 2026) a na kontrole vybraná sestrou (90 kg, 5. 1. 2027; návrh autora). Modelový pacient je muž (volba zdravotního stavu bez těhotenství, 32/02 C8). */
+D.WEIGHT_CARD = { kg: 92, date: '2026-09-23' }; D.WEIGHT_REVIEW = { kg: 90, date: '2027-01-05' }; D.PATIENT_SEX = 'm';
 /* Noční poklesy v exportu (25. 12. a 1. 1., hlavní linie): pacient je ráno zapsal čipem u snídaně (rozhodnutí vlastníka 1. 11. 2026, bod 7). */
 D.NIGHT_LOWS = ['2026-12-25', '2027-01-01'];
 
@@ -20,7 +22,7 @@ D.habitCatalog = NF.habitCatalog(); D.instructionCatalog = NF.instructionCatalog
 D.patientContext = [
   ['Diagnóza', 'Diabetes 2. typu, 9 let'],
   ['Léčba', 'Jen inzulin – bazál 1× večer, prandiální ke třem jídlům, pevné dávky'],
-  ['Perorální antidiabetika', 'žádná'],
+  ['Jiné léky na diabetes', 'žádné (ani tablety, ani GLP-1)'], /* SCHEMA 84: kohorta jen inzulin */
   ['Senzor', 'kontinuální monitor glukózy (CGM) nosí od srpna 2026'],
   ['Senzor před zařazením', 'za posledních 30 dní: čas v cíli 58 %, pod 3,9 mmol/l 3 %'],
   ['Poslední HbA1c', '62 mmol/mol (23. 9. 2026)'],
@@ -136,7 +138,7 @@ D.demoCsv = function (S) {
 /* B1 (31/02): sestra potvrzuje jen to, co data neukážou. Pozdě večer a v noci pacient o svátcích jedl (Štědrý večer, Silvestr) – „Nesedí“, stejně jako lékař u bazálu.
    B3: HbA1c pro kontrolu vybrala z karty pacienta voličem (hodnota a datum odběru). */
 D.nurseStory = { technika: true, jidlo: true, vecer: false, stres: true };
-D.nurseCheckApply = function (S) { NF.setNurseMeds(S, 'same'); NF.setHba1c(S, 'sestra', D.HBA_REVIEW.v, D.HBA_REVIEW.date); NF.nurseKeys(S).forEach(function (k) { NF.setNurseCheck(S, k, D.nurseStory[k] !== false); }); };
+D.nurseCheckApply = function (S) { NF.setNurseMeds(S, 'no'); NF.setNurseHealth(S, 'no'); NF.setWeight(S, 'sestra', D.WEIGHT_REVIEW.kg, D.WEIGHT_REVIEW.date); NF.setHba1c(S, 'sestra', D.HBA_REVIEW.v, D.HBA_REVIEW.date); NF.nurseKeys(S).forEach(function (k) { NF.setNurseCheck(S, k, D.nurseStory[k] !== false); }); }; /* SCHEMA 84: jiný lék na diabetes „Ne“, zdravotní stav „Ne“, hmotnost 90 kg */
 D.importDemoApply = function (S) { var csv = D.demoCsv(S); if (csv) NF.importReadings(S, NF.parseSensorCsv(csv)); };
 NF.demoActions = NF.demoActions || {};
 NF.demoActions.importDemo = function () { var S = NF.getState(), csv = D.demoCsv(S); if (!csv) return; NF.actions.importText(csv); };
@@ -337,7 +339,10 @@ function series(S, B, until) {
    – A1 (nezávislá kontrola 27. 10. 2026): bod „U jídla nebyl v období pokles pod 4“ po obědě s poklesy (16. a 17. 10.) nesedí podle dat → „ponechat dávku, řešit jídlo“;
    – ostatní body sedí (bod se štítkem „data říkají jinak“ posoudí lékař v ukázce jako „sedí“, LF-06). */
 D.storyVerify = function (S, B, pr) {
-  if (pr.facts && pr.facts.some(function (f) { return f && f.block; })) return pr.verify.map(function (_, i) { return !NF.verifyBlocked(pr, i); });
+  /* SCHEMA 84 (rozhodnutí 2): bod „Pacient rady k jídlu zkoušel“ u karty k dávce v odbočkách „nepřijal“ podle dat nesedí – modelový lékař ho tak i označí (větev „ponechat dávku, posílit radu“) */
+  var radyI = pr.facts ? pr.facts.map(function (f, i) { return f && f.against && /^nabídnuto/.test(f.text) ? i : -1; }).filter(function (i) { return i >= 0; }) : [];
+  if (pr.facts && pr.facts.some(function (f) { return f && f.block; })) return pr.verify.map(function (_, i) { return !NF.verifyBlocked(pr, i) && radyI.indexOf(i) < 0; });
+  if (radyI.length) return pr.verify.map(function (_, i) { return radyI.indexOf(i) < 0; });
   if (pr.id === 'PR-BAZAL' && /pod cílem/.test(pr.title)) return pr.verify.map(function (_, i) { return i !== 1; });
   if (/-RADY$/.test(pr.id)) return pr.verify.map(function (_, i) { return B.response === 'declines' ? i !== 1 : !(B.response === 'impractical' && pr.lever === 'addon' && i === 0); });
   if (B.response === 'impractical' && pr.lever && /^Vyměnit/.test(pr.title)) return pr.verify.map(function (_, i) { return i !== 0; });
@@ -350,7 +355,7 @@ function storyFill(S, B, pr) { var r = S.review, v = r.verify[pr.id] = r.verify[
 D.decideSingles = function (S, B) {
   var r = S.review;
   r.proposals.forEach(function (pr) {
-    if (r.decisions[pr.id] || !NF.proposalIsSingle(S, pr)) return;
+    if (pr.row || r.decisions[pr.id] || !NF.proposalIsSingle(S, pr)) return; /* SCHEMA 84: řádky bez návrhu se nerozhodují */
     if (pr.kind === 'dose' && pr.dose !== 'basal') {
       storyFill(S, B, pr); var bd = NF.screens.proposalBranch(S, pr);
       /* C12 (kontrola 3, vlastník 29. 10. 2026): se zamítnutou B-HYPO lékař dávku k obědu ponechá proti větvi „zvýšit“ bez poznámky – ukázka za něj nic nepíše (jako krok ve scéně 22) */
@@ -362,14 +367,16 @@ D.decideSingles = function (S, B) {
     NF.decideProposal(S, pr.id, dec);
   });
 };
-/* Kontrola v příběhu stejně jako kroky vyprávění (C01): bazál podle bodů → první prandiální návrh „zvýšit“ o 2 j. (dvě klepnutí voličem) →
+/* Kontrola v příběhu stejně jako kroky vyprávění (C01): bazál podle bodů → první prandiální návrh mimo oběd „zvýšit“ o 2 j. (dvě klepnutí voličem) →
    ostatní podle postupu → „Beze změny“ jednou kartou. */
 D.reviewStory = function (S, B) {
   var r = S.review, first = true;
   r.proposals.forEach(function (pr) {
-    if (r.decisions[pr.id] || !NF.proposalIsSingle(S, pr)) return;
+    if (pr.row || r.decisions[pr.id] || !NF.proposalIsSingle(S, pr)) return; /* SCHEMA 84: řádky bez návrhu se nerozhodují */
     if (pr.kind === 'dose' && pr.dose === 'basal') { storyFill(S, B, pr); var bb = NF.screens.proposalBranch(S, pr); NF.decideProposal(S, pr.id, { choice: bb && bb.action === 'keep' ? 'keep' : 'agree', branch: bb && bb.action }); return; }
-    if (pr.kind === 'dose' && first) {
+    /* SCHEMA 84 (07 bod 3, 09 odd. 4): oběd s poklesy po menší porci modelový lékař v hlavní linii i v odbočkách ponechá přes „Jiné rozhodnutí“
+       (jedna změna najednou, poklesy jen varují) – zvyšuje se jen první jiná prandiální dávka; oběd rozhodne D.decideSingles (ponechat) */
+    if (pr.kind === 'dose' && first && pr.dose !== 'lunch') {
       first = false; storyFill(S, B, pr);
       var br = NF.screens.proposalBranch(S, pr);
       if (br && (br.action === 'up' || br.action === 'down')) { var u = r.newDoses[pr.dose].units + (br.action === 'up' ? 2 : -2); NF.decideProposal(S, pr.id, { choice: 'agree', branch: br.action, units: u }); }
@@ -395,6 +402,7 @@ function setup(S) {
   NF.seed(S, T0, 'DEMO-L01'); /* registr a jídla z jádra; modelové schválení garantem k T0 */
   S.registry.items.forEach(function (r) { r.guide = (D.guide && D.guide[r.id]) || null; }); /* pětidílný průvodce položkou (demo/guide.js) */
   S.patient.hba1cLog = [{ v: D.HBA_CARD.v, date: D.HBA_CARD.date, src: 'karta' }];
+  S.patient.weightLog = [{ kg: D.WEIGHT_CARD.kg, date: D.WEIGHT_CARD.date, src: 'karta' }]; S.patient.sex = D.PATIENT_SEX; /* SCHEMA 84 */
   S.enrollment.baseline = { tir: D.cardBaseline.tir, below: D.cardBaseline.below }; /* z reportu senzoru před zařazením; lékař hodnoty při zařazení potvrdí nebo upraví voličem */
 }
 function enrolled(S) { NF.ELIGIBILITY.forEach(function (c) { NF.setEligibility(S, c[0], true); }); NF.setEligibility(S, NF.EXCLUSION[0], true); } /* kontrola 4 (06 B4): lékař potvrdí i vylučovací kritéria */
@@ -600,7 +608,7 @@ var CH = [
   { id: 'reviewSummary', act: 6, title: 'Lékař – kontrola, krok 1: souhrn', role: 'doctor', page: 'review', at: '2027-01-05T09:00:00',
     /* C10: nejdřív sestra nahraje export ze senzoru (noci, průběh k opsaným hodnotám, čas v cíli), pak lékař zahájí kontrolu */
     /* Kontrola 4 (bod 7): sestra s pacientem před lékařem – léky beze změny, body, které z dat ověřit nejde, sedí. */
-    apply: function (S) { S.role = 'doctor'; D.importDemoApply(S); D.nurseCheckApply(S); NF.startReview(S, D.habitCatalog); } },
+    apply: function (S) { S.role = 'doctor'; basal(S, NF.day(NF.addDays(S.clock, -1))); /* C1 (32/02): včerejší bazál je v zápisech dřív, než se spočítá souhrn – 88 z 92 všude */ D.importDemoApply(S); D.nurseCheckApply(S); NF.startReview(S, D.habitCatalog); } },
   { id: 'reviewProposals', act: 6, title: 'Lékař – krok 2: návrhy s důvodem a postupem', role: 'doctor', page: 'review', at: '2027-01-05T09:10:00',
     setup: function (S) { if (S.review) S.review.step = 2; },
     apply: function (S, B) { S.role = 'doctor'; D.reviewStory(S, B); } },
@@ -685,7 +693,7 @@ D.sceneFor = function (chapterIndex, B) {
 D.garantQuestions = [
   [], /* úvod */
   ['Stačí čtyři podmínky zařazení?', 'Je startovní sada návyků správná pro všechny?', 'Jsou připravené věty bezpečnostních pravidel úplné?'],
-  ['Je vrchol 0–120 min správná míra reakce?', 'Stačí hrubá denní doba (10:00 / 15:30 / 21:00) k rozlišení, že jídlo už minulo?', 'Stačí celá čísla (čipy) místo přesných hodnot ze senzoru a dotaz na minulé jídlo až při dalším jídle?', 'Stačí 4 shodné zápisy (rozdíl do 2,5 mmol/l) pro „známé jídlo“ a dva stupně reakce místo tří?', 'Je správně, že pochvala je jen za snahu a návyk, nikdy za hodnotu glukózy?', 'Jsou milníky (jídlo poznáno, rada zdomácněla, týden bez mezery) ty správné?'],
+  ['Je vrchol 0–120 min správná míra reakce?', 'Stačí hrubá denní doba (10:00 / 15:30 / 21:00) k rozlišení, že jídlo už minulo?', 'Stačí celá čísla (posuvník po celých mmol/l) místo přesných hodnot ze senzoru a dotaz na minulé jídlo až při dalším jídle?', 'Stačí 4 shodné zápisy (rozdíl do 2,5 mmol/l) pro „známé jídlo“ a dva stupně reakce místo tří?', 'Je správně, že pochvala je jen za snahu a návyk, nikdy za hodnotu glukózy?', 'Jsou milníky (jídlo poznáno, rada zdomácněla, týden bez mezery) ty správné?'],
   ['Je pravidlo „z větší porce zpět k obvyklé i po píchnutí“ bezpečné?', 'Stačí po menší porci s inzulinem otázka za 60 minut a obecná rada po dvou poklesech za 7 dní, bez výzvy volat?', 'Stačí podobnost určená pacientem („podobá se jídlu X“) bez složení?'],
   ['Je správně, že při nemoci neradíme k jídlu vůbec (ani doplněk, pořadí, procházku) a platí jen pravidla pro nemoc?'],
   ['Kdo smí pravidla měnit mezi kontrolami a jak rychle to pacient uvidí?'],

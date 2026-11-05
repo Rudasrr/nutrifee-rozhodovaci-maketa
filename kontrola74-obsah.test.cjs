@@ -15,24 +15,26 @@ const at = (env, id, B) => env.D.play(env.D.indexOf(id), B);
 const reject = (NF, s, id) => { const r = s.role; s.role = 'doctor'; const res = NF.decideItem(s, id, 'rejected', ''); s.role = r; assert.ok(res.ok, id + ' zamítnuto'); };
 
 /* ---------- A1 ---------- */
-test('A1: pokles pod 4 u oběda blokuje větev „zvýšit“; poklesy přímo v kartě; oběd ponechán podle postupu', ({ NF, D }) => {
+test('A1 (upraveno SCHEMA 84, rozhodnutí 3): poklesy pod 4 po menší porci u oběda jsou varování, větev „zvýšit“ neblokují; poklesy přímo v kartě; oběd ponechán (jedna změna najednou)', ({ NF, D }) => {
   const env = { NF, D };
   const s = at(env, 'reviewProposals'), pr = s.review.proposals.find(p => p.id === 'PR-LUNCH');
   assert.ok(pr, 'návrh k obědu existuje');
   const i = pr.verify.findIndex(t => /U jídla nebyl v období pokles pod 4/.test(t));
-  assert.ok(i >= 0, 'bod o poklesu v D-POSTUP'); assert.equal(NF.verifyBlocked(pr, i), true, 'bod nesedí podle dat');
-  assert.match(pr.facts[i].text, /2 poklesy pod 4 po obědě \(16\. 10\., 17\. 10\.\)/);
-  assert.match(pr.weak[0], /poklesy pod 4 po obědě.*blokují větev „zvýšit“/, 'poklesy první v „Co návrh oslabuje“');
+  assert.ok(i >= 0, 'bod o poklesu v D-POSTUP'); assert.equal(NF.verifyBlocked(pr, i), false, 'poklesy po menší porci bod neblokují (D-POSTUP poklesy_jen_ciste)'); assert.equal(pr.lowBlock, false);
+  assert.match(pr.facts[i].text, /žádný pokles při obvyklé porci a dávce podle plánu; 2 poklesy po menší porci nebo s jinou dávkou \(16\. 10\., 17\. 10\.\) je varování/);
+  assert.match(pr.weak[0], /2 poklesy pod 4 po obědě po menší porci \(16\. 10\., 17\. 10\.\) – poučit pacienta; větev „zvýšit“ neblokují/, 'poklesy první v „Co návrh oslabuje“, jako varování');
+  assert.match(pr.lows.join('; '), /16\. 10\. 12:20 · hlásil pacient · menší porce/);
   assert.ok(pr.excluded.filter(x => /^pokles pod 4 · menší porce/.test(x.why)).length === 2, 'vyřazené zápisy s důvodem poklesu, ne „chybí hodnoty“');
   NF.verifyAll(s, pr.id);
-  assert.equal(NF.screens.proposalBranch(s, pr).text, 'ponechat dávku, řešit jídlo', 'Vše sedí → větev ponechat');
-  s.review.verify[pr.id][i] = true; /* ani ruční „sedí“ blokovaný bod nepřepne */
-  assert.equal(NF.screens.proposalBranch(s, pr).action, 'keep');
-  const b = s.review.proposals.find(p => p.id === 'PR-BREAKFAST'); assert.equal(NF.verifyBlocked(b, b.verify.length - 1), false, 'snídaně bez poklesu');
-  const c = at(env, 'reviewConfirm'); assert.equal(c.review.decisions['PR-LUNCH'].choice, 'keep'); assert.equal(c.review.decisions['PR-LUNCH'].branch, 'keep');
+  assert.equal(NF.screens.proposalBranch(s, pr).action, 'up', 'Vše sedí → postup ukáže zvýšit (poklesy po menší porci nezamykají)');
+  const b = s.review.proposals.find(p => p.id === 'PR-BREAKFAST'); assert.equal(NF.verifyBlocked(b, i), false, 'snídaně bez poklesu');
+  const c = at(env, 'reviewConfirm'); assert.equal(c.review.decisions['PR-LUNCH'].choice, 'keep'); assert.equal(c.review.decisions['PR-LUNCH'].units, null, 'modelový lékař mění v jedné kontrole jen snídani');
   ['E9h', 'E9i'].forEach(id => { const e = c.episodes.find(x => x.id === id); assert.ok(NF.hasManual(e), id + ' má úplné opsané hodnoty'); assert.equal(e.manual.low, true); });
+  /* při poklesy_jen_ciste = 0 (garant chce blokovat každý pokles) se blok vrátí */
+  const s2 = at(env, 'reviewProposals'); s2.role = 'doctor'; NF.newVersion(s2, 'D-POSTUP', { params: { poklesy_jen_ciste: 0 } }); NF.refreshReview(s2);
+  const pr2 = s2.review.proposals.find(p => p.id === 'PR-LUNCH'); assert.equal(pr2.lowBlock, true); assert.equal(NF.verifyBlocked(pr2, i), true); NF.verifyAll(s2, pr2.id); assert.equal(NF.screens.proposalBranch(s2, pr2).action, 'keep');
   const st = D.tour.stepsFor('reviewProposals', D.defaults);
-  assert.ok(st.some(k => k.t === 'Návrh k obědu: poklesy pod 4') && st.some(k => /blokuje větev/.test(k.t)), 'vyprávění ukazuje oběd s poklesy');
+  assert.ok(st.some(k => /obědu/.test(k.t) && /pokles/i.test(k.t)), 'vyprávění ukazuje oběd s poklesy');
 });
 
 test('A1: karta oběda na obrazovce vypíše poklesy; registr nese parametr poklesy_od', ({ NF, D, app, S }) => {
@@ -41,8 +43,8 @@ test('A1: karta oběda na obrazovce vypíše poklesy; registr nese parametr pokl
   const r = NF.item(S(), 'D-POSTUP'); assert.equal(r.params.poklesy_od, 1); assert.ok(r.labels.poklesy_od);
   assert.doesNotMatch(r.detail, /garant může jednotlivou větev vyřadit/, 'B15');
   const p2 = at({ NF, D }, 'reviewProposals'); p2.review.decisions['PR-BAZAL'] = { choice: 'keep' }; p2.review.decisions['PR-BREAKFAST'] = { choice: 'keep' }; p2.page = 'review'; p2.role = 'doctor';
-  assert.match(text({ NF, D }, p2), /Poklesy pod 4 po obědě v období: 16\. 10\. 12:20 · hlásil pacient; 17\. 10\. 12:30 · hlásil pacient/);
-  assert.match(text({ NF, D }, p2), /nesedí podle dat/);
+  assert.match(text({ NF, D }, p2), /Poklesy pod 4 po obědě v období: 16\. 10\. 12:20 · hlásil pacient · menší porce; 17\. 10\. 12:30 · hlásil pacient · menší porce/);
+  assert.match(text({ NF, D }, p2), /je varování/); assert.ok(r.labels.poklesy_jen_ciste && r.params.poklesy_jen_ciste === 1, 'SCHEMA 84: parametr poklesy_jen_ciste');
 });
 
 /* ---------- A2 ---------- */
@@ -67,7 +69,7 @@ test('A3: zápisy mezi kontrolami jen opsaná celá čísla; průběh jen z expo
   s.episodes.forEach(e => { if (NF.hasImport(e)) assert.ok(e.at >= D.EXPORT_FROM, e.id + ': průběh jen v okně exportu'); });
   assert.equal(s.sensorSummary.tir, 68); assert.equal(s.sensorSummary.below, 2); /* 31/02 A1 (SCHEMA 80): snídaně od listopadu nad cílem u všech jídel → čas v cíli 68 % (dřív 72 %) */
   assert.ok(s.review.proposals.find(p => p.id === 'PR-BREAKFAST' && /nad cílem/.test(p.title)), 'snídaně dál „nad cílem“');
-  assert.equal(s.review.proposals[0].id, 'PR-BAZAL'); assert.match(s.review.proposals[0].why, /v noci na 25\. 12\. mezi 2:00 a 5:00 nejnižší 3,6/, 'B12: data nocí v důvodu; 31/02 B7: noc a čas, ne „ráno“');
+  assert.equal(s.review.proposals[0].id, 'PR-BREAKFAST'); /* SCHEMA 84 (B10): bazál bez přednosti, až za kartami k jídlům */ const bz0 = s.review.proposals.find(p => p.id === 'PR-BAZAL'); assert.match(bz0.why, /v noci na 25\. 12\. mezi 2:00 a 5:00 nejnižší 3,6/, 'B12: data nocí v důvodu; 31/02 B7: noc a čas, ne „ráno“');
 });
 
 /* ---------- B ---------- */
@@ -88,7 +90,7 @@ test('B3, B5, B13: vyprávění scény 8 nepopisuje neexistující text; doplně
   assert.doesNotMatch(D.tour.stepsFor('firstResult', D.defaults)[0].co, /bez výčitky; výsledek snídaně čeká/);
   assert.ok(D.tour.stepsFor('advice', D.defaults).some(k => (k.needs || []).join() === 'R-DOPLNEK' && k.t === 'Rada „Doplněk k jídlu“'));
   const sc = D.sceneItems[D.scenes.findIndex(x => D.chapters[x.ch].id === 'reviewProposals' && !x.appendix)];
-  assert.equal(sc.targets['D-POSTUP'], 2); assert.equal(sc.targets['D-BAZAL'], 1);
+  assert.ok(sc.targets['D-POSTUP'] >= 1 && sc.targets['D-BAZAL'] >= 1 && sc.targets['D-POSTUP'] < sc.targets['D-BAZAL'], 'SCHEMA 84: D-POSTUP se nabízí u ověření dřív než D-BAZAL (bazál je až za jídly); přesné kroky určuje mapa scén (G)');
 });
 test('B8, B10, C6, C7: report – poklesy u dlaždice, bez zdvojení, noci z exportu, „dny nemoci“', ({ NF, D }) => {
   const s = at({ NF, D }, 'reviewProposals'); s.review.step = 1; s.page = 'review'; s.role = 'doctor';
