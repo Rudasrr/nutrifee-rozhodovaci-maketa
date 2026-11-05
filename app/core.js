@@ -11,7 +11,7 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 84;
+NF.SCHEMA = 85;
 NF.PAGES = ['today', 'foods', 'food', 'plan', 'safety', 'support', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 /* C8 (31/03): produkční sestavení (bez prezentační vrstvy) má vlastní klíč úložiště, aby na stejném původu neotevřelo rozehraný příběh ukázky.
@@ -545,7 +545,7 @@ NF.PARAM_BOUNDS = {
   'R-REAKCE': { minKnown: [1, 10], okno_min: [60, 240], okno_tucne_min: [0, 300], vzestup_max: [1, 6], shoda_mmol: [1, 8], rozchod_mmol: [1, 8], maxUceni: [3, 12] }, 'Z-IMPORT': { po_jidle_min: [120, 300], shoda_mmol: [0.5, 3] }, 'S-TYDEN': { nabidka: [0, 1] }, 'Z-GLUKOZA': { pripominka_min: [60, 240] }, 'B-HYPO': { poklesy: [1, 5], dny: [3, 14], pripominka_min: [30, 120], dalsi_slot_h: [2, 5] }, 'R-SKORE': { mirna: [0.5, 1], odKolika: [2, 6], oknoZapisu: [3, 12], ustaleneOd: [3, 12] } /* bez `stredni`: dva stupně (A32) */,
   'R-PODOBNOST': { minJidel: [1, 6], minZapisu: [2, 20], shoda: [0.5, 1], vaha: [0, 5], maxNaJidlo: [1, 10] }, 'S-SILNA': { silnych: [2, 6], dvaNad_mmol: [1, 6], maxJidel: [1, 10] },
   'D-PRAND': { dny: [7, 120], minJidel: [3, 30], podil: [0.5, 1], radyPrve: [0, 10], hypo: [1, 10], medianNad: [0, 3], hypoPodil: [0, 0.5], odmitnutiMin: [1, 20], odmitnutiPodil: [0.3, 1], podilDvouJidel: [0.5, 1] },
-  'D-BAZAL': { dny: [7, 120], nociPod: [1, 10], minNoci: [3, 30] }, 'D-POSTUP': { poklesy_od: [1, 5], poklesy_jen_ciste: [0, 1], shoda_podil: [0.5, 1], shoda_min: [1, 20], v_cili_podil: [0.5, 1], hba_rezerva: [0, 15] }, 'S-DAVKA': { po_sobe: [2, 5] }, 'S-PRIPOMINKY': { max_denne: [1, 4] }, 'D-CISTA': { pred_min: [0, 60], po_min: [0, 60] },
+  'D-BAZAL': { dny: [7, 120], nociPod: [1, 10], minNoci: [3, 30] }, 'D-POSTUP': { poklesy_od: [1, 5], poklesy_jen_ciste: [0, 1], shoda_podil: [0.5, 1], shoda_min: [1, 20], v_cili_podil: [0.5, 1], hba_rezerva: [0, 15] }, 'S-DAVKA': { po_sobe: [2, 5] }, 'S-PRIPOMINKY': { max_denne: [1, 4] }, 'D-CISTA': { pred_min: [0, 60], po_min: [0, 60], pred_uceni_min: [0, 90], po_uceni_min: [0, 60] },
   'S-SEMAFOR': { smer_pb: [0, 10], smer_mmol: [0.3, 3], vyvoj_tydny: [2, 8], tir_zluta: [30, 70], tbr3_max: [0.5, 5], min_dni: [7, 30], porce_ok: [0.5, 1], porce_varovani: [0.3, 0.9], inzulin_ok: [0.5, 1], inzulin_varovani: [0.3, 0.9], mimo_dni: [1, 30] }, 'R-PROCHAZKA': { minut: [5, 60], okno_min: [15, 180] }, 'R-DOPLNEK': { stahnout_po: [1, 10] },
   'S-SOUHRN': { min_n: [3, 30], rozdil_mmol: [0.3, 3] }, 'P-NEMOC': { dny: [1, 14] }
 };
@@ -839,12 +839,13 @@ NF.complete = function (ep) {
 };
 NF.doseKey = function (S, meal) { var p = NF.activePlan(S); return p && p.doses[meal] ? meal + ':' + p.doses[meal].units : meal + ':0'; };
 /* Započítaný zápis: úplná data, inzulin potvrzen podle plánu, mimo nemoc, obvyklá porce, stejná dávka jako teď. */
-/* Včas = inzulin nejvýš `pred_min` před jídlem a nejvýš `po_min` po něm (D-CISTA; 30 / 15 min, rozhodnuto 1. 10. 2026). */
+/* Včas = inzulin nejvýš `pred_min` před jídlem a nejvýš `po_min` po něm (D-CISTA; 30 / 15 min, rozhodnuto 1. 10. 2026) – pro návrh k dávce a report.
+   SCHEMA 85 (vlastník 5. 11. 2026, 32/01 B4): pro učení jídel širší okno `pred_uceni_min` / `po_uceni_min` (45 / 30 min), kind = 'learn'. */
 NF.minutesOf = function (iso) { var d = NF.parse(iso); return d.getHours() * 60 + d.getMinutes(); };
-NF.tolerance = function (S) { return { before: NF.param(S, 'D-CISTA', 'pred_min', 30), after: NF.param(S, 'D-CISTA', 'po_min', 15) }; };
-NF.onTime = function (S, ep) {
+NF.tolerance = function (S, kind) { return kind === 'learn' ? { before: NF.param(S, 'D-CISTA', 'pred_uceni_min', 45), after: NF.param(S, 'D-CISTA', 'po_uceni_min', 30) } : { before: NF.param(S, 'D-CISTA', 'pred_min', 30), after: NF.param(S, 'D-CISTA', 'po_min', 15) }; };
+NF.onTime = function (S, ep, kind) {
   if (!ep.insulin || !ep.insulin.time) return false;
-  var t = NF.tolerance(S), hm = String(ep.insulin.time).split(':');
+  var t = NF.tolerance(S, kind), hm = String(ep.insulin.time).split(':');
   var diff = (Number(hm[0]) * 60 + Number(hm[1])) - NF.minutesOf(ep.at); /* záporné = před jídlem */
   if (diff > 720) diff -= 1440; else if (diff < -720) diff += 1440; /* přes půlnoc (P9) */
   return diff < 0 ? -diff <= t.before : diff <= t.after;
@@ -883,7 +884,7 @@ NF.UNUSUAL = 'stres, málo spánku, alkohol';
 NF.usableEp = function (S, ep) {
   if (!NF.complete(ep) || NF.inIllness(S, ep) || ep.context === 'unusual') return false;
   if (NF.isSnack(ep.meal)) return !!(ep.insulin && ep.insulin.confirmed === 'snack');
-  return ep.insulin && ep.insulin.confirmed === 'as' && NF.onTime(S, ep) && ep.portion === 'usual' && NF.sameDoseNow(S, ep) && !NF.snackAfter(S, ep);
+  return ep.insulin && ep.insulin.confirmed === 'as' && NF.onTime(S, ep, 'learn') && ep.portion === 'usual' && NF.sameDoseNow(S, ep) && !NF.snackAfter(S, ep);
 };
 /* Pořadí důvodů podle klinické váhy (A1, nezávislá kontrola 27. 10. 2026): porce a inzulin před chybějícími daty – zápis s menší porcí a poklesem
    se nesmí v návrhu schovat pod „chybí hodnoty“. */
@@ -895,7 +896,7 @@ NF.whyNotUsable = function (S, ep) {
   if (!snack && (!ep.insulin || ep.insulin.confirmed !== 'as')) return 'inzulin nepotvrzen podle plánu';
   if (!NF.complete(ep)) return 'chybí hodnoty glukózy (před jídlem a nejvyšší do 2 h, nebo export ze senzoru)';
   if (snack) return null;
-  if (!NF.onTime(S, ep)) return 'inzulin mimo čas (víc než ' + NF.tolerance(S).before + ' min před jídlem nebo ' + NF.tolerance(S).after + ' min po něm)';
+  if (!NF.onTime(S, ep, 'learn')) return 'inzulin mimo čas (víc než ' + NF.tolerance(S, 'learn').before + ' min před jídlem nebo ' + NF.tolerance(S, 'learn').after + ' min po něm)';
   if (ep.doseKey !== NF.doseKey(S, ep.meal)) return 'při jiné dávce';
   if (!NF.sameDoseNow(S, ep)) return 'z doby před změnou dávky';
   if (NF.snackAfter(S, ep)) return 'svačina do ' + NF.param(S, 'D-CISTA', 'svacina_min', 120) + ' min po jídle';
@@ -903,10 +904,11 @@ NF.whyNotUsable = function (S, ep) {
 };
 /* Do návrhu k dávce vstupuje přísnější podmnožina: bez zpětných zápisů s odhadnutým časem, bez pozdního podání, bez dodatečně opraveného inzulinu (R4, R11, R6).
    Bez schválené položky D-CISTA nelze čistá data určit → žádný zápis do návrhu k dávce (zásada 4, 23. 10. 2026). */
-NF.usableForDose = function (S, ep) { return NF.usable(S, 'D-CISTA') && NF.usableEp(S, ep) && !ep.retro && !NF.latePodani(S, ep) && !ep.insulinCorrected; };
+NF.usableForDose = function (S, ep) { return NF.usable(S, 'D-CISTA') && NF.usableEp(S, ep) && NF.onTime(S, ep) && !ep.retro && !NF.latePodani(S, ep) && !ep.insulinCorrected; };
 NF.whyNotForDose = function (S, ep) {
   if (!NF.usable(S, 'D-CISTA')) return 'pravidlo čistých dat je v registru zamítnuté';
   var w = NF.whyNotUsable(S, ep); if (w) return w;
+  if (!NF.isSnack(ep.meal) && !NF.onTime(S, ep)) return 'inzulin mimo čas pro návrh k dávce (víc než ' + NF.tolerance(S).before + ' min před jídlem nebo ' + NF.tolerance(S).after + ' min po něm; jen do učení)';
   if (ep.retro) return 'zpětný zápis s odhadnutým časem (jen do učení)';
   if (NF.latePodani(S, ep)) return 'pozdní podání – inzulin až po jídle (jen do učení)';
   if (ep.insulinCorrected) return 'inzulin dodatečně opraven (jen do učení)';

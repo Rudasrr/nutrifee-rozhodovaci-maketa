@@ -677,12 +677,15 @@ test('„Pravidla a kontakty“ otevře pokyny a kontakty (C2, SCHEMA 84); návr
 });
 
 /* ---------- správnost výpočtů (balíček C) ---------- */
-test('Čistá data: inzulin včas (±15 min); jídlo ve dvou slotech s různou dávkou se neslévá; bazál z dnů plánu; nemoc po dnech; HbA1c', () => {
+test('Čistá data: inzulin včas (dávka 30/15, učení 45/30); jídlo ve dvou slotech s různou dávkou se neslévá; bazál z dnů plánu; nemoc po dnech; HbA1c', () => {
   chapter('week');
   const ep = S().episodes.find(e => e.id === 'E6'); assert.ok(NF.usableEp(S(), ep));
   ep.insulin.time = '06:35'; assert.ok(NF.usableEp(S(), ep), '25 min před jídlem je včas');
-  ep.insulin.time = '06:20'; assert.equal(NF.usableEp(S(), ep), false, '40 min před jídlem už ne'); assert.match(NF.whyNotUsable(S(), ep), /mimo čas/);
-  ep.insulin.time = '07:20'; assert.equal(NF.usableEp(S(), ep), false, '20 min po jídle už ne'); ep.insulin.time = '06:55';
+  /* SCHEMA 85 (vlastník 5. 11. 2026): učení 45 min před / 30 min po jídle, návrh k dávce dál 30 / 15 */
+  ep.insulin.time = '06:20'; assert.ok(NF.usableEp(S(), ep), '40 min před jídlem: do učení ano'); assert.equal(NF.usableForDose(S(), ep), false, '40 min před jídlem: do návrhu k dávce ne'); assert.match(NF.whyNotForDose(S(), ep), /mimo čas pro návrh k dávce/);
+  ep.insulin.time = '06:10'; assert.equal(NF.usableEp(S(), ep), false, '50 min před jídlem už ani do učení'); assert.match(NF.whyNotUsable(S(), ep), /mimo čas/);
+  ep.insulin.time = '07:20'; assert.ok(NF.usableEp(S(), ep), '20 min po jídle: do učení ano'); assert.equal(NF.usableForDose(S(), ep), false, '20 min po jídle: do návrhu k dávce ne');
+  ep.insulin.time = '07:35'; assert.equal(NF.usableEp(S(), ep), false, '35 min po jídle už ani do učení'); ep.insulin.time = '06:55';
   chapter('preview'); const ch = food('Chléb se sýrem a zeleninou').id;
   const all = NF.foodStats(S(), ch).n; assert.ok(all > 0);
   NF.activePlan(S()).doses.dinner.units = 6;

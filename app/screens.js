@@ -232,7 +232,7 @@ function notsCard(S, noHead) {
 }
 /* Osa inzulinu v kroku 1: stříkačka před talířem / za ním / neznámo; pás, kdy se zápis počítá do učení. */
 function insulinAxis(S, m) {
-  var t = NF.tolerance(S), k = 2, left = 160 - t.before * k, w = (t.before + t.after) * k, b = ['as', 'other', 'before', 'unknown'].indexOf(m.bolus) >= 0 ? m.bolus : 'none';
+  var t = NF.tolerance(S, 'learn'), k = 2, left = 160 - t.before * k, w = (t.before + t.after) * k, b = ['as', 'other', 'before', 'unknown'].indexOf(m.bolus) >= 0 ? m.bolus : 'none';
   var alt = 'Osa jídla: inzulin ' + (b === 'as' || b === 'other' ? 'už podaný před jídlem' : b === 'before' ? 'ještě ne, až před jídlem' : b === 'unknown' ? 'nevíme, bereme jako podaný' : 'zatím nevybráno') + '. Do učení se počítá inzulin nejvýš ' + t.before + ' minut před jídlem a ' + t.after + ' minut po něm.';
   return '<div class="ins-axis b-' + b + '" role="img" aria-label="' + e(alt) + '" style="--sx-as:' + (left + 16) + 'px;--sx-other:' + (left + 34) + 'px;--sx-before:' + (left - 34) + 'px"><svg viewBox="0 0 320 96" aria-hidden="true">' +
     '<rect class="tol" x="' + left + '" y="18" width="' + w + '" height="44" rx="8"/><line class="ax" x1="12" y1="40" x2="308" y2="40"/>' +
@@ -935,7 +935,7 @@ function timeChips(m) {
   var cur = m.offset == null || m.offset === '' ? '0' : String(m.offset); /* „právě teď“ je předvybrané (kontrola 4, 07 C2) */
   return '<div class="timechips">' + opts.map(function (o) { return choice(o[1], 'mealTime', o[0], cur === o[0]); }).join('') + '</div>';
 }
-function tolNote(S) { var t = NF.tolerance(S); return '<p class="tiny muted mt-2 mb-0">Nejlépe se učíme z jídel, kde byl inzulin do ' + t.before + ' minut před jídlem nebo do ' + t.after + ' minut po něm. Zapište jídlo i jindy, zůstane uložené.</p>'; }
+function tolNote(S) { var t = NF.tolerance(S, 'learn'); return '<p class="tiny muted mt-2 mb-0">Nejlépe se učíme z jídel, kde byl inzulin do ' + t.before + ' minut před jídlem nebo do ' + t.after + ' minut po něm. Zapište jídlo i jindy, zůstane uložené.</p>'; }
 /* Hlavička kroku: Zpět vlevo nahoře (48 px), krok 1 se ptá, zda zahodit rozpracovaný zápis (18. 10. 2026). */
 function stepHead(S, m, step) {
   var back = step > (NF.isSnack(m.meal) ? 2 : 1) && !(m.retro && step === 1) ? btn(NF.icon('chevron-left') + ' Zpět', 'mealStep', String(step - 1), 'back') : btn(NF.icon('chevron-left') + ' Zpět na Dnes', (m.bolus || m.beforeAsked || m.foodId) ? 'mealCancelAsk' : 'mealCancel', null, 'back');

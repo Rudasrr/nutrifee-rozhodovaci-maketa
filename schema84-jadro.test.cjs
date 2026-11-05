@@ -207,14 +207,27 @@ test('B5 + C2: věta o dávkách, které si pacient sám snížil; tlačítko �
   assert.equal(r.summary.basalAs, 88, 'C1: včerejší bazál je v zápisech před zahájením kontroly');
 });
 
-test('Verze: NF.SCHEMA 84, ?v=84 v HTML, data-version="84" v katalogu; D-POSTUP a S-SEMAFOR nesou nové parametry s mezemi', ({ NF, D }) => {
-  assert.equal(NF.SCHEMA, 84);
-  const html0 = fs.readFileSync(path.join(__dirname, 'nutrifee-rozhodovaci-maketa.html'), 'utf8'); assert.ok([...html0.matchAll(/\?v=(\d+)/g)].every(m => m[1] === '84'));
-  const ds = fs.readFileSync(path.join(__dirname, 'design-system/index.html'), 'utf8'); assert.match(ds, /data-version="84"/);
+test('Verze: NF.SCHEMA 85, ?v=85 v HTML, data-version="85" v katalogu; D-POSTUP a S-SEMAFOR nesou nové parametry s mezemi', ({ NF, D }) => {
+  assert.equal(NF.SCHEMA, 85);
+  const html0 = fs.readFileSync(path.join(__dirname, 'nutrifee-rozhodovaci-maketa.html'), 'utf8'); assert.ok([...html0.matchAll(/\?v=(\d+)/g)].every(m => m[1] === '85'));
+  const ds = fs.readFileSync(path.join(__dirname, 'design-system/index.html'), 'utf8'); assert.match(ds, /data-version="85"/);
   const s = review(D); ['poklesy_jen_ciste'].forEach(k => assert.ok(NF.PARAM_BOUNDS['D-POSTUP'][k] && NF.item(s, 'D-POSTUP').labels[k], k));
   ['smer_mmol', 'vyvoj_tydny'].forEach(k => assert.ok(NF.PARAM_BOUNDS['S-SEMAFOR'][k] && NF.item(s, 'S-SEMAFOR').labels[k], k));
   const reg = NF.item(s, 'D-POSTUP'); assert.equal(reg.postup.prandHigh.verify.length, 10); assert.equal(reg.postup.prandHigh.fakta[9], 'rady'); assert.equal(JSON.stringify(reg.postup.bazalLow.sestraBody), JSON.stringify([null, 'vecer', null])); assert.equal(reg.postup.bazalLow.fakta[1], 'noci');
   assert.equal(reg.postup.prandHigh.verify[7], 'U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu');
+});
+
+test('SCHEMA 85: učení jídel bere inzulin 45 min před / 30 min po jídle, návrh k dávce dál 30 / 15 (D-CISTA pred_uceni_min, po_uceni_min)', ({ NF, D }) => {
+  const s = review(D);
+  assert.equal(JSON.stringify(NF.tolerance(s)), '{"before":30,"after":15}'); assert.equal(JSON.stringify(NF.tolerance(s, 'learn')), '{"before":45,"after":30}');
+  ['pred_uceni_min', 'po_uceni_min'].forEach(k => assert.ok(NF.PARAM_BOUNDS['D-CISTA'][k] && NF.item(s, 'D-CISTA').labels[k], k));
+  const base = s.episodes.find(e => NF.usableForDose(s, e)); assert.ok(base, 'čistý zápis v příběhu');
+  const at = n => { const m = NF.minutesOf(base.at) + n, h = Math.floor(((m % 1440) + 1440) % 1440 / 60), mi = ((m % 60) + 60) % 60; return String(h).padStart(2, '0') + ':' + String(mi).padStart(2, '0'); };
+  const ep40 = Object.assign({}, base, { insulin: Object.assign({}, base.insulin, { time: at(-40) }) });
+  assert.ok(NF.usableEp(s, ep40), '40 min před jídlem: do učení'); assert.ok(!NF.usableForDose(s, ep40), 'ne do návrhu k dávce');
+  assert.match(NF.whyNotForDose(s, ep40), /inzulin mimo čas pro návrh k dávce .*jen do učení/);
+  const ep50 = Object.assign({}, base, { insulin: Object.assign({}, base.insulin, { time: at(-50) }) });
+  assert.ok(!NF.usableEp(s, ep50), '50 min před jídlem: ani do učení'); assert.match(NF.whyNotUsable(s, ep50), /víc než 45 min před jídlem nebo 30 min po něm/);
 });
 
 console.log('\n' + passed + ' prošlo, ' + failed + ' selhalo' + (fails.length ? ':\n  ' + fails.join('\n  ') : ''));
