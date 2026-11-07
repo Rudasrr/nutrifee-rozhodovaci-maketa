@@ -207,10 +207,10 @@ test('B5 + C2: věta o dávkách, které si pacient sám snížil; tlačítko �
   assert.equal(r.summary.basalAs, 88, 'C1: včerejší bazál je v zápisech před zahájením kontroly');
 });
 
-test('Verze: NF.SCHEMA 86, ?v=86 v HTML, data-version="86" v katalogu; D-POSTUP a S-SEMAFOR nesou nové parametry s mezemi', ({ NF, D }) => {
-  assert.equal(NF.SCHEMA, 86);
-  const html0 = fs.readFileSync(path.join(__dirname, 'nutrifee-rozhodovaci-maketa.html'), 'utf8'); assert.ok([...html0.matchAll(/\?v=(\d+)/g)].every(m => m[1] === '86'));
-  const ds = fs.readFileSync(path.join(__dirname, 'design-system/index.html'), 'utf8'); assert.match(ds, /data-version="86"/);
+test('Verze: NF.SCHEMA 87, ?v=87 v HTML, data-version="87" v katalogu; D-POSTUP a S-SEMAFOR nesou nové parametry s mezemi', ({ NF, D }) => {
+  assert.equal(NF.SCHEMA, 87); /* SCHEMA 87: verze zvýšena */
+  const html0 = fs.readFileSync(path.join(__dirname, 'nutrifee-rozhodovaci-maketa.html'), 'utf8'); assert.ok([...html0.matchAll(/\?v=(\d+)/g)].every(m => m[1] === '87')); /* SCHEMA 87 */
+  const ds = fs.readFileSync(path.join(__dirname, 'design-system/index.html'), 'utf8'); assert.match(ds, /data-version="87"/); /* SCHEMA 87 */
   const s = review(D); ['poklesy_jen_ciste'].forEach(k => assert.ok(NF.PARAM_BOUNDS['D-POSTUP'][k] && NF.item(s, 'D-POSTUP').labels[k], k));
   ['smer_mmol', 'vyvoj_tydny'].forEach(k => assert.ok(NF.PARAM_BOUNDS['S-SEMAFOR'][k] && NF.item(s, 'S-SEMAFOR').labels[k], k));
   const reg = NF.item(s, 'D-POSTUP'); assert.equal(reg.postup.prandHigh.verify.length, 10); assert.equal(reg.postup.prandHigh.fakta[9], 'rady'); assert.equal(JSON.stringify(reg.postup.bazalLow.sestraBody), JSON.stringify([null, 'vecer', null])); assert.equal(reg.postup.bazalLow.fakta[1], 'noci');

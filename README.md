@@ -3,11 +3,13 @@
 Maketa aplikace pro pacienty s diabetem 2. typu na inzulinu s **pevnými dávkami**. Aplikace se učí
 z pacientových zápisů, jak jeho tělo reaguje na jednotlivá jídla, před jídlem radí (obvyklá porce,
 doplněk, pořadí, pohyb), připomíná předepsaný inzulin a ptá se na podání. Lékař na kontrole dostane
-report se souhrnem a **návrhy na příští plán s důvodem a postupem ověření** — jen schvaluje, upravuje
-nebo odmítá.
+report se souhrnem a **návrhy na příští plán s důvodem a postupem ověření**. Návrh ověří s pacientem
+a rozhodne: „Souhlasím“, nebo „Jiné rozhodnutí“ (ponechat beze změny · jiná dávka voličem · zamítnout
+s důvodem z nabídky). Bez jeho rozhodnutí se nic nemění.
 
-**Není klinický nástroj, není validovaná, neobsahuje skutečná data.** Všude je označení
-„DEMO · syntetická data · není určeno pro léčbu“.
+**Není klinický nástroj, není validovaná, neobsahuje skutečná data.** Označení
+„DEMO · syntetická data · není určeno pro léčbu“ je jednou a trvale v liště ukázky (bez prezentační
+vrstvy ho nese obrazovka).
 
 **https://rudasrr.github.io/nutrifee-rozhodovaci-maketa/** — statická stránka na GitHub Pages; po přihlášení (garant / správce, Supabase Auth) ukládá jen neformální rozhodnutí garanta k maketě (viz `demo/auth.js`, `demo/sync.js`, `demo/results.js`).
 
@@ -33,11 +35,14 @@ cd maketa-rozhodovaci && node nutrifee-rozhodovaci-maketa.test.cjs
 2. **Cíl je konzistence jídla k pevné dávce, ne omezování.** Pacient nepočítá sacharidy.
 3. **Rada k množství jídla:** před píchnutím oběma směry k obvyklé; po píchnutí a při „nevím“ jen z větší
    porce zpět k obvyklé; nikdy „snězte víc“.
-4. **Každý výpočet, rada, práh i text nese položku schvalovacího registru** se štítkem „✓“. V maketě je vše
-   ke schválení (maketa se chová, jako by byly schválené; zamítnutí ukáže na místě „tahle část nefunguje“); lékař-garant může kdykoli schválit / upravit / zamítnout s komentářem, rozhodnutí platí
-   okamžitě a historie jen přibývá.
+4. **Každý výpočet, rada, práh i text nese položku schvalovacího registru** a stopa ji zapisuje i s verzí
+   a otiskem znění. Štítek schvalování vidí lékař a garant, ne pacient. V maketě je každá klinická položka
+   ke schválení (maketa se chová, jako by byly schválené); garant má jen **Schválit** a **Zamítnout**
+   s nepovinnou poznámkou, zamítnutí ukáže na místě „Tahle část nefunguje“ a příběh pokračuje; historie jen
+   přibývá. Oprava pravidla v ostré aplikaci je nová verze položky ke schválení v řízení změn výrobce.
+   Bez prezentační vrstvy ukáže jádro na místě zamítnuté části neutrální „Tato část teď není k dispozici.“
 5. **Lékař mezi kontrolami nic nedělá.** Nemoc ukončuje pacient, výpadek dat končí sám.
-6. **Žádná generativní AI ve výpočtech;** vše deterministické a dohledatelné ve stopě. Ostrý provoz ukládá data na zabezpečený server studie; maketa ukládá jen neformální rozhodnutí přihlášeného garanta; správce je vidí v maketě.
+6. **Žádná generativní AI ve výpočtech;** vše deterministické a dohledatelné ve stopě. Ostrý provoz ukládá data na zabezpečený server NutriFee a stopu má úplnou; maketa drží stopu v prohlížeči zkrácenou (nejvýš 4000 událostí, data jen u posledních 1000 – omezení makety) a ukládá mimo zařízení jen neformální rozhodnutí přihlášeného garanta; správce je vidí v maketě.
 7. **V ordinaci se nepíše** — výběr, zaškrtnutí, volič.
 8. **Pacient vidí výsledek, dostane poděkování a vidí cíl.** Po příchodu dat karta „Jak to dopadlo“, poděkování za čin
    (ne za hodnotu glukózy), jednorázové milníky za snahu, karta „Cesta ke kontrole“ (dní do kontroly, známá jídla X z N),
@@ -54,18 +59,18 @@ v rámečku telefonu.
 
 | Scénář | Co ukazuje |
 |---|---|
-| 1 V ordinaci | Karta, čtyři podmínky, dávky voličem, startovní sada návyků, osobní pokyny; sestra zaučí s náhledem telefonu |
+| 1 V ordinaci | Karta, čtyři podmínky a vylučovací kritéria, dávky posuvníkem, startovní sada návyků, bezpečnostní pravidla v plánu automaticky; sestra zaučí s náhledem telefonu |
 | 2 Doma | Tři kroky před jídlem (inzulin první); po týdnu známá jídla s rozmezím na stupnici a „X z N v cíli“ |
 | 3 Rada | Před píchnutím porce zpět k obvyklé; po píchnutí jen z větší; nové jídlo jen názvem |
-| 4 Nemoc | Pacient označí nemoc, aplikace pomáhá jinak (jen bezpečné rady, pokyny lékaře), ukončí ji pacient |
-| 5 Registr | Lékař-garant upraví text rady s komentářem; platí okamžitě, historie zůstává |
+| 4 Nemoc | Pacient označí nemoc, aplikace k jídlu neradí a ukáže pravidla pro nemoc; nemoc ukončí pacient |
+| 5 Během studie | Podnět z provozu: garant navrhne vypnutí rady a novou verzi ke schválení, provede je výrobce řízením změn (v ukázce vypnutí i novou verzi odehraje příběh jako modelový krok); historie zůstává |
 | 6 Kontrola | Pacient: report před kontrolou. Lékař: souhrn → návrhy jeden po druhém → potvrzení → předání. Stopa |
 
 ## Kód
 
 ```
 app/       jádro — doména, obrazovky, morph-vykreslení. Vanilla JS, bez závislostí, běží z file://
-app/data/  katalogy jádra: registr položek, návyky a pokyny lékaře, ~200 jídel
+app/data/  katalogy jádra: registr položek, návyky a pokyny lékaře, 171 jídel
 demo/      prezentační vrstva — modelový pacient, simulovaný senzor, příběh, vyprávění, průvodce položkami
 ```
 

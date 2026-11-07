@@ -217,7 +217,7 @@ D.guide = {
   },
   'J-DATABAZE': {
     proc: 'Pacient vybírá jídlo jménem, ne složením. Bez seznamu běžných jídel by musel všechno zakládat ručně.',
-    jak: 'Asi 200 běžných českých jídel a hotovek. U každého jídla jsou jen strukturované údaje: které části jde sníst napřed, jestli už má bílkovinu nebo tuk, jestli je jednolité a druh jídla pro doplněk. Věty rad z nich skládají schválené položky „Rada: pořadí jídla“ a „Rada: doplněk k jídlu“; ručně psané texty rad u jídel nejsou. Vnitřní údaje pacient nevidí a u vlastního jídla je nezadává. Hledání od začátku slova, „naposledy“, vlastní jídlo jen názvem. V maketě je seznam syntetický; skutečný zdroj a licence se vyberou pro studii.',
+    jak: '171 běžných českých jídel a hotovek. U každého jídla jsou jen strukturované údaje: které části jde sníst napřed, jestli už má bílkovinu nebo tuk, jestli je jednolité a druh jídla pro doplněk. Věty rad z nich skládají schválené položky „Rada: pořadí jídla“ a „Rada: doplněk k jídlu“; ručně psané texty rad u jídel nejsou. Vnitřní údaje pacient nevidí a u vlastního jídla je nezadává. Hledání od začátku slova, „naposledy“, vlastní jídlo jen názvem. V maketě je seznam syntetický; skutečný zdroj a licence se vyberou pro studii.',
     kde: 'Krok 2 před jídlem (výběr jídla), Jídla (karty).'
   },
   'J-STITKY': {
@@ -291,8 +291,8 @@ D.guide = {
   },
   'S-PRIPOMINKY': {
     proc: 'Pacient, který občas zapomíná, otevře aplikaci jednou nebo dvakrát denně. Bez připomínky chybí zápisy i odpověď na otázku po menší porci a učení i report stojí na mezerách.',
-    jak: 'Nejvýš {max_denne} připomínky denně jako oznámení telefonu, bez sítě: k snídani, obědu, večeři a k bazálu, v časech, které pacient vybere se sestrou při zaučení. Navíc jednorázová otázka „Klesla glukóza pod 4?“ za {B-HYPO:pripominka_min} min po menší porci nebo vynechaném jídle s podaným inzulinem. Připomínka je otázka („Chystáte se k obědu? Otevřete NutriFee a oběd zaznamenejte.“), ne pokyn k dávce, a jen otevře Dnes; k jídlu, které je už zapsané nebo vynechané, nepřijde. Pacient ji v Plánu vypne nebo zapne; lékař nic nenastavuje. Připomínka nemusí přijít (vypnutý nebo ztlumený telefon); pacient ze zaučení ví, že inzulin si píchá podle plánu i bez ní.',
-    kde: 'Zaučení (sestra s pacientem vybere časy), Plán (pacient připomínky vypne nebo zapne), oznámení telefonu (v ukázce nad obrazovkou pacienta).'
+    jak: 'Nejvýš {max_denne} připomínky denně jako oznámení telefonu, bez sítě: k snídani, obědu, večeři a k bazálu, v časech, které pacient vybere se sestrou při zaučení. Navíc jednorázová otázka „Klesla glukóza pod 4?“ za {B-HYPO:pripominka_min} min po menší porci nebo vynechaném jídle s podaným inzulinem. Připomínka je otázka („Chystáte se k obědu? Otevřete NutriFee a oběd zaznamenejte.“), ne pokyn k dávce, a jen otevře Dnes; k jídlu, které je už zapsané nebo vynechané, nepřijde. Pacient ji v Plánu vypne nebo zapne; lékař nic nenastavuje. Připomínka nemusí přijít (vypnutý nebo ztlumený telefon); pacient ze zaučení ví, že inzulin si píchá podle plánu i bez ní. Hrubé denní doby slotů jsou parametry této položky: prázdná snídaně je minulá po 10:00, oběd po 15:30, večeře po 21:00; pak se Dnes místo „Chystám se jíst“ zeptá, jestli jídlo bylo. Pacient se vždy může opravit sám.',
+    kde: 'Zaučení (sestra s pacientem vybere časy), Plán (pacient připomínky vypne nebo zapne), oznámení telefonu (v ukázce nad obrazovkou pacienta), Dnes (které jídlo je na řadě a které už minulo: snídaně po 10:00, oběd po 15:30, večeře po 21:00).'
   },
   'S-DAVKA': {
     proc: 'Pacient se v okamžiku píchání řídí číslem na displeji. Když opakovaně píchá jinou dávku, než je v plánu, plán a skutečnost se rozcházejí; lékař to má vědět na kontrole. Lékař je vždy jen jeden.',
@@ -390,3 +390,5 @@ Object.keys(D.guide).forEach(function (id) {
 
 
 })(typeof window !== 'undefined' ? window : globalThis);
+/* SCHEMA 87 (bod 1): stopa jádra ukládá u událostí výpočtu otisk položky (NF.itemFingerprint) i s textem „Co schvalujete“ – stejný otisk jako u rozhodnutí garanta. */
+(function (global) { var NF = global.NutriFee, D = global.NutriFeeDemo; if (NF && NF.slots && D) NF.slots.itemGuide = function (id) { return (D.guide && D.guide[id]) || null; }; })(typeof window !== 'undefined' ? window : globalThis);

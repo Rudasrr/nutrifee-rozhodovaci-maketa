@@ -25,7 +25,8 @@ V.ttl = ttl;
 /* Jedna bílá karta pro pacienta i ordinaci (19. 10. 2026). Varianty: tint (zvýrazněná), warn (nad cílem), low (pokles pod 4), flat, flush. */
 function card(body, cls) { return '<section class="card' + (cls ? ' ' + cls : '') + '">' + body + '</section>'; }
 /* Štítek položky registru u místa, kde působí: ◌ ke schválení · ✓ schváleno · ✕ zamítnuto (stav „upraveno“ zrušen 27. 10. 2026). Klepnutí otevře vysvětlení.
-   U zamítnuté položky následuje oznámení „tahle část nefunguje“ (prezentační vrstva přes NF.slots.offNotice; produkce bez ní nic nepřidá). */
+   U zamítnuté položky následuje oznámení na místě: prezentační vrstva ho kreslí slotem NF.slots.offNotice („Tahle část nefunguje“ pro garanta);
+   bez ní (produkce) jádro ukáže neutrální výchozí oznámení „Tato část teď není k dispozici.“ (SCHEMA 87, bod 6). */
 var APPR = { pending: ['pend', 'circle-dashed', 'ke schválení', 'Pravidlo ke schválení: '], approved: ['', 'check', '', 'Schválené pravidlo: '], rejected: ['rej', 'x', 'zamítnuto', 'Zamítnuté pravidlo: '] };
 /* SCHEMA 86 (rozhodnutí vlastníka 5. 11. 2026, bod 1): štítky schvalování pacient nevidí. Na obrazovce pacienta (V.patient, list Bezpečí) jádro štítek
    nekreslí; na jeho místě je jen značka <span class="item-ref" data-item="ID" hidden> (vazba místa na položku registru; stopa a report se nemění).
@@ -46,7 +47,20 @@ function appr(S, id) {
   if (PT > 0) { var x = ''; try { x = NF.slots && NF.slots.patientTag ? (NF.slots.patientTag(S, id, html) || '') : ''; } catch (err) { x = ''; } return itemRef(id) + x + offH; }
   return html + offH;
 }
-function off(S, id) { return NF.slots.offNotice ? NF.slots.offNotice(S, id) : ''; }
+/* SCHEMA 87 (rozhodnutí vlastníka 6. 11. 2026, bod 6; atlas pacienta R1): bez prezentační vrstvy výchozí neutrální oznámení na místě – bez zmínky o garantovi,
+   bez výzvy volat (zásada 3); v jednom vykreslení se stejná položka hlásí jen jednou. Položky, jejichž zamítnutí je jen záznam nesouhlasu (C-CILE, K-KRITERIA,
+   Z-GLUKOZA) nebo zásada bez místa (P-LEKAR), dál fungují, proto oznámení nemají. */
+NF.OFF_TEXT = 'Tato část teď není k dispozici.';
+NF.OFF_RECORD_ONLY = ['C-CILE', 'K-KRITERIA', 'Z-GLUKOZA', 'P-LEKAR'];
+var offSeen = {}, offSeq = -1;
+function off(S, id) {
+  if (NF.slots.offNotice) return NF.slots.offNotice(S, id);
+  if (NF.OFF_RECORD_ONLY.indexOf(id) >= 0) return '';
+  if (NF.renderSeq !== offSeq) { offSeq = NF.renderSeq; offSeen = {}; }
+  if (offSeen[id]) return ''; offSeen[id] = 1;
+  return '<div class="hint neutral off-default" role="status" data-off="' + e(id) + '">' + e(NF.OFF_TEXT) + '</div>';
+}
+V.off = off;
 /* B3 (31/03): věty o maketě, ukázce a příběhu dodává prezentační vrstva (NF.slots.demoTexts); jádro (produkce) mluví neutrálně jako aplikace. */
 function demoText(key) { try { var t = NF.slots.demoTexts && NF.slots.demoTexts()[key]; return t ? String(t) : ''; } catch (err) { return ''; } }
 V.demoText = demoText;
@@ -200,7 +214,7 @@ function patientScreen(S, forcedPage) {
 
 function head(S, eyebrow, h1) { return '<p class="eyebrow">' + e(eyebrow) + '</p><h1>' + e(h1) + '</h1>'; }
 function greeting(S) { var h = NF.parse(S.clock).getHours(); return h < 10 ? 'Dobré ráno' : h < 18 ? 'Dobrý den' : 'Dobrý večer'; }
-function mealNow(S) { var d = NF.parse(S.clock), h = d.getHours() + d.getMinutes() / 60; return h < NF.DAYPART_END.breakfast ? 'breakfast' : h < NF.DAYPART_END.lunch ? 'lunch' : 'dinner'; }
+function mealNow(S) { var d = NF.parse(S.clock), h = d.getHours() + d.getMinutes() / 60, dp = NF.daypartEnd(S); return h < dp.breakfast ? 'breakfast' : h < dp.lunch ? 'lunch' : 'dinner'; } /* SCHEMA 87: denní doby z registru (S-PRIPOMINKY) */
 V.mealNow = mealNow;
 
 /* ---------- vysvětlující animace (vlastník 15. 10. 2026: pohyb má vysvětlovat podstatné; přehraje se jednou, Přehrát znovu) ----------
@@ -521,7 +535,7 @@ function fixInsulinLine(S) {
     (fixed ? '<p class="small mt-1 mb-0">' + NF.icon('check', 'ok') + ' Opraveno: ' + e(insOf(fixed.insulinTo)) + ' · ' + e(NF.fmtClock(fixed.at)) + '</p>' : '') +
     btn(open ? 'Zavřít' : 'Opravit inzulin · ještě ' + NF.plural(Math.max(0, left), 'minuta', 'minuty', 'minut'), 'fixInsulinOpen', ep.id, 'link') +
     (open ? '<div class="choice-row col mt-2" role="group" aria-label="Jak to bylo s inzulinem?">' + choice(opt('Podle plánu', ep.insulin.prescribed + ' j.'), 'fixInsulinPick', ep.id + ':as', pick === 'as', 'opt') + choice(opt('Jinak', 'jiné množství'), 'fixInsulinPick', ep.id + ':other', pick === 'other', 'opt') + choice(opt('Nepíchnuto', 'k tomuto jídlu bez inzulinu'), 'fixInsulinPick', ep.id + ':none', pick === 'none', 'opt') + choice(opt('Nevím', 'pro jistotu počítáme, že byl'), 'fixInsulinPick', ep.id + ':unknown', pick === 'unknown', 'opt') + '</div>' +
-      (pick === 'other' ? '<div class="actions"><div class="stepper">' + btn(NF.icon('minus'), 'fixInsulinUnits', '-1', '', ' aria-label="méně"') + '<span class="val">' + (S.fixInsulinUnits != null ? S.fixInsulinUnits : ep.insulin.prescribed) + ' j.</span>' + btn(NF.icon('plus'), 'fixInsulinUnits', '1', '', ' aria-label="více"') + '</div></div>' : '') +
+      (pick === 'other' ? '<div class="mt-2">' + unitsSlider('fix-units', 'fixInsulinUnitsSet', S.fixInsulinUnits != null ? S.fixInsulinUnits : ep.insulin.prescribed, ep.insulin.prescribed, 'Opravený inzulin: jednotky') + '</div>' : '') + /* SCHEMA 87: posuvník */
       '<div class="actions col">' + btn('Uložit opravu', 'fixInsulin', ep.id + ':' + (pick || ''), 'primary', pick ? '' : ' disabled') + '</div>' : '') + '</div>';
 }
 function milestoneCard(S) {
@@ -880,7 +894,7 @@ V.today = function (S) {
   var skipAsk = function (a) { return '<div class="mt-4"><b>Byl ' + e(NF.mealLabel(meal, 'ke')) + ' inzulin?</b><div class="choice-row col mt-2" role="group">' + choice(opt('Ano, ' + dose.units + ' j.', 'podle plánu'), 'mealSkip', meal + ':as', false, 'opt') + choice(opt('Ano, jinak', 'jiné množství'), 'mealSkip', meal + ':other', false, 'opt') + choice(opt('Ne', 'bez inzulinu'), 'mealSkip', meal + ':none', false, 'opt') + choice(opt('Nevím', 'pro jistotu počítáme, že byl'), 'mealSkip', meal + ':unknown', false, 'opt') + '</div>' + (a && NF.hasInstruction(S, 'I-MENE') ? '<p class="small mt-3 mb-1">Když byl inzulin bez jídla, platí toto pravidlo:</p>' + ruleShortBody(S, 'I-MENE') : '') + '</div>'; };
   var basalBox = function () {
     return '<div class="actions col mt-4">' + btn(S.basalOther ? 'Přece jen ' + p.doses.basal.units + ' j.' : 'Bazál ' + p.doses.basal.units + ' j. je píchnutý', 'basalConfirm', 'as', S.basalOther ? 'quiet' : 'primary big') /* při „Jinak“ je jediné primární „Uložit“ (01 #12) */ + btn('Jinak', 'basalOther', null, '', S.basalOther ? ' aria-pressed="true"' : '') + '</div>' +
-      (S.basalOther ? '<div class="actions"><div class="stepper">' + btn(NF.icon('minus'), 'basalUnits', '-1', '', ' aria-label="méně"') + '<span class="val">' + (S.basalUnits != null ? S.basalUnits : p.doses.basal.units) + ' j.<small>předepsáno ' + p.doses.basal.units + '</small></span>' + btn(NF.icon('plus'), 'basalUnits', '1', '', ' aria-label="více"') + '</div>' + btn('Uložit', 'basalConfirm', 'other', 'primary') + btn('Dnes bez bazálu', 'basalConfirm', 'none', 'quiet') + '</div>' : '');
+      (S.basalOther ? '<div class="mt-2">' + unitsSlider('basal-units', 'basalUnitsSet', S.basalUnits != null ? S.basalUnits : p.doses.basal.units, p.doses.basal.units, 'Bazál: jednotky') + '</div><div class="actions">' + btn('Uložit', 'basalConfirm', 'other', 'primary') + btn('Dnes bez bazálu', 'basalConfirm', 'none', 'quiet') + '</div>' : ''); /* SCHEMA 87: posuvník */
   };
   var basalInHero = false;
   if (mealDue) {
@@ -1001,11 +1015,20 @@ function plateSvg(kind, anim) {
   return '<svg class="plate-ico' + (anim ? ' anim-' + anim : '') + '" viewBox="0 0 28 28" aria-hidden="true"><circle class="rim" cx="14" cy="14" r="12"/><circle class="inner" cx="14" cy="14" r="9.5"/><circle class="food" cx="14" cy="14" r="' + r + '"/></svg>';
 }
 V.plateSvg = plateSvg;
+/* SCHEMA 87 (bod 7; 15 odst. 7.1): pátá volba „jiný čas“ otevře posuvník „před kolika minutami“ (0–NF.INS_AGO_MAX po 5 min). */
+var TIME_OPTS = [['0', 'právě teď'], ['-5', 'před 5 min'], ['-15', 'před 15 min'], ['-30', 'před 30 min']];
+function timeOther(m) { var cur = m.offset == null || m.offset === '' ? '0' : String(m.offset); return !!m.timeOther || (cur !== '15' && !TIME_OPTS.some(function (o) { return o[0] === cur; })); }
 function timeChips(m) {
-  var opts = [['0', 'právě teď'], ['-5', 'před 5 min'], ['-15', 'před 15 min'], ['-30', 'před 30 min']];
-  var cur = m.offset == null || m.offset === '' ? '0' : String(m.offset); /* „právě teď“ je předvybrané (kontrola 4, 07 C2) */
-  return '<div class="timechips">' + opts.map(function (o) { return choice(o[1], 'mealTime', o[0], cur === o[0]); }).join('') + '</div>';
+  var cur = m.offset == null || m.offset === '' ? '0' : String(m.offset), oth = timeOther(m); /* „právě teď“ je předvybrané (kontrola 4, 07 C2) */
+  var ago = Math.max(0, Math.min(NF.INS_AGO_MAX, -Number(cur) || 0));
+  return '<div class="timechips">' + TIME_OPTS.map(function (o) { return choice(o[1], 'mealTime', o[0], !oth && cur === o[0]); }).join('') + choice('jiný čas', 'mealTime', 'other', oth) + '</div>' +
+    (oth ? '<div class="mt-2">' + slider({ id: 'ins-ago', action: 'mealTimeAgo', kind: 'plain', min: 0, max: NF.INS_AGO_MAX, step: 5, unit: 'min', label: 'Před kolika minutami byl inzulin píchnutý', value: ago, size: 'sm', hint: 'Před kolika minutami byl inzulin píchnutý.' }) + '</div>' : '');
 }
+/* SCHEMA 87 (bod 3; 15 odst. 15a): jednotky inzulinu u pacienta posuvníkem (dřív −/+). Značka „předepsáno N j.“, výši nic nenavrhuje; meze NF.DOSE_RANGE. */
+function unitsSlider(id, action, units, prescribed, label) {
+  return slider({ id: id, action: action, kind: 'plain', min: NF.DOSE_RANGE[0], max: NF.DOSE_RANGE[1], step: 1, unit: 'j.', label: label || 'Kolik jednotek', value: units >= 1 ? units : null, ref: prescribed, refText: 'předepsáno ' + prescribed + ' j.', base: prescribed, prompt: 'Nastavte posuvníkem' });
+}
+V.unitsSlider = unitsSlider;
 /* Hlavička kroku: Zpět vlevo nahoře (48 px), krok 1 se ptá, zda zahodit rozpracovaný zápis (18. 10. 2026). */
 function stepHead(S, m, step) {
   var back = step > (NF.isSnack(m.meal) ? 2 : 1) && !(m.retro && step === 1) ? btn(NF.icon('chevron-left') + ' Zpět', 'mealStep', String(step - 1), 'back') : btn(NF.icon('chevron-left') + ' Zpět na Dnes', (m.bolus || m.beforeAsked || m.foodId) ? 'mealCancelAsk' : 'mealCancel', null, 'back');
@@ -1060,8 +1083,8 @@ V.qDone = qDone; V.qLater = qLater;
 function q1Done(m) { return !!m.bolus && m.qOpen !== 'ins' && (m.q1done != null ? !!m.q1done : !!(m.bolus === 'as' || m.bolus === 'before' || (m.retro && m.bolus === 'none') || m.beforeAsked)); } /* q1done nastaví volba (mealBolus); bez něj (starší rozpracovaný zápis) rozhoduje odpověď */
 function insAnswer(m, dose) {
   var t = m.retro ? RETRO_OFFSET_TXT : OFFSET_TXT, off = m.offset == null || m.offset === '' ? '0' : String(m.offset);
-  if (m.bolus === 'as') return 'Ano, ' + dose.units + ' j. podle plánu' + (m.retro ? '' : off !== '0' ? ' · ' + (t[off] || '') : '');
-  if (m.bolus === 'other') return 'Ano, ' + m.units + ' j.' + (m.retro ? '' : ' · ' + (t[off] || ''));
+  if (m.bolus === 'as') return 'Ano, ' + dose.units + ' j. podle plánu' + (m.retro ? '' : off !== '0' ? ' · ' + (t[off] || (Number(off) < 0 ? 'před ' + (-Number(off)) + ' min' : '')) : '');
+  if (m.bolus === 'other') return 'Ano, ' + m.units + ' j.' + (m.retro ? '' : ' · ' + (t[off] || (Number(off) < 0 ? 'před ' + (-Number(off)) + ' min' : '')));
   if (m.bolus === 'before') return 'Ještě ne, až před jídlem';
   if (m.bolus === 'none') return 'Ne, bez inzulinu';
   if (m.bolus === 'unknown') return 'Nevím – počítáme, že byl';
@@ -1108,7 +1131,7 @@ function bolusChoices(S, m, dose, retro) {
     choice(opt('Nevím', retro ? 'pro jistotu počítáme, že byl' : 'pro jistotu počítáme, že už je'), 'mealBolus', 'unknown', m.bolus === 'unknown', 'opt') + '</div>';
 }
 function unitsBox(m, dose, withTime) {
-  return '<div class="box mt-3"><b>Kolik jednotek?</b><div class="actions mt-2"><div class="stepper">' + btn(NF.icon('minus'), 'mealUnits', '-1', '', ' aria-label="méně"') + '<span class="val">' + m.units + ' j.<small>předepsáno ' + dose.units + '</small></span>' + btn(NF.icon('plus'), 'mealUnits', '1', '', ' aria-label="více"') + '</div></div>' + (withTime ? '<b class="field-q">Kdy?</b>' + timeChips(m) : '') + '</div>';
+  return '<div class="box mt-3"><b>Kolik jednotek?</b><div class="mt-2">' + unitsSlider('meal-units', 'mealUnitsSet', m.units, dose.units, 'Kolik jednotek inzulinu') + '</div>' + (withTime ? '<b class="field-q">Kdy?</b>' + timeChips(m) : '') + '</div>';
 }
 function insQuestion(S, m, p, dose, retro) {
   var nd = retro ? null : newDose(S, p, m.meal);
@@ -1295,11 +1318,19 @@ V.meal = function (S) {
     }
   }
   if (res.gate.ok) out += offLevers(S);
-  if (m.bolus === 'before') {
+  if (m.bolus === 'before' && res.lowNow) {
+    /* SCHEMA 87 (rozhodnutí vlastníka 6. 11. 2026, bod 1; atlas pacienta R9; 15 odst. 7.3 „ukáže jen pravidlo k nízké glukóze a zápis jídla podle skutečnosti“):
+       při glukóze pod 4 před píchnutím není hlavní tlačítko „Píchnuto … uložit“. Hlavní je uložit jídlo bez potvrzeného inzulinu (inzulin čeká, jako „píchnu za chvíli“);
+       kdo už píchnuto má, zapíše to vedlejší volbou. Žádná rada, kdy píchnout – platí pravidlo k nízké glukóze (zvoleno bez dotazu, nejopatrnější varianta). */
+    out += '<div class="actions col mt-4">' + btn('Uložit, inzulin zatím ne', 'mealFinish', 'pending', 'primary big') + '</div>' +
+      '<p class="next-line">Co dál: na Dnes se zeptáme, jestli byl inzulin.</p>' +
+      '<div class="actions split mt-3">' + btn('Už píchnuto ' + dose.units + ' j.', 'mealFinish', 'as', 'quiet') + btn('Píchnuto jinak', 'mealFinishOther', null, 'quiet', m.finishOther ? ' aria-pressed="true"' : '') + '</div>' +
+      (m.finishOther ? '<div class="mt-2">' + unitsSlider('finish-units', 'mealUnitsSet', m.units, dose.units, 'Píchnuto: jednotky') + '</div><div class="actions">' + btn('Uložit', 'mealFinish', 'other', '') + '</div>' : '');
+  } else if (m.bolus === 'before') {
     /* SCHEMA 86 (návrh 2): jedno hlavní tlačítko „Píchnuto 8 j. · uložit snídani“ a pod ním řádek „Co dál“; věta „Klepněte, až…“ (kontrola 4, 07 C1) odpadla – říká ji tlačítko (zvoleno bez dotazu podle návrhu 2) */
     out += '<div class="actions col mt-4">' + btn('Píchnuto ' + dose.units + ' j. · uložit ' + NF.mealLabel(m.meal, 'acc'), 'mealFinish', 'as', 'primary big') + '</div>' + nextLine +
       '<div class="actions split mt-3">' + btn('Uložit, píchnu za chvíli', 'mealFinish', 'pending', '') + btn('Píchnuto jinak', 'mealFinishOther', null, '', m.finishOther ? ' aria-pressed="true"' : '') + '</div>' +
-      (m.finishOther ? '<div class="actions"><div class="stepper">' + btn(NF.icon('minus'), 'mealUnits', '-1') + '<span class="val">' + m.units + ' j.</span>' + btn(NF.icon('plus'), 'mealUnits', '1') + '</div>' + btn('Uložit', 'mealFinish', 'other', 'primary') + btn('Nepíchnuto', 'mealFinish', 'none', 'quiet') + '</div>' : '');
+      (m.finishOther ? '<div class="mt-2">' + unitsSlider('finish-units', 'mealUnitsSet', m.units, dose.units, 'Píchnuto: jednotky') + '</div><div class="actions">' + btn('Uložit', 'mealFinish', 'other', 'primary') + btn('Nepíchnuto', 'mealFinish', 'none', 'quiet') + '</div>' : ''); /* SCHEMA 87: posuvník */
   } else out += '<div class="actions">' + btn(snack ? 'Uložit svačinu' : 'Uložit jídlo', 'mealFinish', m.bolus, 'primary big') + '</div>' + nextLine;
   return out;
 };

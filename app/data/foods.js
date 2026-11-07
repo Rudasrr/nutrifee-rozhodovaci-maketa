@@ -1,4 +1,4 @@
-/* Seznam jídel — součást jádra (přesun z demo/ 18. 10. 2026). Syntetický seznam ~200 běžných českých jídel a hotovek (položka registru J-DATABAZE);
+/* Seznam jídel — součást jádra (přesun z demo/ 18. 10. 2026). Syntetický seznam 171 běžných českých jídel a hotovek (položka registru J-DATABAZE);
    skutečný zdroj a licence se vyberou pro studii. Hodnota `react` je modelová reaktivita pro simulovaný senzor v ukázce; produkce ji nečte. */
 (function (global) {
 'use strict';

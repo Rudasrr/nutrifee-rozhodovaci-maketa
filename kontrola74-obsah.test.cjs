@@ -105,7 +105,8 @@ test('B11: dlaždice „Přijaté rady“ bez fajfky a bez zelené', ({ NF, D })
   assert.ok(m); assert.match(m[1], /c-none/); assert.doesNotMatch(m[0], /✓/);
   assert.doesNotMatch(D.explainById['tile-adv'].text(s), /Zelená/);
 });
-test('B14, B16: nový plán říká proč; Bezpečí „schválil je odborný garant“', ({ NF, D }) => {
+/* SCHEMA 87: název podle těla testu (rozhodnutí vlastníka 30. 10. 2026, bod 10) */
+test('B14, B16: nový plán říká proč; Bezpečí „Tato pravidla připravil NutriFee a posoudil je lékař.“', ({ NF, D }) => {
   const s = at({ NF, D }, 'newplan'), p = NF.activePlan(s), d = (p.decisions || []).find(x => /snídani/.test(x.title));
   assert.match(d.text, /Po snídani bývala glukóza nad cílem i s radami/);
   const b = at({ NF, D }, 'newplan'); b.page = 'safety'; b.role = 'patient'; NF.confirmUnderstanding(b);

@@ -203,8 +203,8 @@ test('Seznam jídel a texty (02 C5–C11, zásada 9, 06 B7, B8, 07 B4, B10)', ({
 
 test('07 A2, B3, B8: volič dávky mřížkou, zapomenutý zápis ze včerejška, spolehlivost dat na kontrole', ({ NF, D }) => {
   const s = at(D, 'doses');
-  /* SCHEMA 84 (rozhodnutí 9, agent P+D): posuvník hodnoty místo mřížky a stepperu */ assert.match(html(NF, s), /id="vs-dose-breakfast" min="1" max="40"[^>]*data-vs-action="doseSet" data-vs-prefix="breakfast:"/);
-  assert.ok(NF.setDoseValue(s, 'lunch', 12).ok); assert.equal(s.draft.doses.lunch.units, 12); assert.equal(NF.setDoseValue(s, 'lunch', 41).ok, false);
+  /* SCHEMA 84 (rozhodnutí 9, agent P+D): posuvník hodnoty místo mřížky a stepperu */ assert.match(html(NF, s), /id="vs-dose-breakfast" min="1" max="60"[^>]*data-vs-action="doseSet" data-vs-prefix="breakfast:"/); /* SCHEMA 87: jeden rozsah 1–60 j. (NF.DOSE_RANGE) při zařazení i na kontrole */
+  assert.ok(NF.setDoseValue(s, 'lunch', 12).ok); assert.equal(s.draft.doses.lunch.units, 12); assert.equal(NF.setDoseValue(s, 'lunch', 61).ok, false); assert.ok(NF.setDoseValue(s, 'lunch', 41).ok, 'SCHEMA 87: 41 j. už neodřízne');
   const e = at(D, 'enroll'); /* SCHEMA 84 (rozhodnutí 9, agent P+D): posuvník hodnoty místo mřížky a stepperu */ assert.match(html(NF, e), /id="vs-bl-tir" min="0" max="100"[^>]*data-vs-action="baselineSet" data-vs-prefix="tir:"/);
   const y = at(D, 'lateMeal'), gaps = NF.yesterdayGaps(y);
   assert.ok(gaps.some(g => g.meal === 'dinner' && g.day === '2026-10-12'), 'včerejší večeře chybí');

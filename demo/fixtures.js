@@ -1,5 +1,5 @@
 /* Modelová data a příběh. Součást prezentační vrstvy – produkce tento soubor nezahrnuje.
-   Registr (položky ke schválení; maketa se chová, jako by byly schválené), katalogy, ~200 českých jídel, simulovaný senzor, kapitoly. */
+   Registr (položky ke schválení; maketa se chová, jako by byly schválené), katalogy, 171 českých jídel, simulovaný senzor, kapitoly. */
 (function (global) {
 'use strict';
 var NF = global.NutriFee;
@@ -30,7 +30,7 @@ D.patientContext = [
 ];
 
 /* ---------- jídla ----------
-   ~200 českých jídel a hotovek se štítky. Syntetické; skutečný zdroj vybere studie. */
+   171 českých jídel a hotovek se štítky. Syntetické; skutečný zdroj vybere studie. */
 D.foods = NF.data.foods;
 
 /* ---------- simulovaný senzor ----------
