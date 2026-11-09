@@ -348,7 +348,8 @@ D.storyVerify = function (S, B, pr) {
   if (B.response === 'impractical' && pr.lever && /^Vyměnit/.test(pr.title)) return pr.verify.map(function (_, i) { return i !== 0; });
   return pr.verify.map(function () { return true; });
 };
-function storyFill(S, B, pr) { var r = S.review, v = r.verify[pr.id] = r.verify[pr.id] || {}; D.storyVerify(S, B, pr).forEach(function (x, i) { if (v[i] === undefined) v[i] = x; }); }
+/* SCHEMA 88: ověřovací body modelového lékaře přes NF.setVerify, aby stopa měla navrh.overeni jako v ostré aplikaci */
+function storyFill(S, B, pr) { var r = S.review, v = r.verify[pr.id] || {}; D.storyVerify(S, B, pr).forEach(function (x, i) { if (v[i] === undefined) NF.setVerify(S, pr.id, i, x); }); }
 /* Rozhodne zbývající návrhy, které se rozhodují jednotlivě, podle větve postupu. C15 (27. 10. 2026): dávku tady nikdy nemění –
    prandiální návrh k dávce, jehož větev by byla „zvýšit / snížit“, „ponechá na příští kontrolu“ (volba modelového lékaře měnit v jedné kontrole jen jednu dávku; žádné pravidlo registru to neukládá – D-POSTUP jen upozorní, kontrola 2, C16);
    větev „ponechat“ (např. oběd s poklesy pod 4, A1) potvrdí jako lékař ve vyprávění. */

@@ -1,6 +1,6 @@
 # NutriFee – atlas obrazovek ordinace (O01–O30)
 
-*Stav makety SCHEMA 87 (6. 11. 2026). Patří k předání spolu s postupem programování (`00-postup.md`), atlasem aplikace pacienta (`10-atlas-pacient.md`) a přílohami (`30-prilohy.md`). Zdrojem pravdy je `15-ZDROJ-PRAVDY-MAKETA.md` a při rozporu chování makety (`maketa-rozhodovaci/`). Cesty ke kódu jsou uvedené vůči složce makety. Funkce `NF.xxx` jsou v `app/core.js`, vykreslení `V.xxx` v `app/screens-clinic.js` (ordinace) a `app/screens.js` (společné prvky), akce v `app/ui.js`.*
+*Stav makety SCHEMA 88 (8. 11. 2026). Patří k předání spolu s postupem programování (`00-postup.md`), atlasem aplikace pacienta (`10-atlas-pacient.md`) a přílohami (`30-prilohy.md`). Zdrojem pravdy je `15-ZDROJ-PRAVDY-MAKETA.md` a při rozporu chování makety (`maketa-rozhodovaci/`). Cesty ke kódu jsou uvedené vůči složce makety. Funkce `NF.xxx` jsou v `app/core.js`, vykreslení `V.xxx` v `app/screens-clinic.js` (ordinace) a `app/screens.js` (společné prvky), akce v `app/ui.js`.*
 
 Atlas popisuje všechno, co se v ordinaci zobrazuje: zařazení a první plán, zaučení u sestry, práci sestry na kontrole (otázky, hmotnost, HbA1c, nahrání exportu ze senzoru), čtyři kroky kontroly s návrhovými kartami „posoudit dávku“, vydání a předání plánu, schvalovací registr a stopu. Aplikaci pacienta popisuje `10-atlas-pacient.md`; tady se objevuje jen jako náhled telefonu.
 
@@ -681,7 +681,7 @@ Události ordinace:
 
 ## 7. Rozpory k rozhodnutí
 
-Body, které zdroj pravdy neurčuje a rozhodne vlastník. Do rozhodnutí platí chování makety. Rozpory společné celé předávce (denní doby slotů jako klinická položka, otisk katalogu po přidání mezí) jsou v `00-postup.md` odd. 5.
+Body, které zdroj pravdy neurčuje a rozhodne vlastník. Do rozhodnutí platí chování makety. Rozpor společný celé předávce (otisk katalogu po přidání mezí) je v `00-postup.md` odd. 5.
 
 - **R9 Kontextový sloupec.** `15` odst. 15a popisuje ordinaci „od 1600 px: pruh · pracovní sloupec do 880 px · kontextový sloupec“; pod 1600 px se sloupec nezobrazuje vůbec a náhled telefonu u sestry a v kroku 4 se na 1440 px skládá pod pracovní sloupec, ne vpravo („vpravo náhled telefonu“, odst. 5). Jde o rozhodnutí o rozložení, které `15` pro užší obrazovky neříká.
 

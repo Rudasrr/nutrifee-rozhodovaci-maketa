@@ -1,6 +1,6 @@
 # NutriFee – předání programátorovi: jak postupovat
 
-*Stav makety SCHEMA 87 (6. 11. 2026). Dokument patří k předání spolu s atlasem obrazovek pacienta (`10-atlas-pacient.md`, obrazovky P01…), atlasem ordinace (`20-atlas-ordinace.md`, obrazovky O01…) a přílohami (`30-prilohy.md`). Cesty k souborům jsou uvedené vůči složce makety (na Disku `maketa-rozhodovaci/`, ve veřejném repozitáři její kořen).*
+*Stav makety SCHEMA 88 (8. 11. 2026). Dokument patří k předání spolu s atlasem obrazovek pacienta (`10-atlas-pacient.md`, obrazovky P01…), atlasem ordinace (`20-atlas-ordinace.md`, obrazovky O01…) a přílohami (`30-prilohy.md`). Cesty k souborům jsou uvedené vůči složce makety (na Disku `maketa-rozhodovaci/`, ve veřejném repozitáři její kořen).*
 
 Dokument se čte shora dolů a podle oddílu 3 se dá postupovat krok za krokem. Každá etapa má cíl, vstupy z makety, co postavit, obrazovky z atlasu, testy z makety jako specifikaci, ověřitelné „hotovo, když…“ a místa, kde se snadno udělá chyba. Kde dokument říká „otevřené“, zdroj pravdy věc neurčuje a rozhodne vlastník. Kde říká „na programátorovi“, je volba technická a vlastník ji nepředepisuje.
 
@@ -67,7 +67,7 @@ Vynecháním složky `demo/` a jejích řádků v HTML vznikne **produkční ses
 1. **`15-ZDROJ-PRAVDY-MAKETA.md`** je jediný zdroj pravdy. Při rozporu s ním platí **chování publikované makety** (rozhodnutí vlastníka 15. 10. 2026: co maketa dělá, platí; dokument se dopisuje za ní).
 2. Dokumenty `00`–`14`, `INSTRUKCE-PROJEKTU-CLAUDE.md` a `CHANGELOG-MIGRACE.md` jsou historie. Nečerpejte z nich chování.
 3. `15` odst. 18 („Proč je to takhle – a co jsme zavrhli“) vysvětluje důvody rozhodnutí. Než cokoli navrhnete jinak, přečtěte ho; výtah zavržených variant je v příloze 4.
-4. **Při rozporu nebo mezeře se zeptejte vlastníka.** Nevybírejte potichu. Otevřené rozpory jsou v oddílu 5 tohoto dokumentu, rozpory vyřešené ve SCHEMA 87 v oddílu 6.
+4. **Při rozporu nebo mezeře se zeptejte vlastníka.** Nevybírejte potichu. Otevřené rozpory jsou v oddílu 5 tohoto dokumentu, rozpory vyřešené ve SCHEMA 87 a 88 v oddílu 6.
 
 `15` a podklady ve složce `navrhy-designu/` nejsou ve veřejném repozitáři makety; programátor je dostane od vlastníka spolu s tímto předáním.
 
@@ -401,12 +401,12 @@ Seznam obsahuje jen to, co uvádí `15` nebo podklady `navrhy-designu/30-kontrol
 
 Body, které zdroj pravdy neurčuje a rozhodne vlastník. Do rozhodnutí platí chování makety.
 
-1. **Denní doby slotů jako klinická položka?** SCHEMA 87 dala hrubé denní doby slotů do registru jako parametry provozní položky S-PRIPOMINKY (`snidane_do` 10, `obed_do` 15,5, `vecere_do` 21; zvoleno bez dotazu, protože nic nepočítají ani neradí a pacient se vždy opraví sám). `15` je dřív nazýval „otázkou pro garanta“. Kdyby je vlastník chtěl schvalovat, přesunou se do klinické položky: změní se počet 28 klinických položek, průvodce a scéna nabídky ke schválení.
-2. **Otisk katalogu po přidání mezí.** Otisk katalogu `fpCat` v `demo/sync.js` obsahuje meze parametrů. Po doplnění mezí u R-REAKCE, D-CISTA a D-PRAND proto může správce u dřívějších rozhodnutí garanta k těmto položkám vidět „rozhodnuto k předchozímu znění“, i když se jejich znění nezměnilo. Otisk jádra `NF.itemFingerprint` se nezměnil. Rozhodnout, zda rozhodnutí garanta k těmto třem položkám platí dál, nebo je garant potvrdí znovu. Pro ostrou aplikaci to znamená rozhodnout, zda meze patří do otisku znění.
-3. **Přepínač nemoci na dvou místech** (atlas pacienta, R10): „Není mi dobře“ je na Dnes i jako karta s přepínačem v Bezpečí.
-4. **Kontextový sloupec pod 1600 px** (atlas ordinace, R9): `15` neříká, jak má ordinace vypadat na užší obrazovce.
+1. **Otisk katalogu po přidání mezí.** Otisk katalogu `fpCat` v `demo/sync.js` obsahuje meze parametrů. Po doplnění mezí u R-REAKCE, D-CISTA a D-PRAND proto může správce u dřívějších rozhodnutí garanta k těmto položkám vidět „rozhodnuto k předchozímu znění“, i když se jejich znění nezměnilo. Garant v maketě zatím nerozhodoval, takže dnes to nic nemění. Otisk jádra `NF.itemFingerprint` se nezměnil. Rozhodnout, zda rozhodnutí garanta k těmto třem položkám platí dál, nebo je garant potvrdí znovu. Pro ostrou aplikaci to znamená rozhodnout, zda meze patří do otisku znění.
+2. **Kontextový sloupec pod 1600 px** (atlas ordinace, R9): `15` neříká, jak má ordinace vypadat na užší obrazovce.
 
-## 6. Vyřešeno v SCHEMA 87
+## 6. Vyřešeno v SCHEMA 87 a 88
+
+**Rozhodnutí vlastníka 7. 11. 2026 (SCHEMA 88):** denní doby slotů zůstávají provozní parametry S-PRIPOMINKY a garant je neschvaluje. Přepínač nemoci zůstává záměrně na Dnes i v Bezpečí, oba vedou na týž stav. Ověřovací body lékaře v příběhu ukázky jdou přes `NF.setVerify`, takže stopa má `navrh.overeni`.
 
 Body, které předávka ve SCHEMA 86 našla a které SCHEMA 87 nebo rozhodnutí vlastníka 6. 11. 2026 vyřešily:
 

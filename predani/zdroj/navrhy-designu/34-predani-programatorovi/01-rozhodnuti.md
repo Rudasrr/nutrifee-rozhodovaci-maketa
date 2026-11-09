@@ -18,3 +18,10 @@ Některé rozpory už rozhodnuté byly a dokumenty se jen dopíší za maketou (
 - karta k dávce „Souhlasím“ + „Jiné rozhodnutí“ (SCHEMA 84, 4. 11.);
 - 14 provozních položek;
 - 171 jídel.
+
+## Doplněno 7. 11. 2026 (po SCHEMA 87)
+
+4. Denní doby slotů (do 10:00 / 15:30 / 21:00) zůstávají **provozní** parametry S-PRIPOMINKY; garant je neschvaluje (Doporučeno).
+5. Přepínač nemoci zůstává **na Dnes i v Bezpečí** (Doporučeno).
+
+Zbývá zapsat do `15` a do oddílů rozporů v `predani/` a opravit v příběhu ověřovací body přes `NF.setVerify`, aby stopa O30 měla `navrh.overeni`.

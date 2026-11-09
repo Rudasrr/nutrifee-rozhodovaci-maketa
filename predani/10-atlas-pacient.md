@@ -973,11 +973,13 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 
 # Rozpory k rozhodnutí
 
-Body, které zdroj pravdy neurčuje a rozhodne vlastník. Do rozhodnutí platí chování makety. Rozpory společné celé předávce (denní doby slotů jako klinická položka, otisk katalogu po přidání mezí) jsou v `00-postup.md` odd. 5.
+Body, které zdroj pravdy neurčuje a rozhodne vlastník. Do rozhodnutí platí chování makety. Rozpor společný celé předávce (otisk katalogu po přidání mezí) je v `00-postup.md` odd. 5.
 
-- **R10 – Přepínač nemoci na dvou místech.** `15` odst. 15b přesunul „Není mi dobře“ na Dnes jako malé tlačítko („přebíjí 8 – karta nemoci s přepínačem“). Bezpečí (P54) dál nese kartu s přepínačem nemoci. Odst. 15b to výslovně neruší ani nepotvrzuje. Rozhodnout, zda přepínač v Bezpečí zůstane, nebo bude jen na Dnes.
+Atlas pacienta teď nemá žádný vlastní otevřený bod.
 
-# Vyřešeno v SCHEMA 87
+# Vyřešeno v SCHEMA 87 a 88
+
+- **R10 – Přepínač nemoci na dvou místech** (vlastník 7. 11. 2026, SCHEMA 88): přepínač je záměrně na Dnes i v Bezpečí (P54). Kdo se cítí špatně, hledá pomoc v Bezpečí, na Dnes ho vidí každý den. Oba vedou na týž stav (`15` odst. 15b).
 
 Body R1–R9, které atlas ve SCHEMA 86 našel, vyřešila SCHEMA 87 (rozhodnutí vlastníka 6. 11. 2026, bod 1). Popisy obrazovek výše odpovídají novému stavu.
 

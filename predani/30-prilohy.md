@@ -1,6 +1,6 @@
 # NutriFee – předání programátorovi: přílohy
 
-*Stav makety SCHEMA 87 (6. 11. 2026). Patří k `00-postup.md`. Tabulky v přílohách 2, 3 a 5 jsou vygenerované skriptem z kódu makety; když se maketa změní, vygenerujte je znovu, nepřepisujte je ručně. Cesty k souborům jsou vůči složce makety.*
+*Stav makety SCHEMA 88 (8. 11. 2026). Patří k `00-postup.md`. Tabulky v přílohách 2, 3 a 5 jsou vygenerované skriptem z kódu makety; když se maketa změní, vygenerujte je znovu, nepřepisujte je ručně. Cesty k souborům jsou vůči složce makety.*
 
 1. Slovník pojmů
 2. Registr položek

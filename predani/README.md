@@ -1,6 +1,6 @@
 # NutriFee – předání programátorovi
 
-Tyto podklady popisují stav makety **SCHEMA 87** k 7. 11. 2026. Podle makety se programuje ostrá aplikace.
+Tyto podklady popisují stav makety **SCHEMA 88** k 8. 11. 2026. Podle makety se programuje ostrá aplikace.
 
 ## Jak číst
 
