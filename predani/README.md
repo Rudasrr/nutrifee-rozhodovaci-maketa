@@ -4,6 +4,8 @@ Tyto podklady popisují stav makety **SCHEMA 89** k 9. 11. 2026. Vedou ke dvěma
 
 **Celá předávka jako webová stránka:** <https://rudasrr.github.io/nutrifee-rozhodovaci-maketa/predani/> (stejný obsah jako soubory v této složce, se snímky a záložkami; bez přihlášení).
 
+> **11. 11. 2026:** Připravuje se SCHEMA 90 s opravami z poslední kontroly. Co se změní, shrnuje `01-cesta-k-demu.md` (odstavec „Stav“ a rozhodnutí z 11. 11.). Do jejího nasazení platí maketa SCHEMA 89.
+
 ## Cesta 1: první demo (teď)
 
 Vlastník 9. 11. 2026 rozhodl, že první demo se staví **nad převzatým jádrem makety**: aplikace pacienta na telefonu (PWA na iPhonu i Androidu), ordinace v prohlížeči, sdílený stav přes server, jen syntetická data. 10. 11. 2026 doplnil, že demo má vypadat jako ostrá aplikace pro lékaře a garanta k vyzkoušení (přihlášení, seznam pacientů, skutečný čas, schválená pravidla).

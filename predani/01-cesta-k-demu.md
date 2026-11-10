@@ -2,6 +2,8 @@
 
 *Vlastník rozhodl 9. a 10. 11. 2026, že první demo se postaví nad převzatým jádrem makety, ne přepisem. Stav makety je SCHEMA 89. Pokyny pro AI asistenta jsou v [`AGENTS.md`](AGENTS.md). Atlasy obrazovek ([`10-atlas-pacient.md`](10-atlas-pacient.md), [`20-atlas-ordinace.md`](20-atlas-ordinace.md)) slouží jako příručka k jednotlivým obrazovkám. Plán ostré aplikace v 17 etapách je v [`00-postup.md`](00-postup.md) a pro demo ho nepotřebujete.*
 
+> **Stav 11. 11. 2026:** Maketa na odkazu je SCHEMA 89. Po poslední kontrole (sedm nezávislých prověrek, `zdroj/navrhy-designu/36-posledni-kontrola/00-souhrn.md`) vzniká **SCHEMA 90** s opravami a s 12 rozhodnutími vlastníka (`zdroj/navrhy-designu/36-posledni-kontrola/05-rozhodnuti.md`). Až bude nasazená, změní se číslo verze v tomto odstavci a v README. Pro procházení makety dnes platí SCHEMA 89. Změny níže se do dema promítnou až se SCHEMA 90.
+
 ## Co je první demo
 
 Demo má **vypadat a chovat se jako ostrá aplikace**. Lékaři a garant ho dostanou k vyzkoušení a používají ho sami, bez prezentujícího a bez vysvětlování.
@@ -12,6 +14,7 @@ Demo má **vypadat a chovat se jako ostrá aplikace**. Lékaři a garant ho dost
 - **Čas běží skutečně**, v českém časovém pásmu (Europe/Prague). Nic se nepřeskakuje.
 - **Pacienti:** ordinace má seznam pacientů. V demu jsou připravení 2–3 syntetičtí pacienti s historií, která končí dnes, takže lékař hned vidí kontrolu s daty. Lékař může zařadit i nového pacienta od začátku.
 - **Data jsou jen syntetická.** Stav pacienta se sdílí přes server mezi telefonem a ordinací.
+- **Štítek demo (vlastník 11. 11. 2026).** Vzhled je jako u ostré aplikace, ale na každé obrazovce je nenápadný trvalý štítek „Demo · jen syntetická data“ a v zápatí věta, že aplikace není určena pro léčbu. Při zařazení nového pacienta aplikace upozorní, že se smí zadávat jen smyšlené údaje. Neschválený zdravotnický software se nesmí použít u skutečného pacienta.
 - **Pravidla jsou schválená.** Všechny položky registru působí jako schválené. Schvalovací registr garanta ani nic z prezentační vrstvy makety se v demu neukazuje. Lékař vidí u pravidel štítek „✓ schváleno“, pacient štítky nevidí.
 
 Klinická logika je tentýž kód jako v maketě.
@@ -143,6 +146,20 @@ Dokud garant nerozhodne, programujete podle makety tak, jako by bylo vše schvá
 - Server zvolí programátor.
 - Data se po nové verzi smí obnovit.
 - Při změně na jiném zařízení se nová verze sama načte s krátkým oznámením.
+
+**11. 11. 2026, po poslední kontrole** (podrobně `zdroj/navrhy-designu/36-posledni-kontrola/05-rozhodnuti.md`):
+- demo má nenápadný trvalý štítek „Demo · jen syntetická data“ a zápatí „není určeno pro léčbu“; u nového pacienta upozorní na smyšlené údaje;
+- den aplikace končí ve 4:00 (jídlo do 4:00 patří k předchozímu dni);
+- do 3 h po hlavním jídle je hlavním tlačítkem „Zapsat svačinu“;
+- zápis jídla jde opravit nebo smazat do 24 h, oprava jde do stopy;
+- aplikace běží vždy v českém čase, cestování do jiného pásma je mimo rozsah;
+- text pacienta: hlavní text a volby od 17 px, nic pod 15 px;
+- „glukóza teď pod 4“ v kroku 1 se počítá jako pokles;
+- čas pod cílem blokuje větev „zvýšit“;
+- výrazně vyšší dávka než předepsaná ukáže obecné pravidlo a za 60 min otázku „pod 4?“;
+- poklesy z exportu se k jídlu přiřazují do 4 h;
+- u lékaře se body potvrzené daty předvyplní jako „sedí podle dat“;
+- podmínky zařazení: bez korekčního schématu a bazál večer.
 
 Ostatní:
 - Otisk ve stopě je od SCHEMA 89 otisk jádra `NF.itemFingerprint(položka)`.
