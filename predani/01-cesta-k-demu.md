@@ -106,9 +106,25 @@ Ve složce makety spusťte libovolný statický server, aby se stav držel i po 
 ## První úkol prvního dne
 
 1. Naklonujte repozitář makety a ve složce makety spusťte rychlou sadu a zlaté výstupy. Oba běhy musí projít. Pokud neprojdou, zastavte se a napište vlastníkovi.
-2. Spusťte celý příběh lokálně bez přihlášení (postup výše) a projděte tlačítkem **Další ▶** aspoň scénáře 1 a 2. Zabere to asi 20 minut a ukáže vám, co má demo umět.
+2. **Proklikejte celou maketu od začátku do konce.** Spusťte celý příběh lokálně bez přihlášení (postup výše). Tlačítkem **Další ▶** projděte všechny scénáře až po závěrečný souhrn, tedy zařazení, zaučení, týdny zápisů, nízkou glukózu, nemoc, kontrolu, nový plán a stopu. Zabere to asi 1–2 hodiny a je to nejrychlejší způsob, jak pochopit, co má demo umět a proč.
+   - Nepotřebujete žádný účet. Maketu nespouštějte pod účtem garanta ani správce.
+   - Panel ukázky nabízí u pravidel „Schválit / Zamítnout“. To je práce garanta, vy nic neschvalujete a panel si nevšímejte. Programujete tak, **jako by bylo vše schválené**. Lokálně se stejně nic nikam neukládá.
+   - Při procházení si zapisujte otázky. Co nevysvětlí atlas, pošlete vlastníkovi najednou.
 3. Založte repozitář dema. Zkopírujte do něj soubory z tabulky „Co převzít“, `AGENTS.md` dejte do kořene a z HTML makety udělejte `index.html` produkčního sestavení.
 4. **Hotovo, když** v novém repozitáři projde rychlá sada i zlaté výstupy proti zkopírovanému jádru. Zároveň v témže prohlížeči proběhne zařazení (`index.html?role=lekar`), zaučení (`?role=sestra`) a převzetí plánu (`index.html`, pacient).
+
+## Až garant pošle svůj výsledek
+
+Garant maketu prochází zvlášť a u každé klinické položky rozhodne Schválit nebo Zamítnout, případně s poznámkou. Až skončí, vlastník vám pošle export jeho rozhodnutí (JSON nebo CSV z „Výsledků garanta“) a k němu své rozhodnutí, co s tím. Formát exportu popisuje `zdroj/navrhy-designu/30-kontrola4-a-pohledy-2026-10-29/10-predani-programatorovi.md` (odst. 6).
+
+Postup:
+1. **Schválené položky** zůstávají, jak jsou. Nic se nemění.
+2. **Zamítnutá položka nebo položka s poznámkou** je podnět pro vlastníka, ne pro vás. Vlastník rozhodne, jestli se položka upraví, vypne, nebo zůstane, a co pacient uvidí. Teprve pak:
+   - Změna znění nebo parametru se udělá **v maketě** (registr `app/data/registry.js`, jádro). Projde její testy a zlaté výstupy se přegenerují. Do dema ji převezmete jako novou verzi jádra.
+   - Účinek vypnuté položky jádro už umí. U každé z 28 klinických položek ho popisuje pole `ucinek` v `demo/guide.js` a hlídají ho testy `kontrola2-obsah.test.cjs` a `pravdivost.test.cjs`. V demu stačí nastavit stav položky ve společném registru. Kde položka působí, najdete v jádře hledáním `NF.usable(S, 'ID')` (viz [`30-prilohy.md`](30-prilohy.md) odd. 2).
+3. Po převzetí pusťte rychlou sadu, zlaté výstupy a celou sadu. V demu pak zkontrolujte obrazovky, kde položka působí. Najdete je v atlasu podle ID položky.
+
+Dokud garant nerozhodne, programujete podle makety tak, jako by bylo vše schválené.
 
 ## Rozhodnutí vlastníka k demu
 
