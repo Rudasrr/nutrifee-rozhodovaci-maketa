@@ -4,7 +4,7 @@ Tyto podklady popisují stav makety **SCHEMA 90** k 9. 11. 2026. Vedou ke dvěma
 
 **Celá předávka jako webová stránka:** <https://rudasrr.github.io/nutrifee-rozhodovaci-maketa/predani/> (stejný obsah jako soubory v této složce, se snímky a záložkami; bez přihlášení).
 
-> **10. 11. 2026 večer:** Nasazena **SCHEMA 90** s opravami z poslední kontroly. Co se změnilo, shrnuje `01-cesta-k-demu.md` (odstavec „Stav“ a rozhodnutí z 11. 11.). Atlas a snímky se doplňují; při rozdílu platí maketa.
+> **10. 11. 2026 večer:** Nasazena **SCHEMA 90** s opravami z poslední kontroly. Co se změnilo, shrnuje `01-cesta-k-demu.md` (odstavec „Stav“ a rozhodnutí z 11. 11.). Snímky obrazovek jsou ze SCHEMA 90; texty atlasu se doplňují, při rozdílu platí maketa.
 
 ## Cesta 1: první demo (teď)
 

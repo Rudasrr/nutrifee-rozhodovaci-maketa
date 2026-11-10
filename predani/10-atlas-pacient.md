@@ -1,5 +1,8 @@
 # Atlas obrazovek aplikace pacienta (SCHEMA 89)
 
+> **10. 11. 2026 večer:** snímky v tomto atlasu jsou pořízené ze SCHEMA 90. Popisy se doplňují podle SCHEMA 90 (souhrn změn v `01-cesta-k-demu.md` a `zdroj/navrhy-designu/36-posledni-kontrola/`); kde se text liší od snímku nebo makety, platí maketa.
+
+
 *Část předávacího dokumentu pro programátora (první demo i ostrá aplikace). Stav makety: `maketa-rozhodovaci/`, `NF.SCHEMA = 89` (obrazovky pacienta se od SCHEMA 87 viditelně nezměnily; SCHEMA 89 jen přesunula výběr otázek v přehledu před kontrolou do jádra, `NF.previewQuestions` a `NF.previewBest`, texty a pořadí zůstaly). Zdroj pravdy je `15-ZDROJ-PRAVDY-MAKETA.md` a při rozporu chování makety; rozpory, které jsme při psaní atlasu našli, jsou na konci v oddílu „Rozpory k rozhodnutí“. Ordinace (lékař, sestra, registr) a postup programování jsou v samostatných částech předání.*
 
 Snímky jsou pořízené z makety v šířce 390 px (mobilní emulace), jen samotná obrazovka aplikace: bez lišty ukázky, panelu prezentujícího, štítků schvalování, štítku DEMO a bez vysvětlivek ukázky. Slot `NF.slots.patientTag` byl při snímání vypnutý, takže obrazovka vypadá tak, jak ji vykreslí jádro bez prezentační vrstvy (`demo/`). Lišta záložek je na snímku pod obsahem, v aplikaci je přichycená ke spodnímu okraji displeje. Data na snímcích jsou syntetická (modelový pacient z příběhu ukázky). Snímky P10, P22, P27 a P46 jsou pořízené znovu ve SCHEMA 87 (posuvník jednotek, „jiný čas“, krok 3 při glukóze pod 4); ostatní obrazovky se ve SCHEMA 87 viditelně nezměnily, nové snímání dalo shodné obrázky.

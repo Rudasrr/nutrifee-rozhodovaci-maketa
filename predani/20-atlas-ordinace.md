@@ -1,5 +1,8 @@
 # NutriFee – atlas obrazovek ordinace (O01–O30)
 
+> **10. 11. 2026 večer:** snímky v tomto atlasu jsou pořízené ze SCHEMA 90. Popisy se doplňují podle SCHEMA 90 (souhrn změn v `01-cesta-k-demu.md` a `zdroj/navrhy-designu/36-posledni-kontrola/`); kde se text liší od snímku nebo makety, platí maketa.
+
+
 *Stav makety SCHEMA 89 (9. 11. 2026). Patří k předání spolu s postupem programování (`00-postup.md`), atlasem aplikace pacienta (`10-atlas-pacient.md`) a přílohami (`30-prilohy.md`). Zdrojem pravdy je `15-ZDROJ-PRAVDY-MAKETA.md` a při rozporu chování makety (`maketa-rozhodovaci/`). Cesty ke kódu jsou uvedené vůči složce makety. Funkce `NF.xxx` jsou v `app/core.js`, vykreslení `V.xxx` v `app/screens-clinic.js` (ordinace) a `app/screens.js` (společné prvky), akce v `app/ui.js`.*
 
 Atlas popisuje všechno, co se v ordinaci zobrazuje: zařazení a první plán, zaučení u sestry, práci sestry na kontrole (otázky, hmotnost, HbA1c, nahrání exportu ze senzoru), čtyři kroky kontroly s návrhovými kartami „posoudit dávku“, vydání a předání plánu, schvalovací registr a stopu. Aplikaci pacienta popisuje `10-atlas-pacient.md`; tady se objevuje jen jako náhled telefonu.

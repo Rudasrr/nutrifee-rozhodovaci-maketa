@@ -2,7 +2,7 @@
 
 *Vlastník rozhodl 9. a 10. 11. 2026, že první demo se postaví nad převzatým jádrem makety, ne přepisem. Stav makety je SCHEMA 90. Pokyny pro AI asistenta jsou v [`AGENTS.md`](AGENTS.md). Atlasy obrazovek ([`10-atlas-pacient.md`](10-atlas-pacient.md), [`20-atlas-ordinace.md`](20-atlas-ordinace.md)) slouží jako příručka k jednotlivým obrazovkám. Plán ostré aplikace v 17 etapách je v [`00-postup.md`](00-postup.md) a pro demo ho nepotřebujete.*
 
-> **Stav 10. 11. 2026 večer:** Maketa na odkazu je **SCHEMA 90**. Obsahuje opravy z poslední kontroly (sedm nezávislých prověrek, `zdroj/navrhy-designu/36-posledni-kontrola/00-souhrn.md`) a 12 rozhodnutí vlastníka (`zdroj/navrhy-designu/36-posledni-kontrola/05-rozhodnuti.md`). Podrobnosti jádra a API pro synchronizaci jsou v `zdroj/navrhy-designu/36-posledni-kontrola/08-schema90-jadro.md`. Atlas obrazovek a snímky se doplňují podle SCHEMA 90; kde se snímek liší od makety, platí maketa.
+> **Stav 10. 11. 2026 večer:** Maketa na odkazu je **SCHEMA 90**. Obsahuje opravy z poslední kontroly (sedm nezávislých prověrek, `zdroj/navrhy-designu/36-posledni-kontrola/00-souhrn.md`) a 12 rozhodnutí vlastníka (`zdroj/navrhy-designu/36-posledni-kontrola/05-rozhodnuti.md`). Podrobnosti jádra a API pro synchronizaci jsou v `zdroj/navrhy-designu/36-posledni-kontrola/08-schema90-jadro.md`. Všech 87 snímků v atlasu je pořízených ze SCHEMA 90 (10. 11. 2026 večer). Texty popisů atlasu se doplňují; kde se text liší od snímku nebo makety, platí maketa.
 
 ## Co je první demo
 
