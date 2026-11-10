@@ -390,5 +390,5 @@ Object.keys(D.guide).forEach(function (id) {
 
 
 })(typeof window !== 'undefined' ? window : globalThis);
-/* SCHEMA 87 (bod 1): stopa jádra ukládá u událostí výpočtu otisk položky (NF.itemFingerprint) i s textem „Co schvalujete“ – stejný otisk jako u rozhodnutí garanta. */
-(function (global) { var NF = global.NutriFee, D = global.NutriFeeDemo; if (NF && NF.slots && D) NF.slots.itemGuide = function (id) { return (D.guide && D.guide[id]) || null; }; })(typeof window !== 'undefined' ? window : globalThis);
+/* SCHEMA 89 (rozhodnutí vlastníka 9. 11. 2026, bod 4): stopa jádra už text „Co schvalujete“ do otisku nebere (slot NF.slots.itemGuide zrušen) – otisk ve stopě
+   je otisk jádra NF.itemFingerprint(položka) a vyjde stejně s prezentační vrstvou i bez ní. Otisk s průvodcem pro rozhodnutí garanta počítá demo/sync.js (fp). */

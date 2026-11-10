@@ -1,0 +1,6407 @@
+[
+ {
+  "kapitola": "reviewProposals",
+  "krok": 2,
+  "navrhy": [
+   {
+    "cat": "davka",
+    "dose": "breakfast",
+    "fakta": [
+     {
+      "text": "včas 74 z 83 zápisů · 6× nižší dávka (6 j.) · 3× nevím"
+     },
+     null,
+     {
+      "text": "65 z 72 nad cílem · medián 12,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "1 zápis z nemoci – vyřazeno"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 6 různých jídel, dvě s nejvíc zápisy nad cílem („Ovesná kaše s mlékem a banánem“ 25×, „Müsli s mlékem a medem“ 9×) tvoří 52 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles pod 4 po snídani"
+     },
+     {
+      "against": false,
+      "text": "shoda u 12 z 12 snídaní s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": false,
+      "text": "nabídnuto 73×, přijato 40×, odmítnuto 15×"
+     }
+    ],
+    "id": "PR-BREAKFAST",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky ke snídani jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2,
+    "stavBodu": [
+     null,
+     true,
+     null,
+     true,
+     true,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "title": "Posoudit prandiální dávku ke snídani – hodnoty nad cílem",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku ke snídani",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "65 z 72 snídaní za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 12,0 mmol/l). Rada k jídlu: nabídnuto 73×, přijato 40×, odmítnuto 15×. S přijatou radou byl medián vrcholu 12,0 mmol/l, bez ní 12,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "davka",
+    "dose": "lunch",
+    "fakta": [
+     {
+      "text": "včas 82 z 82 zápisů"
+     },
+     null,
+     {
+      "text": "54 z 79 nad cílem · medián 11,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "žádný zápis z nemoci"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 7 různých jídel, dvě s nejvíc zápisy nad cílem („Smažený řízek s bramborovou kaší“ 16×, „Svíčková na smetaně s knedlíkem“ 11×) tvoří 50 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles při obvyklé porci a dávce podle plánu; 2 poklesy po menší porci nebo s jinou dávkou (16. 10., 17. 10.) je varování"
+     },
+     {
+      "against": false,
+      "text": "shoda u 11 z 12 obědů s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": false,
+      "text": "nabídnuto 81×, přijato 31×, odmítnuto 12×"
+     }
+    ],
+    "id": "PR-LUNCH",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky k obědu jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2,
+    "stavBodu": [
+     null,
+     true,
+     null,
+     true,
+     true,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "title": "Posoudit prandiální dávku k obědu – hodnoty nad cílem",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku k obědu",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "54 z 79 obědů za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 11,0 mmol/l). Rada k jídlu: nabídnuto 81×, přijato 31×, odmítnuto 12×. S přijatou radou byl medián vrcholu 11,0 mmol/l, bez ní 11,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "davka",
+    "dose": "basal",
+    "fakta": [
+     {
+      "text": "potvrzeno 88 z 92 dnů plánu · 4× nižší dávka (16 j.)"
+     },
+     {
+      "text": "ráno po těch nocích 6,3, 6,3 mmol/l · ranní hodnoty před snídaní opsané za období: medián 7,0 mmol/l · nad 7,2: 1 z 83"
+     },
+     null
+    ],
+    "id": "PR-BAZAL",
+    "item": "D-BAZAL",
+    "kind": "dose",
+    "overeni": [
+     "Bazál je potvrzený ve stejnou hodinu",
+     "Večeře v těch nocích byly obvyklé, bez alkoholu a nočního jídla",
+     "Pohyb v těch dnech byl běžný, bez mimořádné zátěže"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2.5,
+    "stavBodu": [
+     null,
+     false,
+     null
+    ],
+    "title": "Posoudit bazální dávku – noční hodnoty pod cílem",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "down",
+      "text": "snížit bazál",
+      "when": "body 1–3 sedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit čas podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit večeře",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště po dnech s běžným pohybem",
+      "when": "bod 3 nesedí"
+     }
+    ],
+    "why": "2 ze 14 nocí za posledních 14 dní kleslo pod 3,9 mmol/l (v noci na 25. 12. mezi 2:00 a 5:00 nejnižší 3,6 mmol/l · z exportu, zapsal i pacient · v noci na 1. 1. mezi 2:05 a 4:55 nejnižší 3,6 mmol/l · z exportu, zapsal i pacient). Sestra s pacientem uvedla jídlo pozdě večer a v noci, proto karta nemá přednost před ostatními."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 15: přijato 15 · staženo u 5 jídel"
+     }
+    ],
+    "id": "PR-KEEP-addon",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "addon",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 4,
+    "stavBodu": [
+     null
+    ],
+    "title": "Probrat radu „Doplněk k jídlu“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 15× z 15 nabídek (4× spolu s další radou). U 5 jídel ji aplikace stáhla po 3 pokusech, po kterých glukóza ani jednou nebyla v cíli: „Ovesná kaše s mlékem a banánem“, „Loupák s máslem“, „Müsli s mlékem a medem“, „Croissant s džemem“, „Cereálie s mlékem“; tam se už nenabízí. Jestli s radou bývalo níž, zatím nelze říct (málo zápisů v jedné ze skupin)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 135: přijato 54"
+     }
+    ],
+    "group": "keep",
+    "id": "PR-KEEP-walk",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "walk",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 5,
+    "stavBodu": [
+     null
+    ],
+    "title": "Zachovat radu „Procházka po jídle“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 54× ze 135 nabídek (3× spolu s další radou). S radou bývalo níž: medián vrcholu 12,0 vs. 14,0 mmol/l (n = 54 / 26)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 37: přijato 26"
+     }
+    ],
+    "group": "keep",
+    "id": "PR-KEEP-order",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "order",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 5,
+    "stavBodu": [
+     null
+    ],
+    "title": "Zachovat radu „Pořadí jídla“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 26× z 37 nabídek. S radou bývalo podobně (rozdíl pod 1,0 mmol/l): 11,0 vs. 11,0 mmol/l (n = 26 / 8)."
+   },
+   {
+    "cat": "pokyny",
+    "fakta": [
+     null
+    ],
+    "group": "keep",
+    "id": "PR-POKYNY",
+    "item": "R-POKYNY",
+    "kind": "instructions",
+    "overeni": [
+     "Hodnoty v pravidlech i cíle glukózy pacientovi dál odpovídají"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 6,
+    "stavBodu": [
+     null
+    ],
+    "title": "Bezpečnostní pravidla beze změny?",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "edit",
+      "text": "upravit hodnoty pravidel a cíle",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Pravidla jsou v plánu ze schváleného registru s výchozími hodnotami, bez výjimek."
+   },
+   {
+    "cat": "davka",
+    "dose": "dinner",
+    "fakta": [],
+    "id": "PR-DINNER",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "overeni": [],
+    "priority": 7,
+    "row": true,
+    "stavBodu": [],
+    "title": "Večeře – bez návrhu",
+    "vetev": null,
+    "vetve": [],
+    "why": "37 z 75 nad cílem · medián vrcholu 10,0 mmol/l · bez návrhu (práh 2/3 nad cílem)"
+   }
+  ],
+  "noveCile": {
+   "fastingHigh": 7.2,
+   "hba1cGoal": 53,
+   "high": 10,
+   "low": 3.9,
+   "tbrGoal": 4,
+   "tirGoal": 70
+  },
+  "noveDavky": {
+   "basal": {
+    "time": "21:00",
+    "units": 18
+   },
+   "breakfast": {
+    "units": 8
+   },
+   "dinner": {
+    "units": 8
+   },
+   "lunch": {
+    "units": 10
+   }
+  },
+  "planId": "P1",
+  "rozhodnuti": {},
+  "scena": 23,
+  "souhrn": {
+   "advice": {
+    "accepted": {
+     "c": 95,
+     "inTarget": 12,
+     "med": 12,
+     "n": 95
+    },
+    "byLever": {
+     "addon": {
+      "accepted": 15,
+      "declined": 0,
+      "lower": "few",
+      "medAcc": 12,
+      "medDec": null,
+      "multi": 4,
+      "nAcc": 15,
+      "nDec": 0,
+      "offered": 15,
+      "reasons": {}
+     },
+     "order": {
+      "accepted": 26,
+      "declined": 9,
+      "lower": "same",
+      "medAcc": 11,
+      "medDec": 11,
+      "multi": 0,
+      "nAcc": 26,
+      "nDec": 8,
+      "offered": 37,
+      "reasons": {
+       "nowant": 6,
+       "time": 3
+      }
+     },
+     "walk": {
+      "accepted": 54,
+      "declined": 27,
+      "lower": "yes",
+      "medAcc": 12,
+      "medDec": 14,
+      "multi": 3,
+      "nAcc": 54,
+      "nDec": 26,
+      "offered": 135,
+      "reasons": {
+       "nowant": 9,
+       "time": 18
+      }
+     }
+    },
+    "declined": {
+     "c": 34,
+     "inTarget": 0,
+     "med": 13,
+     "n": 36
+    },
+    "noAnswer": {
+     "c": 5,
+     "inTarget": 0,
+     "med": 12,
+     "n": 5
+    },
+    "offered": 136,
+    "reasons": {
+     "nowant": 15,
+     "time": 21
+    },
+    "topReason": "time",
+    "works": "yes"
+   },
+   "asPct": 96,
+   "asPlan": 232,
+   "basalAs": 88,
+   "basalDays": 92,
+   "basalLower": 4,
+   "basalLowerUnits": "16",
+   "habitsDone": 4,
+   "hba1c": [
+    62,
+    55
+   ],
+   "hba1cInfo": {
+    "before": {
+     "date": "2026-09-23",
+     "src": "karta",
+     "v": 62
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-03",
+     "src": "sestra",
+     "v": 55
+    }
+   },
+   "ill": 1,
+   "illDays": 3,
+   "illLong": 0,
+   "incomplete": 2,
+   "meals": 241,
+   "none": 0,
+   "onTime": 232,
+   "other": 6,
+   "selfLower": {
+    "breakfast": 6
+   },
+   "selfLowerUnits": {
+    "breakfast": "6"
+   },
+   "sensor": {
+    "above": 30,
+    "availability": 91,
+    "below": 2,
+    "days": 14,
+    "interval": 5,
+    "period": "22. 12. 2026 – 4. 1. 2027",
+    "source": "import",
+    "tir": 68,
+    "veryLow": 0
+   },
+   "slotsAll": 276,
+   "smallerPlanned": 0,
+   "snacks": 15,
+   "tirState": "warn",
+   "unknown": 3,
+   "usual": 238,
+   "usualPct": 98,
+   "weight": {
+    "before": {
+     "date": "2026-09-23",
+     "kg": 92,
+     "src": "karta"
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-05",
+     "kg": 90,
+     "src": "sestra"
+    }
+   },
+   "withPeak": 239
+  },
+  "tabulkaVetvi": {
+   "PR-BAZAL": {
+    "bod1Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit čas podání",
+     "when": "bod 1 nesedí"
+    },
+    "bod2Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit večeře",
+     "when": "bod 2 nesedí"
+    },
+    "bod3Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště po dnech s běžným pohybem",
+     "when": "bod 3 nesedí"
+    },
+    "vseSedi": {
+     "action": "down",
+     "text": "snížit bazál",
+     "when": "body 1–3 sedí"
+    }
+   },
+   "PR-BREAKFAST": {
+    "bod10Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, posílit radu",
+     "when": "bod 10 nesedí"
+    },
+    "bod1Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit podání",
+     "when": "bod 1 nesedí"
+    },
+    "bod2Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit techniku a místo píchání",
+     "when": "bod 2 nesedí"
+    },
+    "bod3Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště",
+     "when": "bod 3 nesedí"
+    },
+    "bod4Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit dojídání",
+     "when": "bod 4 nesedí"
+    },
+    "bod5Nesedi": {
+     "action": "keep",
+     "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+     "when": "bod 5 nesedí"
+    },
+    "bod6Nesedi": {
+     "action": "keep",
+     "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+     "when": "bod 6 nesedí"
+    },
+    "bod7Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, řešit jídlo",
+     "when": "bod 7 nesedí"
+    },
+    "bod8Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, řešit jídlo",
+     "when": "bod 8 nesedí"
+    },
+    "bod9Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště z exportu",
+     "when": "bod 9 nesedí"
+    },
+    "vseSedi": {
+     "action": "up",
+     "text": "zvýšit dávku ke snídani",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    }
+   },
+   "PR-KEEP-addon": {
+    "bod1Nesedi": {
+     "action": "swap",
+     "text": "vyměnit za jinou radu",
+     "when": "bod 1 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat radu, zkusit znovu",
+     "when": "bod 1 sedí"
+    }
+   },
+   "PR-KEEP-order": {
+    "bod1Nesedi": {
+     "action": "swap",
+     "text": "vyměnit za jinou radu",
+     "when": "bod 1 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat radu, zkusit znovu",
+     "when": "bod 1 sedí"
+    }
+   },
+   "PR-KEEP-walk": {
+    "bod1Nesedi": {
+     "action": "swap",
+     "text": "vyměnit za jinou radu",
+     "when": "bod 1 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat radu, zkusit znovu",
+     "when": "bod 1 sedí"
+    }
+   },
+   "PR-LUNCH": {
+    "bod10Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, posílit radu",
+     "when": "bod 10 nesedí"
+    },
+    "bod1Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit podání",
+     "when": "bod 1 nesedí"
+    },
+    "bod2Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit techniku a místo píchání",
+     "when": "bod 2 nesedí"
+    },
+    "bod3Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště",
+     "when": "bod 3 nesedí"
+    },
+    "bod4Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit dojídání",
+     "when": "bod 4 nesedí"
+    },
+    "bod5Nesedi": {
+     "action": "keep",
+     "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+     "when": "bod 5 nesedí"
+    },
+    "bod6Nesedi": {
+     "action": "keep",
+     "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+     "when": "bod 6 nesedí"
+    },
+    "bod7Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, řešit jídlo",
+     "when": "bod 7 nesedí"
+    },
+    "bod8Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, řešit jídlo",
+     "when": "bod 8 nesedí"
+    },
+    "bod9Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště z exportu",
+     "when": "bod 9 nesedí"
+    },
+    "vseSedi": {
+     "action": "up",
+     "text": "zvýšit dávku k obědu",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    }
+   },
+   "PR-POKYNY": {
+    "bod1Nesedi": {
+     "action": "edit",
+     "text": "upravit hodnoty pravidel a cíle",
+     "when": "bod 1 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat",
+     "when": "bod 1 sedí"
+    }
+   }
+  },
+  "vetve": {}
+ },
+ {
+  "kapitola": "reviewConfirm",
+  "krok": 3,
+  "navrhy": [
+   {
+    "cat": "davka",
+    "dose": "breakfast",
+    "fakta": [
+     {
+      "text": "včas 74 z 83 zápisů · 6× nižší dávka (6 j.) · 3× nevím"
+     },
+     null,
+     {
+      "text": "65 z 72 nad cílem · medián 12,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "1 zápis z nemoci – vyřazeno"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 6 různých jídel, dvě s nejvíc zápisy nad cílem („Ovesná kaše s mlékem a banánem“ 25×, „Müsli s mlékem a medem“ 9×) tvoří 52 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles pod 4 po snídani"
+     },
+     {
+      "against": false,
+      "text": "shoda u 12 z 12 snídaní s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": false,
+      "text": "nabídnuto 73×, přijato 40×, odmítnuto 15×"
+     }
+    ],
+    "id": "PR-BREAKFAST",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky ke snídani jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2,
+    "stavBodu": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "title": "Posoudit prandiální dávku ke snídani – hodnoty nad cílem",
+    "vetev": {
+     "action": "up",
+     "text": "zvýšit dávku ke snídani",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku ke snídani",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "65 z 72 snídaní za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 12,0 mmol/l). Rada k jídlu: nabídnuto 73×, přijato 40×, odmítnuto 15×. S přijatou radou byl medián vrcholu 12,0 mmol/l, bez ní 12,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "davka",
+    "dose": "lunch",
+    "fakta": [
+     {
+      "text": "včas 82 z 82 zápisů"
+     },
+     null,
+     {
+      "text": "54 z 79 nad cílem · medián 11,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "žádný zápis z nemoci"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 7 různých jídel, dvě s nejvíc zápisy nad cílem („Smažený řízek s bramborovou kaší“ 16×, „Svíčková na smetaně s knedlíkem“ 11×) tvoří 50 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles při obvyklé porci a dávce podle plánu; 2 poklesy po menší porci nebo s jinou dávkou (16. 10., 17. 10.) je varování"
+     },
+     {
+      "against": false,
+      "text": "shoda u 11 z 12 obědů s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": false,
+      "text": "nabídnuto 81×, přijato 31×, odmítnuto 12×"
+     }
+    ],
+    "id": "PR-LUNCH",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky k obědu jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2,
+    "stavBodu": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "title": "Posoudit prandiální dávku k obědu – hodnoty nad cílem",
+    "vetev": {
+     "action": "up",
+     "text": "zvýšit dávku k obědu",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku k obědu",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "54 z 79 obědů za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 11,0 mmol/l). Rada k jídlu: nabídnuto 81×, přijato 31×, odmítnuto 12×. S přijatou radou byl medián vrcholu 11,0 mmol/l, bez ní 11,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "davka",
+    "dose": "basal",
+    "fakta": [
+     {
+      "text": "potvrzeno 88 z 92 dnů plánu · 4× nižší dávka (16 j.)"
+     },
+     {
+      "text": "ráno po těch nocích 6,3, 6,3 mmol/l · ranní hodnoty před snídaní opsané za období: medián 7,0 mmol/l · nad 7,2: 1 z 83"
+     },
+     null
+    ],
+    "id": "PR-BAZAL",
+    "item": "D-BAZAL",
+    "kind": "dose",
+    "overeni": [
+     "Bazál je potvrzený ve stejnou hodinu",
+     "Večeře v těch nocích byly obvyklé, bez alkoholu a nočního jídla",
+     "Pohyb v těch dnech byl běžný, bez mimořádné zátěže"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2.5,
+    "stavBodu": [
+     true,
+     false,
+     true
+    ],
+    "title": "Posoudit bazální dávku – noční hodnoty pod cílem",
+    "vetev": {
+     "action": "keep",
+     "text": "ponechat, řešit večeře",
+     "when": "bod 2 nesedí"
+    },
+    "vetve": [
+     {
+      "action": "down",
+      "text": "snížit bazál",
+      "when": "body 1–3 sedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit čas podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit večeře",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště po dnech s běžným pohybem",
+      "when": "bod 3 nesedí"
+     }
+    ],
+    "why": "2 ze 14 nocí za posledních 14 dní kleslo pod 3,9 mmol/l (v noci na 25. 12. mezi 2:00 a 5:00 nejnižší 3,6 mmol/l · z exportu, zapsal i pacient · v noci na 1. 1. mezi 2:05 a 4:55 nejnižší 3,6 mmol/l · z exportu, zapsal i pacient). Sestra s pacientem uvedla jídlo pozdě večer a v noci, proto karta nemá přednost před ostatními."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 15: přijato 15 · staženo u 5 jídel"
+     }
+    ],
+    "id": "PR-KEEP-addon",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "addon",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 4,
+    "stavBodu": [
+     true
+    ],
+    "title": "Probrat radu „Doplněk k jídlu“",
+    "vetev": {
+     "action": "keep",
+     "text": "ponechat radu, zkusit znovu",
+     "when": "bod 1 sedí"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 15× z 15 nabídek (4× spolu s další radou). U 5 jídel ji aplikace stáhla po 3 pokusech, po kterých glukóza ani jednou nebyla v cíli: „Ovesná kaše s mlékem a banánem“, „Loupák s máslem“, „Müsli s mlékem a medem“, „Croissant s džemem“, „Cereálie s mlékem“; tam se už nenabízí. Jestli s radou bývalo níž, zatím nelze říct (málo zápisů v jedné ze skupin)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 135: přijato 54"
+     }
+    ],
+    "group": "keep",
+    "id": "PR-KEEP-walk",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "walk",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 5,
+    "stavBodu": [
+     null
+    ],
+    "title": "Zachovat radu „Procházka po jídle“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 54× ze 135 nabídek (3× spolu s další radou). S radou bývalo níž: medián vrcholu 12,0 vs. 14,0 mmol/l (n = 54 / 26)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 37: přijato 26"
+     }
+    ],
+    "group": "keep",
+    "id": "PR-KEEP-order",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "order",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 5,
+    "stavBodu": [
+     null
+    ],
+    "title": "Zachovat radu „Pořadí jídla“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 26× z 37 nabídek. S radou bývalo podobně (rozdíl pod 1,0 mmol/l): 11,0 vs. 11,0 mmol/l (n = 26 / 8)."
+   },
+   {
+    "cat": "pokyny",
+    "fakta": [
+     null
+    ],
+    "group": "keep",
+    "id": "PR-POKYNY",
+    "item": "R-POKYNY",
+    "kind": "instructions",
+    "overeni": [
+     "Hodnoty v pravidlech i cíle glukózy pacientovi dál odpovídají"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 6,
+    "stavBodu": [
+     null
+    ],
+    "title": "Bezpečnostní pravidla beze změny?",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "edit",
+      "text": "upravit hodnoty pravidel a cíle",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Pravidla jsou v plánu ze schváleného registru s výchozími hodnotami, bez výjimek."
+   },
+   {
+    "cat": "davka",
+    "dose": "dinner",
+    "fakta": [],
+    "id": "PR-DINNER",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "overeni": [],
+    "priority": 7,
+    "row": true,
+    "stavBodu": [],
+    "title": "Večeře – bez návrhu",
+    "vetev": null,
+    "vetve": [],
+    "why": "37 z 75 nad cílem · medián vrcholu 10,0 mmol/l · bez návrhu (práh 2/3 nad cílem)"
+   }
+  ],
+  "noveCile": {
+   "fastingHigh": 7.2,
+   "hba1cGoal": 53,
+   "high": 10,
+   "low": 3.9,
+   "tbrGoal": 4,
+   "tirGoal": 70
+  },
+  "noveDavky": {
+   "basal": {
+    "time": "21:00",
+    "units": 18
+   },
+   "breakfast": {
+    "units": 10
+   },
+   "dinner": {
+    "units": 8
+   },
+   "lunch": {
+    "units": 10
+   }
+  },
+  "planId": "P1",
+  "rozhodnuti": {
+   "PR-BAZAL": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-BREAKFAST": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "up",
+    "bulk": false,
+    "choice": "agree",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": 10,
+    "viaPlan": false
+   },
+   "PR-KEEP-addon": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-KEEP-order": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-KEEP-walk": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-LUNCH": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": null,
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-POKYNY": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   }
+  },
+  "scena": 24,
+  "souhrn": {
+   "advice": {
+    "accepted": {
+     "c": 95,
+     "inTarget": 12,
+     "med": 12,
+     "n": 95
+    },
+    "byLever": {
+     "addon": {
+      "accepted": 15,
+      "declined": 0,
+      "lower": "few",
+      "medAcc": 12,
+      "medDec": null,
+      "multi": 4,
+      "nAcc": 15,
+      "nDec": 0,
+      "offered": 15,
+      "reasons": {}
+     },
+     "order": {
+      "accepted": 26,
+      "declined": 9,
+      "lower": "same",
+      "medAcc": 11,
+      "medDec": 11,
+      "multi": 0,
+      "nAcc": 26,
+      "nDec": 8,
+      "offered": 37,
+      "reasons": {
+       "nowant": 6,
+       "time": 3
+      }
+     },
+     "walk": {
+      "accepted": 54,
+      "declined": 27,
+      "lower": "yes",
+      "medAcc": 12,
+      "medDec": 14,
+      "multi": 3,
+      "nAcc": 54,
+      "nDec": 26,
+      "offered": 135,
+      "reasons": {
+       "nowant": 9,
+       "time": 18
+      }
+     }
+    },
+    "declined": {
+     "c": 34,
+     "inTarget": 0,
+     "med": 13,
+     "n": 36
+    },
+    "noAnswer": {
+     "c": 5,
+     "inTarget": 0,
+     "med": 12,
+     "n": 5
+    },
+    "offered": 136,
+    "reasons": {
+     "nowant": 15,
+     "time": 21
+    },
+    "topReason": "time",
+    "works": "yes"
+   },
+   "asPct": 96,
+   "asPlan": 232,
+   "basalAs": 88,
+   "basalDays": 92,
+   "basalLower": 4,
+   "basalLowerUnits": "16",
+   "habitsDone": 4,
+   "hba1c": [
+    62,
+    55
+   ],
+   "hba1cInfo": {
+    "before": {
+     "date": "2026-09-23",
+     "src": "karta",
+     "v": 62
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-03",
+     "src": "sestra",
+     "v": 55
+    }
+   },
+   "ill": 1,
+   "illDays": 3,
+   "illLong": 0,
+   "incomplete": 2,
+   "meals": 241,
+   "none": 0,
+   "onTime": 232,
+   "other": 6,
+   "selfLower": {
+    "breakfast": 6
+   },
+   "selfLowerUnits": {
+    "breakfast": "6"
+   },
+   "sensor": {
+    "above": 30,
+    "availability": 91,
+    "below": 2,
+    "days": 14,
+    "interval": 5,
+    "period": "22. 12. 2026 – 4. 1. 2027",
+    "source": "import",
+    "tir": 68,
+    "veryLow": 0
+   },
+   "slotsAll": 276,
+   "smallerPlanned": 0,
+   "snacks": 15,
+   "tirState": "warn",
+   "unknown": 3,
+   "usual": 238,
+   "usualPct": 98,
+   "weight": {
+    "before": {
+     "date": "2026-09-23",
+     "kg": 92,
+     "src": "karta"
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-05",
+     "kg": 90,
+     "src": "sestra"
+    }
+   },
+   "withPeak": 239
+  },
+  "vetve": {}
+ },
+ {
+  "kapitola": "reviewHandover",
+  "krok": 4,
+  "navrhy": [
+   {
+    "cat": "davka",
+    "dose": "breakfast",
+    "fakta": [
+     {
+      "text": "včas 74 z 83 zápisů · 6× nižší dávka (6 j.) · 3× nevím"
+     },
+     null,
+     {
+      "text": "65 z 72 nad cílem · medián 12,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "1 zápis z nemoci – vyřazeno"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 6 různých jídel, dvě s nejvíc zápisy nad cílem („Ovesná kaše s mlékem a banánem“ 25×, „Müsli s mlékem a medem“ 9×) tvoří 52 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles pod 4 po snídani"
+     },
+     {
+      "against": false,
+      "text": "shoda u 12 z 12 snídaní s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": false,
+      "text": "nabídnuto 73×, přijato 40×, odmítnuto 15×"
+     }
+    ],
+    "id": "PR-BREAKFAST",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky ke snídani jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2,
+    "stavBodu": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "title": "Posoudit prandiální dávku ke snídani – hodnoty nad cílem",
+    "vetev": {
+     "action": "up",
+     "text": "zvýšit dávku ke snídani",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku ke snídani",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "65 z 72 snídaní za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 12,0 mmol/l). Rada k jídlu: nabídnuto 73×, přijato 40×, odmítnuto 15×. S přijatou radou byl medián vrcholu 12,0 mmol/l, bez ní 12,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "davka",
+    "dose": "lunch",
+    "fakta": [
+     {
+      "text": "včas 82 z 82 zápisů"
+     },
+     null,
+     {
+      "text": "54 z 79 nad cílem · medián 11,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "žádný zápis z nemoci"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 7 různých jídel, dvě s nejvíc zápisy nad cílem („Smažený řízek s bramborovou kaší“ 16×, „Svíčková na smetaně s knedlíkem“ 11×) tvoří 50 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles při obvyklé porci a dávce podle plánu; 2 poklesy po menší porci nebo s jinou dávkou (16. 10., 17. 10.) je varování"
+     },
+     {
+      "against": false,
+      "text": "shoda u 11 z 12 obědů s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": false,
+      "text": "nabídnuto 81×, přijato 31×, odmítnuto 12×"
+     }
+    ],
+    "id": "PR-LUNCH",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky k obědu jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2,
+    "stavBodu": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "title": "Posoudit prandiální dávku k obědu – hodnoty nad cílem",
+    "vetev": {
+     "action": "up",
+     "text": "zvýšit dávku k obědu",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku k obědu",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "54 z 79 obědů za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 11,0 mmol/l). Rada k jídlu: nabídnuto 81×, přijato 31×, odmítnuto 12×. S přijatou radou byl medián vrcholu 11,0 mmol/l, bez ní 11,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "davka",
+    "dose": "basal",
+    "fakta": [
+     {
+      "text": "potvrzeno 88 z 92 dnů plánu · 4× nižší dávka (16 j.)"
+     },
+     {
+      "text": "ráno po těch nocích 6,3, 6,3 mmol/l · ranní hodnoty před snídaní opsané za období: medián 7,0 mmol/l · nad 7,2: 1 z 83"
+     },
+     null
+    ],
+    "id": "PR-BAZAL",
+    "item": "D-BAZAL",
+    "kind": "dose",
+    "overeni": [
+     "Bazál je potvrzený ve stejnou hodinu",
+     "Večeře v těch nocích byly obvyklé, bez alkoholu a nočního jídla",
+     "Pohyb v těch dnech byl běžný, bez mimořádné zátěže"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2.5,
+    "stavBodu": [
+     true,
+     false,
+     true
+    ],
+    "title": "Posoudit bazální dávku – noční hodnoty pod cílem",
+    "vetev": {
+     "action": "keep",
+     "text": "ponechat, řešit večeře",
+     "when": "bod 2 nesedí"
+    },
+    "vetve": [
+     {
+      "action": "down",
+      "text": "snížit bazál",
+      "when": "body 1–3 sedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit čas podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit večeře",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště po dnech s běžným pohybem",
+      "when": "bod 3 nesedí"
+     }
+    ],
+    "why": "2 ze 14 nocí za posledních 14 dní kleslo pod 3,9 mmol/l (v noci na 25. 12. mezi 2:00 a 5:00 nejnižší 3,6 mmol/l · z exportu, zapsal i pacient · v noci na 1. 1. mezi 2:05 a 4:55 nejnižší 3,6 mmol/l · z exportu, zapsal i pacient). Sestra s pacientem uvedla jídlo pozdě večer a v noci, proto karta nemá přednost před ostatními."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 15: přijato 15 · staženo u 5 jídel"
+     }
+    ],
+    "id": "PR-KEEP-addon",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "addon",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 4,
+    "stavBodu": [
+     true
+    ],
+    "title": "Probrat radu „Doplněk k jídlu“",
+    "vetev": {
+     "action": "keep",
+     "text": "ponechat radu, zkusit znovu",
+     "when": "bod 1 sedí"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 15× z 15 nabídek (4× spolu s další radou). U 5 jídel ji aplikace stáhla po 3 pokusech, po kterých glukóza ani jednou nebyla v cíli: „Ovesná kaše s mlékem a banánem“, „Loupák s máslem“, „Müsli s mlékem a medem“, „Croissant s džemem“, „Cereálie s mlékem“; tam se už nenabízí. Jestli s radou bývalo níž, zatím nelze říct (málo zápisů v jedné ze skupin)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 135: přijato 54"
+     }
+    ],
+    "group": "keep",
+    "id": "PR-KEEP-walk",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "walk",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 5,
+    "stavBodu": [
+     null
+    ],
+    "title": "Zachovat radu „Procházka po jídle“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 54× ze 135 nabídek (3× spolu s další radou). S radou bývalo níž: medián vrcholu 12,0 vs. 14,0 mmol/l (n = 54 / 26)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 37: přijato 26"
+     }
+    ],
+    "group": "keep",
+    "id": "PR-KEEP-order",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "order",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 5,
+    "stavBodu": [
+     null
+    ],
+    "title": "Zachovat radu „Pořadí jídla“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 26× z 37 nabídek. S radou bývalo podobně (rozdíl pod 1,0 mmol/l): 11,0 vs. 11,0 mmol/l (n = 26 / 8)."
+   },
+   {
+    "cat": "pokyny",
+    "fakta": [
+     null
+    ],
+    "group": "keep",
+    "id": "PR-POKYNY",
+    "item": "R-POKYNY",
+    "kind": "instructions",
+    "overeni": [
+     "Hodnoty v pravidlech i cíle glukózy pacientovi dál odpovídají"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 6,
+    "stavBodu": [
+     null
+    ],
+    "title": "Bezpečnostní pravidla beze změny?",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "edit",
+      "text": "upravit hodnoty pravidel a cíle",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Pravidla jsou v plánu ze schváleného registru s výchozími hodnotami, bez výjimek."
+   },
+   {
+    "cat": "davka",
+    "dose": "dinner",
+    "fakta": [],
+    "id": "PR-DINNER",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "overeni": [],
+    "priority": 7,
+    "row": true,
+    "stavBodu": [],
+    "title": "Večeře – bez návrhu",
+    "vetev": null,
+    "vetve": [],
+    "why": "37 z 75 nad cílem · medián vrcholu 10,0 mmol/l · bez návrhu (práh 2/3 nad cílem)"
+   }
+  ],
+  "noveCile": {
+   "fastingHigh": 7.2,
+   "hba1cGoal": 53,
+   "high": 10,
+   "low": 3.9,
+   "tbrGoal": 4,
+   "tirGoal": 70
+  },
+  "noveDavky": {
+   "basal": {
+    "time": "21:00",
+    "units": 18
+   },
+   "breakfast": {
+    "units": 10
+   },
+   "dinner": {
+    "units": 8
+   },
+   "lunch": {
+    "units": 10
+   }
+  },
+  "planId": "P1",
+  "rozhodnuti": {
+   "PR-BAZAL": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-BREAKFAST": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "up",
+    "bulk": false,
+    "choice": "agree",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": 10,
+    "viaPlan": false
+   },
+   "PR-KEEP-addon": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-KEEP-order": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-KEEP-walk": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-LUNCH": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": null,
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-POKYNY": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   }
+  },
+  "scena": 25,
+  "souhrn": {
+   "advice": {
+    "accepted": {
+     "c": 95,
+     "inTarget": 12,
+     "med": 12,
+     "n": 95
+    },
+    "byLever": {
+     "addon": {
+      "accepted": 15,
+      "declined": 0,
+      "lower": "few",
+      "medAcc": 12,
+      "medDec": null,
+      "multi": 4,
+      "nAcc": 15,
+      "nDec": 0,
+      "offered": 15,
+      "reasons": {}
+     },
+     "order": {
+      "accepted": 26,
+      "declined": 9,
+      "lower": "same",
+      "medAcc": 11,
+      "medDec": 11,
+      "multi": 0,
+      "nAcc": 26,
+      "nDec": 8,
+      "offered": 37,
+      "reasons": {
+       "nowant": 6,
+       "time": 3
+      }
+     },
+     "walk": {
+      "accepted": 54,
+      "declined": 27,
+      "lower": "yes",
+      "medAcc": 12,
+      "medDec": 14,
+      "multi": 3,
+      "nAcc": 54,
+      "nDec": 26,
+      "offered": 135,
+      "reasons": {
+       "nowant": 9,
+       "time": 18
+      }
+     }
+    },
+    "declined": {
+     "c": 34,
+     "inTarget": 0,
+     "med": 13,
+     "n": 36
+    },
+    "noAnswer": {
+     "c": 5,
+     "inTarget": 0,
+     "med": 12,
+     "n": 5
+    },
+    "offered": 136,
+    "reasons": {
+     "nowant": 15,
+     "time": 21
+    },
+    "topReason": "time",
+    "works": "yes"
+   },
+   "asPct": 96,
+   "asPlan": 232,
+   "basalAs": 88,
+   "basalDays": 92,
+   "basalLower": 4,
+   "basalLowerUnits": "16",
+   "habitsDone": 4,
+   "hba1c": [
+    62,
+    55
+   ],
+   "hba1cInfo": {
+    "before": {
+     "date": "2026-09-23",
+     "src": "karta",
+     "v": 62
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-03",
+     "src": "sestra",
+     "v": 55
+    }
+   },
+   "ill": 1,
+   "illDays": 3,
+   "illLong": 0,
+   "incomplete": 2,
+   "meals": 241,
+   "none": 0,
+   "onTime": 232,
+   "other": 6,
+   "selfLower": {
+    "breakfast": 6
+   },
+   "selfLowerUnits": {
+    "breakfast": "6"
+   },
+   "sensor": {
+    "above": 30,
+    "availability": 91,
+    "below": 2,
+    "days": 14,
+    "interval": 5,
+    "period": "22. 12. 2026 – 4. 1. 2027",
+    "source": "import",
+    "tir": 68,
+    "veryLow": 0
+   },
+   "slotsAll": 276,
+   "smallerPlanned": 0,
+   "snacks": 15,
+   "tirState": "warn",
+   "unknown": 3,
+   "usual": 238,
+   "usualPct": 98,
+   "weight": {
+    "before": {
+     "date": "2026-09-23",
+     "kg": 92,
+     "src": "karta"
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-05",
+     "kg": 90,
+     "src": "sestra"
+    }
+   },
+   "withPeak": 239
+  },
+  "vetve": {}
+ },
+ {
+  "kapitola": "newplan",
+  "krok": 4,
+  "navrhy": [
+   {
+    "cat": "davka",
+    "dose": "breakfast",
+    "fakta": [
+     {
+      "text": "včas 74 z 83 zápisů · 6× nižší dávka (6 j.) · 3× nevím"
+     },
+     null,
+     {
+      "text": "65 z 72 nad cílem · medián 12,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "1 zápis z nemoci – vyřazeno"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 6 různých jídel, dvě s nejvíc zápisy nad cílem („Ovesná kaše s mlékem a banánem“ 25×, „Müsli s mlékem a medem“ 9×) tvoří 52 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles pod 4 po snídani"
+     },
+     {
+      "against": false,
+      "text": "shoda u 12 z 12 snídaní s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": false,
+      "text": "nabídnuto 73×, přijato 40×, odmítnuto 15×"
+     }
+    ],
+    "id": "PR-BREAKFAST",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky ke snídani jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2,
+    "stavBodu": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "title": "Posoudit prandiální dávku ke snídani – hodnoty nad cílem",
+    "vetev": {
+     "action": "up",
+     "text": "zvýšit dávku ke snídani",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku ke snídani",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "65 z 72 snídaní za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 12,0 mmol/l). Rada k jídlu: nabídnuto 73×, přijato 40×, odmítnuto 15×. S přijatou radou byl medián vrcholu 12,0 mmol/l, bez ní 12,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "davka",
+    "dose": "lunch",
+    "fakta": [
+     {
+      "text": "včas 82 z 82 zápisů"
+     },
+     null,
+     {
+      "text": "54 z 79 nad cílem · medián 11,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "žádný zápis z nemoci"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 7 různých jídel, dvě s nejvíc zápisy nad cílem („Smažený řízek s bramborovou kaší“ 16×, „Svíčková na smetaně s knedlíkem“ 11×) tvoří 50 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles při obvyklé porci a dávce podle plánu; 2 poklesy po menší porci nebo s jinou dávkou (16. 10., 17. 10.) je varování"
+     },
+     {
+      "against": false,
+      "text": "shoda u 11 z 12 obědů s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": false,
+      "text": "nabídnuto 81×, přijato 31×, odmítnuto 12×"
+     }
+    ],
+    "id": "PR-LUNCH",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky k obědu jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2,
+    "stavBodu": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "title": "Posoudit prandiální dávku k obědu – hodnoty nad cílem",
+    "vetev": {
+     "action": "up",
+     "text": "zvýšit dávku k obědu",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku k obědu",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "54 z 79 obědů za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 11,0 mmol/l). Rada k jídlu: nabídnuto 81×, přijato 31×, odmítnuto 12×. S přijatou radou byl medián vrcholu 11,0 mmol/l, bez ní 11,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "davka",
+    "dose": "basal",
+    "fakta": [
+     {
+      "text": "potvrzeno 88 z 92 dnů plánu · 4× nižší dávka (16 j.)"
+     },
+     {
+      "text": "ráno po těch nocích 6,3, 6,3 mmol/l · ranní hodnoty před snídaní opsané za období: medián 7,0 mmol/l · nad 7,2: 1 z 83"
+     },
+     null
+    ],
+    "id": "PR-BAZAL",
+    "item": "D-BAZAL",
+    "kind": "dose",
+    "overeni": [
+     "Bazál je potvrzený ve stejnou hodinu",
+     "Večeře v těch nocích byly obvyklé, bez alkoholu a nočního jídla",
+     "Pohyb v těch dnech byl běžný, bez mimořádné zátěže"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2.5,
+    "stavBodu": [
+     true,
+     false,
+     true
+    ],
+    "title": "Posoudit bazální dávku – noční hodnoty pod cílem",
+    "vetev": {
+     "action": "keep",
+     "text": "ponechat, řešit večeře",
+     "when": "bod 2 nesedí"
+    },
+    "vetve": [
+     {
+      "action": "down",
+      "text": "snížit bazál",
+      "when": "body 1–3 sedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit čas podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit večeře",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště po dnech s běžným pohybem",
+      "when": "bod 3 nesedí"
+     }
+    ],
+    "why": "2 ze 14 nocí za posledních 14 dní kleslo pod 3,9 mmol/l (v noci na 25. 12. mezi 2:00 a 5:00 nejnižší 3,6 mmol/l · z exportu, zapsal i pacient · v noci na 1. 1. mezi 2:05 a 4:55 nejnižší 3,6 mmol/l · z exportu, zapsal i pacient). Sestra s pacientem uvedla jídlo pozdě večer a v noci, proto karta nemá přednost před ostatními."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 15: přijato 15 · staženo u 5 jídel"
+     }
+    ],
+    "id": "PR-KEEP-addon",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "addon",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 4,
+    "stavBodu": [
+     true
+    ],
+    "title": "Probrat radu „Doplněk k jídlu“",
+    "vetev": {
+     "action": "keep",
+     "text": "ponechat radu, zkusit znovu",
+     "when": "bod 1 sedí"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 15× z 15 nabídek (4× spolu s další radou). U 5 jídel ji aplikace stáhla po 3 pokusech, po kterých glukóza ani jednou nebyla v cíli: „Ovesná kaše s mlékem a banánem“, „Loupák s máslem“, „Müsli s mlékem a medem“, „Croissant s džemem“, „Cereálie s mlékem“; tam se už nenabízí. Jestli s radou bývalo níž, zatím nelze říct (málo zápisů v jedné ze skupin)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 135: přijato 54"
+     }
+    ],
+    "group": "keep",
+    "id": "PR-KEEP-walk",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "walk",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 5,
+    "stavBodu": [
+     null
+    ],
+    "title": "Zachovat radu „Procházka po jídle“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 54× ze 135 nabídek (3× spolu s další radou). S radou bývalo níž: medián vrcholu 12,0 vs. 14,0 mmol/l (n = 54 / 26)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 37: přijato 26"
+     }
+    ],
+    "group": "keep",
+    "id": "PR-KEEP-order",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "order",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 5,
+    "stavBodu": [
+     null
+    ],
+    "title": "Zachovat radu „Pořadí jídla“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 26× z 37 nabídek. S radou bývalo podobně (rozdíl pod 1,0 mmol/l): 11,0 vs. 11,0 mmol/l (n = 26 / 8)."
+   },
+   {
+    "cat": "pokyny",
+    "fakta": [
+     null
+    ],
+    "group": "keep",
+    "id": "PR-POKYNY",
+    "item": "R-POKYNY",
+    "kind": "instructions",
+    "overeni": [
+     "Hodnoty v pravidlech i cíle glukózy pacientovi dál odpovídají"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 6,
+    "stavBodu": [
+     null
+    ],
+    "title": "Bezpečnostní pravidla beze změny?",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "edit",
+      "text": "upravit hodnoty pravidel a cíle",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Pravidla jsou v plánu ze schváleného registru s výchozími hodnotami, bez výjimek."
+   },
+   {
+    "cat": "davka",
+    "dose": "dinner",
+    "fakta": [],
+    "id": "PR-DINNER",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "overeni": [],
+    "priority": 7,
+    "row": true,
+    "stavBodu": [],
+    "title": "Večeře – bez návrhu",
+    "vetev": null,
+    "vetve": [],
+    "why": "37 z 75 nad cílem · medián vrcholu 10,0 mmol/l · bez návrhu (práh 2/3 nad cílem)"
+   }
+  ],
+  "noveCile": {
+   "fastingHigh": 7.2,
+   "hba1cGoal": 53,
+   "high": 10,
+   "low": 3.9,
+   "tbrGoal": 4,
+   "tirGoal": 70
+  },
+  "noveDavky": {
+   "basal": {
+    "time": "21:00",
+    "units": 18
+   },
+   "breakfast": {
+    "units": 10
+   },
+   "dinner": {
+    "units": 8
+   },
+   "lunch": {
+    "units": 10
+   }
+  },
+  "planId": "P1",
+  "rozhodnuti": {
+   "PR-BAZAL": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-BREAKFAST": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "up",
+    "bulk": false,
+    "choice": "agree",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": 10,
+    "viaPlan": false
+   },
+   "PR-KEEP-addon": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-KEEP-order": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-KEEP-walk": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-LUNCH": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": null,
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-POKYNY": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   }
+  },
+  "scena": 26,
+  "souhrn": {
+   "advice": {
+    "accepted": {
+     "c": 95,
+     "inTarget": 12,
+     "med": 12,
+     "n": 95
+    },
+    "byLever": {
+     "addon": {
+      "accepted": 15,
+      "declined": 0,
+      "lower": "few",
+      "medAcc": 12,
+      "medDec": null,
+      "multi": 4,
+      "nAcc": 15,
+      "nDec": 0,
+      "offered": 15,
+      "reasons": {}
+     },
+     "order": {
+      "accepted": 26,
+      "declined": 9,
+      "lower": "same",
+      "medAcc": 11,
+      "medDec": 11,
+      "multi": 0,
+      "nAcc": 26,
+      "nDec": 8,
+      "offered": 37,
+      "reasons": {
+       "nowant": 6,
+       "time": 3
+      }
+     },
+     "walk": {
+      "accepted": 54,
+      "declined": 27,
+      "lower": "yes",
+      "medAcc": 12,
+      "medDec": 14,
+      "multi": 3,
+      "nAcc": 54,
+      "nDec": 26,
+      "offered": 135,
+      "reasons": {
+       "nowant": 9,
+       "time": 18
+      }
+     }
+    },
+    "declined": {
+     "c": 34,
+     "inTarget": 0,
+     "med": 13,
+     "n": 36
+    },
+    "noAnswer": {
+     "c": 5,
+     "inTarget": 0,
+     "med": 12,
+     "n": 5
+    },
+    "offered": 136,
+    "reasons": {
+     "nowant": 15,
+     "time": 21
+    },
+    "topReason": "time",
+    "works": "yes"
+   },
+   "asPct": 96,
+   "asPlan": 232,
+   "basalAs": 88,
+   "basalDays": 92,
+   "basalLower": 4,
+   "basalLowerUnits": "16",
+   "habitsDone": 4,
+   "hba1c": [
+    62,
+    55
+   ],
+   "hba1cInfo": {
+    "before": {
+     "date": "2026-09-23",
+     "src": "karta",
+     "v": 62
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-03",
+     "src": "sestra",
+     "v": 55
+    }
+   },
+   "ill": 1,
+   "illDays": 3,
+   "illLong": 0,
+   "incomplete": 2,
+   "meals": 241,
+   "none": 0,
+   "onTime": 232,
+   "other": 6,
+   "selfLower": {
+    "breakfast": 6
+   },
+   "selfLowerUnits": {
+    "breakfast": "6"
+   },
+   "sensor": {
+    "above": 30,
+    "availability": 91,
+    "below": 2,
+    "days": 14,
+    "interval": 5,
+    "period": "22. 12. 2026 – 4. 1. 2027",
+    "source": "import",
+    "tir": 68,
+    "veryLow": 0
+   },
+   "slotsAll": 276,
+   "smallerPlanned": 0,
+   "snacks": 15,
+   "tirState": "warn",
+   "unknown": 3,
+   "usual": 238,
+   "usualPct": 98,
+   "weight": {
+    "before": {
+     "date": "2026-09-23",
+     "kg": 92,
+     "src": "karta"
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-05",
+     "kg": 90,
+     "src": "sestra"
+    }
+   },
+   "withPeak": 239
+  },
+  "vetve": {}
+ },
+ {
+  "kapitola": "trace",
+  "krok": 4,
+  "navrhy": [
+   {
+    "cat": "davka",
+    "dose": "breakfast",
+    "fakta": [
+     {
+      "text": "včas 74 z 83 zápisů · 6× nižší dávka (6 j.) · 3× nevím"
+     },
+     null,
+     {
+      "text": "65 z 72 nad cílem · medián 12,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "1 zápis z nemoci – vyřazeno"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 6 různých jídel, dvě s nejvíc zápisy nad cílem („Ovesná kaše s mlékem a banánem“ 25×, „Müsli s mlékem a medem“ 9×) tvoří 52 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles pod 4 po snídani"
+     },
+     {
+      "against": false,
+      "text": "shoda u 12 z 12 snídaní s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": false,
+      "text": "nabídnuto 73×, přijato 40×, odmítnuto 15×"
+     }
+    ],
+    "id": "PR-BREAKFAST",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky ke snídani jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2,
+    "stavBodu": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "title": "Posoudit prandiální dávku ke snídani – hodnoty nad cílem",
+    "vetev": {
+     "action": "up",
+     "text": "zvýšit dávku ke snídani",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku ke snídani",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "65 z 72 snídaní za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 12,0 mmol/l). Rada k jídlu: nabídnuto 73×, přijato 40×, odmítnuto 15×. S přijatou radou byl medián vrcholu 12,0 mmol/l, bez ní 12,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "davka",
+    "dose": "lunch",
+    "fakta": [
+     {
+      "text": "včas 82 z 82 zápisů"
+     },
+     null,
+     {
+      "text": "54 z 79 nad cílem · medián 11,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "žádný zápis z nemoci"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 7 různých jídel, dvě s nejvíc zápisy nad cílem („Smažený řízek s bramborovou kaší“ 16×, „Svíčková na smetaně s knedlíkem“ 11×) tvoří 50 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles při obvyklé porci a dávce podle plánu; 2 poklesy po menší porci nebo s jinou dávkou (16. 10., 17. 10.) je varování"
+     },
+     {
+      "against": false,
+      "text": "shoda u 11 z 12 obědů s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": false,
+      "text": "nabídnuto 81×, přijato 31×, odmítnuto 12×"
+     }
+    ],
+    "id": "PR-LUNCH",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky k obědu jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2,
+    "stavBodu": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "title": "Posoudit prandiální dávku k obědu – hodnoty nad cílem",
+    "vetev": {
+     "action": "up",
+     "text": "zvýšit dávku k obědu",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku k obědu",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "54 z 79 obědů za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 11,0 mmol/l). Rada k jídlu: nabídnuto 81×, přijato 31×, odmítnuto 12×. S přijatou radou byl medián vrcholu 11,0 mmol/l, bez ní 11,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "davka",
+    "dose": "basal",
+    "fakta": [
+     {
+      "text": "potvrzeno 88 z 92 dnů plánu · 4× nižší dávka (16 j.)"
+     },
+     {
+      "text": "ráno po těch nocích 6,3, 6,3 mmol/l · ranní hodnoty před snídaní opsané za období: medián 7,0 mmol/l · nad 7,2: 1 z 83"
+     },
+     null
+    ],
+    "id": "PR-BAZAL",
+    "item": "D-BAZAL",
+    "kind": "dose",
+    "overeni": [
+     "Bazál je potvrzený ve stejnou hodinu",
+     "Večeře v těch nocích byly obvyklé, bez alkoholu a nočního jídla",
+     "Pohyb v těch dnech byl běžný, bez mimořádné zátěže"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2.5,
+    "stavBodu": [
+     true,
+     false,
+     true
+    ],
+    "title": "Posoudit bazální dávku – noční hodnoty pod cílem",
+    "vetev": {
+     "action": "keep",
+     "text": "ponechat, řešit večeře",
+     "when": "bod 2 nesedí"
+    },
+    "vetve": [
+     {
+      "action": "down",
+      "text": "snížit bazál",
+      "when": "body 1–3 sedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit čas podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit večeře",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště po dnech s běžným pohybem",
+      "when": "bod 3 nesedí"
+     }
+    ],
+    "why": "2 ze 14 nocí za posledních 14 dní kleslo pod 3,9 mmol/l (v noci na 25. 12. mezi 2:00 a 5:00 nejnižší 3,6 mmol/l · z exportu, zapsal i pacient · v noci na 1. 1. mezi 2:05 a 4:55 nejnižší 3,6 mmol/l · z exportu, zapsal i pacient). Sestra s pacientem uvedla jídlo pozdě večer a v noci, proto karta nemá přednost před ostatními."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 15: přijato 15 · staženo u 5 jídel"
+     }
+    ],
+    "id": "PR-KEEP-addon",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "addon",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 4,
+    "stavBodu": [
+     true
+    ],
+    "title": "Probrat radu „Doplněk k jídlu“",
+    "vetev": {
+     "action": "keep",
+     "text": "ponechat radu, zkusit znovu",
+     "when": "bod 1 sedí"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 15× z 15 nabídek (4× spolu s další radou). U 5 jídel ji aplikace stáhla po 3 pokusech, po kterých glukóza ani jednou nebyla v cíli: „Ovesná kaše s mlékem a banánem“, „Loupák s máslem“, „Müsli s mlékem a medem“, „Croissant s džemem“, „Cereálie s mlékem“; tam se už nenabízí. Jestli s radou bývalo níž, zatím nelze říct (málo zápisů v jedné ze skupin)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 135: přijato 54"
+     }
+    ],
+    "group": "keep",
+    "id": "PR-KEEP-walk",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "walk",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 5,
+    "stavBodu": [
+     null
+    ],
+    "title": "Zachovat radu „Procházka po jídle“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 54× ze 135 nabídek (3× spolu s další radou). S radou bývalo níž: medián vrcholu 12,0 vs. 14,0 mmol/l (n = 54 / 26)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 37: přijato 26"
+     }
+    ],
+    "group": "keep",
+    "id": "PR-KEEP-order",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "order",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 5,
+    "stavBodu": [
+     null
+    ],
+    "title": "Zachovat radu „Pořadí jídla“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 26× z 37 nabídek. S radou bývalo podobně (rozdíl pod 1,0 mmol/l): 11,0 vs. 11,0 mmol/l (n = 26 / 8)."
+   },
+   {
+    "cat": "pokyny",
+    "fakta": [
+     null
+    ],
+    "group": "keep",
+    "id": "PR-POKYNY",
+    "item": "R-POKYNY",
+    "kind": "instructions",
+    "overeni": [
+     "Hodnoty v pravidlech i cíle glukózy pacientovi dál odpovídají"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 6,
+    "stavBodu": [
+     null
+    ],
+    "title": "Bezpečnostní pravidla beze změny?",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "edit",
+      "text": "upravit hodnoty pravidel a cíle",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Pravidla jsou v plánu ze schváleného registru s výchozími hodnotami, bez výjimek."
+   },
+   {
+    "cat": "davka",
+    "dose": "dinner",
+    "fakta": [],
+    "id": "PR-DINNER",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "overeni": [],
+    "priority": 7,
+    "row": true,
+    "stavBodu": [],
+    "title": "Večeře – bez návrhu",
+    "vetev": null,
+    "vetve": [],
+    "why": "37 z 75 nad cílem · medián vrcholu 10,0 mmol/l · bez návrhu (práh 2/3 nad cílem)"
+   }
+  ],
+  "noveCile": {
+   "fastingHigh": 7.2,
+   "hba1cGoal": 53,
+   "high": 10,
+   "low": 3.9,
+   "tbrGoal": 4,
+   "tirGoal": 70
+  },
+  "noveDavky": {
+   "basal": {
+    "time": "21:00",
+    "units": 18
+   },
+   "breakfast": {
+    "units": 10
+   },
+   "dinner": {
+    "units": 8
+   },
+   "lunch": {
+    "units": 10
+   }
+  },
+  "planId": "P1",
+  "rozhodnuti": {
+   "PR-BAZAL": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-BREAKFAST": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "up",
+    "bulk": false,
+    "choice": "agree",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": 10,
+    "viaPlan": false
+   },
+   "PR-KEEP-addon": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-KEEP-order": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-KEEP-walk": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-LUNCH": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": null,
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-POKYNY": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   }
+  },
+  "scena": 27,
+  "souhrn": {
+   "advice": {
+    "accepted": {
+     "c": 95,
+     "inTarget": 12,
+     "med": 12,
+     "n": 95
+    },
+    "byLever": {
+     "addon": {
+      "accepted": 15,
+      "declined": 0,
+      "lower": "few",
+      "medAcc": 12,
+      "medDec": null,
+      "multi": 4,
+      "nAcc": 15,
+      "nDec": 0,
+      "offered": 15,
+      "reasons": {}
+     },
+     "order": {
+      "accepted": 26,
+      "declined": 9,
+      "lower": "same",
+      "medAcc": 11,
+      "medDec": 11,
+      "multi": 0,
+      "nAcc": 26,
+      "nDec": 8,
+      "offered": 37,
+      "reasons": {
+       "nowant": 6,
+       "time": 3
+      }
+     },
+     "walk": {
+      "accepted": 54,
+      "declined": 27,
+      "lower": "yes",
+      "medAcc": 12,
+      "medDec": 14,
+      "multi": 3,
+      "nAcc": 54,
+      "nDec": 26,
+      "offered": 135,
+      "reasons": {
+       "nowant": 9,
+       "time": 18
+      }
+     }
+    },
+    "declined": {
+     "c": 34,
+     "inTarget": 0,
+     "med": 13,
+     "n": 36
+    },
+    "noAnswer": {
+     "c": 5,
+     "inTarget": 0,
+     "med": 12,
+     "n": 5
+    },
+    "offered": 136,
+    "reasons": {
+     "nowant": 15,
+     "time": 21
+    },
+    "topReason": "time",
+    "works": "yes"
+   },
+   "asPct": 96,
+   "asPlan": 232,
+   "basalAs": 88,
+   "basalDays": 92,
+   "basalLower": 4,
+   "basalLowerUnits": "16",
+   "habitsDone": 4,
+   "hba1c": [
+    62,
+    55
+   ],
+   "hba1cInfo": {
+    "before": {
+     "date": "2026-09-23",
+     "src": "karta",
+     "v": 62
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-03",
+     "src": "sestra",
+     "v": 55
+    }
+   },
+   "ill": 1,
+   "illDays": 3,
+   "illLong": 0,
+   "incomplete": 2,
+   "meals": 241,
+   "none": 0,
+   "onTime": 232,
+   "other": 6,
+   "selfLower": {
+    "breakfast": 6
+   },
+   "selfLowerUnits": {
+    "breakfast": "6"
+   },
+   "sensor": {
+    "above": 30,
+    "availability": 91,
+    "below": 2,
+    "days": 14,
+    "interval": 5,
+    "period": "22. 12. 2026 – 4. 1. 2027",
+    "source": "import",
+    "tir": 68,
+    "veryLow": 0
+   },
+   "slotsAll": 276,
+   "smallerPlanned": 0,
+   "snacks": 15,
+   "tirState": "warn",
+   "unknown": 3,
+   "usual": 238,
+   "usualPct": 98,
+   "weight": {
+    "before": {
+     "date": "2026-09-23",
+     "kg": 92,
+     "src": "karta"
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-05",
+     "kg": 90,
+     "src": "sestra"
+    }
+   },
+   "withPeak": 239
+  },
+  "vetve": {}
+ },
+ {
+  "kapitola": "reviewProposals",
+  "krok": 2,
+  "navrhy": [
+   {
+    "cat": "plan",
+    "fakta": [
+     null,
+     {
+      "text": "nabídek rad 96: přijato 13, odmítnuto 69"
+     }
+    ],
+    "id": "PR-BREAKFAST-RADY",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "walk",
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)",
+     "Pacient je ochotný ji zkoušet"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 3,
+    "stavBodu": [
+     null,
+     null
+    ],
+    "title": "Nejdřív rady ke snídani – dávka až po radách",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "oba body sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit radu „Procházka po jídle“ za jinou",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, probrat důvody",
+      "when": "bod 2 nesedí"
+     }
+    ],
+    "why": "65 z 72 snídaní skončilo nad cílem; rada k jídlu: nabídnuto 96×, přijato 13×, odmítnuto 69× (nejčastěji odmítnutá rada „Procházka po jídle“). Podle schváleného postupu jde jídlo před dávkou; návrh k dávce je další karta a lékař o ní rozhodne."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     null,
+     {
+      "text": "nabídek rad 82: přijato 11, odmítnuto 58"
+     }
+    ],
+    "id": "PR-LUNCH-RADY",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "walk",
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)",
+     "Pacient je ochotný ji zkoušet"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 3,
+    "stavBodu": [
+     null,
+     null
+    ],
+    "title": "Nejdřív rady k obědu – dávka až po radách",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "oba body sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit radu „Procházka po jídle“ za jinou",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, probrat důvody",
+      "when": "bod 2 nesedí"
+     }
+    ],
+    "why": "59 z 79 obědů skončilo nad cílem; rada k jídlu: nabídnuto 82×, přijato 11×, odmítnuto 58× (nejčastěji odmítnutá rada „Procházka po jídle“). Podle schváleného postupu jde jídlo před dávkou; návrh k dávce je další karta a lékař o ní rozhodne."
+   },
+   {
+    "cat": "davka",
+    "dose": "breakfast",
+    "fakta": [
+     {
+      "text": "včas 74 z 83 zápisů · 6× nižší dávka (6 j.) · 3× nevím"
+     },
+     null,
+     {
+      "text": "65 z 72 nad cílem · medián 13,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "1 zápis z nemoci – vyřazeno"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 63 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 6 různých jídel, dvě s nejvíc zápisy nad cílem („Ovesná kaše s mlékem a banánem“ 25×, „Müsli s mlékem a medem“ 9×) tvoří 52 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles pod 4 po snídani"
+     },
+     {
+      "against": false,
+      "text": "shoda u 12 z 12 snídaní s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": true,
+      "text": "nabídnuto 96×, přijato 13×, odmítnuto 69×"
+     }
+    ],
+    "id": "PR-BREAKFAST",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky ke snídani jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 3.5,
+    "stavBodu": [
+     null,
+     true,
+     null,
+     true,
+     true,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "title": "Posoudit prandiální dávku ke snídani – hodnoty nad cílem",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku ke snídani",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "65 z 72 snídaní za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 13,0 mmol/l). Rada k jídlu: nabídnuto 96×, přijato 13×, odmítnuto 69×. S přijatou radou byl medián vrcholu 12,0 mmol/l, bez ní 13,8 mmol/l."
+   },
+   {
+    "cat": "davka",
+    "dose": "lunch",
+    "fakta": [
+     {
+      "text": "včas 82 z 82 zápisů"
+     },
+     null,
+     {
+      "text": "59 z 79 nad cílem · medián 11,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "žádný zápis z nemoci"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 63 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 7 různých jídel, dvě s nejvíc zápisy nad cílem („Smažený řízek s bramborovou kaší“ 16×, „Svíčková na smetaně s knedlíkem“ 11×) tvoří 46 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles při obvyklé porci a dávce podle plánu; 2 poklesy po menší porci nebo s jinou dávkou (16. 10., 17. 10.) je varování"
+     },
+     {
+      "against": false,
+      "text": "shoda u 12 z 12 obědů s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": true,
+      "text": "nabídnuto 82×, přijato 11×, odmítnuto 58×"
+     }
+    ],
+    "id": "PR-LUNCH",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky k obědu jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 3.5,
+    "stavBodu": [
+     null,
+     true,
+     null,
+     true,
+     true,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "title": "Posoudit prandiální dávku k obědu – hodnoty nad cílem",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku k obědu",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "59 z 79 obědů za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 11,0 mmol/l). Rada k jídlu: nabídnuto 82×, přijato 11×, odmítnuto 58×. S přijatou radou byl medián vrcholu 11,0 mmol/l, bez ní 11,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "against": false,
+      "text": "nabídek 37: odmítnuto 26, nejčastěji „Bez udání důvodu“"
+     }
+    ],
+    "id": "PR-SWAP-order",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "order",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 4,
+    "stavBodu": [
+     null
+    ],
+    "title": "Probrat radu „Pořadí jídla“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Odmítnuta 26× z 37 nabídek, nejčastěji „Bez udání důvodu“. Stojí za to zjistit proč."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "against": false,
+      "text": "nabídek 38: odmítnuto 27, nejčastěji „Bez udání důvodu“"
+     }
+    ],
+    "id": "PR-SWAP-addon",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "addon",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 4,
+    "stavBodu": [
+     null
+    ],
+    "title": "Probrat radu „Doplněk k jídlu“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Odmítnuta 27× z 38 nabídek, nejčastěji „Bez udání důvodu“. Stojí za to zjistit proč."
+   },
+   {
+    "cat": "pokyny",
+    "fakta": [
+     null
+    ],
+    "group": "keep",
+    "id": "PR-POKYNY",
+    "item": "R-POKYNY",
+    "kind": "instructions",
+    "overeni": [
+     "Hodnoty v pravidlech i cíle glukózy pacientovi dál odpovídají"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 6,
+    "stavBodu": [
+     null
+    ],
+    "title": "Bezpečnostní pravidla beze změny?",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "edit",
+      "text": "upravit hodnoty pravidel a cíle",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Pravidla jsou v plánu ze schváleného registru s výchozími hodnotami, bez výjimek."
+   },
+   {
+    "cat": "davka",
+    "dose": "dinner",
+    "fakta": [],
+    "id": "PR-DINNER",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "overeni": [],
+    "priority": 7,
+    "row": true,
+    "stavBodu": [],
+    "title": "Večeře – bez návrhu",
+    "vetev": null,
+    "vetve": [],
+    "why": "43 z 75 nad cílem · medián vrcholu 11,0 mmol/l · bez návrhu (práh 2/3 nad cílem)"
+   },
+   {
+    "cat": "davka",
+    "dose": "basal",
+    "fakta": [],
+    "id": "PR-BAZAL",
+    "item": "D-BAZAL",
+    "kind": "dose",
+    "overeni": [],
+    "priority": 7,
+    "row": true,
+    "stavBodu": [],
+    "title": "Bazál – bez návrhu",
+    "vetev": null,
+    "vetve": [],
+    "why": "ranní hodnoty před snídaní opsané za období: medián 7,0 mmol/l · nad 7,2: 1 z 83 · bez návrhu (noci bez poklesu, ranní hodnoty v cíli nebo málo nocí z exportu)"
+   }
+  ],
+  "noveCile": {
+   "fastingHigh": 7.2,
+   "hba1cGoal": 53,
+   "high": 10,
+   "low": 3.9,
+   "tbrGoal": 4,
+   "tirGoal": 70
+  },
+  "noveDavky": {
+   "basal": {
+    "time": "21:00",
+    "units": 18
+   },
+   "breakfast": {
+    "units": 8
+   },
+   "dinner": {
+    "units": 8
+   },
+   "lunch": {
+    "units": 10
+   }
+  },
+  "planId": "P1",
+  "rozhodnuti": {},
+  "scena": 30,
+  "souhrn": {
+   "advice": {
+    "accepted": {
+     "c": 30,
+     "inTarget": 3,
+     "med": 12,
+     "n": 30
+    },
+    "byLever": {
+     "addon": {
+      "accepted": 11,
+      "declined": 27,
+      "lower": "yes",
+      "medAcc": 12,
+      "medDec": 14,
+      "multi": 3,
+      "nAcc": 11,
+      "nDec": 27,
+      "offered": 38,
+      "reasons": {
+       "nowant": 18,
+       "time": 9
+      }
+     },
+     "order": {
+      "accepted": 9,
+      "declined": 26,
+      "lower": "yes",
+      "medAcc": 11,
+      "medDec": 12,
+      "multi": 0,
+      "nAcc": 9,
+      "nDec": 25,
+      "offered": 37,
+      "reasons": {
+       "nowant": 16,
+       "time": 10
+      }
+     },
+     "walk": {
+      "accepted": 10,
+      "declined": 101,
+      "lower": "yes",
+      "medAcc": 11,
+      "medDec": 13,
+      "multi": 0,
+      "nAcc": 10,
+      "nDec": 99,
+      "offered": 136,
+      "reasons": {
+       "nowant": 36,
+       "time": 65
+      }
+     }
+    },
+    "declined": {
+     "c": 99,
+     "inTarget": 0,
+     "med": 13,
+     "n": 101
+    },
+    "noAnswer": {
+     "c": 5,
+     "inTarget": 0,
+     "med": 12,
+     "n": 5
+    },
+    "offered": 136,
+    "reasons": {
+     "nowant": 70,
+     "time": 84
+    },
+    "topReason": "time",
+    "works": "yes"
+   },
+   "asPct": 96,
+   "asPlan": 232,
+   "basalAs": 88,
+   "basalDays": 92,
+   "basalLower": 4,
+   "basalLowerUnits": "16",
+   "habitsDone": 4,
+   "hba1c": [
+    62,
+    55
+   ],
+   "hba1cInfo": {
+    "before": {
+     "date": "2026-09-23",
+     "src": "karta",
+     "v": 62
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-03",
+     "src": "sestra",
+     "v": 55
+    }
+   },
+   "ill": 1,
+   "illDays": 3,
+   "illLong": 0,
+   "incomplete": 2,
+   "meals": 241,
+   "none": 0,
+   "onTime": 232,
+   "other": 6,
+   "selfLower": {
+    "breakfast": 6
+   },
+   "selfLowerUnits": {
+    "breakfast": "6"
+   },
+   "sensor": {
+    "above": 37,
+    "availability": 91,
+    "below": 0,
+    "days": 14,
+    "interval": 5,
+    "period": "22. 12. 2026 – 4. 1. 2027",
+    "source": "import",
+    "tir": 63,
+    "veryLow": 0
+   },
+   "slotsAll": 276,
+   "smallerPlanned": 0,
+   "snacks": 15,
+   "tirState": "warn",
+   "unknown": 3,
+   "usual": 238,
+   "usualPct": 98,
+   "weight": {
+    "before": {
+     "date": "2026-09-23",
+     "kg": 92,
+     "src": "karta"
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-05",
+     "kg": 90,
+     "src": "sestra"
+    }
+   },
+   "withPeak": 239
+  },
+  "tabulkaVetvi": {
+   "PR-BREAKFAST": {
+    "bod10Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, posílit radu",
+     "when": "bod 10 nesedí"
+    },
+    "bod1Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit podání",
+     "when": "bod 1 nesedí"
+    },
+    "bod2Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit techniku a místo píchání",
+     "when": "bod 2 nesedí"
+    },
+    "bod3Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště",
+     "when": "bod 3 nesedí"
+    },
+    "bod4Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit dojídání",
+     "when": "bod 4 nesedí"
+    },
+    "bod5Nesedi": {
+     "action": "keep",
+     "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+     "when": "bod 5 nesedí"
+    },
+    "bod6Nesedi": {
+     "action": "keep",
+     "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+     "when": "bod 6 nesedí"
+    },
+    "bod7Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, řešit jídlo",
+     "when": "bod 7 nesedí"
+    },
+    "bod8Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, řešit jídlo",
+     "when": "bod 8 nesedí"
+    },
+    "bod9Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště z exportu",
+     "when": "bod 9 nesedí"
+    },
+    "vseSedi": {
+     "action": "up",
+     "text": "zvýšit dávku ke snídani",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    }
+   },
+   "PR-BREAKFAST-RADY": {
+    "bod1Nesedi": {
+     "action": "swap",
+     "text": "vyměnit radu „Procházka po jídle“ za jinou",
+     "when": "bod 1 nesedí"
+    },
+    "bod2Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, probrat důvody",
+     "when": "bod 2 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat dávku, posílit radu",
+     "when": "oba body sedí"
+    }
+   },
+   "PR-LUNCH": {
+    "bod10Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, posílit radu",
+     "when": "bod 10 nesedí"
+    },
+    "bod1Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit podání",
+     "when": "bod 1 nesedí"
+    },
+    "bod2Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit techniku a místo píchání",
+     "when": "bod 2 nesedí"
+    },
+    "bod3Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště",
+     "when": "bod 3 nesedí"
+    },
+    "bod4Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit dojídání",
+     "when": "bod 4 nesedí"
+    },
+    "bod5Nesedi": {
+     "action": "keep",
+     "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+     "when": "bod 5 nesedí"
+    },
+    "bod6Nesedi": {
+     "action": "keep",
+     "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+     "when": "bod 6 nesedí"
+    },
+    "bod7Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, řešit jídlo",
+     "when": "bod 7 nesedí"
+    },
+    "bod8Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, řešit jídlo",
+     "when": "bod 8 nesedí"
+    },
+    "bod9Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště z exportu",
+     "when": "bod 9 nesedí"
+    },
+    "vseSedi": {
+     "action": "up",
+     "text": "zvýšit dávku k obědu",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    }
+   },
+   "PR-LUNCH-RADY": {
+    "bod1Nesedi": {
+     "action": "swap",
+     "text": "vyměnit radu „Procházka po jídle“ za jinou",
+     "when": "bod 1 nesedí"
+    },
+    "bod2Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, probrat důvody",
+     "when": "bod 2 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat dávku, posílit radu",
+     "when": "oba body sedí"
+    }
+   },
+   "PR-POKYNY": {
+    "bod1Nesedi": {
+     "action": "edit",
+     "text": "upravit hodnoty pravidel a cíle",
+     "when": "bod 1 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat",
+     "when": "bod 1 sedí"
+    }
+   },
+   "PR-SWAP-addon": {
+    "bod1Nesedi": {
+     "action": "swap",
+     "text": "vyměnit za jinou radu",
+     "when": "bod 1 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat radu, zkusit znovu",
+     "when": "bod 1 sedí"
+    }
+   },
+   "PR-SWAP-order": {
+    "bod1Nesedi": {
+     "action": "swap",
+     "text": "vyměnit za jinou radu",
+     "when": "bod 1 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat radu, zkusit znovu",
+     "when": "bod 1 sedí"
+    }
+   }
+  },
+  "vetve": {
+   "response": "declines"
+  }
+ },
+ {
+  "kapitola": "reviewProposals",
+  "krok": 2,
+  "navrhy": [
+   {
+    "cat": "davka",
+    "dose": "lunch",
+    "fakta": [
+     {
+      "text": "včas 82 z 82 zápisů"
+     },
+     null,
+     {
+      "text": "59 z 79 nad cílem · medián 11,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "žádný zápis z nemoci"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 63 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 7 různých jídel, dvě s nejvíc zápisy nad cílem („Smažený řízek s bramborovou kaší“ 16×, „Svíčková na smetaně s knedlíkem“ 11×) tvoří 46 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles při obvyklé porci a dávce podle plánu; 2 poklesy po menší porci nebo s jinou dávkou (16. 10., 17. 10.) je varování"
+     },
+     {
+      "against": false,
+      "text": "shoda u 12 z 12 obědů s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": false,
+      "text": "nabídnuto 82×, přijato 11×, odmítnuto 49×"
+     }
+    ],
+    "id": "PR-LUNCH",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky k obědu jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2,
+    "stavBodu": [
+     null,
+     true,
+     null,
+     true,
+     true,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "title": "Posoudit prandiální dávku k obědu – hodnoty nad cílem",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku k obědu",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "59 z 79 obědů za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 11,0 mmol/l). Rada k jídlu: nabídnuto 82×, přijato 11×, odmítnuto 49×. S přijatou radou byl medián vrcholu 11,0 mmol/l, bez ní 11,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     null,
+     {
+      "text": "nabídek rad 113: přijato 13, odmítnuto 83"
+     }
+    ],
+    "id": "PR-BREAKFAST-RADY",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "addon",
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)",
+     "Pacient je ochotný ji zkoušet"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 3,
+    "stavBodu": [
+     null,
+     null
+    ],
+    "title": "Nejdřív rady ke snídani – dávka až po radách",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "oba body sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit radu „Doplněk k jídlu“ za jinou",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, probrat důvody",
+      "when": "bod 2 nesedí"
+     }
+    ],
+    "why": "65 z 72 snídaní skončilo nad cílem; rada k jídlu: nabídnuto 113×, přijato 13×, odmítnuto 83× (nejčastěji odmítnutá rada „Doplněk k jídlu“). Podle schváleného postupu jde jídlo před dávkou; návrh k dávce je další karta a lékař o ní rozhodne."
+   },
+   {
+    "cat": "davka",
+    "dose": "breakfast",
+    "fakta": [
+     {
+      "text": "včas 74 z 83 zápisů · 6× nižší dávka (6 j.) · 3× nevím"
+     },
+     null,
+     {
+      "text": "65 z 72 nad cílem · medián 13,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "1 zápis z nemoci – vyřazeno"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 63 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 6 různých jídel, dvě s nejvíc zápisy nad cílem („Ovesná kaše s mlékem a banánem“ 25×, „Müsli s mlékem a medem“ 9×) tvoří 52 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles pod 4 po snídani"
+     },
+     {
+      "against": false,
+      "text": "shoda u 12 z 12 snídaní s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": true,
+      "text": "nabídnuto 113×, přijato 13×, odmítnuto 83×"
+     }
+    ],
+    "id": "PR-BREAKFAST",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky ke snídani jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 3.5,
+    "stavBodu": [
+     null,
+     true,
+     null,
+     true,
+     true,
+     null,
+     null,
+     null,
+     null,
+     null
+    ],
+    "title": "Posoudit prandiální dávku ke snídani – hodnoty nad cílem",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku ke snídani",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "65 z 72 snídaní za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 13,0 mmol/l). Rada k jídlu: nabídnuto 113×, přijato 13×, odmítnuto 83×. S přijatou radou byl medián vrcholu 13,0 mmol/l, bez ní 13,8 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "against": true,
+      "text": "nabídek 37: odmítnuto 26, nejčastěji „Nechutná mi to“"
+     }
+    ],
+    "id": "PR-SWAP-order",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "order",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 4,
+    "stavBodu": [
+     null
+    ],
+    "title": "Vyměnit radu „Pořadí jídla“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Odmítnuta 26× z 37 nabídek, nejčastěji „Nechutná mi to“. To ukazuje na nepraktickou radu, ne na neochotu."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 136: přijato 26"
+     }
+    ],
+    "group": "keep",
+    "id": "PR-KEEP-walk",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "walk",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 5,
+    "stavBodu": [
+     null
+    ],
+    "title": "Zachovat radu „Procházka po jídle“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 26× ze 136 nabídek (2× spolu s další radou). S radou bývalo níž: medián vrcholu 12,0 vs. 13,0 mmol/l (n = 26 / 69)."
+   },
+   {
+    "cat": "pokyny",
+    "fakta": [
+     null
+    ],
+    "group": "keep",
+    "id": "PR-POKYNY",
+    "item": "R-POKYNY",
+    "kind": "instructions",
+    "overeni": [
+     "Hodnoty v pravidlech i cíle glukózy pacientovi dál odpovídají"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 6,
+    "stavBodu": [
+     null
+    ],
+    "title": "Bezpečnostní pravidla beze změny?",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "edit",
+      "text": "upravit hodnoty pravidel a cíle",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Pravidla jsou v plánu ze schváleného registru s výchozími hodnotami, bez výjimek."
+   },
+   {
+    "cat": "davka",
+    "dose": "dinner",
+    "fakta": [],
+    "id": "PR-DINNER",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "overeni": [],
+    "priority": 7,
+    "row": true,
+    "stavBodu": [],
+    "title": "Večeře – bez návrhu",
+    "vetev": null,
+    "vetve": [],
+    "why": "43 z 75 nad cílem · medián vrcholu 11,0 mmol/l · bez návrhu (práh 2/3 nad cílem)"
+   },
+   {
+    "cat": "davka",
+    "dose": "basal",
+    "fakta": [],
+    "id": "PR-BAZAL",
+    "item": "D-BAZAL",
+    "kind": "dose",
+    "overeni": [],
+    "priority": 7,
+    "row": true,
+    "stavBodu": [],
+    "title": "Bazál – bez návrhu",
+    "vetev": null,
+    "vetve": [],
+    "why": "ranní hodnoty před snídaní opsané za období: medián 7,0 mmol/l · nad 7,2: 1 z 83 · bez návrhu (noci bez poklesu, ranní hodnoty v cíli nebo málo nocí z exportu)"
+   }
+  ],
+  "noveCile": {
+   "fastingHigh": 7.2,
+   "hba1cGoal": 53,
+   "high": 10,
+   "low": 3.9,
+   "tbrGoal": 4,
+   "tirGoal": 70
+  },
+  "noveDavky": {
+   "basal": {
+    "time": "21:00",
+    "units": 18
+   },
+   "breakfast": {
+    "units": 8
+   },
+   "dinner": {
+    "units": 8
+   },
+   "lunch": {
+    "units": 10
+   }
+  },
+  "planId": "P1",
+  "rozhodnuti": {},
+  "scena": 31,
+  "souhrn": {
+   "advice": {
+    "accepted": {
+     "c": 30,
+     "inTarget": 3,
+     "med": 12,
+     "n": 30
+    },
+    "byLever": {
+     "addon": {
+      "accepted": 1,
+      "declined": 54,
+      "lower": "few",
+      "medAcc": 11,
+      "medDec": 14,
+      "multi": 1,
+      "nAcc": 1,
+      "nDec": 54,
+      "offered": 55,
+      "reasons": {
+       "nothome": 36,
+       "taste": 18
+      }
+     },
+     "order": {
+      "accepted": 3,
+      "declined": 26,
+      "lower": "few",
+      "medAcc": 11,
+      "medDec": 12,
+      "multi": 0,
+      "nAcc": 3,
+      "nDec": 25,
+      "offered": 37,
+      "reasons": {
+       "nowant": 10,
+       "taste": 16
+      }
+     },
+     "walk": {
+      "accepted": 26,
+      "declined": 71,
+      "lower": "yes",
+      "medAcc": 12,
+      "medDec": 13,
+      "multi": 2,
+      "nAcc": 26,
+      "nDec": 69,
+      "offered": 136,
+      "reasons": {
+       "time": 71
+      }
+     }
+    },
+    "declined": {
+     "c": 89,
+     "inTarget": 0,
+     "med": 13,
+     "n": 91
+    },
+    "noAnswer": {
+     "c": 15,
+     "inTarget": 0,
+     "med": 12,
+     "n": 15
+    },
+    "offered": 136,
+    "reasons": {
+     "nothome": 36,
+     "nowant": 10,
+     "taste": 34,
+     "time": 71
+    },
+    "topReason": "time",
+    "works": "yes"
+   },
+   "asPct": 96,
+   "asPlan": 232,
+   "basalAs": 88,
+   "basalDays": 92,
+   "basalLower": 4,
+   "basalLowerUnits": "16",
+   "habitsDone": 4,
+   "hba1c": [
+    62,
+    55
+   ],
+   "hba1cInfo": {
+    "before": {
+     "date": "2026-09-23",
+     "src": "karta",
+     "v": 62
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-03",
+     "src": "sestra",
+     "v": 55
+    }
+   },
+   "ill": 1,
+   "illDays": 3,
+   "illLong": 0,
+   "incomplete": 2,
+   "meals": 241,
+   "none": 0,
+   "onTime": 232,
+   "other": 6,
+   "selfLower": {
+    "breakfast": 6
+   },
+   "selfLowerUnits": {
+    "breakfast": "6"
+   },
+   "sensor": {
+    "above": 37,
+    "availability": 91,
+    "below": 0,
+    "days": 14,
+    "interval": 5,
+    "period": "22. 12. 2026 – 4. 1. 2027",
+    "source": "import",
+    "tir": 63,
+    "veryLow": 0
+   },
+   "slotsAll": 276,
+   "smallerPlanned": 0,
+   "snacks": 15,
+   "tirState": "warn",
+   "unknown": 3,
+   "usual": 238,
+   "usualPct": 98,
+   "weight": {
+    "before": {
+     "date": "2026-09-23",
+     "kg": 92,
+     "src": "karta"
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-05",
+     "kg": 90,
+     "src": "sestra"
+    }
+   },
+   "withPeak": 239
+  },
+  "tabulkaVetvi": {
+   "PR-BREAKFAST": {
+    "bod10Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, posílit radu",
+     "when": "bod 10 nesedí"
+    },
+    "bod1Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit podání",
+     "when": "bod 1 nesedí"
+    },
+    "bod2Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit techniku a místo píchání",
+     "when": "bod 2 nesedí"
+    },
+    "bod3Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště",
+     "when": "bod 3 nesedí"
+    },
+    "bod4Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit dojídání",
+     "when": "bod 4 nesedí"
+    },
+    "bod5Nesedi": {
+     "action": "keep",
+     "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+     "when": "bod 5 nesedí"
+    },
+    "bod6Nesedi": {
+     "action": "keep",
+     "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+     "when": "bod 6 nesedí"
+    },
+    "bod7Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, řešit jídlo",
+     "when": "bod 7 nesedí"
+    },
+    "bod8Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, řešit jídlo",
+     "when": "bod 8 nesedí"
+    },
+    "bod9Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště z exportu",
+     "when": "bod 9 nesedí"
+    },
+    "vseSedi": {
+     "action": "up",
+     "text": "zvýšit dávku ke snídani",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    }
+   },
+   "PR-BREAKFAST-RADY": {
+    "bod1Nesedi": {
+     "action": "swap",
+     "text": "vyměnit radu „Doplněk k jídlu“ za jinou",
+     "when": "bod 1 nesedí"
+    },
+    "bod2Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, probrat důvody",
+     "when": "bod 2 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat dávku, posílit radu",
+     "when": "oba body sedí"
+    }
+   },
+   "PR-KEEP-walk": {
+    "bod1Nesedi": {
+     "action": "swap",
+     "text": "vyměnit za jinou radu",
+     "when": "bod 1 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat radu, zkusit znovu",
+     "when": "bod 1 sedí"
+    }
+   },
+   "PR-LUNCH": {
+    "bod10Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, posílit radu",
+     "when": "bod 10 nesedí"
+    },
+    "bod1Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit podání",
+     "when": "bod 1 nesedí"
+    },
+    "bod2Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit techniku a místo píchání",
+     "when": "bod 2 nesedí"
+    },
+    "bod3Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště",
+     "when": "bod 3 nesedí"
+    },
+    "bod4Nesedi": {
+     "action": "keep",
+     "text": "ponechat, řešit dojídání",
+     "when": "bod 4 nesedí"
+    },
+    "bod5Nesedi": {
+     "action": "keep",
+     "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+     "when": "bod 5 nesedí"
+    },
+    "bod6Nesedi": {
+     "action": "keep",
+     "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+     "when": "bod 6 nesedí"
+    },
+    "bod7Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, řešit jídlo",
+     "when": "bod 7 nesedí"
+    },
+    "bod8Nesedi": {
+     "action": "keep",
+     "text": "ponechat dávku, řešit jídlo",
+     "when": "bod 8 nesedí"
+    },
+    "bod9Nesedi": {
+     "action": "keep",
+     "text": "ponechat, posoudit příště z exportu",
+     "when": "bod 9 nesedí"
+    },
+    "vseSedi": {
+     "action": "up",
+     "text": "zvýšit dávku k obědu",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    }
+   },
+   "PR-POKYNY": {
+    "bod1Nesedi": {
+     "action": "edit",
+     "text": "upravit hodnoty pravidel a cíle",
+     "when": "bod 1 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat",
+     "when": "bod 1 sedí"
+    }
+   },
+   "PR-SWAP-order": {
+    "bod1Nesedi": {
+     "action": "swap",
+     "text": "vyměnit za jinou radu",
+     "when": "bod 1 nesedí"
+    },
+    "vseSedi": {
+     "action": "keep",
+     "text": "ponechat radu, zkusit znovu",
+     "when": "bod 1 sedí"
+    }
+   }
+  },
+  "vetve": {
+   "response": "impractical"
+  }
+ },
+ {
+  "kapitola": "newplan",
+  "krok": 4,
+  "navrhy": [
+   {
+    "cat": "davka",
+    "dose": "lunch",
+    "fakta": [
+     {
+      "text": "včas 82 z 82 zápisů"
+     },
+     null,
+     {
+      "text": "59 z 79 nad cílem · medián 11,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "žádný zápis z nemoci"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 63 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 7 různých jídel, dvě s nejvíc zápisy nad cílem („Smažený řízek s bramborovou kaší“ 16×, „Svíčková na smetaně s knedlíkem“ 11×) tvoří 46 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles při obvyklé porci a dávce podle plánu; 2 poklesy po menší porci nebo s jinou dávkou (16. 10., 17. 10.) je varování"
+     },
+     {
+      "against": false,
+      "text": "shoda u 12 z 12 obědů s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": false,
+      "text": "nabídnuto 82×, přijato 11×, odmítnuto 49×"
+     }
+    ],
+    "id": "PR-LUNCH",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky k obědu jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 2,
+    "stavBodu": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "title": "Posoudit prandiální dávku k obědu – hodnoty nad cílem",
+    "vetev": {
+     "action": "up",
+     "text": "zvýšit dávku k obědu",
+     "when": "všechny body sedí a hodnoty jsou nad cílem"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku k obědu",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "59 z 79 obědů za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 11,0 mmol/l). Rada k jídlu: nabídnuto 82×, přijato 11×, odmítnuto 49×. S přijatou radou byl medián vrcholu 11,0 mmol/l, bez ní 11,0 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     null,
+     {
+      "text": "nabídek rad 113: přijato 13, odmítnuto 83"
+     }
+    ],
+    "id": "PR-BREAKFAST-RADY",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "addon",
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)",
+     "Pacient je ochotný ji zkoušet"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 3,
+    "stavBodu": [
+     false,
+     true
+    ],
+    "title": "Nejdřív rady ke snídani – dávka až po radách",
+    "vetev": {
+     "action": "swap",
+     "text": "vyměnit radu „Doplněk k jídlu“ za jinou",
+     "when": "bod 1 nesedí"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "oba body sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit radu „Doplněk k jídlu“ za jinou",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, probrat důvody",
+      "when": "bod 2 nesedí"
+     }
+    ],
+    "why": "65 z 72 snídaní skončilo nad cílem; rada k jídlu: nabídnuto 113×, přijato 13×, odmítnuto 83× (nejčastěji odmítnutá rada „Doplněk k jídlu“). Podle schváleného postupu jde jídlo před dávkou; návrh k dávce je další karta a lékař o ní rozhodne."
+   },
+   {
+    "cat": "davka",
+    "dose": "breakfast",
+    "fakta": [
+     {
+      "text": "včas 74 z 83 zápisů · 6× nižší dávka (6 j.) · 3× nevím"
+     },
+     null,
+     {
+      "text": "65 z 72 nad cílem · medián 13,0 mmol/l"
+     },
+     {
+      "text": "svačina do 2 h ani jednou"
+     },
+     {
+      "text": "1 zápis z nemoci – vyřazeno"
+     },
+     {
+      "against": false,
+      "text": "čas v cíli 63 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+     },
+     {
+      "against": false,
+      "text": "nad cílem 6 různých jídel, dvě s nejvíc zápisy nad cílem („Ovesná kaše s mlékem a banánem“ 25×, „Müsli s mlékem a medem“ 9×) tvoří 52 %"
+     },
+     {
+      "against": false,
+      "block": false,
+      "text": "žádný pokles pod 4 po snídani"
+     },
+     {
+      "against": false,
+      "text": "shoda u 12 z 12 snídaní s exportem (do 1,0 mmol/l)"
+     },
+     {
+      "against": true,
+      "text": "nabídnuto 113×, přijato 13×, odmítnuto 83×"
+     }
+    ],
+    "id": "PR-BREAKFAST",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "needs": [
+     "D-CISTA"
+    ],
+    "overeni": [
+     "Dávky ke snídani jsou potvrzené podle plánu a včas",
+     "Technika a místo píchání jsou v pořádku",
+     "Vrcholy po jídle jsou nad cílem opakovaně, ne jednorázově",
+     "Mezi jídlem a měřením pacient nic dalšího nejedl",
+     "V těch dnech pacient nebyl nemocný ani ve větším stresu",
+     "Vyrovnání celkově nedosahuje cíle: čas v cíli pod 70 % nebo HbA1c nad cílem",
+     "Nad cílem nejsou jen jedno nebo dvě jídla",
+     "U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu",
+     "Opsané nejvyšší hodnoty se shodují s exportem",
+     "Pacient rady k jídlu zkoušel (přijal aspoň 3× z nejméně 5 nabídek)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 3.5,
+    "stavBodu": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     true,
+     false
+    ],
+    "title": "Posoudit prandiální dávku ke snídani – hodnoty nad cílem",
+    "vetev": {
+     "action": "keep",
+     "text": "ponechat dávku, posílit radu",
+     "when": "bod 10 nesedí"
+    },
+    "vetve": [
+     {
+      "action": "up",
+      "text": "zvýšit dávku ke snídani",
+      "when": "všechny body sedí a hodnoty jsou nad cílem"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit podání",
+      "when": "bod 1 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit techniku a místo píchání",
+      "when": "bod 2 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště",
+      "when": "bod 3 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, řešit dojídání",
+      "when": "bod 4 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, vyřadit dny nemoci a posoudit příště",
+      "when": "bod 5 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat – celkově v cíli, zvažte riziko nízké glukózy",
+      "when": "bod 6 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 7 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, řešit jídlo",
+      "when": "bod 8 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat, posoudit příště z exportu",
+      "when": "bod 9 nesedí"
+     },
+     {
+      "action": "keep",
+      "text": "ponechat dávku, posílit radu",
+      "when": "bod 10 nesedí"
+     }
+    ],
+    "why": "65 z 72 snídaní za 92 dní s obvyklou porcí a potvrzenou dávkou mělo vrchol glukózy po jídle nad 10,0 mmol/l (medián vrcholu 13,0 mmol/l). Rada k jídlu: nabídnuto 113×, přijato 13×, odmítnuto 83×. S přijatou radou byl medián vrcholu 13,0 mmol/l, bez ní 13,8 mmol/l (bez rozdílu)."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "against": true,
+      "text": "nabídek 37: odmítnuto 26, nejčastěji „Nechutná mi to“"
+     }
+    ],
+    "id": "PR-SWAP-order",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "order",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 4,
+    "stavBodu": [
+     false
+    ],
+    "title": "Vyměnit radu „Pořadí jídla“",
+    "vetev": {
+     "action": "swap",
+     "text": "vyměnit za jinou radu",
+     "when": "bod 1 nesedí"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Odmítnuta 26× z 37 nabídek, nejčastěji „Nechutná mi to“. To ukazuje na nepraktickou radu, ne na neochotu."
+   },
+   {
+    "cat": "plan",
+    "fakta": [
+     {
+      "text": "nabídek 136: přijato 26"
+     }
+    ],
+    "group": "keep",
+    "id": "PR-KEEP-walk",
+    "item": "D-PRAND",
+    "kind": "habit",
+    "lever": "walk",
+    "overeni": [
+     "Pacient radu může běžně plnit (má to doma, chutná mu, stihne to)"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 5,
+    "stavBodu": [
+     null
+    ],
+    "title": "Zachovat radu „Procházka po jídle“",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat radu, zkusit znovu",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "swap",
+      "text": "vyměnit za jinou radu",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Přijata 26× ze 136 nabídek (2× spolu s další radou). S radou bývalo níž: medián vrcholu 12,0 vs. 13,0 mmol/l (n = 26 / 69)."
+   },
+   {
+    "cat": "pokyny",
+    "fakta": [
+     null
+    ],
+    "group": "keep",
+    "id": "PR-POKYNY",
+    "item": "R-POKYNY",
+    "kind": "instructions",
+    "overeni": [
+     "Hodnoty v pravidlech i cíle glukózy pacientovi dál odpovídají"
+    ],
+    "postup": "D-POSTUP",
+    "priority": 6,
+    "stavBodu": [
+     null
+    ],
+    "title": "Bezpečnostní pravidla beze změny?",
+    "vetev": {
+     "action": "wait",
+     "text": "dokončete ověření"
+    },
+    "vetve": [
+     {
+      "action": "keep",
+      "text": "ponechat",
+      "when": "bod 1 sedí"
+     },
+     {
+      "action": "edit",
+      "text": "upravit hodnoty pravidel a cíle",
+      "when": "bod 1 nesedí"
+     }
+    ],
+    "why": "Pravidla jsou v plánu ze schváleného registru s výchozími hodnotami, bez výjimek."
+   },
+   {
+    "cat": "davka",
+    "dose": "dinner",
+    "fakta": [],
+    "id": "PR-DINNER",
+    "item": "D-PRAND",
+    "kind": "dose",
+    "lowBlock": false,
+    "overeni": [],
+    "priority": 7,
+    "row": true,
+    "stavBodu": [],
+    "title": "Večeře – bez návrhu",
+    "vetev": null,
+    "vetve": [],
+    "why": "43 z 75 nad cílem · medián vrcholu 11,0 mmol/l · bez návrhu (práh 2/3 nad cílem)"
+   },
+   {
+    "cat": "davka",
+    "dose": "basal",
+    "fakta": [],
+    "id": "PR-BAZAL",
+    "item": "D-BAZAL",
+    "kind": "dose",
+    "overeni": [],
+    "priority": 7,
+    "row": true,
+    "stavBodu": [],
+    "title": "Bazál – bez návrhu",
+    "vetev": null,
+    "vetve": [],
+    "why": "ranní hodnoty před snídaní opsané za období: medián 7,0 mmol/l · nad 7,2: 1 z 83 · bez návrhu (noci bez poklesu, ranní hodnoty v cíli nebo málo nocí z exportu)"
+   }
+  ],
+  "noveCile": {
+   "fastingHigh": 7.2,
+   "hba1cGoal": 53,
+   "high": 10,
+   "low": 3.9,
+   "tbrGoal": 4,
+   "tirGoal": 70
+  },
+  "noveDavky": {
+   "basal": {
+    "time": "21:00",
+    "units": 18
+   },
+   "breakfast": {
+    "units": 8
+   },
+   "dinner": {
+    "units": 8
+   },
+   "lunch": {
+    "units": 10
+   }
+  },
+  "planId": "P1",
+  "rozhodnuti": {
+   "PR-BREAKFAST": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-BREAKFAST-RADY": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "swap",
+    "bulk": false,
+    "choice": "agree",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-KEEP-walk": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-LUNCH": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": null,
+    "bulk": false,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-POKYNY": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "keep",
+    "bulk": true,
+    "choice": "keep",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   },
+   "PR-SWAP-order": {
+    "againstBranch": false,
+    "againstData": false,
+    "at": "2027-01-05T09:10:00",
+    "branch": "swap",
+    "bulk": false,
+    "choice": "agree",
+    "comment": "",
+    "noProposal": false,
+    "reason": null,
+    "swapTo": null,
+    "units": null,
+    "viaPlan": false
+   }
+  },
+  "scena": 32,
+  "souhrn": {
+   "advice": {
+    "accepted": {
+     "c": 30,
+     "inTarget": 3,
+     "med": 12,
+     "n": 30
+    },
+    "byLever": {
+     "addon": {
+      "accepted": 1,
+      "declined": 54,
+      "lower": "few",
+      "medAcc": 11,
+      "medDec": 14,
+      "multi": 1,
+      "nAcc": 1,
+      "nDec": 54,
+      "offered": 55,
+      "reasons": {
+       "nothome": 36,
+       "taste": 18
+      }
+     },
+     "order": {
+      "accepted": 3,
+      "declined": 26,
+      "lower": "few",
+      "medAcc": 11,
+      "medDec": 12,
+      "multi": 0,
+      "nAcc": 3,
+      "nDec": 25,
+      "offered": 37,
+      "reasons": {
+       "nowant": 10,
+       "taste": 16
+      }
+     },
+     "walk": {
+      "accepted": 26,
+      "declined": 71,
+      "lower": "yes",
+      "medAcc": 12,
+      "medDec": 13,
+      "multi": 2,
+      "nAcc": 26,
+      "nDec": 69,
+      "offered": 136,
+      "reasons": {
+       "time": 71
+      }
+     }
+    },
+    "declined": {
+     "c": 89,
+     "inTarget": 0,
+     "med": 13,
+     "n": 91
+    },
+    "noAnswer": {
+     "c": 15,
+     "inTarget": 0,
+     "med": 12,
+     "n": 15
+    },
+    "offered": 136,
+    "reasons": {
+     "nothome": 36,
+     "nowant": 10,
+     "taste": 34,
+     "time": 71
+    },
+    "topReason": "time",
+    "works": "yes"
+   },
+   "asPct": 96,
+   "asPlan": 232,
+   "basalAs": 88,
+   "basalDays": 92,
+   "basalLower": 4,
+   "basalLowerUnits": "16",
+   "habitsDone": 4,
+   "hba1c": [
+    62,
+    55
+   ],
+   "hba1cInfo": {
+    "before": {
+     "date": "2026-09-23",
+     "src": "karta",
+     "v": 62
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-03",
+     "src": "sestra",
+     "v": 55
+    }
+   },
+   "ill": 1,
+   "illDays": 3,
+   "illLong": 0,
+   "incomplete": 2,
+   "meals": 241,
+   "none": 0,
+   "onTime": 232,
+   "other": 6,
+   "selfLower": {
+    "breakfast": 6
+   },
+   "selfLowerUnits": {
+    "breakfast": "6"
+   },
+   "sensor": {
+    "above": 37,
+    "availability": 91,
+    "below": 0,
+    "days": 14,
+    "interval": 5,
+    "period": "22. 12. 2026 – 4. 1. 2027",
+    "source": "import",
+    "tir": 63,
+    "veryLow": 0
+   },
+   "slotsAll": 276,
+   "smallerPlanned": 0,
+   "snacks": 15,
+   "tirState": "warn",
+   "unknown": 3,
+   "usual": 238,
+   "usualPct": 98,
+   "weight": {
+    "before": {
+     "date": "2026-09-23",
+     "kg": 92,
+     "src": "karta"
+    },
+    "now": {
+     "at": "2027-01-05T09:00:00",
+     "date": "2027-01-05",
+     "kg": 90,
+     "src": "sestra"
+    }
+   },
+   "withPeak": 239
+  },
+  "vetve": {
+   "response": "impractical"
+  }
+ }
+]

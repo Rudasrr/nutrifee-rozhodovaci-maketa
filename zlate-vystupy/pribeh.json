@@ -1,0 +1,5962 @@
+[
+ {
+  "hodiny": "2026-10-05T09:00:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": null,
+  "kapitola": "prolog",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": null,
+  "pocty": {
+   "bazal": 0,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 0,
+   "udalosti": 1,
+   "zapisy": 0
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "doctor",
+  "scena": 1,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-05T09:00:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": null,
+  "kapitola": "enroll",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": null,
+  "pocty": {
+   "bazal": 0,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 0,
+   "udalosti": 1,
+   "zapisy": 0
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "doctor",
+  "scena": 2,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-05T09:10:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": null,
+  "kapitola": "doses",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": null,
+  "pocty": {
+   "bazal": 0,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 0,
+   "udalosti": 6,
+   "zapisy": 0
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "doctor",
+  "scena": 3,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-05T09:20:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": null,
+  "kapitola": "issue",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": null,
+  "pocty": {
+   "bazal": 0,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 0,
+   "udalosti": 6,
+   "zapisy": 0
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "doctor",
+  "scena": 4,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-05T09:35:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 0,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 0,
+     "po": "obědě",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 0,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "few",
+   "text": "Zatím málo zápisů na hodnocení – stačí zapisovat dál."
+  },
+  "kapitola": "training",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 0,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 8,
+   "zapisy": 0
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "nurse",
+  "scena": 5,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-05T09:55:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 0,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 0,
+     "po": "obědě",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 0,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "few",
+   "text": "Zatím málo zápisů na hodnocení – stačí zapisovat dál."
+  },
+  "kapitola": "handover",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 0,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 13,
+   "zapisy": 0
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 6,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-06T07:00:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 0,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 0,
+     "po": "obědě",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 0,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "few",
+   "text": "Zatím málo zápisů na hodnocení – stačí zapisovat dál."
+  },
+  "kapitola": "firstMeal",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 1,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 14,
+   "zapisy": 0
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 7,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-06T12:10:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 0,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 0,
+     "po": "obědě",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 0,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "few",
+   "text": "Zatím málo zápisů na hodnocení – stačí zapisovat dál."
+  },
+  "kapitola": "firstResult",
+  "naRade": {
+   "meal": "lunch",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 1,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 15,
+   "zapisy": 1
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 8,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "done"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-12T19:00:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 3 z 7 zápisů v cíli",
+    "Po obědě: 0 z 7 zápisů v cíli",
+    "Po večeři: 2 z 2 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 3,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 7,
+     "po": "snídani",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 7,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 2,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 2,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po snídani a obědě častěji nad cílem."
+  },
+  "kapitola": "week",
+  "naRade": {
+   "meal": "dinner",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 7,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 42,
+   "zapisy": 18
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 9,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "done"
+   },
+   {
+    "meal": "lunch",
+    "state": "done"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-13T10:15:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 3 z 6 zápisů v cíli",
+    "Po obědě: 0 z 7 zápisů v cíli",
+    "Po večeři: 2 z 2 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 3,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 6,
+     "po": "snídani",
+     "state": "ok"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 7,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 2,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 2,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "mixed",
+   "text": "Tento týden: po snídani většinou v cíli, po obědě častěji nad cílem."
+  },
+  "kapitola": "lateMeal",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "missed"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 8,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 42,
+   "zapisy": 18
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 10,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "missed"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-14T07:00:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 3 z 6 zápisů v cíli",
+    "Po obědě: 0 z 6 zápisů v cíli",
+    "Po večeři: 1 z 1 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 3,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 6,
+     "po": "snídani",
+     "state": "ok"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 6,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 1,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 1,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "mixed",
+   "text": "Tento týden: po snídani většinou v cíli, po obědě častěji nad cílem."
+  },
+  "kapitola": "advice",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 9,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 46,
+   "zapisy": 19
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 11,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-16T07:30:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 2 z 4 zápisů v cíli",
+    "Po obědě: 0 z 4 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 2,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 4,
+     "po": "snídani",
+     "state": "ok"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 4,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 0,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "mixed",
+   "text": "Tento týden: po snídani většinou v cíli, po obědě častěji nad cílem."
+  },
+  "kapitola": "afterBolus",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 11,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 48,
+   "zapisy": 20
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 12,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-16T12:20:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 2 z 5 zápisů v cíli",
+    "Po obědě: 0 z 4 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 2,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 5,
+     "po": "snídani",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 4,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 0,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po snídani a obědě častěji nad cílem."
+  },
+  "kapitola": "hypo",
+  "naRade": {
+   "meal": "lunch",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 11,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 50,
+   "zapisy": 21
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 13,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "done"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-18T12:20:00",
+  "hypo": {
+   "karta": {
+    "count": 2,
+    "days": 7,
+    "last": "2026-10-17T12:30:00",
+    "seen": true
+   },
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    }
+   ]
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 1 z 3 zápisů v cíli",
+    "Po obědě: 0 z 2 zápisů v cíli",
+    "Po večeři: 2 z 2 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 1,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 3,
+     "po": "snídani",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 2,
+     "po": "obědě",
+     "state": "few"
+    },
+    {
+     "k": 2,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 2,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po snídani častěji nad cílem."
+  },
+  "kapitola": "custom",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "missed"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 13,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 61,
+   "zapisy": 25
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 14,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "missed"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-20T08:00:00",
+  "hypo": {
+   "karta": {
+    "count": 2,
+    "days": 7,
+    "last": "2026-10-17T12:30:00",
+    "seen": true
+   },
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    }
+   ]
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 0 z 2 zápisů v cíli",
+    "Po obědě: 1 z 1 zápisů v cíli",
+    "Po večeři: 2 z 2 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 2,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 1,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 1,
+     "po": "obědě",
+     "state": "few"
+    },
+    {
+     "k": 2,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 2,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "few",
+   "text": "Zatím málo zápisů na hodnocení – stačí zapisovat dál."
+  },
+  "kapitola": "illness",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 15,
+   "jidla": 172,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 64,
+   "zapisy": 26
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 15,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-21T08:00:00",
+  "hypo": {
+   "karta": {
+    "count": 2,
+    "days": 7,
+    "last": "2026-10-17T12:30:00",
+    "seen": true
+   },
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    }
+   ]
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 0 z 1 zápisů v cíli",
+    "Po obědě: 1 z 1 zápisů v cíli",
+    "Po večeři: 2 z 2 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 1,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 1,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 1,
+     "po": "obědě",
+     "state": "few"
+    },
+    {
+     "k": 2,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 2,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "few",
+   "text": "Zatím málo zápisů na hodnocení – stačí zapisovat dál."
+  },
+  "kapitola": "illnessMeal",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": true,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 16,
+   "jidla": 172,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 65,
+   "zapisy": 26
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 16,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-22T07:30:00",
+  "hypo": {
+   "karta": {
+    "count": 2,
+    "days": 7,
+    "last": "2026-10-17T12:30:00",
+    "seen": true
+   },
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 0 z 1 zápisů v cíli",
+    "Po obědě: 1 z 1 zápisů v cíli",
+    "Po večeři: 2 z 2 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 1,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 1,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 1,
+     "po": "obědě",
+     "state": "few"
+    },
+    {
+     "k": 2,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 2,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "few",
+   "text": "Zatím málo zápisů na hodnocení – stačí zapisovat dál."
+  },
+  "kapitola": "recovery",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": true,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 17,
+   "jidla": 172,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 68,
+   "zapisy": 27
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 17,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-23T09:00:00",
+  "hypo": {
+   "karta": {
+    "count": 2,
+    "days": 7,
+    "last": "2026-10-17T12:30:00",
+    "seen": true
+   },
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po obědě: 1 z 1 zápisů v cíli",
+    "Po večeři: 2 z 2 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 0,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 1,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 1,
+     "po": "obědě",
+     "state": "few"
+    },
+    {
+     "k": 2,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 2,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "few",
+   "text": "Zatím málo zápisů na hodnocení – stačí zapisovat dál."
+  },
+  "kapitola": "registry",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 18,
+   "jidla": 172,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 70,
+   "zapisy": 27
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "doctor",
+  "scena": 18,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-24T12:20:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po obědě: 1 z 1 zápisů v cíli",
+    "Po večeři: 1 z 1 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 0,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 1,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 1,
+     "po": "obědě",
+     "state": "few"
+    },
+    {
+     "k": 1,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 1,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "few",
+   "text": "Zatím málo zápisů na hodnocení – stačí zapisovat dál."
+  },
+  "kapitola": "impact",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "missed"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 19,
+   "jidla": 172,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 73,
+   "zapisy": 27
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 19,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "missed"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2027-01-01T07:00:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 0 z 7 zápisů v cíli",
+    "Po obědě: 0 z 6 zápisů v cíli",
+    "Po večeři: 1 z 6 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 7,
+     "po": "snídani",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 6,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 1,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 6,
+     "po": "večeři",
+     "state": "over"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po snídani, obědě i večeři častěji nad cílem."
+  },
+  "kapitola": "nightLow",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 88,
+   "jidla": 172,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 452,
+   "zapisy": 247
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 20,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2027-01-04T18:00:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 0 z 5 zápisů v cíli",
+    "Po obědě: 0 z 6 zápisů v cíli",
+    "Po večeři: 1 z 6 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 5,
+     "po": "snídani",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 6,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 1,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 6,
+     "po": "večeři",
+     "state": "over"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po snídani, obědě i večeři častěji nad cílem."
+  },
+  "kapitola": "preview",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "missed"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 91,
+   "jidla": 172,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 467,
+   "zapisy": 256
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 21,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "missed"
+   },
+   {
+    "meal": "lunch",
+    "state": "missed"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2027-01-05T09:00:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 0 z 4 zápisů v cíli",
+    "Po obědě: 0 z 6 zápisů v cíli",
+    "Po večeři: 1 z 6 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 4,
+     "po": "snídani",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 6,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 1,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 6,
+     "po": "večeři",
+     "state": "over"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po snídani, obědě i večeři častěji nad cílem."
+  },
+  "kapitola": "reviewSummary",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 92,
+   "jidla": 172,
+   "noci": 0,
+   "otazky": 1,
+   "plany": 1,
+   "udalosti": 467,
+   "zapisy": 256
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "doctor",
+  "scena": 22,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2027-01-05T09:10:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": {
+   "agree": {
+    "n": 37,
+    "ok": 36
+   },
+   "at": "2027-01-05T09:00:00",
+   "days": 14,
+   "filled": 37,
+   "from": "2026-12-22T00:00:00",
+   "manualOnly": 37,
+   "nights": 14,
+   "readings": 3669,
+   "skipped": 0,
+   "to": "2027-01-04T23:55:00",
+   "tol": 1
+  },
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 0 z 4 zápisů v cíli",
+    "Po obědě: 0 z 6 zápisů v cíli",
+    "Po večeři: 1 z 6 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 4,
+     "po": "snídani",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 6,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 1,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 6,
+     "po": "večeři",
+     "state": "over"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po snídani, obědě i večeři častěji nad cílem."
+  },
+  "kapitola": "reviewProposals",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 92,
+   "jidla": 172,
+   "noci": 14,
+   "otazky": 1,
+   "plany": 1,
+   "udalosti": 477,
+   "zapisy": 256
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "doctor",
+  "scena": 23,
+  "senzor": {
+   "above": 30,
+   "availability": 91,
+   "below": 2,
+   "days": 14,
+   "interval": 5,
+   "period": "22. 12. 2026 – 4. 1. 2027",
+   "source": "import",
+   "tir": 68,
+   "veryLow": 0
+  },
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2027-01-05T09:25:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": {
+   "agree": {
+    "n": 37,
+    "ok": 36
+   },
+   "at": "2027-01-05T09:00:00",
+   "days": 14,
+   "filled": 37,
+   "from": "2026-12-22T00:00:00",
+   "manualOnly": 37,
+   "nights": 14,
+   "readings": 3669,
+   "skipped": 0,
+   "to": "2027-01-04T23:55:00",
+   "tol": 1
+  },
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 0 z 4 zápisů v cíli",
+    "Po obědě: 0 z 6 zápisů v cíli",
+    "Po večeři: 1 z 6 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 4,
+     "po": "snídani",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 6,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 1,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 6,
+     "po": "večeři",
+     "state": "over"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po snídani, obědě i večeři častěji nad cílem."
+  },
+  "kapitola": "reviewConfirm",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 92,
+   "jidla": 172,
+   "noci": 14,
+   "otazky": 1,
+   "plany": 1,
+   "udalosti": 508,
+   "zapisy": 256
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "doctor",
+  "scena": 24,
+  "senzor": {
+   "above": 30,
+   "availability": 91,
+   "below": 2,
+   "days": 14,
+   "interval": 5,
+   "period": "22. 12. 2026 – 4. 1. 2027",
+   "source": "import",
+   "tir": 68,
+   "veryLow": 0
+  },
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2027-01-05T09:35:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": {
+   "agree": {
+    "n": 37,
+    "ok": 36
+   },
+   "at": "2027-01-05T09:00:00",
+   "days": 14,
+   "filled": 37,
+   "from": "2026-12-22T00:00:00",
+   "manualOnly": 37,
+   "nights": 14,
+   "readings": 3669,
+   "skipped": 0,
+   "to": "2027-01-04T23:55:00",
+   "tol": 1
+  },
+  "jakSiVedu": {
+   "details": [
+    "Po obědě: 0 z 6 zápisů v cíli",
+    "Po večeři: 1 z 6 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 0,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 6,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 1,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 6,
+     "po": "večeři",
+     "state": "over"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po obědě a večeři častěji nad cílem."
+  },
+  "kapitola": "reviewHandover",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 10,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P2",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": "P1",
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 92,
+   "jidla": 172,
+   "noci": 14,
+   "otazky": 1,
+   "plany": 2,
+   "udalosti": 510,
+   "zapisy": 256
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "doctor",
+  "scena": 25,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2027-01-05T09:40:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": {
+   "agree": {
+    "n": 37,
+    "ok": 36
+   },
+   "at": "2027-01-05T09:00:00",
+   "days": 14,
+   "filled": 37,
+   "from": "2026-12-22T00:00:00",
+   "manualOnly": 37,
+   "nights": 14,
+   "readings": 3669,
+   "skipped": 0,
+   "to": "2027-01-04T23:55:00",
+   "tol": 1
+  },
+  "jakSiVedu": {
+   "details": [
+    "Po obědě: 0 z 6 zápisů v cíli",
+    "Po večeři: 1 z 6 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 0,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 6,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 1,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 6,
+     "po": "večeři",
+     "state": "over"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po obědě a večeři častěji nad cílem."
+  },
+  "kapitola": "newplan",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 10,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P2",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": "P1",
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 92,
+   "jidla": 172,
+   "noci": 14,
+   "otazky": 1,
+   "plany": 2,
+   "udalosti": 510,
+   "zapisy": 256
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 26,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2027-01-05T09:50:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": {
+   "agree": {
+    "n": 37,
+    "ok": 36
+   },
+   "at": "2027-01-05T09:00:00",
+   "days": 14,
+   "filled": 37,
+   "from": "2026-12-22T00:00:00",
+   "manualOnly": 37,
+   "nights": 14,
+   "readings": 3669,
+   "skipped": 0,
+   "to": "2027-01-04T23:55:00",
+   "tol": 1
+  },
+  "jakSiVedu": {
+   "details": [
+    "Po obědě: 0 z 6 zápisů v cíli",
+    "Po večeři: 1 z 6 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 0,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 6,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 1,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 6,
+     "po": "večeři",
+     "state": "over"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po obědě a večeři častěji nad cílem."
+  },
+  "kapitola": "trace",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 10,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P2",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": "P1",
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 92,
+   "jidla": 172,
+   "noci": 14,
+   "otazky": 1,
+   "plany": 2,
+   "udalosti": 511,
+   "zapisy": 256
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "doctor",
+  "scena": 27,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {}
+ },
+ {
+  "hodiny": "2026-10-05T09:35:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 0,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 0,
+     "po": "obědě",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 0,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "few",
+   "text": "Zatím málo zápisů na hodnocení – stačí zapisovat dál."
+  },
+  "kapitola": "training",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 0,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 12,
+   "zapisy": 0
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "nurse",
+  "scena": 28,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {
+   "training": "failed"
+  }
+ },
+ {
+  "hodiny": "2026-10-05T09:55:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": []
+  },
+  "import": null,
+  "jakSiVedu": {
+   "details": [],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 0,
+     "po": "snídani",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 0,
+     "po": "obědě",
+     "state": "few"
+    },
+    {
+     "k": 0,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 0,
+     "po": "večeři",
+     "state": "few"
+    }
+   ],
+   "state": "few",
+   "text": "Zatím málo zápisů na hodnocení – stačí zapisovat dál."
+  },
+  "kapitola": "handover",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 0,
+   "jidla": 171,
+   "noci": 0,
+   "otazky": 0,
+   "plany": 1,
+   "udalosti": 17,
+   "zapisy": 0
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 29,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {
+   "training": "failed"
+  }
+ },
+ {
+  "hodiny": "2027-01-05T09:10:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": {
+   "agree": {
+    "n": 37,
+    "ok": 36
+   },
+   "at": "2027-01-05T09:00:00",
+   "days": 14,
+   "filled": 37,
+   "from": "2026-12-22T00:00:00",
+   "manualOnly": 37,
+   "nights": 14,
+   "readings": 3669,
+   "skipped": 0,
+   "to": "2027-01-04T23:55:00",
+   "tol": 1
+  },
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 0 z 4 zápisů v cíli",
+    "Po obědě: 0 z 6 zápisů v cíli",
+    "Po večeři: 0 z 6 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 4,
+     "po": "snídani",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 6,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 6,
+     "po": "večeři",
+     "state": "over"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po snídani, obědě i večeři častěji nad cílem."
+  },
+  "kapitola": "reviewProposals",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 92,
+   "jidla": 172,
+   "noci": 14,
+   "otazky": 1,
+   "plany": 1,
+   "udalosti": 460,
+   "zapisy": 256
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "doctor",
+  "scena": 30,
+  "senzor": {
+   "above": 37,
+   "availability": 91,
+   "below": 0,
+   "days": 14,
+   "interval": 5,
+   "period": "22. 12. 2026 – 4. 1. 2027",
+   "source": "import",
+   "tir": 63,
+   "veryLow": 0
+  },
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {
+   "response": "declines"
+  }
+ },
+ {
+  "hodiny": "2027-01-05T09:10:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": {
+   "agree": {
+    "n": 37,
+    "ok": 36
+   },
+   "at": "2027-01-05T09:00:00",
+   "days": 14,
+   "filled": 37,
+   "from": "2026-12-22T00:00:00",
+   "manualOnly": 37,
+   "nights": 14,
+   "readings": 3669,
+   "skipped": 0,
+   "to": "2027-01-04T23:55:00",
+   "tol": 1
+  },
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 0 z 4 zápisů v cíli",
+    "Po obědě: 0 z 6 zápisů v cíli",
+    "Po večeři: 0 z 6 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 4,
+     "po": "snídani",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 6,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 6,
+     "po": "večeři",
+     "state": "over"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po snídani, obědě i večeři častěji nad cílem."
+  },
+  "kapitola": "reviewProposals",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P1",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": null,
+   "rady": {
+    "off": [],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 92,
+   "jidla": 172,
+   "noci": 14,
+   "otazky": 1,
+   "plany": 1,
+   "udalosti": 460,
+   "zapisy": 256
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "doctor",
+  "scena": 31,
+  "senzor": {
+   "above": 37,
+   "availability": 91,
+   "below": 0,
+   "days": 14,
+   "interval": 5,
+   "period": "22. 12. 2026 – 4. 1. 2027",
+   "source": "import",
+   "tir": 63,
+   "veryLow": 0
+  },
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {
+   "response": "impractical"
+  }
+ },
+ {
+  "hodiny": "2027-01-05T09:40:00",
+  "hypo": {
+   "karta": null,
+   "sledovani": [
+    {
+     "answer": "yes",
+     "epId": "E9h",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "yes",
+     "epId": "E9i",
+     "kind": "smaller",
+     "meal": "lunch"
+    },
+    {
+     "answer": "no",
+     "epId": "E12",
+     "kind": "smaller",
+     "meal": "breakfast"
+    }
+   ]
+  },
+  "import": {
+   "agree": {
+    "n": 37,
+    "ok": 36
+   },
+   "at": "2027-01-05T09:00:00",
+   "days": 14,
+   "filled": 37,
+   "from": "2026-12-22T00:00:00",
+   "manualOnly": 37,
+   "nights": 14,
+   "readings": 3669,
+   "skipped": 0,
+   "to": "2027-01-04T23:55:00",
+   "tol": 1
+  },
+  "jakSiVedu": {
+   "details": [
+    "Po snídani: 0 z 4 zápisů v cíli",
+    "Po obědě: 0 z 6 zápisů v cíli",
+    "Po večeři: 0 z 6 zápisů v cíli"
+   ],
+   "rows": [
+    {
+     "k": 0,
+     "label": "Snídaně",
+     "meal": "breakfast",
+     "n": 4,
+     "po": "snídani",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Oběd",
+     "meal": "lunch",
+     "n": 6,
+     "po": "obědě",
+     "state": "over"
+    },
+    {
+     "k": 0,
+     "label": "Večeře",
+     "meal": "dinner",
+     "n": 6,
+     "po": "večeři",
+     "state": "over"
+    }
+   ],
+   "state": "over",
+   "text": "Tento týden: po snídani, obědě i večeři častěji nad cílem."
+  },
+  "kapitola": "newplan",
+  "naRade": {
+   "meal": "breakfast",
+   "state": "now"
+  },
+  "nemoc": false,
+  "plan": {
+   "cile": {
+    "fastingHigh": 7.2,
+    "hba1cGoal": 53,
+    "high": 10,
+    "low": 3.9,
+    "tbrGoal": 4,
+    "tirGoal": 70
+   },
+   "davky": {
+    "basal": 18,
+    "breakfast": 8,
+    "dinner": 8,
+    "lunch": 10
+   },
+   "id": "P2",
+   "navyky": [
+    "H-ZAPIS",
+    "H-PORCE",
+    "H-INZULIN",
+    "H-BAZAL"
+   ],
+   "pravidla": [
+    {
+     "id": "I-NEVIM",
+     "value": 60
+    },
+    {
+     "id": "I-HYPO",
+     "value": 4
+    },
+    {
+     "id": "I-MENE",
+     "value": 60
+    },
+    {
+     "id": "I-NEMOC-BAZAL",
+     "value": 3
+    },
+    {
+     "id": "I-NEMOC-JIDLO",
+     "value": 15
+    },
+    {
+     "id": "I-VYSOKA",
+     "value": 15
+    },
+    {
+     "id": "I-KONTAKT",
+     "value": true
+    }
+   ],
+   "predchozi": "P1",
+   "rady": {
+    "off": [
+     "addon",
+     "order"
+    ],
+    "prefer": []
+   }
+  },
+  "pocty": {
+   "bazal": 92,
+   "jidla": 172,
+   "noci": 14,
+   "otazky": 1,
+   "plany": 2,
+   "udalosti": 491,
+   "zapisy": 256
+  },
+  "registr": [
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-MENE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEVIM",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-NEMOC-JIDLO",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-VYSOKA",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   }
+  ],
+  "role": "patient",
+  "scena": 32,
+  "senzor": null,
+  "slotyDne": [
+   {
+    "meal": "breakfast",
+    "state": "now"
+   },
+   {
+    "meal": "lunch",
+    "state": "now"
+   },
+   {
+    "meal": "dinner",
+    "state": "now"
+   }
+  ],
+  "vetve": {
+   "response": "impractical"
+  }
+ }
+]

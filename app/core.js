@@ -11,12 +11,31 @@
 var NF = global.NutriFee = global.NutriFee || {};
 
 /* Číslo verze uloženého stavu. Po každé změně struktury se zvýší; musí souhlasit s ?v= v HTML. */
-NF.SCHEMA = 88;
+NF.SCHEMA = 89;
 NF.PAGES = ['today', 'foods', 'food', 'plan', 'safety', 'support', 'preview', 'meal', 'takeover', 'understand', 'newplan', 'enroll', 'review', 'registry', 'trace', 'training'];
 NF.STORAGE = 'nutrifee-maketa';
 /* C8 (31/03): produkční sestavení (bez prezentační vrstvy) má vlastní klíč úložiště, aby na stejném původu neotevřelo rozehraný příběh ukázky.
    Přepne ho NF.boot po načtení všech skriptů, když prezentační vrstva chybí. */
 NF.STORAGE_APP = 'nutrifee';
+/* SCHEMA 89 (rozhodnutí vlastníka 9. 11. 2026, bod 1–3): jádro jako knihovna s vyměnitelnými hodinami a úložištěm.
+   NF.configure({ now: fn, storage: { get(key), set(key, value) } }) – oba klíče nepovinné; bez volání platí výchozí chování (čas zařízení, localStorage prohlížeče).
+   now() vrací Date, milisekundy nebo místní ISO řetězec; storage.get vrací uložený řetězec nebo null, storage.set ukládá řetězec (chyba = vyhodit výjimku).
+   storage: null = úložiště není (NF.save pak vrátí false a NF.storageOK = false). Jádro samo síť nevolá; synchronizace je tenká vrstva mimo jádro (NF.onChange). */
+NF.config = { now: null, storage: undefined };
+NF.configure = function (opt) {
+  opt = opt || {};
+  if ('now' in opt) NF.config.now = typeof opt.now === 'function' ? opt.now : null;
+  if ('storage' in opt) NF.config.storage = opt.storage && typeof opt.storage.get === 'function' && typeof opt.storage.set === 'function' ? opt.storage : opt.storage === undefined ? undefined : null;
+  return NF.config;
+};
+/* Úložiště, které jádro právě používá: nastavené přes NF.configure, jinak localStorage prohlížeče (když existuje), jinak null. */
+NF.storage = function () {
+  if (NF.config.storage !== undefined) return NF.config.storage;
+  var ls = null; try { ls = global.localStorage || null; } catch (err) { ls = null; }
+  return ls ? { get: function (k) { return ls.getItem(k); }, set: function (k, v) { ls.setItem(k, v); } } : null;
+};
+/* Sloty pro vrstvy nad jádrem (obrazovky, prezentace) – jádro je jen nabízí, samo do nich nic nedává. */
+NF.slots = NF.slots || {};
 var MONTHS = ['ledna','února','března','dubna','května','června','července','srpna','září','října','listopadu','prosince'];
 var DAYS = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
 
@@ -41,7 +60,12 @@ NF.syncUid = function (state) {
 /* A3 (31/03): zdroj času. Jádro bere skutečný čas zařízení; prezentační vrstva (příběh s modelovými dny) nastaví NF.clockModel = true a hodiny řídí sama.
    Čas se obnoví před každou akcí a po ní (ui.js) a jednou za minutu; nikdy se nevrací zpět. */
 NF.clockModel = false;
-NF.now = function () { return localIso(new Date()); };
+NF.now = function () {
+  var f = NF.config.now, d = f ? f() : new Date();
+  if (typeof d === 'string') return NF.validIso(d.slice(0, 19)) ? d.slice(0, 19) : localIso(new Date()); /* hodiny smí vracet místní ISO „2026-10-06T07:05:00“ */
+  if (typeof d === 'number') d = new Date(d);
+  return d && typeof d.getTime === 'function' && !isNaN(d.getTime()) ? localIso(d) : localIso(new Date()); /* Date i z jiného kontextu (bez instanceof) */
+};
 NF.tick = function (S) { if (NF.clockModel || !S) return S && S.clock; var n = NF.now(); if (!NF.validIso(S.clock) || n > S.clock) S.clock = n; return S.clock; };
 NF.parse = function (iso) { return new Date(iso); };
 NF.day = function (iso) { return String(iso).slice(0, 10); };
@@ -163,7 +187,9 @@ NF.registryItems = function (at, by) {
 NF.seedRegistry = function (S, at, by) { S.registry = { items: NF.registryItems(at || S.clock, by || S.doctor.id), history: [] }; };
 NF.seed = function (S, at, by) { NF.seedRegistry(S, at, by); S.foods = NF.data && NF.data.foods ? NF.data.foods() : []; };
 /* Otisk znění položky (kontrola 4, bod 1, rozhodnutí vlastníka 30. 10. 2026): čistá deterministická funkce nad zněním (název, souhrn, detail, text, texty, seznamy, postupy),
-   parametry (hodnoty i jejich české názvy) a textem průvodce „Co schvalujete“. Stav, poznámka, čas a verze do otisku nepatří – verze se ukládá zvlášť.
+   parametry (hodnoty i jejich české názvy) a nepovinně textem průvodce „Co schvalujete“. Stav, poznámka, čas a verze do otisku nepatří – verze se ukládá zvlášť.
+   SCHEMA 89: NF.itemFingerprint(položka) bez druhého argumentu (co = null) je OTISK JÁDRA – stopa ho ukládá a je stejný s prezentační vrstvou i bez ní.
+   NF.itemFingerprint(položka, { co }) s textem průvodce je otisk pro rozhodnutí garanta; počítá ho jen prezentační vrstva (demo/sync.js).
    Stejný vstup dá vždy stejný řetězec „fp-“ + 16 šestnáctkových znaků (dvě 32bitové funkce FNV-1a nad kanonickým JSON se seřazenými klíči). Bez sítě a bez stavu aplikace. */
 NF.canonJson = function (x) {
   if (x === undefined || typeof x === 'function') return 'null';
@@ -185,6 +211,10 @@ NF.itemFingerprint = function (item, guideEntry) {
 /* Položky, o kterých rozhoduje lékař-garant. Provozní položky (scope 'provozni') neschvaluje nikdo (rozhodnutí vlastníka 27. 10. 2026, Q1): nemají stav ani štítek,
    nepočítají se do „zbývá“, souhrnu ani výsledků; v registru jsou jen jako popis pravidla aplikace. */
 NF.garantItems = function (S) { return S.registry.items.filter(function (r) { return r.scope !== 'provozni'; }); };
+/* Výchozí oznámení na místě zamítnuté části (SCHEMA 87, rozhodnutí vlastníka 6. 11. 2026, bod 6; od SCHEMA 89 v jádře, dřív app/screens.js): bez zmínky o garantovi
+   a bez výzvy volat (zásada 3). Položky, jejichž zamítnutí je jen záznam nesouhlasu (C-CILE, K-KRITERIA, Z-GLUKOZA) nebo zásada bez místa (P-LEKAR), dál fungují, oznámení nemají. */
+NF.OFF_TEXT = 'Tato část teď není k dispozici.';
+NF.OFF_RECORD_ONLY = ['C-CILE', 'K-KRITERIA', 'Z-GLUKOZA', 'P-LEKAR'];
 NF.habitCatalog = function () { return (NF.data && NF.data.habits) || []; };
 NF.instructionCatalog = function () { return (NF.data && NF.data.instructions) || []; };
 /* Pokyny jsou součást plánu automaticky (rozhodnutí vlastníka 21. 10. 2026): každý pokyn je položka registru schválená garantem při vývoji,
@@ -240,12 +270,13 @@ NF.instructionExceptions = function (S, list) {
 NF.storageOK = true;
 NF.migrated = null;
 NF.load = function () {
-  var s = null, raw = null;
-  try { raw = global.localStorage && global.localStorage.getItem(NF.STORAGE); s = raw ? JSON.parse(raw) : null; }
+  var s = null, raw = null, st = NF.storage();
+  if (!st) NF.storageOK = false; /* SCHEMA 89: bez úložiště to lišta řekne, nic se tiše neztrácí */
+  try { raw = st ? st.get(NF.STORAGE) : null; s = raw ? JSON.parse(raw) : null; }
   catch (e) { if (raw == null) NF.storageOK = false; s = null; }
   if (raw && (!s || s.schema !== NF.SCHEMA || !Array.isArray(s.plans))) {
     /* Jiné schéma nebo poškozený záznam: nic se tiše nezahazuje – záloha zůstane v zařízení a lišta to řekne (P3, 6. 10. 2026). */
-    try { global.localStorage.setItem(NF.STORAGE + '.zaloha-' + (s && s.schema != null ? s.schema : 'poskozeno'), raw); } catch (e2) { }
+    try { st.set(NF.STORAGE + '.zaloha-' + (s && s.schema != null ? s.schema : 'poskozeno'), raw); } catch (e2) { }
     NF.migrated = s && s.schema != null ? String(s.schema) : 'poškozený záznam';
     s = null;
   }
@@ -254,7 +285,7 @@ NF.load = function () {
   Object.keys(base).forEach(function (k) { if (s[k] === undefined || s[k] === null) s[k] = base[k]; }); /* osekaný stav doplní výchozí klíče */
   if (!NF.stateShapeOK(s)) {
     /* Záznam stejného schématu se špatným tvarem (robustnost #1, 23. 10. 2026): postupujeme jako u poškozeného záznamu – záloha a čistý start. */
-    try { global.localStorage.setItem(NF.STORAGE + '.zaloha-poskozeno', raw); } catch (e3) { }
+    try { st.set(NF.STORAGE + '.zaloha-poskozeno', raw); } catch (e3) { }
     NF.migrated = 'poškozený záznam'; base = NF.createState(); NF.seed(base); return base;
   }
   NF.syncUid(s); /* A2: nová ID pokračují za uloženými */
@@ -278,15 +309,23 @@ NF.stateShapeOK = function (s) {
     return true;
   } catch (err) { return false; }
 };
+/* Uloží stav. Vrací true jen po skutečném zápisu; bez úložiště nebo při chybě vrátí false a NF.storageOK = false (SCHEMA 89: dřív mlčky „úspěch“).
+   Po každém pokusu zavolá háčky změny (NF.onChange) – tenká synchronizační vrstva mimo jádro tak pozná, že se stav změnil. */
 NF.save = function (S) {
-  try { global.localStorage && global.localStorage.setItem(NF.STORAGE, JSON.stringify(S)); } catch (e) { NF.storageOK = false; }
+  var st = NF.storage(), ok = false;
+  if (st) { try { st.set(NF.STORAGE, JSON.stringify(S)); ok = true; } catch (e) { ok = false; } }
+  if (!ok) NF.storageOK = false;
+  NF.emitChange(S, { saved: ok, key: NF.STORAGE });
+  return ok;
 };
 
 /* ---------- stopa ----------
    Každý výpočet, rada a rozhodnutí se zapíše se vstupy, položkou registru a výstupem.
    Nikdy nevolá síť ani generativní AI; vše je deterministické. */
 /* SCHEMA 87 (rozhodnutí vlastníka 6. 11. 2026, bod 1; zásady 4 a 6): události výpočtu a bezpečnostních pravidel nesou položky registru, ze kterých vyšly –
-   id, verzi (`version`) a otisk znění (`NF.itemFingerprint`; text „Co schvalujete“ dodá prezentační vrstva slotem NF.slots.itemGuide, jinak bez něj) a stav.
+   id, verzi (`version`), otisk znění a stav. Otisk ve stopě je od SCHEMA 89 otisk jádra `NF.itemFingerprint(položka)` jen z dat jádra (bez textu průvodce
+   „Co schvalujete“), takže vyjde stejně s prezentační vrstvou i bez ní (rozhodnutí vlastníka 9. 11. 2026, bod 4). Otisk s textem průvodce pro rozhodnutí garanta
+   počítá zvlášť prezentační vrstva (demo/sync.js, `fp`); export garanta nese oba (`fp` a `fpTrace`).
    Položky = pevný seznam podle druhu události (NF.TRACE_ITEMS) + položky, které událost sama jmenuje (data.item, data.items[].item, data.proposals[].item). */
 NF.TRACE_ITEMS = {
   'rada.zobrazena': ['R-REAKCE', 'R-SKORE', 'R-PODOBNOST', 'D-CISTA'], 'jidlo.zapsano': ['R-REAKCE', 'D-CISTA', 'Z-GLUKOZA'],
@@ -304,8 +343,7 @@ NF.itemRefs = function (S, ids) {
   if (!S || !S.registry || !Array.isArray(S.registry.items)) return [];
   return (ids || []).map(function (id) {
     var r = NF.item(S, id); if (!r) return null;
-    var g = null; try { g = NF.slots && NF.slots.itemGuide ? NF.slots.itemGuide(id) || null : null; } catch (err) { g = null; }
-    var fp = null; try { fp = NF.itemFingerprint(r, g); } catch (err2) { fp = null; }
+    var fp = null; try { fp = NF.itemFingerprint(r); } catch (err2) { fp = null; } /* SCHEMA 89: jen data jádra, bez slotu prezentační vrstvy */
     return { id: id, version: r.version || 'v1', fp: fp, stav: NF.itemState(S, id) };
   }).filter(Boolean);
 };
@@ -320,8 +358,12 @@ NF.log = function (S, what, detail, data) {
   if (S.events.length > NF.TRACE_FULL) { var old = S.events[S.events.length - NF.TRACE_FULL - 1]; if (old && old.data && !old.data.zkraceno) old.data = old.data.polozky ? { zkraceno: true, polozky: old.data.polozky } : { zkraceno: true }; } /* omezení makety: stará data stopy se krátí, událost a položky zůstávají */
 };
 /* Háčky pro vrstvy nad jádrem (např. ukládání rozhodnutí garanta mimo zařízení). Jádro samo síť nevolá. */
-NF.hooks = { decision: [], muted: 0 };
+NF.hooks = { decision: [], change: [], muted: 0 };
 NF.onDecision = function (fn) { NF.hooks.decision.push(fn); };
+/* SCHEMA 89: háček změny stavu pro tenkou synchronizační vrstvu mimo jádro (rozhodnutí vlastníka 9. 11. 2026, bod 3). fn(S, { saved, key }) se volá po každém NF.save,
+   tj. po každé akci; vrací funkci, která háček odebere. Chyba v háčku jádro nezastaví. Během NF.muteHooks (přehrání příběhu) se nevolá. */
+NF.onChange = function (fn) { if (typeof fn !== 'function') return function () { }; NF.hooks.change.push(fn); return function () { var i = NF.hooks.change.indexOf(fn); if (i >= 0) NF.hooks.change.splice(i, 1); }; };
+NF.emitChange = function (S, info) { if (NF.hooks.muted) return; NF.hooks.change.slice().forEach(function (fn) { try { fn(S, info || {}); } catch (err) { } }); };
 /* Během fn se háčky nevolají: rozhodnutí odehraná příběhem (přehrání kapitol, kroky prezentace) nejsou rozhodnutí garanta. */
 NF.muteHooks = function (fn) { NF.hooks.muted++; try { return fn(); } finally { NF.hooks.muted--; } };
 
@@ -2216,6 +2258,33 @@ NF.toggleReviewHabit = function (S, catalogId) {
   var r = S.review; if (!r || r.planIssued || !NF.habitCatalog().some(function (h) { return h.id === catalogId; })) return { ok: false };
   var h = NF.reviewHabits(S); r.newHabits = h.indexOf(catalogId) >= 0 ? h.filter(function (x) { return x !== catalogId; }) : NF.uniq(h.concat([catalogId])); return { ok: true };
 };
+/* Report před kontrolou (pacient, 15 odst. 11): od SCHEMA 89 v jádře, dřív v obrazovce V.preview – příběh i ostrá aplikace tak navrhnou tytéž otázky i bez obrazovek.
+   NF.previewBest: známé jídlo s radou, po které bylo aspoň polovina z min_n (S-VYSLEDEK) zápisů v cíli (kontrola 4, C12: bez slova „pomohl“; srovnání „bez rady“ dělá obrazovka). */
+NF.previewBest = function (S, p) {
+  p = p || NF.activePlan(S); if (!p) return null;
+  var minN4 = NF.param(S, 'S-VYSLEDEK', 'min_n', 4), best = null;
+  S.foods.filter(function (f) { return NF.confidence(S, f.id).level === 'known'; }).forEach(function (f) { NF.leverStats(S, f.id).forEach(function (x) { if (x.st.n >= minN4 && x.st.inTarget / x.st.n >= 0.5 && (!best || x.st.inTarget / x.st.n > best.share)) best = { food: f, lever: x.lever, st: x.st, share: x.st.inTarget / x.st.n, base: NF.baseStats(S, f.id) }; }); });
+  return best;
+};
+/* Tři navržené otázky na lékaře (15 odst. 11). s = NF.summary aktivního plánu a best = NF.previewBest jsou nepovinné (obrazovka je má spočítané). */
+NF.previewQuestions = function (S, s, best) {
+  var p = NF.activePlan(S); if (!p) return [];
+  s = s || NF.summary(S, p.id); if (best === undefined) best = NF.previewBest(S, p);
+  var adv = s.advice || {}, qs = [], lows = NF.lowEvents(S).filter(function (x) { return !p.effectiveFrom || x.at >= p.effectiveFrom; });
+  /* B8 (nezávislá kontrola 27. 10. 2026): poklesy, které aplikace slíbila ukázat lékaři, jsou první navržená otázka */
+  if (lows.length) {
+    /* noční poklesy zapsané u snídaně (bod 7, 1. 11. 2026) se v otázce jmenují zvlášť – nejsou „po jídle“ */
+    var lMeal = lows.filter(function (x) { return !x.night; }), lNight = lows.length - lMeal.length;
+    var lm = lMeal.length && lMeal.every(function (x) { return x.meal === lMeal[0].meal; }) ? (NF.MEAL_PO[lMeal[0].meal] || 'po jídle') : 'po jídle';
+    qs.push('Glukóza mi ' + lows.length + '× klesla pod 4' + (lNight && lMeal.length ? ' (' + lMeal.length + '× ' + lm + ', ' + lNight + '× v noci)' : lNight ? ' v noci' : ' ' + lm) + '. Mám něco dělat jinak?');
+  }
+  if (best) qs.push('Mám u jídla „' + best.food.name + '“ dál zkoušet radu „' + NF.LEVERS[best.lever].label.toLowerCase() + '“?');
+  if (adv.topReason === 'nothome') qs.push('Rady, které nemám doma, často nepřijmu – dá se to nastavit jinak?');
+  if (s.other + s.none > 0) qs.push('Inzulin byl někdy jinak než podle plánu (' + (s.other + s.none) + '×). Je to problém?');
+  if (s.illDays) qs.push('Nemoc trvala ' + NF.plural(s.illDays, 'den', 'dny', 'dní') + '. Mám v takové době něco dělat jinak?');
+  qs.push('Jsou moje cíle glukózy pořád správné?');
+  return qs.slice(0, 3); /* 15, odst. 11: tři navržené otázky */
+};
 NF.proposals = function (S, planId, catalog) {
   var out = [], t = NF.targets(S), p = NF.planById(S, planId);
   if (!p) return out;
@@ -2457,6 +2526,30 @@ NF.nurseKey = function (pr, i) { return (pr && pr.nurse && pr.nurse[i]) || null;
 NF.nurseAnswer = function (S, key) { var n = S.nurseCheck && S.nurseCheck.points; return key && n && (n[key] === true || n[key] === false) ? n[key] : undefined; };
 NF.verifyByNurse = function (S, pr, i) { var v = (S.review && S.review.verify[pr.id]) || {}; return v[i] === undefined && NF.nurseAnswer(S, NF.nurseKey(pr, i)) !== undefined; };
 NF.verifyState = function (S, pr, i) { if (NF.verifyBlocked(pr, i)) return false; var v = (S.review && S.review.verify[pr.id]) || {}; return v[i] !== undefined ? v[i] : NF.nurseAnswer(S, NF.nurseKey(pr, i)); };
+/* Větev postupu D-POSTUP podle toho, co lékař ověřil (SCHEMA 89, rozhodnutí vlastníka 9. 11. 2026, bod 4: dřív V.proposalBranch v app/screens-clinic.js;
+   obrazovky, akce a příběh ji jen volají). Vrací { action, text, when?, block?, missing? }; action: wait | free | keep | up | down | swap | edit.
+   Větev je doporučení, ne zámek (zásada 1): aplikace nikdy nevymýšlí směr ani velikost kroku, jen vybere větev lékařova schváleného postupu. */
+NF.proposalBranch = function (S, pr) {
+  /* Tři stavy u každého bodu: neověřeno (undefined) → čeká; sedí (true); nesedí (false) → větev podle bodu. */
+  var states = pr.verify.map(function (_, i) { return NF.verifyState(S, pr, i); }); /* bod blokovaný daty (pokles pod 4) je vždy „nesedí“ (A1) */
+  if (states.some(function (x) { return x === undefined; })) return { action: 'wait', text: 'dokončete ověření' };
+  /* Bez schváleného postupu rozhoduje lékař sám (zásada 1); pokles pod 4 u jídla v období platí i tak (kontrola 3, A1): zvýšení se zapíše jako rozhodnutí proti datům. */
+  if (!pr.branches.length) return pr.lowBlock ? { action: 'free', block: true, text: 'postup není schválen – rozhodněte sami; u jídla byl v období pokles pod 4, zvýšení dávky by šlo proti datům' } : { action: 'free', text: 'postup není schválen – rozhodněte sami' };
+  var no = [], i;
+  for (i = 0; i < states.length; i++) if (states[i] === false) no.push(i);
+  if (!no.length) {
+    var all = pr.branches.filter(function (b) { return !/nesedí/.test(b.when); })[0];
+    return all || { when: 'všechny body sedí', action: 'keep', text: 'ponechat dávku – schválený postup pro tento výsledek nemá větev', missing: true };
+  }
+  /* Kontrola 3, A1: bod, který podle dat nesedí (pokles pod 4), má přednost před pořadím bodů – jeho větev „ponechat“ platí, ať nesedí cokoli dalšího. */
+  var order = no.filter(function (k) { return NF.verifyBlocked(pr, k); }).concat(no.filter(function (k) { return !NF.verifyBlocked(pr, k); }));
+  for (i = 0; i < order.length; i++) {
+    var n = order[i] + 1, m = pr.branches.filter(function (b) { return new RegExp('bod ' + n + '\\b.*nesedí').test(b.when); })[0];
+    if (m) return m;
+  }
+  /* Pro bod, který postup nezná (např. garant větev vyřadil), aplikace větev nevymýšlí a nikdy nenabídne zvýšení: „ponechat dávku“ (kontrola 3, A1). */
+  return { when: 'bod ' + (order[0] + 1) + ' nesedí', action: 'keep', text: 'ponechat dávku – schválený postup pro tento bod nemá větev', missing: true };
+};
 NF.verifyAll = function (S, id) { var r = S.review, pr = r && r.proposals.filter(function (x) { return x.id === id; })[0]; if (!pr) return; var v = r.verify[id] = r.verify[id] || {}; var set = []; pr.verify.forEach(function (_, i) { if (!NF.verifyAgainst(pr, i) && !NF.nurseKey(pr, i)) { if (v[i] !== true) set.push(i + 1); v[i] = true; } }); NF.log(S, 'navrh.overeni.vse', pr.title + ' · Vše sedí', { proposal: id, body: set, item: pr.item || null }); };
 /* SCHEMA 87 (bod 1): ověřovací bod lékaře u návrhu (sedí / nesedí) jde do stopy s textem bodu */
 NF.setVerify = function (S, id, i, value) {

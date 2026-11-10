@@ -183,7 +183,7 @@ test('B11, C8: dlaždice času pod 3,9 – hlášené poklesy jako samostatný �
   assert.match(NF.item(s, 'B-HYPO').summary, /počítá jako pokles pod dolní cíl/); assert.match(NF.item(s, 'D-PRAND').summary, /Hlášené „pod 4“/);
 });
 test('B12, C12, C15: D-PRAND = 15 odst. 10; druhá podmínka bodu 7; název pro štítek', ({ NF, S }) => {
-  const r = NF.item(S(), 'D-PRAND'), doc = fs.readFileSync(path.join(__dirname, '..', '15-ZDROJ-PRAVDY-MAKETA.md'), 'utf8');
+  const r = NF.item(S(), 'D-PRAND'), doc = fs.readFileSync([path.join(__dirname, '..', '15-ZDROJ-PRAVDY-MAKETA.md'), path.join(__dirname, 'predani', 'zdroj', '15-ZDROJ-PRAVDY-MAKETA.md')].find(f => fs.existsSync(f)) || path.join(__dirname, '..', '15-ZDROJ-PRAVDY-MAKETA.md'), 'utf8'); /* SCHEMA 89: vedle makety na Disku, nebo v predani/zdroj/ v samostatném klonu repozitáře */
   assert.match(doc, /\| Posoudit prandiální dávku k \[jídlu\] — hodnoty pod cílem \| ≥ 2 poklesy < 3,9 mmol\/l do 4 h po daném jídle, které zároveň tvoří ≥ 15 % jídel/);
   assert.match(r.summary, /pacient jí ke stejnému jídlu dne i jiné jídlo aspoň 2×/); assert.equal(r.title, 'Návrhy k prandiální dávce a radám');
 });

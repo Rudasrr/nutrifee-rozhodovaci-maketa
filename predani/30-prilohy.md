@@ -1,6 +1,6 @@
 # NutriFee – předání programátorovi: přílohy
 
-*Stav makety SCHEMA 88 (8. 11. 2026). Patří k `00-postup.md`. Tabulky v přílohách 2, 3 a 5 jsou vygenerované skriptem z kódu makety; když se maketa změní, vygenerujte je znovu, nepřepisujte je ručně. Cesty k souborům jsou vůči složce makety.*
+*Stav makety SCHEMA 89 (9. 11. 2026); registr, katalogy a jídla se ve SCHEMA 89 nezměnily. Patří k `00-postup.md`. Tabulky v přílohách 2, 3 a 5 jsou vygenerované skriptem z kódu makety při přípravě předávky; skript patří k podkladům u vlastníka a v repozitáři není. Když se maketa změní, požádejte o nové vygenerování a tabulky nepřepisujte ručně. Designový systém je v samostatné příloze [`40-design-system.md`](40-design-system.md). Cesty k souborům jsou vůči složce makety.*
 
 1. Slovník pojmů
 2. Registr položek
@@ -118,7 +118,7 @@ Závazný slovník s rozlišením slov pro pacienta, pro lékaře a v kódu je v
 - **Záznam nesouhlasu** – zamítnutí, které položku nevypne, jen zapíše nesouhlas (C-CILE, K-KRITERIA, Z-GLUKOZA, P-LEKAR).
 - **Oznámení zamítnuté části** – na místě zamítnuté položky; jádro bez prezentační vrstvy ukáže neutrální „Tato část teď není k dispozici.“ (`NF.OFF_TEXT`, třídy `hint neutral off-default`, atribut `data-off`, jednou za vykreslení, bez zmínky o garantovi a bez výzvy k volání); u záznamů nesouhlasu (C-CILE, K-KRITERIA, Z-GLUKOZA) a P-LEKAR se neukazuje. Maketa ho slotem `NF.slots.offNotice` přepisuje na „Tahle část nefunguje“ s vysvětlením pro garanta (SCHEMA 87).
 - **Nová verze** – oprava pravidla jako nová verze položky ke schválení; každá verze má zase jen dva výsledky.
-- **Otisk znění** – deterministický otisk znění, parametrů a textu „Co schvalujete“ položky, kterým se dokládá, co garant schválil (`NF.itemFingerprint`).
+- **Otisk znění** – deterministický otisk položky (`NF.itemFingerprint`). Otisk rozhodnutí garanta zahrnuje i text „Co schvalujete“ (`fp`); otisk ve stopě je od SCHEMA 89 otisk jádra bez tohoto textu (`fpTrace` v exportu garanta).
 - **Podnět z provozu** – karta v detailu položky s návrhem vypnutí nebo nové verze; provádí výrobce v řízení změn.
 - **Stopa** – záznam každého výpočtu, rady, návrhu a rozhodnutí se vstupy, položkou, verzí, parametry, výstupem a aktérem (`NF.log`, `S.events`). Od SCHEMA 87 nese událost výpočtu pole `polozky = [{ id, version, fp, stav }]` (`NF.TRACE_ITEMS`, `NF.itemRefs`) a zobrazení bezpečnostních pravidel se zapisuje (`pravidlo.nizka`, `pravidlo.mene`, `pravidlo.nevim`, `pravidlo.vysoka`). Krácení stopy v maketě (4000 událostí, data u posledních 1000; `NF.TRACE_MAX`, `NF.TRACE_FULL`) je omezení makety; ostrá aplikace má stopu úplnou.
 
@@ -321,9 +321,9 @@ Varianty níže byly vědomě zavržené. Když je někdo navrhne znovu, připom
 | Žlutá barva; červená pro běžný stav „nad cílem“; semafor bez slova | Červená jen pro chyby, pokles pod 4 a mimo rozsah; stav vždy slovem a ikonou. |
 | Písma načítaná za běhu z cizích serverů; zvláštní písmo pro slabozraké | Jedno vlastní hostované písmo z `app/fonts/`. |
 
-### 4.2 Co neplatí (z `CLAUDE.md`)
+### 4.2 Co neplatí (z instrukcí projektu makety, `CLAUDE.md` mimo repozitář)
 
-- Dokumenty `00` až `14`, `INSTRUKCE-PROJEKTU-CLAUDE.md` a `CHANGELOG-MIGRACE.md` jsou historie, ne zadání; čtěte je jen kvůli důvodům starých rozhodnutí. Zejména dokument `14` (nový směr z 25. 9. 2026) byl závazný do 30. 9. 2026 a už není.
+- Starší dokumenty projektu `00` až `14` (v kořeni projektu vlastníka, ne dokumenty této předávky), `INSTRUKCE-PROJEKTU-CLAUDE.md` a `CHANGELOG-MIGRACE.md` jsou historie, ne zadání; čtěte je jen kvůli důvodům starých rozhodnutí. Zejména dokument `14` (nový směr z 25. 9. 2026) byl závazný do 30. 9. 2026 a už není.
 - Publikovaná maketa ve verzi commitu `52268f1` a starší je stará verze. Neopisujte z ní chování, které `15` ruší: role Garant, kompenzace při zařazení, lékař obnovující úkol mezi kontrolami, obrazovka „Nerozumím“, výběr příčiny výpadku, Průvodce se značkami `?`, graf tří křivek a zákaz jakékoli rady k porci po píchnutí.
 - `NutriFee-zadani-makety-pro-Claude-Code.md` je překonané úplně.
 - `maketa/nutrifee-maketa-pece.html` je starší samostatná větev; nepoužívá se.
@@ -334,11 +334,19 @@ Varianty níže byly vědomě zavržené. Když je někdo navrhne znovu, připom
 
 ### 5.1 Přehled souborů a seznam testů
 
-Vygenerováno skriptem předávky z `*.test.cjs` (názvy jsou první argument funkce `test`; SCHEMA 87). Celkem **17 souborů a 376 zapsaných testů**; jeden z nich je v hlavní sadě smyčka, která vytvoří 15 testů spouštějících ostatní sady (v seznamu jsou rozepsané).
+Vygenerováno skriptem předávky z `*.test.cjs` (názvy jsou první argument funkce `test`). Seznam testů prvních 17 souborů je ze SCHEMA 88, testy SCHEMA 89 (`rychle.test.cjs`, `zlate-vystupy.test.cjs` a dva nové řádky „Sada … projde“) jsou doplněné. Jak spolu souvisejí čísla, která v předávce potkáte:
+
+- **393** je počet zapsaných testů (volání `test('…')`) ve zdrojích 19 souborů.
+- **128** z nich je v hlavní sadě `nutrifee-rozhodovaci-maketa.test.cjs`. Jeden z těch 128 je smyčka, která za běhu vytvoří **17** testů „Sada … projde“; každý spustí jednu další sadu jako samostatný proces.
+- **144** je počet řádků OK, které vypíše hlavní sada: 127 vlastních testů a 17 řádků „Sada … projde“ (referenční běh SCHEMA 89: 144 prošlo, 0 selhalo).
+- **14** testů vypíše rychlá sada (11 vlastních a 3 souběžné podsady) a **9** zlaté výstupy (4 vlastní a 5 souborů JSON).
+- Seznam níže má 415 řádků: 144 testů hlavní sady (smyčka je rozepsaná) a 271 testů ostatních 18 souborů.
+
+Celá sada (`node nutrifee-rozhodovaci-maketa.test.cjs`) běží asi 15–30 minut podle stroje, rychlá sada asi 40 s. Pro demo se testy nepřevádějí: zábradlím je rychlá sada a zlaté výstupy ([`01-cesta-k-demu.md`](01-cesta-k-demu.md)).
 
 | Soubor | Testů | Vrstva | Co hlídá |
 |---|---|---|---|
-| `nutrifee-rozhodovaci-maketa.test.cjs` | 128 | hlavní sada; pouští i ostatní sady jako samostatné procesy | Hlídá neporušitelné zásady (dávku volí lékař, zásada porcí, registr ve stopě, bez sítě a bez generativní AI), celý tok pacienta, sestry a lékaře nad modelovým příběhem, vzhled a sazbu a k tomu prezentační vrstvu (průchod garanta, panel vyprávění, zásuvka, výsledky správce); poslední testy spouštějí ostatní sady. |
+| `nutrifee-rozhodovaci-maketa.test.cjs` | 128 (144 spuštěných) | hlavní sada; pouští i ostatní sady jako samostatné procesy | Hlídá neporušitelné zásady (dávku volí lékař, zásada porcí, registr ve stopě, bez sítě a bez generativní AI), celý tok pacienta, sestry a lékaře nad modelovým příběhem, vzhled a sazbu a k tomu prezentační vrstvu (průchod garanta, panel vyprávění, zásuvka, výsledky správce); poslední testy spouštějí ostatní sady. |
 | `faze2-jadro.test.cjs` | 32 | jádro a obrazovky | Hlídá opravy A01–A33 fáze 2: účinek zamítnutí klinických položek na obrazovce, štítky položek tam, kde působí, a pravidla rad, exportu, reportu a převzetí plánu. |
 | `faze2-pribeh.test.cjs` | 15 | prezentační vrstva | Hlídá, že příběh ukázky a vyprávění říkají pravdu (kroky scény vedou ke stejnému stavu jako skok na kapitolu, citace jsou na obrazovce) a modelová data příběhu. |
 | `kontrola2-obsah.test.cjs` | 18 | jádro + průvodce | Hlídá zásadu 3 u rad, nezávislost bezpečnostní větve na bráně rad, úplná znění pravidel I-* a strojový popis účinku zamítnutí (`ucinek` v `demo/guide.js`) u všech 28 klinických položek. |
@@ -348,22 +356,24 @@ Vygenerováno skriptem předávky z `*.test.cjs` (názvy jsou první argument fu
 | `kontrola4-panel.test.cjs` | 18 | prezentační vrstva | Hlídá pravdivý stav uložení v ukázce, vyprávění podle skutečného děje, rozvržení panelu a přístupnost prezentační vrstvy. |
 | `kontrola74-obsah.test.cjs` | 19 | jádro + příběh | Hlídá opravy nezávislé kontroly SCHEMA 74: poklesy pod 4 jako varování nebo blok větve „zvýšit“, radu po opakovaných poklesech, jen opsaná celá čísla mezi kontrolami, report a účinky zamítnutí B-HYPO, I-MENE a S-SEMAFOR. |
 | `kontrola74-panel.test.cjs` | 7 | prezentační vrstva | Hlídá souhrn rozhodnutí garanta, přeskočené kroky a drobnosti panelu ukázky. |
-| `obsah-pacienta.test.cjs` | 9 | obrazovky pacienta (jádro bez slotů ukázky) | Hlídá pravidla P1–P11 z `15` odst. 15b nad všemi stavy pacienta: jeden nadpis a jedno hlavní tlačítko, limity slov, krátká bezpečnostní pravidla s „Celé pravidlo“, žádné texty pro lékaře a garanta, žádné opakované věty a jednu úroveň rozbalení. |
+| `obsah-pacienta.test.cjs` | 9 | obrazovky pacienta (jádro bez slotů ukázky) | Hlídá pravidla P1, P4 a P6–P11 z `15` odst. 15b nad všemi stavy pacienta (P2, P3 a P5 vlastní test nemají a ověřují se v prohlížeči): jeden nadpis a jedno hlavní tlačítko, limity slov, krátká bezpečnostní pravidla s „Celé pravidlo“, žádné texty pro lékaře a garanta, žádné opakované věty a jednu úroveň rozbalení. |
 | `pravdivost.test.cjs` | 4 | prezentační vrstva + účinek zamítnutí | Kontroly pravdivosti T1–T4: položka se nabízí jen tam, kde je vidět, mapa scén odpovídá příběhu, zamítnutí každé položky mění obrazovku přesně podle `ucinek` a vyprávění necituje nic, co na obrazovce není. |
 | `robustnost.test.cjs` | 14 | jádro | Hlídá odolnost jádra: poškozený stav, neplatné vstupy akcí, escapování do HTML, vykreslení bez vedlejších účinků, determinismus, nulová síťová volání bez `demo/` a výkon při 300 zápisech. |
 | `schema84-jadro.test.cjs` | 15 | jádro kontroly | Hlídá rozhodnutí vlastníka ze SCHEMA 84–85: volič „jiná dávka“ u každé dávky, rady první bez zámku, blok „zvýšit“ jen z čistých poklesů, vývoj v čase, kohortu jen s inzulinem, hmotnost a dvě okna včasného inzulinu. |
 | `tokeny.test.cjs` | 7 | vzhled | Hlídá, že `app/design.css` nemá pevné hodnoty, každý token je v `app/tokens.css` a katalog `design-system/` ukazuje všechny tokeny. |
 | `ukladani.test.cjs` | 29 | prezentační vrstva (vzor klienta) | Hlídá ukládání rozhodnutí garanta na server makety (fronta, opakování, pořadí řádků, pravdivý stav uložení, přihlášení, export pro správce, otisky a testovací vektory) v simulaci bez sítě. |
+| `rychle.test.cjs` | 12 (14 spuštěných) | jádro (SCHEMA 89) | Rychlá sada pod 1 minutu: hodiny, úložiště a háček změny jádra, `NF.proposalBranch` a `NF.OFF_TEXT` v jádře, bez sítě a DOM, registr, zásady 1 a 3 a souběžně podsady zlatých výstupů, P1–P11 a tokenů. |
+| `zlate-vystupy.test.cjs` | 5 (9 spuštěných) | jádro (SCHEMA 89) | Zlaté výstupy: přehrání 32 scén jen nad jádrem a `demo/fixtures.js`, shoda pěti souborů JSON ve složce `zlate-vystupy/`, kanonický tvar, otisky položek a shoda výstupů s prezentační vrstvou i bez ní. |
 | `zaverecne80.test.cjs` | 22 | jádro a produkční sestavení | Hlídá opravy závěrečného ověření SCHEMA 80–82: produkční sestavení se skutečným časem, vlastním úložištěm a rolí podle adresy, žádné volné textové pole v ordinaci, noční poklesy (čip u snídaně, export, zápis pacienta) a rady modelové historie skládané jádrem. |
 
-#### `nutrifee-rozhodovaci-maketa.test.cjs` (128)
+#### `nutrifee-rozhodovaci-maketa.test.cjs` (128 zapsaných, 144 spuštěných)
 
 - Aplikace nikde nepočítá ani nenavrhuje dávku; volí ji lékař
 - Porce: před píchnutím oběma směry; po píchnutí jen z větší; nikdy „sněz víc“
 - Každá rada a výpočet nese položku registru; zamítnutá položka přestane působit
 - Registr: rozhodnutí se uloží ihned, historie jen přibývá, lze měnit
 - Lékař mezi kontrolami nic nedělá
-- Jádro bez sítě a bez generativní AI; síť volá jen demo/sync.js (rozhodnutí garanta do úložiště makety)
+- Jádro bez sítě a bez generativní AI; síť volá jen demo/sync.js (rozhodnutí garanta do úložiště makety) – název v kódu končí jménem služby úložiště makety, které předávka kvůli zásadě 9 nepíše; test najdete výběrem `ONLY="Jádro bez sítě"`
 - Přihlášení (7. 10. 2026): bez přihlášení jen přihlašovací stránka; garant ukládá a vidí své, správce vidí výsledky; rozhodnutí z registru přežijí skok na scénu
 - Stav položek (7. 10. 2026 večer): ke schválení místo „schváleno předem“; zamítnutí ukáže na místě „tahle část nefunguje“ a příběh pokračuje
 - Panel vyprávění (8. 10. 2026): říká, co je na obrazovce; žádný krok nemá titulek, který popisuje jen akci místo výsledku
@@ -488,6 +498,8 @@ Vygenerováno skriptem předávky z `*.test.cjs` (názvy jsou první argument fu
 - Sada `kontrola4-obsah.test.cjs` – kontrola 4 – obsah, jádro a rozhodnutí vlastníka (SCHEMA 78) projde
 - Sada `kontrola4-panel.test.cjs` – kontrola 4 – panel, vyprávění, rozvržení a přístupnost (SCHEMA 78) projde
 - Sada `ukladani.test.cjs` – kontrola 4 – ukládání, přihlášení a výsledky správce (SCHEMA 78) projde
+- Sada `zlate-vystupy.test.cjs` – zlaté výstupy jádra (SCHEMA 89) – celý příběh jen nad jádrem projde
+- Sada `rychle.test.cjs` – rychlá sada pod 1 minutu (SCHEMA 89) projde
 - SCHEMA 72 + 83: jen dvě rozhodnutí; pole poznámky až po rozhodnutí, hned pod tlačítky; poznámka zůstane v poli po rozhodnutí, změně rozhodnutí, překreslení, skoku i F5; bez rozhodnutí nevzniká
 - SCHEMA 72: zásuvka „Vaše rozhodnutí“ z lišty nad příběhem – příběh stojí, nic se nepřehrává; přehled scén ukazuje nerozhodnuté
 - SCHEMA 72: „Změnit rozhodnutí“ v oznámení otevře kartu v panelu na místě (ne registr); funguje i v zamčené obrazovce
@@ -727,7 +739,7 @@ Vygenerováno skriptem předávky z `*.test.cjs` (názvy jsou první argument fu
 - A4 + B6 + B9 + B10: karta bazálu – odpověď sestry u bodu 2, okolnosti nocí, ranní opsané hodnoty, přednost jen bez „jídla pozdě večer“ nebo pod 3,0
 - B2 + C6 + C7: tabulka jídel podle jídla dne, řazení podle „nad cílem“, svačiny na konci, 5 řádků a „Další (N)“
 - B5 + C2: věta o dávkách, které si pacient sám snížil; tlačítko „Pravidla a kontakty“
-- Verze: NF.SCHEMA 87, ?v=87 v HTML, data-version="87" v katalogu; D-POSTUP a S-SEMAFOR nesou nové parametry s mezemi
+- Verze: NF.SCHEMA 89, ?v=89 v HTML, data-version="89" v katalogu; D-POSTUP a S-SEMAFOR nesou nové parametry s mezemi – číslo verze v názvu se mění s každou SCHEMA; výběr `ONLY="Verze: NF.SCHEMA"`
 - SCHEMA 85: učení jídel bere inzulin 45 min před / 30 min po jídle, návrh k dávce dál 30 / 15 (D-CISTA pred_uceni_min, po_uceni_min)
 
 #### `tokeny.test.cjs` (7)
@@ -771,6 +783,35 @@ Vygenerováno skriptem předávky z `*.test.cjs` (názvy jsou první argument fu
 - 31 C6: rozepsaná poznámka v poli s kurzorem se při zavírání stránky uloží a odejde; neuložený koncept vyvolá dotaz prohlížeče
 - SCHEMA 83 (vlastník 2. 11. 2026): poznámka po rozhodnutí se ukládá sama po 1 s bez psaní, bez opuštění pole; „Ukládá se…“ → „Uloženo … na serveru“; opuštění pole uloží hned bez dvojího řádku; změna rozhodnutí poznámku zachová; správce vidí úpravy jako jednu řádku
 - 31/03 B6: smazání rozhodnutí v jedné kartě druhá karta nevrátí – značka resetu nahradí její deník (storage) a starší záznamy se nezapíšou ani bez události
+
+#### `rychle.test.cjs` (12 zapsaných, 14 spuštěných)
+
+- Jádro: NF.configure({ now }) vymění hodiny; výchozí je čas zařízení
+- Jádro: NF.save bez úložiště vrátí false a NF.storageOK = false (žádný tichý „úspěch“)
+- Jádro: NF.configure({ storage: { get, set } }) – uložení a načtení přes adaptér; jiné schéma se zálohuje
+- Jádro: háček změny NF.onChange pro synchronizační vrstvu – po každém NF.save, odhlásit jde, při NF.muteHooks mlčí
+- Jádro: NF.proposalBranch a NF.OFF_TEXT jsou v jádře; obrazovky mají jen aliasy
+- Jádro: síť nevolá, DOM ani generativní AI nepoužívá (app/*); nové globální objekty nezakládá
+- Registr: 42 položek, 28 garantových; provozní bez stavu; parametry v mezích; otisk „fp-“ + 16 hex shodný se zlatými výstupy
+- Zásada 1: aplikace nepočítá ani nenavrhuje dávku – návrhy bez jednotek, větve jen z postupu D-POSTUP, jádro jednotky samo nemění
+- Zásada 3: porce před píchnutím oběma směry, po píchnutí a při „nevím“ jen z větší; nikdy „sněz víc“
+- Zásada 3: nízká glukóza – po menší porci s inzulinem otázka za 60 min, 2 poklesy za 7 dní → karta s obecnou radou; pokles blokuje „zvýšit“
+- Zásada 3: aplikace pacienta k volání do ordinace sama nevyzve (pravidla I-* a znění registru)
+- Sada `zlate-vystupy.test.cjs` – zlaté výstupy jádra projde (…)
+- Sada `obsah-pacienta.test.cjs` – obsah obrazovek pacienta P1–P11 projde (…)
+- Sada `tokeny.test.cjs` – tokeny vzhledu a katalog projde (…)
+
+#### `zlate-vystupy.test.cjs` (5 zapsaných, 9 spuštěných)
+
+- Jádro se načte bez DOM a bez úložiště prohlížeče; přehraje celý příběh až po vydání nového plánu (32 scén)
+- Zlatý výstup otisky.json se shoduje s přepočtem jádra
+- Zlatý výstup pribeh.json se shoduje s přepočtem jádra
+- Zlatý výstup kontrola.json se shoduje s přepočtem jádra
+- Zlatý výstup rady.json se shoduje s přepočtem jádra
+- Zlatý výstup stopa.json se shoduje s přepočtem jádra
+- Soubory zlatých výstupů jsou čistý JSON se seřazenými klíči (stejné porovnání jde pustit z jiného jazyka)
+- Otisky položek: otisk jádra je NF.itemFingerprint(položka) bez průvodce, „fp-“ + 16 hex, 42 položek, 28 garantových
+- S prezentační vrstvou (celé HTML) vyjdou stejné výstupy jádra i otisky ve stopě
 
 #### `zaverecne80.test.cjs` (22)
 

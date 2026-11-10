@@ -358,12 +358,12 @@ D.decideSingles = function (S, B) {
   r.proposals.forEach(function (pr) {
     if (pr.row || r.decisions[pr.id] || !NF.proposalIsSingle(S, pr)) return; /* SCHEMA 84: řádky bez návrhu se nerozhodují */
     if (pr.kind === 'dose' && pr.dose !== 'basal') {
-      storyFill(S, B, pr); var bd = NF.screens.proposalBranch(S, pr);
+      storyFill(S, B, pr); var bd = NF.proposalBranch(S, pr);
       /* C12 (kontrola 3, vlastník 29. 10. 2026): se zamítnutou B-HYPO lékař dávku k obědu ponechá proti větvi „zvýšit“ bez poznámky – ukázka za něj nic nepíše (jako krok ve scéně 22) */
       NF.decideProposal(S, pr.id, bd && bd.action === 'keep' ? { choice: 'keep', branch: 'keep' } : !NF.usable(S, 'B-HYPO') && pr.dose === 'lunch' ? { choice: 'keep', branch: bd ? bd.action : null } : { choice: 'keep', branch: null }); return; /* A4 (31/03): modelový lékař nic nepíše; dávku ponechal na příští kontrolu (volba, ne text) */
     }
     storyFill(S, B, pr);
-    var br = NF.screens.proposalBranch(S, pr), dec = { choice: br && (br.action === 'swap') ? 'agree' : 'keep', branch: br && br.action };
+    var br = NF.proposalBranch(S, pr), dec = { choice: br && (br.action === 'swap') ? 'agree' : 'keep', branch: br && br.action };
     if (br && br.action === 'swap') dec.swapTo = NF.swapOptions(S, pr)[0] || null;
     NF.decideProposal(S, pr.id, dec);
   });
@@ -374,12 +374,12 @@ D.reviewStory = function (S, B) {
   var r = S.review, first = true;
   r.proposals.forEach(function (pr) {
     if (pr.row || r.decisions[pr.id] || !NF.proposalIsSingle(S, pr)) return; /* SCHEMA 84: řádky bez návrhu se nerozhodují */
-    if (pr.kind === 'dose' && pr.dose === 'basal') { storyFill(S, B, pr); var bb = NF.screens.proposalBranch(S, pr); NF.decideProposal(S, pr.id, { choice: bb && bb.action === 'keep' ? 'keep' : 'agree', branch: bb && bb.action }); return; }
+    if (pr.kind === 'dose' && pr.dose === 'basal') { storyFill(S, B, pr); var bb = NF.proposalBranch(S, pr); NF.decideProposal(S, pr.id, { choice: bb && bb.action === 'keep' ? 'keep' : 'agree', branch: bb && bb.action }); return; }
     /* SCHEMA 84 (07 bod 3, 09 odd. 4): oběd s poklesy po menší porci modelový lékař v hlavní linii i v odbočkách ponechá přes „Jiné rozhodnutí“
        (jedna změna najednou, poklesy jen varují) – zvyšuje se jen první jiná prandiální dávka; oběd rozhodne D.decideSingles (ponechat) */
     if (pr.kind === 'dose' && first && pr.dose !== 'lunch') {
       first = false; storyFill(S, B, pr);
-      var br = NF.screens.proposalBranch(S, pr);
+      var br = NF.proposalBranch(S, pr);
       if (br && (br.action === 'up' || br.action === 'down')) { var u = r.newDoses[pr.dose].units + (br.action === 'up' ? 2 : -2); NF.decideProposal(S, pr.id, { choice: 'agree', branch: br.action, units: u }); }
       else NF.decideProposal(S, pr.id, { choice: 'keep', branch: br && br.action });
     }
@@ -480,6 +480,7 @@ D.nightFinish = function (S, B) {
   if (sp && S.episodes.some(function (x) { return x.id === sp.id && x.manual && x.manual.nightLow; })) S.lowNotice = { at: S.clock, night: true }; /* karta „Pokles pod 4 je zapsaný“ na Dnes, jako po uložení v aplikaci (SCHEMA 86, 33/06 odd. 4: night jako NF.saveEpisode) */
 };
 D.firstQuestion = function (S) {
+  if (NF.previewQuestions) return NF.previewQuestions(S)[0] || ''; /* SCHEMA 89: otázky počítá jádro; příběh tak jde přehrát i bez obrazovek */
   var page = S.page, role = S.role, html = '';
   try { S.page = 'preview'; S.role = 'patient'; html = NF.screens.patient(S); } catch (err) { html = ''; } finally { S.page = page; S.role = role; }
   var m = html.match(/data-action="toggleQuestion" data-value="([^"]*)"/); if (!m) return '';

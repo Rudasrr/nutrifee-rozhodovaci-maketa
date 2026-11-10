@@ -1,6 +1,6 @@
-# Atlas obrazovek aplikace pacienta (SCHEMA 87)
+# Atlas obrazovek aplikace pacienta (SCHEMA 89)
 
-*Část předávacího dokumentu pro programátora ostré aplikace. Stav makety: `maketa-rozhodovaci/`, `NF.SCHEMA = 87`. Zdroj pravdy je `15-ZDROJ-PRAVDY-MAKETA.md` a při rozporu chování makety; rozpory, které jsme při psaní atlasu našli, jsou na konci v oddílu „Rozpory k rozhodnutí“. Ordinace (lékař, sestra, registr) a postup programování jsou v samostatných částech předání.*
+*Část předávacího dokumentu pro programátora (první demo i ostrá aplikace). Stav makety: `maketa-rozhodovaci/`, `NF.SCHEMA = 89` (obrazovky pacienta se od SCHEMA 87 viditelně nezměnily; SCHEMA 89 jen přesunula výběr otázek v přehledu před kontrolou do jádra, `NF.previewQuestions` a `NF.previewBest`, texty a pořadí zůstaly). Zdroj pravdy je `15-ZDROJ-PRAVDY-MAKETA.md` a při rozporu chování makety; rozpory, které jsme při psaní atlasu našli, jsou na konci v oddílu „Rozpory k rozhodnutí“. Ordinace (lékař, sestra, registr) a postup programování jsou v samostatných částech předání.*
 
 Snímky jsou pořízené z makety v šířce 390 px (mobilní emulace), jen samotná obrazovka aplikace: bez lišty ukázky, panelu prezentujícího, štítků schvalování, štítku DEMO a bez vysvětlivek ukázky. Slot `NF.slots.patientTag` byl při snímání vypnutý, takže obrazovka vypadá tak, jak ji vykreslí jádro bez prezentační vrstvy (`demo/`). Lišta záložek je na snímku pod obsahem, v aplikaci je přichycená ke spodnímu okraji displeje. Data na snímcích jsou syntetická (modelový pacient z příběhu ukázky). Snímky P10, P22, P27 a P46 jsou pořízené znovu ve SCHEMA 87 (posuvník jednotek, „jiný čas“, krok 3 při glukóze pod 4); ostatní obrazovky se ve SCHEMA 87 viditelně nezměnily, nové snímání dalo shodné obrázky.
 
@@ -18,18 +18,20 @@ Každá obrazovka má identifikátor (P01–P57), snímek a devět oddílů:
 - **Pozor při programování** – co z ukázky nepřenášet a které zásady `15` odst. 2 a pravidla P1–P11 (`15` odst. 15b) tu platí.
 - **Testy, které ji hlídají** – soubor a název testu ve složce `maketa-rozhodovaci/`.
 
+Nad oddíly je u každé obrazovky řádek **„Kapitola“**: ve které kapitole příběhu obrazovku najdete živě. Obsahuje název scény, identifikátor kapitoly v `demo/fixtures.js` a volání `D.play(…)`, kterým demo na kapitolu skočí, číslo scény v „Přehledu scén“ makety a počet klepnutí na **Další ▶**, po kterých maketa obrazovku ukáže. Kde snímek potřeboval další akci, je za středníkem. Počty klepnutí platí pro maketu s vyprávěním (každý krok počkejte do konce) a jsou ověřené přehráním na SCHEMA 89 (9. 11. 2026): stránka, čas a nadpis vyšly stejně jako na snímku. V demu bez vyprávění `D.play` ukáže začátek kapitoly a zbytek se doklepe ručně.
+
 Zkratky v textu: *stav* `S` = celý stav aplikace (`NF.createState`); *zápis* (episode) = jeden záznam jídla v `S.episodes`; *slot* = jídlo dne (snídaně, oběd, večeře); *započítaný zápis* = zápis, který vstupuje do učení jídla (`NF.usableEp`).
 
 ### Společná pravidla pro všechny obrazovky pacienta
 
 - **Vykreslení.** Obrazovky pacienta kreslí `app/screens.js` (`V.patient(S)` → `patientScreen`); akce tlačítek jsou v `app/ui.js` (atribut `data-action` = název akce, `data-value` = hodnota). Jádro vrací HTML řetězce; ostrá aplikace může mít jinou technologii, ale musí zachovat obsah, pořadí, stavy a akce.
 - **Štítky schvalování pacient nevidí** (zásada 4, SCHEMA 86). Kde položka působí, jádro vloží jen skrytou značku `<span class="item-ref" data-item="ID" hidden>` (`V.appr` uvnitř `patientWrap`). Vazba na položku musí zůstat ve stopě. Slot `NF.slots.patientTag` dokresluje štítky jen v ukázce pro garanta – nepřenáší se.
-- **Zamítnutá položka** (`NF.usable(S, id)` je `false`) přestane působit a na jejím místě se ukáže oznámení. Od SCHEMA 87 ho kreslí jádro samo: neutrální věta „Tato část teď není k dispozici.“ (`NF.OFF_TEXT` v `app/screens.js`, prvek `<div class="hint neutral off-default" role="status" data-off="ID">`). Na jedné obrazovce se hlásí jednou za vykreslení, nemluví o garantovi a nevyzývá k volání. U položek, jejichž zamítnutí je jen záznam nesouhlasu (C-CILE, K-KRITERIA, Z-GLUKOZA), a u P-LEKAR se oznámení neukazuje. Maketa text přepisuje slotem `NF.slots.offNotice` na „Tahle část nefunguje“ s vysvětlením pro garanta; to se nepřenáší. V ostré aplikaci jsou pravidla schválená předem, takže oznámení uvidí pacient jen po stažení položky.
+- **Zamítnutá položka** (`NF.usable(S, id)` je `false`) přestane působit a na jejím místě se ukáže oznámení. Od SCHEMA 87 ho kreslí jádro samo: neutrální věta „Tato část teď není k dispozici.“ (`NF.OFF_TEXT`, od SCHEMA 89 v `app/core.js`, `app/screens.js` má jen alias; prvek `<div class="hint neutral off-default" role="status" data-off="ID">`). Na jedné obrazovce se hlásí jednou za vykreslení, nemluví o garantovi a nevyzývá k volání. U položek, jejichž zamítnutí je jen záznam nesouhlasu (C-CILE, K-KRITERIA, Z-GLUKOZA), a u P-LEKAR se oznámení neukazuje. Maketa text přepisuje slotem `NF.slots.offNotice` na „Tahle část nefunguje“ s vysvětlením pro garanta; to se nepřenáší. V ostré aplikaci jsou pravidla schválená před nasazením, takže oznámení uvidí pacient jen po stažení položky.
 - **Štítek DEMO** (`.demo-band`) kreslí jádro jen bez prezentační vrstvy. V ostré aplikaci se nepřenáší.
 - **Čísla posuvníkem.** Každé číslo, které pacient volí, se volí posuvníkem hodnoty (`V.slider`) s jemným krokem −/+ po stranách. Od SCHEMA 87 to platí i pro jednotky inzulinu: „Ano, jinak“ v kroku 1 (P27), „Píchnuto jinak“ v kroku 3, bazál „Jinak“ (P22) a oprava inzulinu (P10) používají `V.unitsSlider` se značkou „předepsáno N j.“ a akce `mealUnitsSet`, `basalUnitsSet`, `fixInsulinUnitsSet`. Rozsah je 1–60 j. z jediné konstanty jádra `NF.DOSE_RANGE` (pomocníci `NF.validDose`, `NF.clampDose`); stejný rozsah platí v ordinaci. Starší akce po krocích (`mealUnits`, `basalUnits`, `fixInsulinUnits`) zůstaly v maketě jen kvůli kompatibilitě a do ostré aplikace se nepřenášejí.
 - **Položky ve stopě.** Od SCHEMA 87 nese každá událost výpočtu a bezpečnostního pravidla pole `polozky = [{ id, version, fp, stav }]`: pevný seznam položek podle druhu události (`NF.TRACE_ITEMS`) a položky, které událost sama jmenuje (`item`, `items[].item`, `proposals[].item`). `fp` je otisk znění `NF.itemFingerprint`. Zobrazení bezpečnostního pravidla se zapisuje vždy, když ho obrazovka pacientovi ukáže (`NF.noteRule`): `pravidlo.nizka` (I-HYPO), `pravidlo.mene` (I-MENE), `pravidlo.nevim` (I-NEVIM) a jako dřív `pravidlo.vysoka` (I-VYSOKA). Pole `shown` říká, zda bylo pravidlo v plánu; když nebylo, pacient na místě viděl oznámení.
 - **Vykání bez rodu, hlas „my“**, žádné „report, medián, skóre, garant, studie, čistá data“ (hlavní test „Pacientské texty jsou bez rodu…“, „Pacientské obrazovky bez zakázaných slov…“).
-- **Pravidla obsahu P1–P11** (`15` odst. 15b) hlídá `obsah-pacienta.test.cjs` nad 138 stavy příběhu: jeden `h1` a nejvýš jedno aktivní hlavní tlačítko (P1); „Co teď“ nad ohybem 780 px (P2); krok jídla ≤ 1,5 výšky obrazovky, Dnes ≤ 2 (P3); limity slov (P4); „proč“ jednou větou, víc pod „Proč…“ (P5); „Co dál / Potom“ jedním řádkem (P6); „jak si vedu“ slovem a ikonou, čísla v Podrobnostech (P7); bezpečnostní pravidla krátce s „Celé pravidlo“ (P8); žádné texty pro lékaře, garanta či provoz (P9); žádná věta dvakrát (P10); jedna úroveň rozbalení (P11).
+- **Pravidla obsahu P1–P11** (`15` odst. 15b). `obsah-pacienta.test.cjs` nad 138 stavy příběhu hlídá P1, P4, P6–P11; P2 a P3 (poloha a výška v pixelech) a P5 vlastní test nemají a ověřují se v prohlížeči: jeden `h1` a nejvýš jedno aktivní hlavní tlačítko (P1); „Co teď“ nad ohybem 780 px (P2); krok jídla ≤ 1,5 výšky obrazovky, Dnes ≤ 2 (P3); limity slov (P4); „proč“ jednou větou, víc pod „Proč…“ (P5); „Co dál / Potom“ jedním řádkem (P6); „jak si vedu“ slovem a ikonou, čísla v Podrobnostech (P7); bezpečnostní pravidla krátce s „Celé pravidlo“ (P8); žádné texty pro lékaře, garanta či provoz (P9); žádná věta dvakrát (P10); jedna úroveň rozbalení (P11).
 - **Barvy a tvary** jen z `app/tokens.css` (zelená = v cíli, oranžová = nad cílem/upozornění, červená = pod 4, petrolejová = akce); stav vždy slovem i ikonou (`15` odst. 15a). Odpověď na otázku je volba (obdélník s obrysem, plný až po vybrání), akce je pilulka.
 
 ## Jak je aplikace pacienta postavená
@@ -101,6 +103,8 @@ Převzetí je průvodce o šesti stránkách (`V.takeover`, `V.understand`; `15`
 
 ![P01](obrazovky/pacient-P01-prevzeti-1-cil.png)
 
+*Kapitola: „Pacient – převzetí plánu a jedna otázka“ (`handover`, `D.play(5)`; v Přehledu scén scéna 6), na začátku scény.*
+
 - **Co to je:** první stránka převzetí plánu s cílem do příští kontroly.
 - **K čemu je pacientovi:** jednou větou ví, k čemu aplikace je: poznat jeho běžná jídla a co mu u nich pomáhá; dávky řeší lékař.
 - **Kde v životě a v aplikaci:** v ordinaci po vydání plánu lékařem a zaučení sestrou, pacient poprvé otevře aplikaci. Aplikace sem přesměruje z jakékoli stránky, dokud plán není převzatý. Dál „Začít →“ na P02.
@@ -114,6 +118,8 @@ Převzetí je průvodce o šesti stránkách (`V.takeover`, `V.understand`; `15`
 ## P02 · Převzetí 2/6 – Vaše dávky inzulinu
 
 ![P02](obrazovky/pacient-P02-prevzeti-2-davky.png)
+
+*Kapitola: „Pacient – převzetí plánu a jedna otázka“ (`handover`, `D.play(5)`; v Přehledu scén scéna 6), po 2. klepnutí na Další.*
 
 - **Co to je:** tabulka čtyř dávek z plánu a otázka „Souhlasí s tím, co vám řekl lékař?“.
 - **K čemu je pacientovi:** zkontroluje, že v telefonu má tytéž dávky, které mu lékař řekl. Je to jediná nezávislá kontrola zadání dávky.
@@ -129,6 +135,8 @@ Převzetí je průvodce o šesti stránkách (`V.takeover`, `V.understand`; `15`
 
 ![P03](obrazovky/pacient-P03-prevzeti-3-navyky.png)
 
+*Kapitola: „Pacient – převzetí plánu a jedna otázka“ (`handover`, `D.play(5)`; v Přehledu scén scéna 6), po 3. klepnutí na Další.*
+
 - **Co to je:** seznam návyků z plánu, každý s jednou větou proč.
 - **K čemu je pacientovi:** ví, co od něj plán čeká (zapisovat hlavní jídla, obvyklá porce, potvrzovat inzulin, bazál každý večer).
 - **Kde v životě a v aplikaci:** P02 → P03 → P04.
@@ -142,6 +150,8 @@ Převzetí je průvodce o šesti stránkách (`V.takeover`, `V.understand`; `15`
 ## P04 · Převzetí 4/6 – Jak to funguje
 
 ![P04](obrazovky/pacient-P04-prevzeti-4-jak-to-funguje.png)
+
+*Kapitola: „Pacient – převzetí plánu a jedna otázka“ (`handover`, `D.play(5)`; v Přehledu scén scéna 6), po 4. klepnutí na Další.*
 
 - **Co to je:** vysvětlující animace „klíč a talíř“ (`V.explainerKey`): dávka je klíč vyrobený na obvyklou porci.
 - **K čemu je pacientovi:** pochopí, proč aplikace hlídá obvyklou porci a ne sacharidy.
@@ -157,6 +167,8 @@ Převzetí je průvodce o šesti stránkách (`V.takeover`, `V.understand`; `15`
 
 ![P05](obrazovky/pacient-P05-prevzeti-5-co-nedelame.png)
 
+*Kapitola: „Pacient – převzetí plánu a jedna otázka“ (`handover`, `D.play(5)`; v Přehledu scén scéna 6), po 6. klepnutí na Další.*
+
 - **Co to je:** tři přeškrtnuté činnosti (nepočítáme sacharidy, neměníme dávku, nikdo nečte zápisy mezi kontrolami) a názvy bezpečnostních pravidel.
 - **K čemu je pacientovi:** ví, co od aplikace nečekat: nízkou ani vysokou glukózu nehlídá, upozornění si nastaví v aplikaci senzoru.
 - **Kde v životě a v aplikaci:** P04 → P05 → „Další: jedna otázka →“ P06.
@@ -171,6 +183,8 @@ Převzetí je průvodce o šesti stránkách (`V.takeover`, `V.understand`; `15`
 
 ![P06](obrazovky/pacient-P06-prevzeti-6-kontrolni-otazka.png)
 
+*Kapitola: „Pacient – převzetí plánu a jedna otázka“ (`handover`, `D.play(5)`; v Přehledu scén scéna 6), po 8. klepnutí na Další.*
+
 - **Co to je:** otázka „Uvidí lékař můj zápis hned?“ s volbami „Ano, hned“ / „Ne, až na kontrole“ a tlačítkem „Plán přebírám“.
 - **K čemu je pacientovi:** ověří si, že zápis není zpráva do ordinace; s potížemi teď mu pomůže Bezpečí.
 - **Kde v životě a v aplikaci:** P05 → P06 → „Plán přebírám“ → Dnes (P08) s hláškou „Hotovo. Plán platí.“.
@@ -184,6 +198,8 @@ Převzetí je průvodce o šesti stránkách (`V.takeover`, `V.understand`; `15`
 ## P07 · Převzetí bez dokončeného zaučení
 
 ![P07](obrazovky/pacient-P07-prevzeti-bez-zauceni.png)
+
+*Kapitola: „Dodatek · bez zaučení plán nezačne platit“ (`handover`, `D.play(5, { training: 'failed' })`; v Přehledu scén dodatek, scéna 29), na začátku scény.*
 
 - **Co to je:** první stránka převzetí s větou „Zaučení u sestry nebylo dokončeno. Plán začne platit, až ho sestra dokončí. Domluvte si se sestrou nový termín.“ a bez tlačítka dál.
 - **K čemu je pacientovi:** ví, proč aplikace zatím nic nedělá a co má udělat.
@@ -218,6 +234,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 
 ![P08](obrazovky/pacient-P08-dnes-prvni-den.png)
 
+*Kapitola: „Pacient – převzetí plánu a jedna otázka“ (`handover`, `D.play(5)`; v Přehledu scén scéna 6), po 9. klepnutí na Další.*
+
 - **Co to je:** Dnes hned po převzetí plánu, bez zápisů.
 - **K čemu je pacientovi:** vidí, co je na řadě (jídlo, dávka v pásu dne), a že zatím není co hodnotit.
 - **Kde v životě a v aplikaci:** po P06 v ordinaci, a kdykoli později otevřením aplikace nebo záložkou Dnes.
@@ -231,6 +249,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 ## P09 · Dnes – další jídlo po snídani
 
 ![P09](obrazovky/pacient-P09-dnes-dalsi-jidlo.png)
+
+*Kapitola: „Pacient – první snídaně ve třech krocích“ (`firstMeal`, `D.play(6)`; v Přehledu scén scéna 7), po 9. klepnutí na Další.*
 
 - **Co to je:** Dnes po zapsané snídani: „Další jídlo: oběd · Inzulin k obědu až před jídlem.“
 - **K čemu je pacientovi:** ví, co bude dál, a že si inzulin k obědu nemá píchat hned.
@@ -246,6 +266,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 
 ![P10](obrazovky/pacient-P10-dnes-opravit-inzulin.png)
 
+*Kapitola: „Pacient – první snídaně ve třech krocích“ (`firstMeal`, `D.play(6)`; v Přehledu scén scéna 7), po 9. klepnutí na Další; potom akce `fixInsulinOpen` a `fixInsulinPick` (…`:other`) u posledního zápisu.*
+
 - **Co to je:** rozbalená oprava inzulinu u posledního zápisu v kartě pásu dne: Podle plánu · Jinak · Nepíchnuto · Nevím a „Uložit opravu“. Snímek ukazuje vybranou volbu „Jinak“ s posuvníkem jednotek.
 - **K čemu je pacientovi:** opraví omyl v odpovědi na inzulin bez psaní.
 - **Kde v životě a v aplikaci:** do 60 min od potvrzení inzulinu (`NF.canCorrectInsulin`, D-CISTA `oprava_min`) odkaz „Opravit inzulin · ještě N minut“ v kartě pásu dne. Po uložení zpět na Dnes s hláškou „Inzulin je opravený. Zápis se učí dál, do návrhu k dávce už nejde.“.
@@ -259,6 +281,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 ## P11 · Dnes – zmeškané jídlo, novinka a „Včera chybí“
 
 ![P11](obrazovky/pacient-P11-dnes-zmeskane-jidlo.png)
+
+*Kapitola: „Pacient – otevřel aplikaci až v 10:15“ (`lateMeal`, `D.play(9)`; v Přehledu scén scéna 10), na začátku scény.*
 
 - **Co to je:** Dnes v 10:15 bez zapsané snídaně: „Byla dnes snídaně?“ s volbami „Ano, byla“ / „Ne, bez snídaně“, pod tím karta „Novinka“ a řádek „Včera chybí večeře · Doplnit“.
 - **K čemu je pacientovi:** doplní jídlo, které už snědl, nebo řekne, že ho vynechal; dozví se o novém poznaném jídle.
@@ -274,6 +298,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 
 ![P12](obrazovky/pacient-P12-dnes-vynechane-jidlo.png)
 
+*Kapitola: „Pacient – otevřel aplikaci až v 10:15“ (`lateMeal`, `D.play(9)`; v Přehledu scén scéna 10), na začátku scény; potom akce `mealSkipAsk:breakfast`.*
+
 - **Co to je:** po „Ne, bez snídaně“ se v kartě „Co teď“ objeví „Byl ke snídani inzulin?“ (Ano, 8 j. · Ano, jinak · Ne · Nevím) a krátké pravidlo I-MENE.
 - **K čemu je pacientovi:** když si inzulin píchl a nejedl, dostane hned bezpečnostní pravidlo.
 - **Kde v životě a v aplikaci:** z P11 nebo z „Dnes bez …“ v P09. Volba zapíše vynechání a vrátí Dnes; při inzulinu v těle se ukáže P15.
@@ -287,6 +313,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 ## P13 · Dnes – týdenní shrnutí „Váš týden“
 
 ![P13](obrazovky/pacient-P13-dnes-tyden.png)
+
+*Kapitola: „Pacient – otevřel aplikaci až v 10:15“ (`lateMeal`, `D.play(9)`; v Přehledu scén scéna 10), po 3. klepnutí na Další.*
 
 - **Co to je:** karta za uzavřený týden od vydání plánu: kolik hlavních jídel z 21 je zapsaných, kolik v obvyklé porci, svačiny zvlášť, poděkování; podrobnosti na klepnutí.
 - **K čemu je pacientovi:** jednou týdně vidí, co udělal; chválí se čin, ne výsledek.
@@ -302,6 +330,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 
 ![P14](obrazovky/pacient-P14-dnes-jak-to-dopadlo.png)
 
+*Kapitola: „Pacient – otevřel aplikaci až v 10:15“ (`lateMeal`, `D.play(9)`; v Přehledu scén scéna 10), po 13. klepnutí na Další.*
+
 - **Co to je:** karta s výsledkem posledního jídla: nejvyšší hodnota velkým písmem se štítkem stavu (v cíli · nad cílem · pokles), věta, případně otázka „Bylo to stejné jídlo?“, „Podrobnosti“ se stupnicí, „Zavřít“ a „Zobrazit jídlo“.
 - **K čemu je pacientovi:** uzavírá smyčku učení: vidí, kam se glukóza po jídle dostala, a dostane poděkování za čin.
 - **Kde v životě a v aplikaci:** jakmile má dnešní zápis nejvyšší hodnotu (opsanou, nebo z exportu – `NF.readyAt`) a pacient ho ještě neviděl. Když je na řadě další jídlo a karta se na nic neptá, je sbalená na jeden řádek (P16). „Zobrazit jídlo“ → P50.
@@ -315,6 +345,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 ## P15 · Dnes – Méně jídla než obvykle
 
 ![P15](obrazovky/pacient-P15-dnes-mene-jidla.png)
+
+*Kapitola: „Pacient – menší porce a pokles pod 4“ (`hypo`, `D.play(12)`; v Přehledu scén scéna 13), po 2. klepnutí na Další.*
 
 - **Co to je:** bezpečnostní karta „Méně jídla než obvykle · oběd“ s jednou větou pravidla I-MENE, „Celé pravidlo“ a řádkem „Potom: za 60 min od jídla se zeptáme, jestli glukóza klesla pod 4.“
 - **K čemu je pacientovi:** po menší porci (nebo vynechaném jídle) s inzulinem v těle ví, co dělat a co přijde.
@@ -330,6 +362,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 
 ![P16](obrazovky/pacient-P16-dnes-otazka-pokles.png)
 
+*Kapitola: „Pacient – menší porce a pokles pod 4“ (`hypo`, `D.play(12)`; v Přehledu scén scéna 13), po 3. klepnutí na Další.*
+
 - **Co to je:** karta nad „Co teď“: „Před chvílí jste snědli méně než obvykle. Podívejte se na senzor. Klesla glukóza pod 4?“ s volbami Ano, pod 4 · Ne · Nevím a krátkým pravidlem I-HYPO.
 - **K čemu je pacientovi:** jedním klepnutím zapíše, zda glukóza po menší porci klesla; pokles uvidí lékař na kontrole.
 - **Kde v životě a v aplikaci:** 60 min po menší porci nebo vynechaném jídle s inzulinem; po večeři až ráno od 5:00 (noční otázka, i v kroku 1 snídaně). Otázka čeká do dalšího otevření aplikace (24 h, noční celý den). Telefon může poslat oznámení (S-PRIPOMINKY `hypo`). „Ano, pod 4“ → P17; jinak hláška „Zapsáno.“.
@@ -338,11 +372,13 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 - **Stavy a hraniční případy:** se zamítnutou B-HYPO se otázka neptá, na místě oznámení; neodpovězená otázka po uplynutí zůstane pro lékaře jako „bez odpovědi“.
 - **Co jde do stopy:** `hypo.odpoved`; při „Ano, pod 4“ navíc `pravidlo.nizka` (`where: 'odpoved'`, od SCHEMA 87).
 - **Pozor při programování:** otázka je nad „Co teď“ (P2: v tu chvíli je důležitější). Aplikace živou glukózu nevidí; nic nehlídá na pozadí.
-- **Testy:** `kontrola2-obsah.test.cjs` „B15: otázka na pokles u zápisu mladšího než 4 h zní „zatím“ “; `faze2-jadro.test.cjs` „A24 otázka na pokles všude stejně“; `obsah-pacienta.test.cjs` P2.
+- **Testy:** `kontrola2-obsah.test.cjs` „B15: otázka na pokles u zápisu mladšího než 4 h zní „zatím“ “; `faze2-jadro.test.cjs` „A24 otázka na pokles všude stejně“. Pravidlo P2 (otázka nad „Co teď“, karta v prvních 780 px) vlastní test nemá; ověřuje se v prohlížeči.
 
 ## P17 · Dnes – Pokles pod 4 je zapsaný
 
 ![P17](obrazovky/pacient-P17-dnes-pokles-zapsan.png)
+
+*Kapitola: „Pacient – menší porce a pokles pod 4“ (`hypo`, `D.play(12)`; v Přehledu scén scéna 13), po 4. klepnutí na Další.*
 
 - **Co to je:** červená karta „Pokles pod 4 je zapsaný“: „Pokles jsme zapsali. Lékař ho uvidí na kontrole.“, první krok pravidla I-HYPO velkým písmem, „Co dál“ v bodech, „Celé pravidlo“, „Rozumím“.
 - **K čemu je pacientovi:** v okamžiku poklesu vidí, co udělat hned.
@@ -358,6 +394,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 
 ![P18](obrazovky/pacient-P18-dnes-opakovane-poklesy.png)
 
+*Kapitola: „Pacient – menší porce a pokles pod 4“ (`hypo`, `D.play(12)`; v Přehledu scén scéna 13), po 5. klepnutí na Další.*
+
 - **Co to je:** karta „Glukóza vám za posledních 7 dní klesla pod 4 dvakrát“: tři body obecné rady, dva rozbalovací řádky („Při poklesu: pravidlo k nízké glukóze“, „Když sníte méně než obvykle“) a „Rozumím“.
 - **K čemu je pacientovi:** při opakovaných poklesech dostane obecnou radu a výslovně „nečekejte na kontrolu: poraďte se s lékařem, který vám inzulin předepsal“.
 - **Kde v životě a v aplikaci:** jakmile je v klouzavých 7 dnech aspoň 2 poklesy. Zavírá se „Rozumím“; znovu se ukáže s každým dalším poklesem v okně.
@@ -371,6 +409,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 ## P19 · Dnes – režim nemoci
 
 ![P19](obrazovky/pacient-P19-dnes-nemoc.png)
+
+*Kapitola: „Pacient – není mi dobře“ (`illness`, `D.play(14)`; v Přehledu scén scéna 15), po 3. klepnutí na Další.*
 
 - **Co to je:** Dnes po klepnutí „Není mi dobře“: karta „Při nemoci“ („Zapisujte jídla dál. K jídlu neradíme, platí pravidla pro nemoc. Dávky inzulinu platí, jak řekl lékař.“), „Co teď“ a karta „Pravidla pro nemoc“ se dvěma pravidly krátce (bazál, inzulin k jídlu) a ostatními pravidly sbalenými.
 - **K čemu je pacientovi:** při nemoci ví, jak s inzulinem, a aplikace ho nezatěžuje radami.
@@ -386,6 +426,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 
 ![P20](obrazovky/pacient-P20-dnes-nemoc-uz-je-lepe.png)
 
+*Kapitola: „Pacient – už je mi lépe“ (`recovery`, `D.play(16)`; v Přehledu scén scéna 17), na začátku scény.*
+
 - **Co to je:** karta „Při nemoci“ druhý a další den s tlačítky „Už je mi lépe“ / „Ještě ne“.
 - **K čemu je pacientovi:** jednou denně řekne, jak mu je, a sám nemoc ukončí.
 - **Kde v životě a v aplikaci:** denně během nemoci, dokud není odpověď za dnešek. „Už je mi lépe“ ukončí nemoc (Dnes se vrátí do běžného stavu, hláška „Rádi to slyšíme. Rady zase platí naplno.“); „Ještě ne“ → „Dnes už máme odpověď. Zeptáme se zase zítra.“
@@ -399,6 +441,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 ## P21 · Dnes – před kontrolou, připomínka exportu a „Jak na to“
 
 ![P21](obrazovky/pacient-P21-dnes-pred-kontrolou-export.png)
+
+*Kapitola: „Pacient – 1. ledna ráno: noční pokles pod 4“ (`nightLow`, `D.play(19)`; v Přehledu scén scéna 20), po 4. klepnutí na Další.*
 
 - **Co to je:** Dnes 4 dny před kontrolou: karta „Za 4 dny jdete na kontrolu“ s větou „Před kontrolou pošlete do ordinace export ze senzoru.“, rozbaleným návodem „Jak na to“ (4 kroky) a řádkem „Co uvidí lékař“. Na snímku je i karta po nočním poklesu (P17 v noční podobě).
 - **K čemu je pacientovi:** nezapomene poslat export ze senzoru a podívá se, co uvidí lékař.
@@ -414,6 +458,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 
 ![P22](obrazovky/pacient-P22-dnes-bazal-vecer.png)
 
+*Kapitola: „Pacient – nové jídlo jen názvem“ (`custom`, `D.play(13)`; v Přehledu scén scéna 14), po 6. klepnutí na Další; potom hodiny posunuté na 21:30 a akce `basalOther`.*
+
 - **Co to je:** večerní „Co teď“: „Čas na bazál · Inzulin na noc 18 j. ve 21:00.“ s tlačítky „Bazál 18 j. je píchnutý“ a „Jinak“. Snímek ukazuje otevřené „Jinak“: posuvník jednotek, „Uložit“, „Dnes bez bazálu“ a odkaz zpět „Přece jen 18 j.“.
 - **K čemu je pacientovi:** potvrdí večerní bazál jedním klepnutím.
 - **Kde v životě a v aplikaci:** od 2 h před časem bazálu z plánu, dokud není potvrzený. Přednost má jen jídlo na řadě; zmeškané jídlo ustoupí. Po potvrzení hláška „Bazál je zapsaný.“
@@ -422,11 +468,13 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 - **Stavy a hraniční případy:** chybí-li včerejší bazál, Dnes se zeptá „Byl včera večer bazál?“ (Ano · Ne · Nevím), po poledni jako sbalený řádek; po potvrzení „další věc až zítra ráno“.
 - **Co jde do stopy:** `bazal.potvrzen`.
 - **Pozor při programování:** aplikace dávku nemění ani nenavrhuje; posuvník začíná na předepsané dávce a jen zapisuje, co pacient píchl.
-- **Testy:** hlavní sada „SCHEMA 87 (body 3, 7): čísla pacienta posuvníkem 1–60 j. z jednoho místa; čas inzulinu „jiný čas“ posuvníkem; ordinace má týž rozsah“; hlavní sada „Bazál: připomínka večer, potvrzení podle plánu nebo jinak“; `robustnost.test.cjs` (bazál po půlnoci k předchozímu dni, v hlavní sadě „Robustnost: kalendářní dny…“).
+- **Testy:** hlavní sada „SCHEMA 87 (body 3, 7): čísla pacienta posuvníkem 1–60 j. z jednoho místa; čas inzulinu „jiný čas“ posuvníkem; ordinace má týž rozsah“; hlavní sada „Bazál: připomínka večer, potvrzení podle plánu nebo jinak“; hlavní sada „Robustnost: kalendářní dny, zpětný čas nikdy v budoucnosti, bazál po půlnoci k předchozímu dni, inzulin přes půlnoc“.
 
 ## P23 · Dnes – dnešní jídla jsou zapsaná
 
 ![P23](obrazovky/pacient-P23-dnes-vse-zapsano.png)
+
+*Kapitola: „Pacient – nové jídlo jen názvem“ (`custom`, `D.play(13)`; v Přehledu scén scéna 14), po 6. klepnutí na Další; potom hodiny posunuté na 18:00 a akce `mealSkip` u snídaně a večeře (`:none`).*
 
 - **Co to je:** „Co teď: Dnešní jídla jsou zapsaná“ s velkým tlačítkem „Zapsat svačinu“ a řádkem „Potom: další věc večer u bazálu.“
 - **K čemu je pacientovi:** ví, že je pro dnešek hotovo, a může zapsat svačinu.
@@ -442,6 +490,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 
 ![P24](obrazovky/pacient-P24-dnes-inzulin-ceka.png)
 
+*Kapitola: „Pacient – před píchnutím: porce zpět k obvyklé a doplněk“ (`advice`, `D.play(10)`; v Přehledu scén scéna 11), po 4. klepnutí na Další; potom akce `mealFinish:pending` a hodiny o 35 minut dál.*
+
 - **Co to je:** karta „Byl ke snídani inzulin? Jídlo je zapsané v 7:00.“ s volbami Píchnuto 8 j. · Nepíchnuto · Nevím (do 30 min „Inzulin ke snídani čeká na potvrzení“).
 - **K čemu je pacientovi:** doplní potvrzení inzulinu, když jídlo uložil dřív, než si píchl.
 - **Kde v životě a v aplikaci:** po „Uložit, píchnu za chvíli“ v kroku 3 (P43) a od SCHEMA 87 i po „Uložit, inzulin zatím ne“ v kroku 3 při glukóze pod 4 (P46). Karta zůstane na Dnes až 24 h; aplikace nic nehlídá, ptá se jen při otevření.
@@ -455,6 +505,8 @@ Karta „Co teď“ se vybírá v tomto pořadí: jídlo na řadě nebo další 
 ## P25 · Dnes – Jiná dávka než v plánu
 
 ![P25](obrazovky/pacient-P25-dnes-jina-davka.png)
+
+*Kapitola: „Pacient – nové jídlo jen názvem“ (`custom`, `D.play(13)`; v Přehledu scén scéna 14), po 6. klepnutí na Další; potom dva poslední obědy upravené ve stavu na jinou dávku (+2 j.).*
 
 - **Co to je:** karta „Jiná dávka než v plánu: Dvakrát jste zapsali jinou dávku než v plánu. Řekněte to prosím na kontrole sestře.“
 - **K čemu je pacientovi:** připomene, že nesoulad má zmínit na kontrole.
@@ -476,6 +528,8 @@ Krok 1 (`mealStep1`) má otevřenou vždy jen jednu otázku s číslem; zodpově
 
 ![P26](obrazovky/pacient-P26-krok1-inzulin.png)
 
+*Kapitola: „Pacient – první snídaně ve třech krocích“ (`firstMeal`, `D.play(6)`; v Přehledu scén scéna 7), na začátku scény.*
+
 - **Co to je:** první otázka: „Inzulin ke snídani“ s tokenem dávky a volbami „Ano, 8 j. · podle plánu z 5. 10.“, „Ano, jinak“, „Ještě ne“, „Nevím“; pod tím „Proč se ptáme“.
 - **K čemu je pacientovi:** jednou odpovědí zapíše inzulin; aplikace podle toho ví, jakou radu k porci smí dát.
 - **Kde v životě a v aplikaci:** po „Chystám se jíst“ nebo klepnutí na uzel pásu dne. „Ano, 8 j.“ otevře volbu času (právě teď předvybrané) a pak další otázku; „Ještě ne“ rovnou další otázku.
@@ -489,6 +543,8 @@ Krok 1 (`mealStep1`) má otevřenou vždy jen jednu otázku s číslem; zodpově
 ## P27 · Krok 1 – Ano, jinak
 
 ![P27](obrazovky/pacient-P27-krok1-inzulin-jinak.png)
+
+*Kapitola: „Pacient – první snídaně ve třech krocích“ (`firstMeal`, `D.play(6)`; v Přehledu scén scéna 7), na začátku scény; potom akce `mealBolus:other`, `mealTime:other` a `mealTimeAgo:50`.*
 
 - **Co to je:** po „Ano, jinak“ box „Kolik jednotek?“ (posuvník jednotek se značkou „předepsáno 8 j.“) a „Kdy?“ (právě teď · před 5 min · před 15 min · před 30 min · jiný čas) a tlačítko „Pokračovat“. Snímek ukazuje zvolený „jiný čas“: posuvník „před kolika minutami“ s hodnotou 50 min.
 - **K čemu je pacientovi:** zapíše skutečně podanou dávku a čas.
@@ -504,6 +560,8 @@ Krok 1 (`mealStep1`) má otevřenou vždy jen jednu otázku s číslem; zodpově
 
 ![P28](obrazovky/pacient-P28-krok1-inzulin-nevim.png)
 
+*Kapitola: „Pacient – první snídaně ve třech krocích“ (`firstMeal`, `D.play(6)`; v Přehledu scén scéna 7), na začátku scény; potom akce `mealBolus:unknown`.*
+
 - **Co to je:** po „Nevím“ věta „Nevíte, jestli byl inzulin píchnutý? Bereme to, jako by inzulin v těle byl.“ a pravidlo I-NEVIM v okamžiku události (první krok velkým písmem, Co dál, Celé pravidlo).
 - **K čemu je pacientovi:** nepíchne si inzulin podruhé a ví, kdy změřit glukózu.
 - **Kde v životě a v aplikaci:** P26 → P28 → „Pokračovat“.
@@ -517,6 +575,8 @@ Krok 1 (`mealStep1`) má otevřenou vždy jen jednu otázku s číslem; zodpově
 ## P29 · Krok 1 – Kolik ukazuje senzor teď?
 
 ![P29](obrazovky/pacient-P29-krok1-glukoza-ted.png)
+
+*Kapitola: „Pacient – první snídaně ve třech krocích“ (`firstMeal`, `D.play(6)`; v Přehledu scén scéna 7), po 3. klepnutí na Další.*
 
 - **Co to je:** otázka „Glukóza teď“ s posuvníkem hodnoty (velké číslo se slovem a ikonou stavu, dráha 4–15 s konci „pod 4“ a „nad 15“, −/+, „nemám hodnotu“).
 - **K čemu je pacientovi:** jedním pohledem do aplikace senzoru opíše hodnotu před jídlem.
@@ -532,6 +592,8 @@ Krok 1 (`mealStep1`) má otevřenou vždy jen jednu otázku s číslem; zodpově
 
 ![P30](obrazovky/pacient-P30-krok1-glukoza-pod-4.png)
 
+*Kapitola: „Pacient – první snídaně ve třech krocích“ (`firstMeal`, `D.play(6)`; v Přehledu scén scéna 7), po 2. klepnutí na Další; potom akce `mealBefore:low`.*
+
 - **Co to je:** po volbě „pod 4“ hned pod posuvníkem červená karta „Glukóza je teď pod 4“ s pravidlem I-HYPO v okamžiku události a větou „Teď neradíme – řiďte se pravidlem k nízké glukóze. Zápis jídla uložte podle skutečnosti.“
 - **K čemu je pacientovi:** okamžitě ví, jak léčit nízkou glukózu.
 - **Kde v životě a v aplikaci:** P29 s volbou „pod 4“; zápis pokračuje, krok 3 pak neradí (P46).
@@ -545,6 +607,8 @@ Krok 1 (`mealStep1`) má otevřenou vždy jen jednu otázku s číslem; zodpově
 ## P31 · Krok 1 – glukóza nad 15
 
 ![P31](obrazovky/pacient-P31-krok1-glukoza-nad-15.png)
+
+*Kapitola: „Pacient – první snídaně ve třech krocích“ (`firstMeal`, `D.play(6)`; v Přehledu scén scéna 7), po 2. klepnutí na Další; potom akce `mealBefore:high`.*
 
 - **Co to je:** po volbě „nad 15“ oranžová karta „Glukóza je teď nad 15“ s pravidlem I-VYSOKA v okamžiku události.
 - **K čemu je pacientovi:** ví, co dělat při vysoké glukóze (voda, změřit za 2 h, inzulin navíc nepíchat).
@@ -560,6 +624,8 @@ Krok 1 (`mealStep1`) má otevřenou vždy jen jednu otázku s číslem; zodpově
 
 ![P32](obrazovky/pacient-P32-krok1-nejvyssi-po-minulem.png)
 
+*Kapitola: „Pacient – před obědem: nejvyšší hodnota po snídani“ (`firstResult`, `D.play(7)`; v Přehledu scén scéna 8), po 1. klepnutí na Další.*
+
 - **Co to je:** otázka 2 „Po snídani · 7:00–9:00 · název jídla“: posuvník nejvyšší hodnoty s tlačítkem „Uložit · N mmol/l“ a „Kde ji najdu“.
 - **K čemu je pacientovi:** při jednom pohledu do senzoru doplní vrchol po předchozím jídle; z něj aplikace pozná, jak mu jídlo sedlo.
 - **Kde v životě a v aplikaci:** v kroku 1 dalšího jídla, když předchozí zápis nemá nejvyšší hodnotu a od jídla uplynuly aspoň 2 h a nejvýš 24 h (`NF.pendingPeakAsk`, Z-GLUKOZA `pripominka_min` 120). Nejvýš dva zápisy. Večer se totéž zeptá Dnes u bazálu.
@@ -574,6 +640,8 @@ Krok 1 (`mealStep1`) má otevřenou vždy jen jednu otázku s číslem; zodpově
 
 ![P33](obrazovky/pacient-P33-krok1-pokles-po-minulem.png)
 
+*Kapitola: „Pacient – před obědem: nejvyšší hodnota po snídani“ (`firstResult`, `D.play(7)`; v Přehledu scén scéna 8), po 2. klepnutí na Další.*
+
 - **Co to je:** otázka „Klesla glukóza do 4 hodin po jídle pod 4 mmol/l?“ (u zápisu mladšího než 4 h „Klesla glukóza od jídla zatím pod 4 mmol/l?“) s volbami Ano, pod 4 · Ne · Nevím.
 - **K čemu je pacientovi:** zapíše pokles, který by jinak nikdo neviděl.
 - **Kde v životě a v aplikaci:** hned po uložení nejvyšší hodnoty (P32). Pak otázka na glukózu teď.
@@ -587,6 +655,8 @@ Krok 1 (`mealStep1`) má otevřenou vždy jen jednu otázku s číslem; zodpově
 ## P34 · Krok 1 – noční pokles u snídaně
 
 ![P34](obrazovky/pacient-P34-krok1-nocni-pokles.png)
+
+*Kapitola: „Pacient – 1. ledna ráno: noční pokles pod 4“ (`nightLow`, `D.play(19)`; v Přehledu scén scéna 20), po 3. klepnutí na Další.*
 
 - **Co to je:** u snídaně pod posuvníkem nepovinný čip „V noci klesla glukóza pod 4“ s vysvětlením pod „Kdy klepnout?“.
 - **K čemu je pacientovi:** zapíše noční pokles bez další otázky nebo připomínky.
@@ -608,6 +678,8 @@ Zpětný zápis (`mealStep1Retro`) se otevře z „Snídaně už byla“, „Ano
 
 ![P35](obrazovky/pacient-P35-zpetne-inzulin.png)
 
+*Kapitola: „Pacient – otevřel aplikaci až v 10:15“ (`lateMeal`, `D.play(9)`; v Přehledu scén scéna 10), po 5. klepnutí na Další.*
+
 - **Co to je:** „Byl ke snídani inzulin?“ s volbami Ano, 8 j. · Ano, jinak · Ne · Nevím.
 - **K čemu je pacientovi:** doplní inzulin k jídlu, které už snědl.
 - **Kde v životě a v aplikaci:** první otázka zpětného zápisu; pak čas (P36).
@@ -621,6 +693,8 @@ Zpětný zápis (`mealStep1Retro`) se otevře z „Snídaně už byla“, „Ano
 ## P36 · Zpětně – V kolik bylo jídlo?
 
 ![P36](obrazovky/pacient-P36-zpetne-cas.png)
+
+*Kapitola: „Pacient – otevřel aplikaci až v 10:15“ (`lateMeal`, `D.play(9)`; v Přehledu scén scéna 10), po 6. klepnutí na Další.*
 
 - **Co to je:** volba času jídla po půlhodinách (od začátku denní doby slotu, jen časy, které už minuly) a u podaného inzulinu „A inzulin?“ (zároveň s jídlem · 15 min před · 30 min před · až po jídle).
 - **K čemu je pacientovi:** bez psaní zadá, kdy jedl a kdy si píchl.
@@ -636,6 +710,8 @@ Zpětný zápis (`mealStep1Retro`) se otevře z „Snídaně už byla“, „Ano
 
 ![P37](obrazovky/pacient-P37-zpetne-glukoza-pri-jidle.png)
 
+*Kapitola: „Pacient – otevřel aplikaci až v 10:15“ (`lateMeal`, `D.play(9)`; v Přehledu scén scéna 10), po 7. klepnutí na Další.*
+
 - **Co to je:** „Glukóza při jídle podle grafu senzoru“ – stejný posuvník jako P29 a „Pokračovat“.
 - **K čemu je pacientovi:** opíše hodnotu z grafu v čase jídla.
 - **Kde v životě a v aplikaci:** P36 → P37 → P38. U zpětné snídaně může nad ní být noční otázka (`hypoWatchCard(S, true)`).
@@ -649,6 +725,8 @@ Zpětný zápis (`mealStep1Retro`) se otevře z „Snídaně už byla“, „Ano
 ## P38 · Zpětně – nejvyšší po jídle nad 15
 
 ![P38](obrazovky/pacient-P38-zpetne-nejvyssi-nad-15.png)
+
+*Kapitola: „Pacient – otevřel aplikaci až v 10:15“ (`lateMeal`, `D.play(9)`; v Přehledu scén scéna 10), po 10. klepnutí na Další.*
 
 - **Co to je:** otázka 4 „Nejvyšší glukóza do 2 hodin po jídle“ s posuvníkem, otázkou na pokles a – po volbě „nad 15“ – kartou „Po jídle byla glukóza nad 15“, která začíná „Podívejte se, kolik ukazuje senzor teď…“.
 - **K čemu je pacientovi:** doplní vrchol a pokles z grafu; při vysoké hodnotě ví, že má zkontrolovat glukózu teď.
@@ -668,6 +746,8 @@ Zpětný zápis (`mealStep1Retro`) se otevře z „Snídaně už byla“, „Ano
 
 ![P39](obrazovky/pacient-P39-krok2-jidlo-a-porce.png)
 
+*Kapitola: „Pacient – první snídaně ve třech krocích“ (`firstMeal`, `D.play(6)`; v Přehledu scén scéna 7), po 7. klepnutí na Další.*
+
 - **Co to je:** hledání jídla psaním, mřížka „Naposledy“ (nebo „Nalezeno“) s prstencem učení a stavem jídla, a volba porce menší · obvyklá · větší.
 - **K čemu je pacientovi:** vybere jídlo bez počítání a řekne, jak velkou porci si chystá.
 - **Kde v životě a v aplikaci:** po kroku 1. „Další: rada a zápis →“ je aktivní s jídlem i porcí.
@@ -682,6 +762,8 @@ Zpětný zápis (`mealStep1Retro`) se otevře z „Snídaně už byla“, „Ano
 
 ![P40](obrazovky/pacient-P40-krok2-nove-jidlo.png)
 
+*Kapitola: „Pacient – nové jídlo jen názvem“ (`custom`, `D.play(13)`; v Přehledu scén scéna 14), po 2. klepnutí na Další.*
+
 - **Co to je:** karta „Nové jídlo: název“ s nepovinnou otázkou „Podobá se některému jídlu, které už známe?“ a „Přidat do seznamu“.
 - **K čemu je pacientovi:** zapíše jídlo, které v seznamu není, bez zadávání složení.
 - **Kde v životě a v aplikaci:** P39 → „Přidat …“ → P40 → porce.
@@ -690,11 +772,13 @@ Zpětný zápis (`mealStep1Retro`) se otevře z „Snídaně už byla“, „Ano
 - **Stavy a hraniční případy:** zamítnutá R-PODOBNOST → bez otázky na podobné, s oznámením.
 - **Co jde do stopy:** `jidlo.pridano`.
 - **Pozor při programování:** na složení se aplikace nikdy neptá (`15` odst. 6 a 18).
-- **Testy:** `kontrola4-obsah.test.cjs` „02 B7, B8: … nové jídlo „jako X“ převezme údaje X“; `robustnost.test.cjs` (duplicitní jídlo v hlavní sadě „Robustnost: osekaný stav…“).
+- **Testy:** `kontrola4-obsah.test.cjs` „02 B7, B8: … nové jídlo „jako X“ převezme údaje X“; hlavní sada „Robustnost: osekaný stav se doplní, cizí schéma se zálohuje a ohlásí, bind mění jen povolené klíče, duplicitní jídlo, meze voličů“.
 
 ## P41 · Krok 2 – svačina
 
 ![P41](obrazovky/pacient-P41-krok2-svacina.png)
+
+*Kapitola: „Pacient – nové jídlo jen názvem“ (`custom`, `D.play(13)`; v Přehledu scén scéna 14), po 6. klepnutí na Další; potom akce `startMeal:snack`.*
 
 - **Co to je:** „Krok 1 ze 2 · svačina“ s větou „Svačina je bez inzulinu k jídlu…“ a hledáním jídla, bez porce.
 - **K čemu je pacientovi:** zapíše jídlo mimo hlavní jídla; lékař uvidí, kolik toho jí mimo ně.
@@ -725,6 +809,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 
 ![P42](obrazovky/pacient-P42-krok3-nezname-jidlo.png)
 
+*Kapitola: „Pacient – první snídaně ve třech krocích“ (`firstMeal`, `D.play(6)`; v Přehledu scén scéna 7), po 8. klepnutí na Další.*
+
 - **Co to je:** „Zápis jídla“ s kartou jídla „Neznámé jídlo · Zatím ho neznáme – zapište ho ještě 4×.“ a tlačítkem uložení.
 - **K čemu je pacientovi:** zapíše jídlo; ví, kolik zápisů chybí, než ho aplikace pozná.
 - **Kde v životě a v aplikaci:** první zápis jídla. Uložení → Dnes s poděkováním (R-DIKY) a řádkem „Co dál: při dalším jídle se zeptáme na nejvyšší glukózu po snídani.“
@@ -738,6 +824,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 ## P43 · Krok 3 – před píchnutím: porce zpět k obvyklé, doplněk a procházka
 
 ![P43](obrazovky/pacient-P43-krok3-pred-pichnutim.png)
+
+*Kapitola: „Pacient – před píchnutím: porce zpět k obvyklé a doplněk“ (`advice`, `D.play(10)`; v Přehledu scén scéna 11), po 3. klepnutí na Další.*
 
 - **Co to je:** „Rada a zápis“: karta jídla, „Co můžete zkusit (odpovědět nemusíte)“ s hlavní radou (porce) a dalšími radami (doplněk, procházka) jako řádky v téže kartě, „Zkusím to“ / „Tentokrát ne“, „Proč tohle radíme“; tlačítko „Píchnuto 8 j. · uložit snídani“, řádek „Co dál“ a vedlejší „Uložit, píchnu za chvíli“ / „Píchnuto jinak“.
 - **K čemu je pacientovi:** dokud inzulin není v těle, může porci vrátit k obvyklé a přidat doplněk.
@@ -753,6 +841,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 
 ![P44](obrazovky/pacient-P44-krok3-po-pichnuti.png)
 
+*Kapitola: „Pacient – po píchnutí: co aplikace smí a nesmí“ (`afterBolus`, `D.play(11)`; v Přehledu scén scéna 12), na začátku scény.*
+
 - **Co to je:** „Rada a zápis“ po odpovědi „Ano, 8 j.“: jen rady, které po píchnutí smí přijít (porce z větší zpět k obvyklé, pořadí, procházka), a „Uložit jídlo“.
 - **K čemu je pacientovi:** dostane jen bezpečné rady pro chvíli, kdy je inzulin už v těle.
 - **Kde v životě a v aplikaci:** běžný zápis s inzulinem podaným před jídlem.
@@ -766,6 +856,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 ## P45 · Krok 3 – menší porce po píchnutí
 
 ![P45](obrazovky/pacient-P45-krok3-mensi-porce.png)
+
+*Kapitola: „Pacient – menší porce a pokles pod 4“ (`hypo`, `D.play(12)`; v Přehledu scén scéna 13), na začátku scény.*
 
 - **Co to je:** „Zápis jídla“ s červenou kartou „Méně jídla než obvykle“ – pravidlo I-MENE v okamžiku události – a řádkem „Co dál: za 60 min se zeptáme, jestli glukóza neklesla pod 4.“
 - **K čemu je pacientovi:** po menší porci s inzulinem v těle ví, co hlídat; nedostane radu jíst víc.
@@ -781,7 +873,9 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 
 ![P46](obrazovky/pacient-P46-krok3-glukoza-pod-4.png)
 
-- **Co to je:** „Zápis jídla“ bez rad: karta jídla, pravidlo I-HYPO v okamžiku události a „Teď neradíme – řiďte se pravidlem k nízké glukóze. Zápis jídla uložte podle skutečnosti.“ Při odpovědi „Ještě ne“ je hlavní tlačítko **„Uložit, inzulin zatím ne“** s řádkem „Co dál: na Dnes se zeptáme, jestli byl inzulin.“ a pod ním vedlejší obrysové volby „Už píchnuto 8 j.“ a „Píchnuto jinak“.
+*Kapitola: „Pacient – první snídaně ve třech krocích“ (`firstMeal`, `D.play(6)`; v Přehledu scén scéna 7), po 2. klepnutí na Další; potom akce `mealBefore:low`, v kroku 2 jídlo s obvyklou porcí (`mealFood`, `mealPortion:usual`) a `mealStep:3`.*
+
+- **Co to je:** „Zápis jídla“ bez rad: karta jídla, pravidlo I-HYPO v okamžiku události a „Teď neradíme – řiďte se pravidlem k nízké glukóze. Zápis jídla uložte podle skutečnosti.“ Při odpovědi „Ještě ne“ je hlavní tlačítko **„Uložit, inzulin zatím ne“** s řádkem „Co dál: na Dnes se zeptáme, jestli byl inzulin.“ a pod ním vedlejší volby „Už píchnuto 8 j.“ a „Píchnuto jinak“ jako **podtržené textové odkazy bez rámečku** (tlačítko s třídou `quiet`, `app/screens.js` ve `V.meal`, krok 3). Rozdíl proti P43, kde jsou tytéž volby obrysová tlačítka, je záměrný: nic nemá navádět k potvrzení píchnutí.
 - **K čemu je pacientovi:** nejdřív léčí nízkou glukózu; jídlo jen zapíše.
 - **Kde v životě a v aplikaci:** krok 1 s glukózou teď „pod 4“ (P30). Snímek je pořízený s odpovědí „Ještě ne“. „Uložit, inzulin zatím ne“ uloží jídlo podle skutečnosti a inzulin nechá „čekat na potvrzení“ jako „Uložit, píchnu za chvíli“ (P43) – na Dnes pak karta P24. „Už píchnuto 8 j.“ uloží jídlo s inzulinem podle plánu; „Píchnuto jinak“ otevře posuvník jednotek.
 - **Co se na ní počítá:** `NF.advise` → `lowNow`, brána `{ ok: false, low: true }`; žádná rada k pořadí, doplňku, porci ani procházce.
@@ -794,6 +888,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 ## P47 · Krok 3 – zpětný zápis
 
 ![P47](obrazovky/pacient-P47-krok3-zpetne.png)
+
+*Kapitola: „Pacient – otevřel aplikaci až v 10:15“ (`lateMeal`, `D.play(9)`; v Přehledu scén scéna 10), po 12. klepnutí na Další.*
 
 - **Co to je:** „Shrnutí zápisu“ (nebo „Zápis a co pomůže teď“): karta jídla s řádkem „Snídaně v 7:00 · obvyklá porce · inzulin 8 j.“, případně jediná rada – procházka –, volba „Neobvyklý den (stres, málo spánku, alkohol)“ a „Uložit snídani“.
 - **K čemu je pacientovi:** zápis dokončí a, je-li to do hodiny od jídla, dostane radu, která ještě pomůže.
@@ -808,6 +904,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 ## P48 · Krok 3 – při nemoci
 
 ![P48](obrazovky/pacient-P48-krok3-nemoc.png)
+
+*Kapitola: „Pacient – jídlo během nemoci“ (`illnessMeal`, `D.play(15)`; v Přehledu scén scéna 16), na začátku scény.*
 
 - **Co to je:** „Zápis jídla“ v režimu nemoci: věta „K jídlu neradíme, platí pravidla pro nemoc.“ a žádné rady; na snímku navíc pravidlo I-MENE (menší porce s inzulinem).
 - **K čemu je pacientovi:** zapisuje dál, ale nic ho nezatěžuje.
@@ -827,6 +925,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 
 ![P49](obrazovky/pacient-P49-jidla-seznam.png)
 
+*Kapitola: „Pacient – po týdnu: co už aplikace ví“ (`week`, `D.play(8)`; v Přehledu scén scéna 9), po 3. klepnutí na Další.*
+
 - **Co to je:** seznam jídel, která pacient jedl, s přepínačem Známá · Učíme se · Všechna; řádek = prstenec učení · název · štítek reakce · šipka.
 - **K čemu je pacientovi:** vidí, co o jeho jídlech už víme.
 - **Kde v životě a v aplikaci:** záložka Jídla; z Můj plán řádek „Známe už N vašich jídel“. Řádek → P50.
@@ -840,6 +940,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 ## P50 · Detail jídla
 
 ![P50](obrazovky/pacient-P50-jidlo-detail.png)
+
+*Kapitola: „Pacient – po týdnu: co už aplikace ví“ (`week`, `D.play(8)`; v Přehledu scén scéna 9), na začátku scény.*
 
 - **Co to je:** samostatná obrazovka jídla se „Zpět na jídla“: štítek, souhrnná věta, stupnice „Kam se po něm glukóza dostávala“ (řádek bez rady a s radou, čárkovaná hranice cíle), „S čím u vás bývalo v cíli“, „Co můžete zkusit“ a sbalená „Historie zápisů“.
 - **K čemu je pacientovi:** podrobně vidí, jak na jídlo reaguje a co mu u něj pomáhá.
@@ -859,6 +961,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 
 ![P51](obrazovky/pacient-P51-muj-plan.png)
 
+*Kapitola: „Pacient – otevřel aplikaci až v 10:15“ (`lateMeal`, `D.play(9)`; v Přehledu scén scéna 10), po 15. klepnutí na Další.*
+
 - **Co to je:** záložka „Můj plán“: nahoře „Jak si vedu“ (věta, plnění plánu za 7 dní, známá jídla, poslední týden), „Cesta ke kontrole“ s tkaninou zápisů a „Co uvidí lékař“, pak dávky, návyky, rady, připomínky v telefonu, cíle glukózy a co lékař změnil.
 - **K čemu je pacientovi:** všechno „moje“ na jednom místě: jak si vede, kdy je kontrola, co platí.
 - **Kde v životě a v aplikaci:** záložka nebo řádek „Můj plán“ z Dnes.
@@ -873,6 +977,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 
 ![P52](obrazovky/pacient-P52-co-uvidi-lekar.png)
 
+*Kapitola: „Pacient – den před kontrolou“ (`preview`, `D.play(20)`; v Přehledu scén scéna 21), na začátku scény.*
+
 - **Co to je:** přehled před kontrolou: připomínka exportu, „Díky za N dní zapisování“ s počty, sbalené „Podrobnosti v číslech“ (dlaždice s vysvětlením), návyky, tři navržené otázky na lékaře k zaklepnutí a vlastní otázka.
 - **K čemu je pacientovi:** připraví se na kontrolu a vybere otázky.
 - **Kde v životě a v aplikaci:** z Můj plán kdykoli, z Dnes 7 dní před kontrolou.
@@ -886,6 +992,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 ## P53 · Nový plán: co se změnilo
 
 ![P53](obrazovky/pacient-P53-novy-plan.png)
+
+*Kapitola: „Pacient – nový plán a co se změnilo“ (`newplan`, `D.play(25)`; v Přehledu scén scéna 26), na začátku scény.*
 
 - **Co to je:** po kontrole „Co se změnilo“: dávky (nová označená „nová“, dřívější přeškrtnutá), otázka „Souhlasí s tím, co vám řekl lékař?“ u změněné dávky, návyky a rady, „Proč lékař rozhodl takto“ a „Rozumím, pokračuji“.
 - **K čemu je pacientovi:** pozná změny a zkontroluje novou dávku.
@@ -905,6 +1013,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 
 ![P54](obrazovky/pacient-P54-bezpeci.png)
 
+*Kapitola: „Pacient – 1. ledna ráno: noční pokles pod 4“ (`nightLow`, `D.play(19)`; v Přehledu scén scéna 20), po 4. klepnutí na Další; potom záložka Bezpečí (`page:safety`).*
+
 - **Co to je:** záložka „Bezpečí“: „Kam se obrátit“ (zdravotní potíže, ohrožení života, nefunguje senzor, nefunguje NutriFee, „Napsat podpoře“), seznam názvů bezpečnostních pravidel, „O pravidlech“, věta o tom, kdy NutriFee přestává platit, a přepínač „Není mi dobře“.
 - **K čemu je pacientovi:** kdykoli najde, co dělat a kam se obrátit.
 - **Kde v životě a v aplikaci:** záložka; „Platí vždy, i bez připojení“.
@@ -918,6 +1028,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 ## P55 · Bezpečí – celé pravidlo
 
 ![P55](obrazovky/pacient-P55-bezpeci-cele-pravidlo.png)
+
+*Kapitola: „Pacient – 1. ledna ráno: noční pokles pod 4“ (`nightLow`, `D.play(19)`; v Přehledu scén scéna 20), po 4. klepnutí na Další; potom záložka Bezpečí (`page:safety`) a „Celé pravidlo“.*
 
 - **Co to je:** rozbalené pravidlo „Nízká glukóza“ v Bezpečí s celým zněním a „O pravidle“.
 - **K čemu je pacientovi:** přečte si celé pravidlo, když potřebuje.
@@ -933,6 +1045,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 
 ![P56](obrazovky/pacient-P56-bezpeci-z-kroku-jidla.png)
 
+*Kapitola: „Pacient – první snídaně ve třech krocích“ (`firstMeal`, `D.play(6)`; v Přehledu scén scéna 7), po 2. klepnutí na Další; potom akce `safetyOpen`.*
+
 - **Co to je:** list přes obrazovku se stejným obsahem jako Bezpečí, nahoře „Zápis jídla zůstává rozpracovaný“, dole „Zpět k zápisu“.
 - **K čemu je pacientovi:** během zápisu jídla se jedním klepnutím dostane k pravidlům a kontaktům, aniž by zápis ztratil.
 - **Kde v životě a v aplikaci:** tlačítko „Bezpečí“ v hlavičce kroků jídla a převzetí (akce `safetyOpen`, `V.safetySheet`). „Zpět“ zavře list (`closeDrawer`).
@@ -946,6 +1060,8 @@ Rady počítá `NF.advise(S, foodId, portion, bolusState, meal)`:
 ## P57 · Napsat podpoře
 
 ![P57](obrazovky/pacient-P57-napsat-podpore.png)
+
+*Kapitola: „Pacient – 1. ledna ráno: noční pokles pod 4“ (`nightLow`, `D.play(19)`; v Přehledu scén scéna 20), po 4. klepnutí na Další; potom akce `page:safety` a `supportOpen`.*
 
 - **Co to je:** kontaktní formulář technické podpory: „Jen k NutriFee“, výběr potíže, nepovinný popis, „Odeslat podpoře“.
 - **K čemu je pacientovi:** nahlásí technickou potíž s aplikací.

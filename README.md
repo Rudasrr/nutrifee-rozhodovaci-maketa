@@ -24,8 +24,14 @@ cd maketa-rozhodovaci && python3 -m http.server 8731
 Testy:
 
 ```bash
-cd maketa-rozhodovaci && node nutrifee-rozhodovaci-maketa.test.cjs
+cd maketa-rozhodovaci && node nutrifee-rozhodovaci-maketa.test.cjs   # celá sada, asi 12–15 minut (povinná před publikací)
+cd maketa-rozhodovaci && node rychle.test.cjs                         # rychlá sada pod 1 minutu: jádro, registr, zásady, zlaté výstupy, P1–P11, tokeny
 ```
+
+Jádro jako knihovna (SCHEMA 89): `app/` běží i bez DOM; hodiny a úložiště se vyměňují přes
+`NF.configure({ now, storage: { get, set } })`, změnu stavu ohlásí `NF.onChange(fn)` a větev postupu
+vybírá `NF.proposalBranch(S, návrh)`. Zlaté výstupy jádra z celého příběhu jsou v `zlate-vystupy/`
+(viz `zlate-vystupy/README.md`).
 
 ## Zásady, které maketa hlídá
 

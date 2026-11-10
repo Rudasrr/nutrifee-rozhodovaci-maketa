@@ -1,6 +1,6 @@
 # NutriFee – atlas obrazovek ordinace (O01–O30)
 
-*Stav makety SCHEMA 88 (8. 11. 2026). Patří k předání spolu s postupem programování (`00-postup.md`), atlasem aplikace pacienta (`10-atlas-pacient.md`) a přílohami (`30-prilohy.md`). Zdrojem pravdy je `15-ZDROJ-PRAVDY-MAKETA.md` a při rozporu chování makety (`maketa-rozhodovaci/`). Cesty ke kódu jsou uvedené vůči složce makety. Funkce `NF.xxx` jsou v `app/core.js`, vykreslení `V.xxx` v `app/screens-clinic.js` (ordinace) a `app/screens.js` (společné prvky), akce v `app/ui.js`.*
+*Stav makety SCHEMA 89 (9. 11. 2026). Patří k předání spolu s postupem programování (`00-postup.md`), atlasem aplikace pacienta (`10-atlas-pacient.md`) a přílohami (`30-prilohy.md`). Zdrojem pravdy je `15-ZDROJ-PRAVDY-MAKETA.md` a při rozporu chování makety (`maketa-rozhodovaci/`). Cesty ke kódu jsou uvedené vůči složce makety. Funkce `NF.xxx` jsou v `app/core.js`, vykreslení `V.xxx` v `app/screens-clinic.js` (ordinace) a `app/screens.js` (společné prvky), akce v `app/ui.js`.*
 
 Atlas popisuje všechno, co se v ordinaci zobrazuje: zařazení a první plán, zaučení u sestry, práci sestry na kontrole (otázky, hmotnost, HbA1c, nahrání exportu ze senzoru), čtyři kroky kontroly s návrhovými kartami „posoudit dávku“, vydání a předání plánu, schvalovací registr a stopu. Aplikaci pacienta popisuje `10-atlas-pacient.md`; tady se objevuje jen jako náhled telefonu.
 
@@ -8,8 +8,9 @@ Atlas popisuje všechno, co se v ordinaci zobrazuje: zařazení a první plán, 
 
 ## Jak číst snímky
 
-- Snímky jsou v `obrazovky/ordinace-Oxx-nazev.png`, šířka 1440 px, celá výška stránky. Vznikly v maketě skriptem v automaticky řízeném prohlížeči: příběh se dovedl do potřebného stavu (kapitoly `NutriFeeDemo`, krok Další), všechny klinické položky registru byly schválené a prezentační vrstva se skryla (lišta ukázky, panel prezentujícího, vyprávění, rámečky kroků, tečkované vysvětlivky, tlačítko „Použít ukázkový export“, štítky položek v náhledu telefonu pacienta).
+- Snímky jsou ve složce `obrazovky/` (soubory `ordinace-O01-…` až `ordinace-O30-…`), šířka 1440 px, celá výška stránky. Vznikly v maketě skriptem v automaticky řízeném prohlížeči: příběh se dovedl do potřebného stavu (kapitoly `NutriFeeDemo`, krok Další), všechny klinické položky registru byly schválené a prezentační vrstva se skryla (lišta ukázky, panel prezentujícího, vyprávění, rámečky kroků, tečkované vysvětlivky, tlačítko „Použít ukázkový export“, štítky položek v náhledu telefonu pacienta).
 - Několik stavů se navodilo přímo akcemi jádra; u obrazovky je to uvedeno v řádku „Stav na snímku“.
+- Řádek **„Kapitola“** u každé obrazovky říká, kde ji v příběhu najdete živě: název scény, identifikátor kapitoly v `demo/fixtures.js`, volání `D.play(…)` pro skok v demu, číslo scény v „Přehledu scén“ makety, počet klepnutí na **Další ▶** a případné další akce. Při snímání byly všechny klinické položky schválené. Počty klepnutí jsou ověřené přehráním na SCHEMA 89 (9. 11. 2026): role, stránka, krok kontroly a nadpis vyšly stejně jako na snímku. V demu bez vyprávění `D.play` ukáže začátek kapitoly a zbytek se doklepe ručně.
 - Slot `NF.slots.patientTag` byl při snímání vypnutý, takže náhled telefonu pacienta je bez štítků schvalování.
 - **Snímky ze SCHEMA 87:** O03 (posuvníky dávek 1–60 j.), O06 a O07 (náhled telefonu bez místa po štítcích; obsah beze změny) a O30 (rozbalená data události s polem `polozky`). Ostatní obrazovky se ve SCHEMA 87 viditelně nezměnily, snímky zůstávají ze SCHEMA 86. Datum rozhodnutí garanta v registru (O24–O29) je den, kdy skript položky schválil, ne údaj z příběhu.
 - **Co na snímcích zůstalo z prezentační vrstvy a v ostré aplikaci nebude:** obsah z karty pacienta (O02: modelový pacient z `demo/fixtures.js`; bez napojení na kartu pacienta jádro napíše „Karta pacienta s NutriFee propojená není…“), průvodce položkou v detailu registru (O26–O29: oddíly „Proč existuje · Jak funguje · Kde je použita · Co schvalujete · Co se stane při zamítnutí“ jsou z `demo/guide.js`; bez něj jádro ukáže souhrn, detail, texty a parametry položky), věty o maketě v hlavičce registru (`V.demoText('registr')`), modelový registr scénáře 5 (O29).
@@ -131,14 +132,14 @@ Položky, které v ordinaci působí nejvíc:
 - Maketa se chová, jako by nerozhodnuté položky byly schválené (`NF.usable` je `true` u všeho kromě zamítnutých). **Ostrá aplikace nesmí pustit do provozu položku, která není schválená v dnešním znění** (`10-predani…`, odst. 7; `30-prilohy.md`).
 - Zamítnutá položka nepůsobí: `NF.usable` vrací `false` a `NF.param` vrací výchozí hodnotu z kódu, ne parametr položky. Na místě, kde by působila, je oznámení. Od SCHEMA 87 ho kreslí jádro: neutrální „Tato část teď není k dispozici.“ (`NF.OFF_TEXT`, `hint neutral off-default`, `data-off`), jednou za vykreslení, bez zmínky o garantovi a bez výzvy k volání; maketa ho slotem `NF.slots.offNotice` přepisuje na „Tahle část nefunguje“ s vysvětlením pro garanta. Výjimky „zamítnutí = záznam nesouhlasu, ne vypnutí“: C-CILE, K-KRITERIA, Z-GLUKOZA, P-LEKAR; u nich se výchozí oznámení neukazuje.
 - Zamítnutí během otevřené kontroly přepočítá návrhy (`NF.refreshReview`): návrh zamítnuté položky zmizí i s rozhodnutím a ověřením a jeho dávka se vrátí na dávku plánu.
-- Historie položky jen přibývá (`S.registry.history`: kdo, kdy, z čeho na co, poznámka). Každá verze položky má otisk znění `NF.itemFingerprint` (algoritmus a testovací vektory v `10-predani-programatorovi.md`, odst. 5); rozhodnutí platí jen pro znění, ke kterému bylo dáno.
+- Historie položky jen přibývá (`S.registry.history`: kdo, kdy, z čeho na co, poznámka). Každá verze položky má otisk znění `NF.itemFingerprint` (algoritmus a testovací vektory v `10-predani-programatorovi.md`, odst. 5; otisk rozhodnutí garanta i jeho testovací vektory se ve SCHEMA 89 nezměnily; otisk ve stopě je od SCHEMA 89 otisk jádra bez průvodce, viz odd. 4.3); rozhodnutí platí jen pro znění, ke kterému bylo dáno.
 - Bezpečnostní položky (B-HYPO, R-POKYNY, P-NEMOC; `V.SAFETY_ITEMS`) se před zamítnutím ptají jednou větou, co přestane fungovat (O27).
 
 ### 4.3 Stopa
 
 `NF.log(S, co, podrobnost, data)` zapíše `{ at, who, what, detail, data }` do `S.events`. Jádro nevolá síť ani generativní AI (hlídá test).
 
-**Položky ve stopě (SCHEMA 87).** Data každé události, ke které patří položky registru, dostanou pole `polozky = [{ id, version, fp, stav }]`. Seznam se skládá z pevných položek podle druhu události (`NF.TRACE_ITEMS`, například `kontrola.zahajena` → C-CILE, D-CISTA, D-PRAND, D-BAZAL, D-POSTUP, S-SEMAFOR, S-SILNA, S-SOUHRN, R-REAKCE, R-SKORE, B-HYPO, K-KRITERIA) a z položek, které událost sama jmenuje (`item`, `items[].item`, `proposals[].item`; `NF.traceItemIds`, `NF.itemRefs`). `fp` je otisk znění `NF.itemFingerprint`; text „Co schvalujete“ do něj v maketě dodá prezentační vrstva slotem `NF.slots.itemGuide`, takže otisk ve stopě je stejný jako u rozhodnutí garanta (bez prezentační vrstvy se otisk počítá bez průvodce). Data události jsou kopie, stav aplikace se jimi nemění.
+**Položky ve stopě (SCHEMA 87).** Data každé události, ke které patří položky registru, dostanou pole `polozky = [{ id, version, fp, stav }]`. Seznam se skládá z pevných položek podle druhu události (`NF.TRACE_ITEMS`, například `kontrola.zahajena` → C-CILE, D-CISTA, D-PRAND, D-BAZAL, D-POSTUP, S-SEMAFOR, S-SILNA, S-SOUHRN, R-REAKCE, R-SKORE, B-HYPO, K-KRITERIA) a z položek, které událost sama jmenuje (`item`, `items[].item`, `proposals[].item`; `NF.traceItemIds`, `NF.itemRefs`). `fp` je od SCHEMA 89 **otisk jádra** `NF.itemFingerprint(položka)` bez druhého argumentu, spočítaný jen z dat jádra (`id`, `scope`, `cat`, `title`, `summary`, `detail`, `text`, `texts`, `lists`, `postup`, `sestra`, `params`, `labels`). Vychází stejně s prezentační vrstvou i bez ní; slot `NF.slots.itemGuide` je zrušený. Otisk rozhodnutí garanta (`NF.itemFingerprint(položka, { co })` s textem „Co schvalujete“ z `demo/guide.js`) zůstal beze změny v prezentační vrstvě; export garanta nese u každé položky obojí: `fp` (s průvodcem) a `fpTrace` (otisk jádra jako ve stopě). Data události jsou kopie, stav aplikace se jimi nemění.
 
 **Délka stopy.** Maketa drží nejvýš 4000 událostí a plná data jen u posledních 1000 (`NF.TRACE_MAX`, `NF.TRACE_FULL`); u starších zůstane událost a `polozky`, ostatní data se nahradí `{ zkraceno: true }`. Je to **omezení makety**; ostrá aplikace má stopu úplnou (`15` odst. 14).
 
@@ -182,6 +183,8 @@ Události ordinace:
 
 ![O01](obrazovky/ordinace-O01-novy-pacient.png)
 
+*Kapitola: „Lékař – karta a podmínky zařazení“ (`enroll`, `D.play(1)`; v Přehledu scén scéna 2), na začátku scény; potom zahozený koncept zařazení (`S.draft = null`).*
+
 *Stav na snímku: plán zatím není a koncept zařazení se zahodil (`S.draft = null`).*
 
 - **Co to je:** vstup do zařazení nového pacienta, jedna karta s tlačítkem „Připravit zařazení →“.
@@ -198,6 +201,8 @@ Události ordinace:
 ### O02 Zařazení, krok 1: karta pacienta, podmínky, výchozí hodnoty
 
 ![O02](obrazovky/ordinace-O02-zarazeni-krok1-podminky.png)
+
+*Kapitola: „Lékař – karta a podmínky zařazení“ (`enroll`, `D.play(1)`; v Přehledu scén scéna 2), po 3. klepnutí na Další.*
 
 *Stav na snímku: scéna „Lékař – karta a podmínky zařazení“, všechny podmínky zaškrtnuté.*
 
@@ -219,6 +224,8 @@ Události ordinace:
 ### O03 Zařazení, krok 2: dávky, návyky, pravidla a cíle
 
 ![O03](obrazovky/ordinace-O03-zarazeni-krok2-davky-navyky-pravidla.png)
+
+*Kapitola: „Lékař – dávky, startovní návyky a pravidla“ (`doses`, `D.play(2)`; v Přehledu scén scéna 3), po 6. klepnutí na Další; potom rozbalené „Zobrazit pravidla nebo změnit hodnotu“.*
 
 *Stav na snímku: konec scény „Lékař – dávky, startovní návyky a pravidla“; rozbalené „Zobrazit pravidla nebo změnit hodnotu“.*
 
@@ -242,6 +249,8 @@ Události ordinace:
 
 ![O04](obrazovky/ordinace-O04-zarazeni-krok3-vydani-planu.png)
 
+*Kapitola: „Lékař – vydání plánu“ (`issue`, `D.play(3)`; v Přehledu scén scéna 4), po 1. klepnutí na Další.*
+
 *Stav na snímku: scéna „Lékař – vydání plánu“, před klepnutím na Vydat.*
 
 - **Co to je:** shrnutí konceptu (plán, platnost, čtyři dávky, cíle, návyky, pravidla) a jediné tlačítko „Vydat plán a předat sestře“.
@@ -258,6 +267,8 @@ Události ordinace:
 ### O05 Sestra: zaučení s náhledem telefonu
 
 ![O05](obrazovky/ordinace-O05-sestra-zauceni.png)
+
+*Kapitola: „Sestra – zaučení s náhledem telefonu“ (`training`, `D.play(4)`; v Přehledu scén scéna 5), po 2. klepnutí na Další.*
 
 *Stav na snímku: scéna „Sestra – zaučení s náhledem telefonu“, rozpracované body.*
 
@@ -276,6 +287,8 @@ Události ordinace:
 
 ![O06](obrazovky/ordinace-O06-sestra-zauceni-dokonceno.png)
 
+*Kapitola: „Sestra – zaučení s náhledem telefonu“ (`training`, `D.play(4)`; v Přehledu scén scéna 5), po 6. klepnutí na Další.*
+
 *Stav na snímku: konec scény zaučení, všechny body hotové.*
 
 - **Co to je:** stejná obrazovka po „Dokončit zaučení“ s oznámením „Zaučení dokončeno · Co dál: předejte telefon pacientovi…“.
@@ -291,6 +304,8 @@ Události ordinace:
 
 ![O07](obrazovky/ordinace-O07-sestra-zauceni-se-nezdarilo.png)
 
+*Kapitola: „Dodatek · zaučení se nezdařilo“ (`training`, `D.play(4, { training: 'failed' })`; v Přehledu scén dodatek, scéna 28), po 3. klepnutí na Další.*
+
 *Stav na snímku: dodatek „Zaučení se nezdařilo“, vybraný důvod „potřebuje pomoc blízké osoby“.*
 
 - **Co to je:** stav po „Zaučení se nezdařilo“ s volbou důvodu.
@@ -304,6 +319,8 @@ Události ordinace:
 ### O08 Plán platí (mezi kontrolami)
 
 ![O08](obrazovky/ordinace-O08-plan-plati-mezi-kontrolami.png)
+
+*Kapitola: „Pacient – den před kontrolou“ (`preview`, `D.play(20)`; v Přehledu scén scéna 21), na začátku scény; potom role lékař a stránka Zařazení a plán (`page:enroll`).*
 
 *Stav na snímku: den před kontrolou, záložka Zařazení a plán.*
 
@@ -319,6 +336,8 @@ Události ordinace:
 ### O09 Kontrola před zahájením: části sestry
 
 ![O09](obrazovky/ordinace-O09-kontrola-pred-zahajenim-sestra.png)
+
+*Kapitola: „Lékař – kontrola, krok 1: souhrn“ (`reviewSummary`, `D.play(21)`; v Přehledu scén scéna 22), na začátku scény.*
 
 *Stav na snímku: první krok scény „Lékař – kontrola, krok 1: souhrn“; nic vyplněno, export nenahraný.*
 
@@ -343,6 +362,8 @@ Události ordinace:
 
 ![O10](obrazovky/ordinace-O10-kontrola-sestra-vyplneno-export-nahran.png)
 
+*Kapitola: „Lékař – kontrola, krok 1: souhrn“ (`reviewSummary`, `D.play(21)`; v Přehledu scén scéna 22), po 6. klepnutí na Další.*
+
 *Stav na snímku: scéna kontroly po nahrání exportu, těsně před „Zahájit kontrolu“.*
 
 - **Co to je:** O09 po vyplnění a po nahrání exportu: zelené oznámení „Export nahrán a převeden · doplněno N jídel a N nocí (za X dní, od – do)“ a pod ním „Opsaná nejvyšší hodnota se s exportem shoduje u X z Y jídel (do 1,0 mmol/l).“; výběr souboru je schovaný pod „Nahrát jiný soubor“.
@@ -363,6 +384,8 @@ Události ordinace:
 
 ![O11](obrazovky/ordinace-O11-sestra-export-odmitnut.png)
 
+*Kapitola: „Lékař – kontrola, krok 1: souhrn“ (`reviewSummary`, `D.play(21)`; v Přehledu scén scéna 22), po 5. klepnutí na Další; potom akce `importText` s nečitelným textem.*
+
 *Stav na snímku: do akce `importText` vložen text bez hlavičky.*
 
 - **Co to je:** chybová hláška nahoře na obrazovce: „Tento soubor neumíme načíst. Zkontrolujte, že jde o export ze senzoru, a zkuste to znovu. Ze souboru jsme nic nenačetli.“ (`NF.IMPORT_REJECT`).
@@ -376,6 +399,8 @@ Události ordinace:
 ### O12 Kontrola, krok 1: souhrn
 
 ![O12](obrazovky/ordinace-O12-kontrola-krok1-souhrn.png)
+
+*Kapitola: „Lékař – kontrola, krok 1: souhrn“ (`reviewSummary`, `D.play(21)`; v Přehledu scén scéna 22), po 7. klepnutí na Další.*
 
 *Stav na snímku: hned po „Zahájit kontrolu“.*
 
@@ -408,6 +433,8 @@ Události ordinace:
 
 ![O13](obrazovky/ordinace-O13-kontrola-krok1-dlazdice-a-podklady.png)
 
+*Kapitola: „Lékař – kontrola, krok 1: souhrn“ (`reviewSummary`, `D.play(21)`; v Přehledu scén scéna 22), po 8. klepnutí na Další; potom rozbalená dlaždice a části podkladů.*
+
 *Stav na snímku: rozbalená dlaždice „Čas v cíli“ a všechny části podkladů.*
 
 - **Co to je:** detail dlaždice (`tileDetail`) a podklady pro podrobnější pohled: Sestra · Data ze senzoru, Bezpečnost, Jídla opakovaně nad cílem, Reakce na jednotlivá jídla, Rady, Otázky pacienta.
@@ -427,6 +454,8 @@ Události ordinace:
 ### O14 Krok 2: návrhová karta, ověření čeká
 
 ![O14](obrazovky/ordinace-O14-kontrola-krok2-navrh-overeni-ceka.png)
+
+*Kapitola: „Lékař – krok 2: návrhy s důvodem a postupem“ (`reviewProposals`, `D.play(22)`; v Přehledu scén scéna 23), na začátku scény.*
 
 *Stav na snímku: začátek kroku 2, otevřená první karta „Posoudit prandiální dávku ke snídani – hodnoty nad cílem“, nic neověřeno.*
 
@@ -453,12 +482,14 @@ Události ordinace:
 
 ![O15](obrazovky/ordinace-O15-kontrola-krok2-navrh-vetev-a-davka.png)
 
-*Stav na snímku: karta ke snídani, 10 z 10 bodů sedí (sbaleno „10 z 10 sedí · upravit“), lékař posuvníkem nastavil 10 j. (dnes 8 j.).*
+*Kapitola: „Lékař – krok 2: návrhy s důvodem a postupem“ (`reviewProposals`, `D.play(22)`; v Přehledu scén scéna 23), po 5. klepnutí na Další.*
+
+*Stav na snímku: karta ke snídani, 10 z 10 bodů sedí, lékař posuvníkem nastavil 10 j. (dnes 8 j.). Ověřovací body jsou na snímku rozbalené (šipka nahoru, všech 10 bodů s tlačítky Sedí / Nesedí) a rozbalený je i oddíl „Co návrh oslabuje (3)“. Sbalený řádek „10 z 10 sedí · upravit“ se ukáže po sbalení.*
 
 - **Co to je:** karta po dokončeném ověření: „Postup říká: zvýšit · Všechny body sedí a hodnoty jsou nad cílem: zvýšit dávku ke snídani“, ostatní větve pod „Ostatní větve postupu (N)“; blok Rozhodnout s posuvníkem dávky a tlačítkem „Souhlasím · z 8 na 10 j.“
 - **Kdo a kdy:** lékař, s pacientem.
 - **Co se počítá:**
-  - **Větev** `V.proposalBranch(S, pr)` (vykreslení, logika patří do domény): stav bodu `NF.verifyState` = rozhodnutí lékaře, jinak odpověď sestry; bod blokovaný daty je vždy „nesedí“. Dokud je bod neověřený → `wait`. Bez schváleného postupu → `free` („rozhodněte sami“). Všechny body sedí → větev bez „nesedí“ (u `prandHigh` „zvýšit“). Jinak větev prvního nesedícího bodu, **body blokované daty mají přednost** před pořadím. Bod bez větve → „ponechat dávku – schválený postup pro tento bod nemá větev“ (nikdy zvýšení).
+  - **Větev** `NF.proposalBranch` `(S, návrh)` v `app/core.js` (od SCHEMA 89; `V.proposalBranch` v `screens-clinic.js` je jen alias), vrací `{ action, text, when?, block?, missing? }` s `action` = `wait | free | keep | up | down | swap | edit`: stav bodu `NF.verifyState` = rozhodnutí lékaře, jinak odpověď sestry; bod blokovaný daty je vždy „nesedí“. Dokud je bod neověřený → `wait`. Bez schváleného postupu → `free` („rozhodněte sami“). Všechny body sedí → větev bez „nesedí“ (u `prandHigh` „zvýšit“). Jinak větev prvního nesedícího bodu, **body blokované daty mají přednost** před pořadím. Bod bez větve → „ponechat dávku – schválený postup pro tento bod nemá větev“ (nikdy zvýšení).
   - **Posuvník dávky** se ukáže jen u větve zvýšit / snížit / bez postupu; značka „dnes N j.“, rozsah 1–60 j. (`NF.DOSE_RANGE`); rozdíl „+2 j. (8 → 10)“. Hodnotu volí lékař; aplikace ji nenavrhuje (věta „Nastavte novou dávku posuvníkem; aplikace ji nenavrhuje.“). „Souhlasím“ je zamčené, dokud dávka = dnešní.
   - **Rozhodnutí** `NF.decideProposal(S, id, { choice: 'agree', branch, units })` (jen role lékař). Když lékař při větvi „zvýšit“ nastaví nižší dávku (nebo při „snížit“ vyšší), tlačítko zní „Rozhodnout jinak než postup · 8 → 7 j.“, pod ním „Změna jde proti větvi vašeho postupu; zapíše se jako „rozhodnuto jinak než postup““ a zapíše se `choice: 'other', againstBranch: true`.
   - **Blok „zvýšit“ poklesem (bod 8):** `NF.lowEvents` u každého poklesu určí `clean` (obvyklá porce + dávka potvrzená podle plánu a včas) a důvod (`why`: menší porce, větší porce, jiná nebo nepotvrzená dávka, dávka mimo čas, vynechané jídlo s inzulinem). Při `D-POSTUP.poklesy_jen_ciste` = 1 blokují jen čisté poklesy, a to od `poklesy_od` (1). Blokující bod je „nesedí podle dat“, nepřepíná se („Nepřepíná se: větev „zvýšit“ je zablokovaná.“) a větev zní „ponechat dávku, řešit jídlo“. Ostatní poklesy jsou varování ve faktu bodu 8 a jako první položka „Co návrh oslabuje“. Návrh si blok nese i bez schváleného postupu (`pr.lowBlock`): **zvýšení dávky u jídla s blokujícím poklesem jádro vždy zapíše jako `choice: 'other', againstBranch: true, againstData: true`** („rozhodnuto jinak než postup · proti datům (pokles pod 4)“), ať lékař klepl na cokoli.
@@ -472,6 +503,8 @@ Události ordinace:
 ### O16 Krok 2: Jiné rozhodnutí
 
 ![O16](obrazovky/ordinace-O16-kontrola-krok2-jine-rozhodnuti.png)
+
+*Kapitola: „Lékař – krok 2: návrhy s důvodem a postupem“ (`reviewProposals`, `D.play(22)`; v Přehledu scén scéna 23), po 8. klepnutí na Další; potom akce `propVerify:PR-LUNCH:1:no`, `propOther:PR-LUNCH` a `propDoseSet:PR-LUNCH:11`.*
 
 *Stav na snímku: karta k obědu; lékař označil bod 2 „nesedí“ (větev „ponechat, řešit techniku a místo píchání“), otevřel „Jiné rozhodnutí“ a posuvníkem nastavil 11 j.*
 
@@ -490,6 +523,8 @@ Události ordinace:
 
 ![O17](obrazovky/ordinace-O17-kontrola-krok2-navrh-bazal-noci.png)
 
+*Kapitola: „Lékař – krok 2: návrhy s důvodem a postupem“ (`reviewProposals`, `D.play(22)`; v Přehledu scén scéna 23), po 11. klepnutí na Další.*
+
 *Stav na snímku: třetí karta příběhu „Posoudit bazální dávku – noční hodnoty pod cílem“; sestra u „Pozdě večer a v noci pacient nic nejí“ vybrala „Nesedí“.*
 
 - **Co to je:** návrhová karta k bazálu s řádkem okolností u každé noci, ranními hodnotami za období a vývojem ranních hodnot.
@@ -506,6 +541,8 @@ Události ordinace:
 ### O18 Krok 2: Beze změny a Dávky bez návrhu
 
 ![O18](obrazovky/ordinace-O18-kontrola-krok2-beze-zmeny-a-davky-bez-navrhu.png)
+
+*Kapitola: „Lékař – krok 2: návrhy s důvodem a postupem“ (`reviewProposals`, `D.play(22)`; v Přehledu scén scéna 23), po 14. klepnutí na Další.*
 
 *Stav na snímku: všechny karty rozhodnuté, „Beze změny (3)“ potvrzené, „Dávky bez návrhu (1)“ (večeře).*
 
@@ -524,6 +561,8 @@ Události ordinace:
 
 ![O19](obrazovky/ordinace-O19-kontrola-krok2-nejdriv-rady.png)
 
+*Kapitola: „Dodatek · pacient rady většinou nepřijal: jiné návrhy“ (`reviewProposals`, `D.play(22, { response: 'declines' })`; v Přehledu scén dodatek, scéna 30), na začátku scény.*
+
 *Stav na snímku: dodatek „Pacient rady většinou nepřijal: jiné návrhy“, karta „Nejdřív rady ke snídani – dávka až po radách“.*
 
 - **Co to je:** karta, která vznikne před kartou k dávce, když pacient rady k jídlu dne málo zkoušel nebo je většinou odmítal.
@@ -539,6 +578,8 @@ Události ordinace:
 
 ![O20](obrazovky/ordinace-O20-kontrola-krok2-vymena-rady.png)
 
+*Kapitola: „Dodatek · „nemám to doma“: výměna rady“ (`reviewProposals`, `D.play(22, { response: 'impractical' })`; v Přehledu scén dodatek, scéna 31), po 5. klepnutí na Další; potom akce `propDecide:PR-BREAKFAST:keep` a `propVerify:PR-SWAP-order:0:no`.*
+
 *Stav na snímku: dodatek „„Nemám to doma“: výměna rady“; lékař ponechal dávku ke snídani a u karty „Vyměnit radu „Pořadí jídla““ označil bod „nesedí“ (data říkají jinak).*
 
 - **Co to je:** návrh k radě: „Vyměnit radu „X““ (nejčastější důvod odmítnutí „nemám to doma“ nebo „nechutná mi to“), „Probrat radu „X““ (jiný důvod nebo rada stažená u některých jídel) a „Zachovat radu“ (ve Beze změny).
@@ -551,6 +592,8 @@ Události ordinace:
 ### O21 Krok 3: Potvrdit plán
 
 ![O21](obrazovky/ordinace-O21-kontrola-krok3-potvrzeni-planu.png)
+
+*Kapitola: „Lékař – krok 3: potvrzení a vydání plánu P2“ (`reviewConfirm`, `D.play(23)`; v Přehledu scén scéna 24), po 1. klepnutí na Další.*
 
 *Stav na snímku: scéna „Lékař – krok 3: potvrzení a vydání plánu P2“ před vydáním.*
 
@@ -573,6 +616,8 @@ Události ordinace:
 
 ![O22](obrazovky/ordinace-O22-kontrola-krok4-predani.png)
 
+*Kapitola: „Lékař – krok 4: předání pacientovi“ (`reviewHandover`, `D.play(24)`; v Přehledu scén scéna 25), na začátku scény.*
+
 *Stav na snímku: scéna „Lékař – krok 4: předání pacientovi“.*
 
 - **Co to je:** karta „Předání pacientovi“ (datum příští kontroly) a náhled telefonu s obrazovkou nového plánu (`V.patient(S, 'newplan')`, atlas pacienta).
@@ -585,6 +630,8 @@ Události ordinace:
 
 ![O23](obrazovky/ordinace-O23-zasuvka-pravidla-a-kontakty.png)
 
+*Kapitola: „Lékař – kontrola, krok 1: souhrn“ (`reviewSummary`, `D.play(21)`; v Přehledu scén scéna 22), po 7. klepnutí na Další; potom akce `acuteOpen`.*
+
 - **Co to je:** zásuvka mimo kroky kontroly (tlačítko se štítem v hlavičce kontroly): bezpečnostní pravidla pacienta z platného plánu a „Kam se obrátit“ (`V.acute`).
 - **Kdo a kdy:** lékař, kdykoli během kontroly pro rychlou orientaci.
 - **Co se počítá:** `V.instructionsList(S, plán)`; kontakty jen jako informace.
@@ -595,6 +642,8 @@ Události ordinace:
 ### O24 Zásuvka s popisem položky registru
 
 ![O24](obrazovky/ordinace-O24-zasuvka-polozka-registru.png)
+
+*Kapitola: „Lékař – krok 2: návrhy s důvodem a postupem“ (`reviewProposals`, `D.play(22)`; v Přehledu scén scéna 23), po 5. klepnutí na Další; potom akce `openItem:D-PRAND`.*
 
 *Stav na snímku: klepnutí na štítek „Návrhy k prandiální dávce a radám“.*
 
@@ -607,6 +656,8 @@ Události ordinace:
 ### O25 Schvalovací registr: přehled
 
 ![O25](obrazovky/ordinace-O25-registr-prehled.png)
+
+*Kapitola: „Souhrn – vaše rozhodnutí o položkách registru“ (`trace`, `D.play(26)`; v Přehledu scén scéna 27), na začátku scény; potom stránka registru (`page:registry`).*
 
 *Stav na snímku: všech 28 klinických položek schválených.*
 
@@ -622,6 +673,8 @@ Události ordinace:
 
 ![O26](obrazovky/ordinace-O26-registr-detail-polozky.png)
 
+*Kapitola: „Souhrn – vaše rozhodnutí o položkách registru“ (`trace`, `D.play(26)`; v Přehledu scén scéna 27), na začátku scény; potom stránka registru a `regOpen:D-POSTUP`.*
+
 *Stav na snímku: otevřená D-POSTUP.*
 
 - **Co to je:** panel detailu (`itemPanel`): kategorie, kód, verze, název, stav, souhrn; „Rozhodnutí garanta“ se dvěma rovnocennými tlačítky Schválit / Zamítnout; po rozhodnutí pole poznámky s otázkou „Proč jste schválili? (nepovinné)“ / „Proč jste zamítli? (nepovinné)“ a stavem „Ukládá se… / Uloženo HH:MM“; průvodce (v maketě z `demo/guide.js`) nebo souhrn, detail, texty, parametry a u D-POSTUP všechny postupy s body a větvemi (`itemPostup`); historie (rozhodnutí garanta zvlášť od modelových kroků příběhu).
@@ -636,6 +689,8 @@ Události ordinace:
 
 ![O27](obrazovky/ordinace-O27-registr-zamitnuti-bezpecnostni-polozky.png)
 
+*Kapitola: „Souhrn – vaše rozhodnutí o položkách registru“ (`trace`, `D.play(26)`; v Přehledu scén scéna 27), na začátku scény; potom stránka registru, `regOpen:B-HYPO` a `regDecide:rejected`.*
+
 *Stav na snímku: B-HYPO, první klepnutí na Zamítnout.*
 
 - **Co to je:** varování „Zamítnutím přestane fungovat ochrana pacientů: … Opravdu zamítnout?“ s potvrzením a zrušením (`V.SAFETY_ITEMS` pro B-HYPO, R-POKYNY, P-NEMOC).
@@ -647,6 +702,8 @@ Události ordinace:
 
 ![O28](obrazovky/ordinace-O28-registr-provozni-pravidlo.png)
 
+*Kapitola: „Souhrn – vaše rozhodnutí o položkách registru“ (`trace`, `D.play(26)`; v Přehledu scén scéna 27), na začátku scény; potom stránka registru, `regOpen:Z-IMPORT` a rozbalený oddíl „Pravidla aplikace bez schvalování“.*
+
 *Stav na snímku: otevřená Z-IMPORT a rozbalený oddíl „Pravidla aplikace bez schvalování“.*
 
 - **Co to je:** detail provozní položky: popis pravidla aplikace bez stavu, bez tlačítek a bez štítku.
@@ -657,6 +714,8 @@ Události ordinace:
 ### O29 Registr: podnět z provozu
 
 ![O29](obrazovky/ordinace-O29-registr-podnet-z-provozu.png)
+
+*Kapitola: „Během studie – garant upraví pravidlo po podnětu“ (`registry`, `D.play(17)`; v Přehledu scén scéna 18), po 1. klepnutí na Další.*
 
 *Stav na snímku: scénář 5 „Během studie – garant upraví pravidlo po podnětu“ (modelový registr ostré aplikace).*
 
@@ -670,6 +729,8 @@ Události ordinace:
 ### O30 Verze a stopa
 
 ![O30](obrazovky/ordinace-O30-stopa.png)
+
+*Kapitola: „Souhrn – vaše rozhodnutí o položkách registru“ (`trace`, `D.play(26)`; v Přehledu scén scéna 27), na začátku scény; potom `traceOpen` u události `navrh.rozhodnut` s volbou Souhlasím.*
 
 - **Co to je:** plány (stav, platnost, dávky), návyky se stavem a tabulka stopy od nejnovějšího: čas, kdo (pacient / lékař / sestra / aplikace), událost česky, podrobnost; filtr podle toho, kdo jednal; „Zobrazit dalších 80“; technická data v rozbalení řádku (`V.trace`, `traceDetail`). Snímek ukazuje rozbalená data rozhodnutí návrhu ke snídani s polem `polozky` (id, verze, otisk a stav položky D-POSTUP). Od SCHEMA 87 mají české názvy i nové události (`pravidlo.nizka`, `pravidlo.mene`, `pravidlo.nevim`, `plan.davky.overeni`, `plan.kontrolni.otazka`, `nemoc.dotaz`, `otazka.lekari`, `podpora.odeslano`, `zarazeni.*`, `navrh.overeni`, `navrh.overeni.vse`).
 - **Kdo a kdy:** lékař a garant, k dohledání, co aplikace udělala a proč.
@@ -692,7 +753,7 @@ Body R1–R8, které atlas ve SCHEMA 86 našel, vyřešila SCHEMA 87 (rozhodnut�
 - **R1 Sestra na kontrole:** maketa beze změny; `15` odst. 3 říká, že ostrá aplikace oprávnění rolí oddělí (sestra jen své části kontroly a zaučení, každá funkce ověří roli, stopa zapíše, kdo jednal). Je to úkol etapy oprávnění.
 - **R2 Rozsah voliče dávky:** jeden rozsah 1–60 j. z `NF.DOSE_RANGE` při zařazení, na kontrole i u pacienta (O03, O15, O16, O21).
 - **R3 Volič hmotnosti a HbA1c:** `15` odst. 4.1 a 9 dopsány na posuvník.
-- **R4 Tlačítka návrhové karty:** „Souhlasím“ a „Jiné rozhodnutí“ dopsány do `CLAUDE.md` a `15` odst. 9 a 18.
+- **R4 Tlačítka návrhové karty:** „Souhlasím“ a „Jiné rozhodnutí“ dopsány do instrukcí projektu makety (`CLAUDE.md` mimo repozitář; výtah pro demo je [`AGENTS.md`](AGENTS.md)) a do `15` odst. 9 a 18.
 - **R5 Podnět z provozu:** v ukázce tlačítko znázorňuje krok výrobce a oznámení to říká; v ostré aplikaci garant jen navrhuje (O29, `15` odst. 13).
 - **R6 Stopa bez verze a otisku položek, krácení:** události nesou `polozky` s verzí a otiskem; krácení je omezení makety, ostrá aplikace má stopu úplnou (odd. 4.3, O30).
 - **R7 Zápisy z ordinace:** `zarazeni.podminka`, `zarazeni.vylouceni`, `zarazeni.vychozi`, `zarazeni.davky.overeny`, `navrh.overeni`, `navrh.overeni.vse` (O02, O03, O14).

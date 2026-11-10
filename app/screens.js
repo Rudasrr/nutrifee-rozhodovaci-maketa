@@ -50,8 +50,8 @@ function appr(S, id) {
 /* SCHEMA 87 (rozhodnutí vlastníka 6. 11. 2026, bod 6; atlas pacienta R1): bez prezentační vrstvy výchozí neutrální oznámení na místě – bez zmínky o garantovi,
    bez výzvy volat (zásada 3); v jednom vykreslení se stejná položka hlásí jen jednou. Položky, jejichž zamítnutí je jen záznam nesouhlasu (C-CILE, K-KRITERIA,
    Z-GLUKOZA) nebo zásada bez místa (P-LEKAR), dál fungují, proto oznámení nemají. */
-NF.OFF_TEXT = 'Tato část teď není k dispozici.';
-NF.OFF_RECORD_ONLY = ['C-CILE', 'K-KRITERIA', 'Z-GLUKOZA', 'P-LEKAR'];
+/* SCHEMA 89: výchozí text a seznam položek bez oznámení jsou v jádře (NF.OFF_TEXT, NF.OFF_RECORD_ONLY v app/core.js); tady jen aliasy pro obrazovky. */
+V.OFF_TEXT = NF.OFF_TEXT; V.OFF_RECORD_ONLY = NF.OFF_RECORD_ONLY;
 var offSeen = {}, offSeq = -1;
 function off(S, id) {
   if (NF.slots.offNotice) return NF.slots.offNotice(S, id);
@@ -1517,27 +1517,11 @@ V.support = function (S) {
 V.preview = function (S) {
   var p = NF.activePlan(S); if (!p) return head(S, 'Před kontrolou', 'Zatím nemáte plán');
   var s = NF.summary(S, p.id), adv = s.advice;
-  var known = S.foods.filter(function (f) { return NF.confidence(S, f.id).level === 'known'; });
-  /* Kontrola 4 (C12, 06 B8): bez slova „pomohl“; věcně „s radou X z N v cíli“ a srovnání „bez rady“ jen od 4 zápisů s radou i bez ní (S-VYSLEDEK min_n, 15 odst. 7b.1). */
-  var minN4 = NF.param(S, 'S-VYSLEDEK', 'min_n', 4);
-  var best = null; known.forEach(function (f) { NF.leverStats(S, f.id).forEach(function (x) { if (x.st.n >= minN4 && x.st.inTarget / x.st.n >= 0.5 && (!best || x.st.inTarget / x.st.n > best.share)) best = { food: f, lever: x.lever, st: x.st, share: x.st.inTarget / x.st.n, base: NF.baseStats(S, f.id) }; }); });
+  var minN4 = NF.param(S, 'S-VYSLEDEK', 'min_n', 4), best = NF.previewBest(S, p); /* SCHEMA 89: výběr v jádře (NF.previewBest) */
   var pi = NF.periodInfo(S, p, S.clock, true), sem = NF.semafor(S); /* počet dní a zápisů stejným výpočtem jako report lékaře (A30) */
   var praise = 'Zapsáno <strong>' + NF.periodEntriesText(pi) + '</strong>, z toho ' + NF.plural(s.usual, 'jídlo', 'jídla', 'jídel') + ' v obvyklé porci. Inzulin podle plánu u ' + s.asPlan + ' ' + NF.z(s.meals) + ' ' + s.meals + ' jídel.' + /* přímé počty, ne zpětně z procenta; jedno poděkování (21. 10. 2026) */
     (best ? ' U jídla „' + e(best.food.name) + '“ bylo s radou „' + e(NF.LEVERS[best.lever].label.toLowerCase()) + '“ ' + best.st.inTarget + ' ' + NF.z(best.st.n) + ' ' + best.st.n + ' zápisů v cíli' + (best.base && best.base.n >= minN4 ? ', bez ní ' + best.base.inTarget + ' ' + NF.z(best.base.n) + ' ' + best.base.n : '') + '.' : '');
-  var qs = [], lows = NF.lowEvents(S).filter(function (x) { return !p.effectiveFrom || x.at >= p.effectiveFrom; });
-  /* B8 (nezávislá kontrola 27. 10. 2026): poklesy, které aplikace slíbila ukázat lékaři, jsou první navržená otázka */
-  if (lows.length) {
-    /* noční poklesy zapsané u snídaně (bod 7, 1. 11. 2026) se v otázce jmenují zvlášť – nejsou „po jídle“ */
-    var lMeal = lows.filter(function (x) { return !x.night; }), lNight = lows.length - lMeal.length;
-    var lm = lMeal.length && lMeal.every(function (x) { return x.meal === lMeal[0].meal; }) ? (NF.MEAL_PO[lMeal[0].meal] || 'po jídle') : 'po jídle';
-    qs.push('Glukóza mi ' + lows.length + '× klesla pod 4' + (lNight && lMeal.length ? ' (' + lMeal.length + '× ' + lm + ', ' + lNight + '× v noci)' : lNight ? ' v noci' : ' ' + lm) + '. Mám něco dělat jinak?');
-  }
-  if (best) qs.push('Mám u jídla „' + best.food.name + '“ dál zkoušet radu „' + NF.LEVERS[best.lever].label.toLowerCase() + '“?');
-  if (adv.topReason === 'nothome') qs.push('Rady, které nemám doma, často nepřijmu – dá se to nastavit jinak?');
-  if (s.other + s.none > 0) qs.push('Inzulin byl někdy jinak než podle plánu (' + (s.other + s.none) + '×). Je to problém?');
-  if (s.illDays) qs.push('Nemoc trvala ' + NF.plural(s.illDays, 'den', 'dny', 'dní') + '. Mám v takové době něco dělat jinak?');
-  qs.push('Jsou moje cíle glukózy pořád správné?');
-  qs = qs.slice(0, 3); /* 15, odst. 11: tři navržené otázky */
+  var qs = NF.previewQuestions(S, s, best); /* SCHEMA 89: tři navržené otázky počítá jádro (NF.previewQuestions), příběh je bere odtud */
   return head(S, 'Před kontrolou ' + (S.nextVisit ? NF.fmtShort(S.nextVisit) : ''), 'Co uvidí lékař') + importNotice(S) +
     card('<div class="now-row"><div>' + ttl('Díky za ' + NF.plural(pi.days, 'den', 'dny', 'dní') + ' zapisování') + praise + '<br><span class="small muted">Tohle uvidí lékař: co jste zkusili a jak to dopadlo. Nikoho nehodnotíme.</span></div></div>', 'soft') +
     card('<details class="more"' + (S.previewTile ? ' open' : '') + '><summary>Podrobnosti v číslech</summary><div class="tiles mt-3">' +

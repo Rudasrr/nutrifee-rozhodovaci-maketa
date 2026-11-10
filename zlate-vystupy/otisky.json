@@ -1,0 +1,301 @@
+{
+ "garantovych": 28,
+ "jidel": 171,
+ "polozek": 42,
+ "polozky": [
+  {
+   "cat": "kohorta",
+   "fp": "fp-d45dee6220e35c7f",
+   "id": "K-KRITERIA",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "plan",
+   "fp": "fp-92186c7a61d89878",
+   "id": "C-CILE",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "plan",
+   "fp": "fp-0c3305f773ea3afc",
+   "id": "R-NAVYKY",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "vypocty",
+   "fp": "fp-5258931bcaf12c13",
+   "id": "R-REAKCE",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "vypocty",
+   "fp": "fp-f635cf065b74a0b5",
+   "id": "Z-GLUKOZA",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "vypocty",
+   "fp": "fp-68eed83a939289cf",
+   "id": "Z-IMPORT",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "pokyny",
+   "fp": "fp-2ca60fe1264048c3",
+   "id": "B-HYPO",
+   "scope": null,
+   "version": "v2"
+  },
+  {
+   "cat": "vypocty",
+   "fp": "fp-984c0cd0a0c8479d",
+   "id": "R-PODOBNOST",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "skore",
+   "fp": "fp-687b28aa3106a1cf",
+   "id": "R-SKORE",
+   "scope": null,
+   "version": "v2"
+  },
+  {
+   "cat": "rady",
+   "fp": "fp-84a6e4bdac1ae934",
+   "id": "R-PORCE",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "rady",
+   "fp": "fp-39c029082198580e",
+   "id": "R-DOPLNEK",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "rady",
+   "fp": "fp-69597b212fdc6784",
+   "id": "R-PORADI",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "rady",
+   "fp": "fp-2872299df9381e45",
+   "id": "R-PROCHAZKA",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "davka",
+   "fp": "fp-2cfc59392fe8f7f0",
+   "id": "D-CISTA",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "davka",
+   "fp": "fp-2af4539a7efe9aa4",
+   "id": "D-PRAND",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "davka",
+   "fp": "fp-a8e30988ee750f29",
+   "id": "D-BAZAL",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "davka",
+   "fp": "fp-bf49017463463d0c",
+   "id": "D-POSTUP",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "pokyny",
+   "fp": "fp-6e483b976d6d89c5",
+   "id": "R-POKYNY",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "pokyny",
+   "fp": "fp-dd2958972aacf979",
+   "id": "I-HYPO",
+   "scope": null,
+   "version": "v2"
+  },
+  {
+   "cat": "pokyny",
+   "fp": "fp-851c618bcbead6fd",
+   "id": "I-MENE",
+   "scope": null,
+   "version": "v2"
+  },
+  {
+   "cat": "pokyny",
+   "fp": "fp-a2c4964f65bee4eb",
+   "id": "I-NEVIM",
+   "scope": null,
+   "version": "v2"
+  },
+  {
+   "cat": "pokyny",
+   "fp": "fp-d3faf536ae92f571",
+   "id": "I-NEMOC-BAZAL",
+   "scope": null,
+   "version": "v2"
+  },
+  {
+   "cat": "pokyny",
+   "fp": "fp-d4561fe8abca1fb2",
+   "id": "I-NEMOC-JIDLO",
+   "scope": null,
+   "version": "v2"
+  },
+  {
+   "cat": "pokyny",
+   "fp": "fp-a6bd332485684b10",
+   "id": "I-VYSOKA",
+   "scope": null,
+   "version": "v2"
+  },
+  {
+   "cat": "pokyny",
+   "fp": "fp-47d5a9692dcb7adb",
+   "id": "I-KONTAKT",
+   "scope": null,
+   "version": "v2"
+  },
+  {
+   "cat": "zauceni",
+   "fp": "fp-f648d7a014ef5754",
+   "id": "Z-BODY",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "jidla",
+   "fp": "fp-57ba79c6f920a1cd",
+   "id": "J-DATABAZE",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "jidla",
+   "fp": "fp-b4a08f2387794ce0",
+   "id": "J-STITKY",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "report",
+   "fp": "fp-49aca4ce202483bd",
+   "id": "S-SILNA",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "report",
+   "fp": "fp-f2d9aa1cfa02c477",
+   "id": "S-SOUHRN",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "report",
+   "fp": "fp-742052981b235c49",
+   "id": "S-VYSLEDEK",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "rady",
+   "fp": "fp-140cba031ad644d4",
+   "id": "R-DIKY",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "rady",
+   "fp": "fp-b60860dff2e334fe",
+   "id": "R-MILNIKY",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "report",
+   "fp": "fp-6e429a3adbfe8b8c",
+   "id": "S-CESTA",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "report",
+   "fp": "fp-4340fa3ac819f7c0",
+   "id": "S-TYDEN",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "rezim",
+   "fp": "fp-c76d863251d6d0af",
+   "id": "S-PODPORA",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "rady",
+   "fp": "fp-c916b091136db1c3",
+   "id": "R-ZMIZELA",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "report",
+   "fp": "fp-4dc3789f3f72ff70",
+   "id": "S-SEMAFOR",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "rezim",
+   "fp": "fp-207f0317f3fc772e",
+   "id": "P-NEMOC",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "rezim",
+   "fp": "fp-633a820997faaa74",
+   "id": "P-LEKAR",
+   "scope": null,
+   "version": "v1"
+  },
+  {
+   "cat": "rezim",
+   "fp": "fp-b1006211ae33cd87",
+   "id": "S-PRIPOMINKY",
+   "scope": "provozni",
+   "version": "v1"
+  },
+  {
+   "cat": "plan",
+   "fp": "fp-b4fc60f717e351c0",
+   "id": "S-DAVKA",
+   "scope": "provozni",
+   "version": "v1"
+  }
+ ]
+}

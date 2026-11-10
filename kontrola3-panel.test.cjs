@@ -122,7 +122,7 @@ test('Kontrola pravdivosti: citace v oznámení se nepočítá jako obrazovka; g
   assert.ok(P.describes('věta, že se za 60 minut od jídla zeptáme, jestli glukóza klesla pod 4', ['Za 60 min od jídla se zeptáme, jestli glukóza klesla pod 4.'], []));
   assert.equal(P.describes('Pacient přijal pořadí a zápis uložil.', ['Až se zápisy stejného jídla shodnou, umíme vám k němu poradit.'], []), null);
   const src = fs.readFileSync(path.join(ROOT, 'pravdivost.test.cjs'), 'utf8'); assert.match(src, /seen = textNoOff\(root\)/);
-  const gen = fs.readFileSync(path.join(ROOT, '..', 'navrhy-designu', '04-pohledy-2026-10-05', 'scene-items.cjs'), 'utf8'); assert.match(gen, /introDependency/); assert.match(gen, /bezMista/);
+  const genAt = [path.join(ROOT, '..', 'navrhy-designu', '04-pohledy-2026-10-05', 'scene-items.cjs'), path.join(ROOT, 'predani', 'zdroj', 'navrhy-designu', '04-pohledy-2026-10-05', 'scene-items.cjs')], gen = fs.readFileSync(genAt.find(f => fs.existsSync(f)) || genAt[0], 'utf8'); /* SCHEMA 89: i v samostatném klonu (predani/zdroj/) */ assert.match(gen, /introDependency/); assert.match(gen, /bezMista/);
   assert.ok(D.sceneItems.some(x => x.deps && x.deps['0']), 'mapa má závislosti úvodů');
   const css = fs.readFileSync(path.join(ROOT, 'app/design.css'), 'utf8'); assert.match(css, /\.patient\{container-type:inline-size\}/); assert.match(css, /@container \(max-width:520px\)\{\.patient \.grid2\{grid-template-columns:1fr\}\}/);
 });

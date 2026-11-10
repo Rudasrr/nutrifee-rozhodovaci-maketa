@@ -464,28 +464,8 @@ function secMark(ok) { return ok ? '<span class="mk">' + NF.icon('check') + '</s
 /* Kontrola 3, C1: výčet v závorce ze stejného seznamu jako počet (zamítnuté pravidlo v něm není). */
 var INSTR_SHORT = { 'I-HYPO': 'nízká glukóza', 'I-MENE': 'méně jídla', 'I-NEMOC-BAZAL': 'nemoc', 'I-NEMOC-JIDLO': 'nemoc', 'I-NEVIM': 'nevím u inzulinu', 'I-VYSOKA': 'vysoká glukóza', 'I-KONTAKT': 'kontakty' };
 function instrShortList(active) { var seen = {}, out = []; active.forEach(function (c) { var t = INSTR_SHORT[c.id]; if (t && !seen[t]) { seen[t] = 1; out.push(t); } }); return out.length ? ' (' + out.join(', ') + ')' : ''; }
-/* Větev postupu podle toho, co lékař ověřil. */
-V.proposalBranch = function (S, pr) {
-  /* Tři stavy u každého bodu: neověřeno (undefined) → čeká; sedí (true); nesedí (false) → větev podle bodu. */
-  var states = pr.verify.map(function (_, i) { return NF.verifyState(S, pr, i); }); /* bod blokovaný daty (pokles pod 4) je vždy „nesedí“ (A1) */
-  if (states.some(function (x) { return x === undefined; })) return { action: 'wait', text: 'dokončete ověření' };
-  /* Bez schváleného postupu rozhoduje lékař sám (zásada 1); pokles pod 4 u jídla v období platí i tak (kontrola 3, A1): zvýšení se zapíše jako rozhodnutí proti datům. */
-  if (!pr.branches.length) return pr.lowBlock ? { action: 'free', block: true, text: 'postup není schválen – rozhodněte sami; u jídla byl v období pokles pod 4, zvýšení dávky by šlo proti datům' } : { action: 'free', text: 'postup není schválen – rozhodněte sami' };
-  var no = [], i;
-  for (i = 0; i < states.length; i++) if (states[i] === false) no.push(i);
-  if (!no.length) {
-    var all = pr.branches.filter(function (b) { return !/nesedí/.test(b.when); })[0];
-    return all || { when: 'všechny body sedí', action: 'keep', text: 'ponechat dávku – schválený postup pro tento výsledek nemá větev', missing: true };
-  }
-  /* Kontrola 3, A1: bod, který podle dat nesedí (pokles pod 4), má přednost před pořadím bodů – jeho větev „ponechat“ platí, ať nesedí cokoli dalšího. */
-  var order = no.filter(function (k) { return NF.verifyBlocked(pr, k); }).concat(no.filter(function (k) { return !NF.verifyBlocked(pr, k); }));
-  for (i = 0; i < order.length; i++) {
-    var n = order[i] + 1, m = pr.branches.filter(function (b) { return new RegExp('bod ' + n + '\\b.*nesedí').test(b.when); })[0];
-    if (m) return m;
-  }
-  /* Pro bod, který postup nezná (např. garant větev vyřadil), aplikace větev nevymýšlí a nikdy nenabídne zvýšení: „ponechat dávku“ (kontrola 3, A1). */
-  return { when: 'bod ' + (order[0] + 1) + ' nesedí', action: 'keep', text: 'ponechat dávku – schválený postup pro tento bod nemá větev', missing: true };
-};
+/* Větev postupu podle toho, co lékař ověřil: od SCHEMA 89 v jádře (NF.proposalBranch); tady jen tenký alias pro obrazovky a starší volání. */
+V.proposalBranch = function (S, pr) { return NF.proposalBranch(S, pr); };
 function reviewProposals(S, p, r) {
   var singles = r.proposals.filter(function (pr) { return !pr.row && NF.proposalIsSingle(S, pr); }), group = r.proposals.filter(function (pr) { return !pr.row && !NF.proposalIsSingle(S, pr); }), rows = NF.reviewRows(S);
   var next = NF.nextProposal(S), decided = singles.filter(function (pr) { return r.decisions[pr.id]; }).length;
@@ -541,7 +521,7 @@ function decisionLabel(dec, pr, p) {
   return 'zamítnuto';
 }
 function proposalBody(S, p, r, pr) {
-  var v = {}, br = V.proposalBranch(S, pr), wait = !br || br.action === 'wait';
+  var v = {}, br = NF.proposalBranch(S, pr), wait = !br || br.action === 'wait';
   pr.verify.forEach(function (_, i) { v[i] = NF.verifyState(S, pr, i); }); /* A1: bod „U jídla nebyl v období pokles pod 4“ při poklesech nesedí podle dat */
   var units = pr.kind === 'dose' ? r.newDoses[pr.dose].units : null, cur = pr.kind === 'dose' ? p.doses[pr.dose].units : null;
   var free = !wait && br.action === 'free';

@@ -6,7 +6,7 @@ var NF = global.NutriFee, V = NF.screens, e = NF.esc;
 var S = NF.load();
 var drawer = null;
 
-NF.slots = {};
+NF.slots = NF.slots || {}; /* SCHEMA 89: jmenný prostor slotů zakládá jádro */
 NF.registerSlot = function (name, fn) { NF.slots[name] = fn; NF.render && NF.render(); };
 function slot(name) { try { return NF.slots[name] ? NF.slots[name](S) : ''; } catch (err) { return ''; } }
 function toast(msg) { S.toast = msg; }
@@ -521,13 +521,13 @@ var A = {
   /* SCHEMA 84 (rozhodnutí vlastníka 4. 11. 2026, bod 1): volič „jiná dávka“ u každé dávky – i u větve „ponechat“ a u řádků „Dávky bez návrhu“ (pr.row) */
   propUnits: function (v) {
     if (reviewLocked()) return; var p = String(v).split(':'); var pr = S.review.proposals.filter(function (x) { return x.id === p[0]; })[0]; if (!pr || !pr.dose) return;
-    if (!pr.row) { var br = V.proposalBranch ? V.proposalBranch(S, pr) : null; if (!br || br.action === 'wait') return fail('Nejdřív dokončete ověření; dávku jde nastavit, až postup ukáže větev.'); }
+    if (!pr.row) { var br = NF.proposalBranch(S, pr); if (!br || br.action === 'wait') return fail('Nejdřív dokončete ověření; dávku jde nastavit, až postup ukáže větev.'); }
     var d = NF.int(p[1], -60, 60, null); if (d == null) return;
     NF.setReviewDose(S, pr.dose, NF.clampDose(S.review.newDoses[pr.dose].units + d));
   },
   propDoseSet: function (v) {
     if (reviewLocked()) return; var p = String(v).split(':'), pr = S.review.proposals.filter(function (x) { return x.id === p[0]; })[0]; if (!pr || !pr.dose) return;
-    if (!pr.row) { var br = V.proposalBranch ? V.proposalBranch(S, pr) : null; if (!br || br.action === 'wait') return fail('Nejdřív dokončete ověření.'); }
+    if (!pr.row) { var br = NF.proposalBranch(S, pr); if (!br || br.action === 'wait') return fail('Nejdřív dokončete ověření.'); }
     if (!NF.setReviewDose(S, pr.dose, NF.int(p[1], NF.DOSE_RANGE[0], NF.DOSE_RANGE[1], null)).ok) return fail('Vyberte dávku.');
   },
   propOther: function (v) { if (!S.review) return; S.review.other = S.review.other === v ? null : v; },
@@ -535,7 +535,7 @@ var A = {
     if (reviewLocked()) return;
     var p = v.split(':'), pr = S.review.proposals.filter(function (x) { return x.id === p[0]; })[0]; if (!pr) return fail('Návrh nenalezen.');
     if (['agree', 'keep', 'reject', 'other'].indexOf(p[1]) < 0) return;
-    var branch = V.proposalBranch ? V.proposalBranch(S, pr) : null, waiting = !branch || branch.action === 'wait';
+    var branch = NF.proposalBranch(S, pr), waiting = !branch || branch.action === 'wait';
     /* „Ponechat beze změny“ a „Zamítnout s důvodem“ nepotřebují dokončené ověření (02 #2, 23. 10. 2026); větev pak není (null). Ověření chce jen „Souhlasím“. */
     if (waiting && p[1] !== 'keep' && p[1] !== 'reject') return fail('Nejdřív u každého bodu označte, zda sedí, nebo nesedí.');
     if (waiting) branch = { action: null };
