@@ -4,7 +4,7 @@ Tyto podklady popisují stav makety **SCHEMA 89** k 9. 11. 2026. Vedou ke dvěma
 
 ## Cesta 1: první demo (teď)
 
-Vlastník 9. 11. 2026 rozhodl, že první demo se staví **nad převzatým jádrem makety**: aplikace pacienta na telefonu (PWA), ordinace v prohlížeči, sdílený stav přes server, jen syntetická data.
+Vlastník 9. 11. 2026 rozhodl, že první demo se staví **nad převzatým jádrem makety**: aplikace pacienta na telefonu (PWA na iPhonu i Androidu), ordinace v prohlížeči, sdílený stav přes server, jen syntetická data. 10. 11. 2026 doplnil, že demo má vypadat jako ostrá aplikace pro lékaře a garanta k vyzkoušení (přihlášení, seznam pacientů, skutečný čas, schválená pravidla).
 
 1. [`01-cesta-k-demu.md`](01-cesta-k-demu.md) – co je první demo, co převzít, co postavit, co vynechat, plán po dnech a první úkol. **Čtěte jako první.**
 2. [`AGENTS.md`](AGENTS.md) – pokyny pro AI asistenta. Zkopírujte ho do kořene repozitáře dema.

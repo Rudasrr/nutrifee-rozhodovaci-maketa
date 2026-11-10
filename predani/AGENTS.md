@@ -4,7 +4,7 @@ Tento soubor patří do kořene repozitáře dema. Programátor ho zkopíroval z
 
 ## Co je tento repozitář
 
-První demo NutriFee: aplikace pacienta na telefonu (PWA) a ordinace (lékař, sestra) v prohlížeči. Obojí běží nad **převzatým jádrem makety** (`app/`) a sdílí stav pacienta přes server. Data jsou jen syntetická. Cestu k demu popisuje `predani/01-cesta-k-demu.md`, obrazovky `predani/10-atlas-pacient.md` (P01–P57) a `predani/20-atlas-ordinace.md` (O01–O30).
+První demo NutriFee: aplikace pacienta na telefonu (PWA) a ordinace (lékař, sestra) v prohlížeči. Obojí běží nad **převzatým jádrem makety** (`app/`) a sdílí stav pacienta přes server. Data jsou jen syntetická. Demo má vypadat jako ostrá aplikace: přihlášení e-mailem a heslem, skutečný čas v českém pásmu, seznam pacientů v ordinaci, jeden společný registr se schválenými položkami, žádné obrazovky garanta ani prezentační vrstvy. Cestu k demu popisuje `predani/01-cesta-k-demu.md`, obrazovky `predani/10-atlas-pacient.md` (P01–P57) a `predani/20-atlas-ordinace.md` (O01–O30).
 
 Zdroj pravdy je `predani/zdroj/15-ZDROJ-PRAVDY-MAKETA.md`. Při rozporu platí chování makety (jádra `app/`), ne text. Při rozporu nebo mezeře se zeptej, nevybírej potichu.
 
@@ -81,6 +81,6 @@ Než něco z toho navrhneš, přečti `15` odst. 18 („Proč je to takhle“). 
 ## Jak pracovat: malé úkoly po obrazovkách
 
 - Jeden úkol = jedna obrazovka nebo jedna vrstva. U obrazovky začni jejím záznamem v atlasu: snímek `predani/obrazovky/…png`, řádek „Kapitola“ (kde ji v příběhu najdeš), co se počítá, pravidla, stavy, co jde do stopy a které testy ji hlídají.
-- Pro živý stav obrazovky přeskoč na její kapitolu (`D.play(index)`) a porovnej se snímkem a se zlatými výstupy.
+- Pro živý stav obrazovky přehraj při vývoji její kapitolu (`D.play(index)`) a porovnej se snímkem a se zlatými výstupy. Do dema přeskakování kapitol nepatří; kapitoly slouží jen k vytvoření syntetických pacientů.
 - Hotovo je, když: obrazovka odpovídá snímku a atlasu, rychlá sada a zlaté výstupy projdou, P1–P11 platí i při písmu 160 % a na telefonu široké 360 px.
 - Na konci úkolu napiš, co se změnilo, co jsi ověřil a co ne.
