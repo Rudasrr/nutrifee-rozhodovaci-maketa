@@ -1,10 +1,10 @@
 # NutriFee – předání programátorovi
 
-Tyto podklady popisují stav makety **SCHEMA 89** k 9. 11. 2026. Vedou ke dvěma cílům. Začněte první cestou.
+Tyto podklady popisují stav makety **SCHEMA 90** k 9. 11. 2026. Vedou ke dvěma cílům. Začněte první cestou.
 
 **Celá předávka jako webová stránka:** <https://rudasrr.github.io/nutrifee-rozhodovaci-maketa/predani/> (stejný obsah jako soubory v této složce, se snímky a záložkami; bez přihlášení).
 
-> **11. 11. 2026:** Připravuje se SCHEMA 90 s opravami z poslední kontroly. Co se změní, shrnuje `01-cesta-k-demu.md` (odstavec „Stav“ a rozhodnutí z 11. 11.). Do jejího nasazení platí maketa SCHEMA 89.
+> **10. 11. 2026 večer:** Nasazena **SCHEMA 90** s opravami z poslední kontroly. Co se změnilo, shrnuje `01-cesta-k-demu.md` (odstavec „Stav“ a rozhodnutí z 11. 11.). Atlas a snímky se doplňují; při rozdílu platí maketa.
 
 ## Cesta 1: první demo (teď)
 

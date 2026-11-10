@@ -371,8 +371,13 @@ function restore(why) {
     estimateSkew(rows); restoreErr = null;
     var have = {}, all = [];
     rows.concat(Q().filter(function (x) { return mine(x, u); }).map(row)).forEach(function (r) { if (r && r.id && !have[r.id]) { have[r.id] = 1; all.push(r); } });
-    all = afterReset(all).filter(function (r) { return r.kind === 'decision' || r.kind === 'note'; });
-    return D.garantMerge(all.map(fromRow)) || 0;
+    all = afterReset(all);
+    /* SCHEMA 90 (36/04 S5): nejdál dosažená scéna z řádků „progress“ (params.scene je 1…N) a ze scén rozhodnutí – po odhlášení a na jiném zařízení
+       presenter nabídne „Pokračovat ve scéně N“ (D.garantResume); pozice se jinak obnovuje jen z prohlížeče */
+    var far = 0; all.forEach(function (r) { var n = r.kind === 'progress' && r.params ? Number(r.params.scene) : (r.kind === 'decision' ? Number(r.scene) : 0); if (isFinite(n) && n > far) far = n; });
+    var n0 = D.garantMerge(all.filter(function (r) { return r.kind === 'decision' || r.kind === 'note'; }).map(fromRow)) || 0;
+    if (far > 1 && D.garantResume) { try { D.garantResume(far - 1); } catch (e3) { } }
+    return n0;
   }).catch(function (err) {
     restoreErr = String(err && err.message || err);
     if (why === 'prihlaseni' || why === 'start') { try { NF.getState().toast = 'Dřívější rozhodnutí se nepodařilo načíst ze serveru (' + restoreErr + '). Zkusíme to znovu, až se na stránku vrátíte.'; rerender(); } catch (e2) { } }

@@ -28,7 +28,7 @@ function test(name, fn) { if (process.env.ONLY && name.indexOf(process.env.ONLY)
 /* Produkce: plán vydaný lékařem, zaučení, převzetí (bez prezentační vrstvy, skutečný čas zastavený na zadaném okamžiku). */
 function prodWithPlan(env, clock) {
   const { NF, S, act } = env; NF.clockModel = true; const s = S(); s.clock = clock || '2026-11-02T09:00:00';
-  act('role', 'doctor'); act('startDraft'); ['adult', 'insulinOnly', 'regimen', 'cgm'].forEach(c => act('eligibility', c)); act('exclusion');
+  act('role', 'doctor'); act('startDraft'); NF.ELIGIBILITY.forEach(c => act('eligibility', c[0])); /* SCHEMA 90: pět podmínek */ act('exclusion');
   act('wizardGo', '1'); ['basal:18', 'breakfast:8', 'lunch:10', 'dinner:8'].forEach(v => act('doseSet', v)); NF.bindValue('draft.medicationChecked', true); act('wizardGo', '2'); act('issuePlan');
   act('role', 'nurse'); NF.trainingItems(S()).forEach(t => { S().training.steps[t.id] = true; }); NF.finishTraining(S(), 'done');
   act('role', 'patient'); S().onboarding.readback = 'yes'; NF.confirmUnderstanding(S());

@@ -15,7 +15,7 @@ v diffu.
 
 | Soubor | Co obsahuje |
 |---|---|
-| `otisky.json` | 42 položek registru (`id`, `version`, `scope`, `cat`) s **otiskem jádra** `fp` = `NF.itemFingerprint(položka)`; počet garantových položek (28) a jídel (171) |
+| `otisky.json` | 43 položek registru (`id`, `version`, `scope`, `cat`) s **otiskem jádra** `fp` = `NF.itemFingerprint(položka)`; počet garantových položek (29) a jídel (171); SCHEMA 90 přidala pravidlo I-VYSSI |
 | `pribeh.json` | pro každou scénu: hodiny, role, počty (zápisy, noci, události, plány, jídla, otázky, bazál), aktivní plán (dávky, návyky, pravidla, cíle, rady), sloty dne `NF.daySlots`, slot na řadě `NF.focusMeal`, věta „jak si vedu“ `NF.howAmI`, sledování nízké glukózy a karta `NF.hypoAlert`, nemoc, výsledek importu `S.sensorImport`, souhrn ze senzoru, položky registru mimo výchozí stav |
 | `kontrola.json` | pro každou scénu s kontrolou: souhrn kontroly `NF.summary`, návrhy (`NF.proposals`) s ověřovacími body, fakty, větvemi postupu, stavem bodů `NF.verifyState` a vybranou větví `NF.proposalBranch`; rozhodnutí lékaře, nové dávky a cíle. Ve scénách „krok 2: návrhy“ navíc `tabulkaVetvi`: větev pro „všechny body sedí“ a pro „nesedí právě bod k“ u každé návrhové karty |
 | `rady.json` | od první snídaně: `NF.advise` pro 4 jídla × porce (`bigger`, `usual`, `smaller`) × stav inzulinu (`before`, `as`, `unknown`) – účinný stav, nabídnuté rady s textem, zablokované rady s důvodem, zmizelé rady, příznaky nemoci a nízké glukózy |

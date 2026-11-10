@@ -246,13 +246,13 @@ test('A20 (SCHEMA 74): pacient export v aplikaci nenahrává – žádná karta,
 test('A21 A22 texty zaučení a výchozích hodnot; A23 obráceně (SCHEMA 74): bez sdílení dat a klinického účtu', () => {
   const h = NF.habitCatalog().find(x => x.id === 'H-PORCE');
   assert.equal(h.training[0].text, 'Pacient ví, že rada k porci přijde před jídlem a že po píchnutí radíme jen návrat z větší porce k obvyklé');
-  assert.equal(NF.ELIGIBILITY.length, 4); assert.ok(!NF.ELIGIBILITY.some(c => c[0] === 'shared'), 'povinné sdílení dat zrušeno (vlastník 27. 10. 2026)');
+  assert.equal(NF.ELIGIBILITY.length, 5); /* SCHEMA 90 (bod 12): + bez korekčního schématu */ assert.ok(!NF.ELIGIBILITY.some(c => c[0] === 'shared'), 'povinné sdílení dat zrušeno (vlastník 27. 10. 2026)');
   assert.match(NF.FIXED_TRAINING.find(x => x[0] === 'export')[1], /před kontrolou pošle do ordinace export ze senzoru/);
   chapter('enroll'); act('role', 'doctor'); act('page', 'enroll');
   const m = render();
   assert.match(m, /Hodnoty převezměte posuvníkem ze souhrnu v aplikaci senzoru za poslední měsíc před zařazením\./); /* SCHEMA 84 (rozhodnutí 9, agent P+D) */
   assert.doesNotMatch(m, /data-value="shared"|nasdíl|klinick\S* účt/);
-  NF.ELIGIBILITY.forEach(c => NF.setEligibility(S(), c[0], true)); assert.equal(S().enrollment.eligible, true, 'čtyři podmínky stačí');
+  NF.ELIGIBILITY.forEach(c => NF.setEligibility(S(), c[0], true)); assert.equal(S().enrollment.eligible, true, 'pět podmínek stačí (SCHEMA 90)');
   review(); const r = render();
   assert.doesNotMatch(r, /klinick\S* účt|portálu výrobce|Jak export získat|typu A|formát/);
   assert.match(r, /Sestra nahraje export ze senzoru, který pacient poslal do ordinace před kontrolou\./);

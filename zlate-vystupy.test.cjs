@@ -34,15 +34,18 @@ test('Soubory zlatých výstupů jsou čistý JSON se seřazenými klíči (stej
   for (const f of G.FILES) { const raw = fs.readFileSync(path.join(__dirname, 'zlate-vystupy', f), 'utf8'); assert.equal(raw, G.serialize(JSON.parse(raw)), f + ' není v kanonickém tvaru'); }
 });
 
-test('Otisky položek: otisk jádra je NF.itemFingerprint(položka) bez průvodce, „fp-“ + 16 hex, 42 položek, 28 garantových', () => {
-  const o = stored['otisky.json']; assert.equal(o.polozek, 42); assert.equal(o.garantovych, 28); assert.equal(o.jidel, 171);
+test('Otisky položek: otisk jádra je NF.itemFingerprint(položka) bez průvodce, „fp-“ + 16 hex, 43 položek, 29 garantových', () => {
+  const o = stored['otisky.json']; assert.equal(o.polozek, 43); assert.equal(o.garantovych, 29); assert.equal(o.jidel, 171); /* SCHEMA 90: nové pravidlo I-VYSSI (bod 5) */
   assert.ok(o.polozky.every(p => /^fp-[0-9a-f]{16}$/.test(p.fp)));
   const r = core.NF.registryItems('2026-09-28T10:00:00', 'g').find(x => x.id === 'D-POSTUP');
   assert.equal(core.NF.itemFingerprint(r), o.polozky.find(p => p.id === 'D-POSTUP').fp);
   assert.notEqual(core.NF.itemFingerprint(r, { co: 'text průvodce' }), core.NF.itemFingerprint(r), 'otisk s průvodcem (rozhodnutí garanta) je jiný a počítá ho prezentační vrstva');
 });
 
-test('S prezentační vrstvou (celé HTML) vyjdou stejné výstupy jádra i otisky ve stopě', () => {
+/* SCHEMA 90 (kód K5): v repozitáři dema (tabulka „Co převzít“ v predani/01-cesta-k-demu.md) HTML makety ani pravdivost.test.cjs nejsou – test se přeskočí s hláškou. */
+const hasFull = fs.existsSync(path.join(__dirname, 'pravdivost.test.cjs')) && fs.existsSync(path.join(__dirname, 'nutrifee-rozhodovaci-maketa.html'));
+if (!hasFull) console.log('SKIP S prezentační vrstvou (celé HTML) – pravdivost.test.cjs nebo HTML makety v tomto repozitáři není');
+if (hasFull) test('S prezentační vrstvou (celé HTML) vyjdou stejné výstupy jádra i otisky ve stopě', () => {
   const P = require('./pravdivost.test.cjs'), full = P.boot();
   const pick = ['handover', 'reviewConfirm', 'trace'].map(id => core.D.scenes.findIndex(sc => core.D.chapters[sc.ch].id === id && !Object.keys(sc.B).length));
   const a = G.generate({ NF: full.NF, D: full.D }, { scenes: pick }), b = G.generate(core, { scenes: pick });

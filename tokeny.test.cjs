@@ -103,6 +103,29 @@ test('Katalog ukazuje všechny tokeny a inspektor u vlastnosti uvádí token z p
   for (const p of ['width', 'height', 'border-width', 'gap', 'letter-spacing', 'outline-width', 'animation-duration']) assert.match(catJs, new RegExp("\\['" + p + "'"), 'inspektor ukazuje ' + p);
 });
 
+/* SCHEMA 90 (36/05 bod 10, 36/07 S3): písmo pacienta – hlavní text a volby od 17 px, doplňkový text od 15 px, nic pod 15 px.
+   Počítá se z tokenů a tříd: každá velikost písma v design.css je token --nf-fs-* (nebo inherit), drobné tokeny se v obálce pacienta skládají na ≥ 15 px,
+   prvek <small> bez třídy nedostane „smaller“ prohlížeče, text v SVG (tokeny --nf-fs-fig-*) se u pacienta nepoužívá v ilustracích s popisky (P04 má popisky v HTML).
+   Vykreslené velikosti při 390 a 320 px ověřuje prohlížeč (navrhy-designu/36-posledni-kontrola/10-schema90-obrazovky.md). */
+test('Písmo pacienta: nic pod 15 px, hlavní text a volby od 17 px (rozhodnutí 10)', () => {
+  const rootBlock = (/:root\s*\{([\s\S]*?)\n\}/.exec(tok) || [])[1] || tok;
+  const px = name => { const m = new RegExp(name.replace(/[-]/g, '\\-') + '\\s*:\\s*([0-9.]+)(rem|px)').exec(rootBlock); assert.ok(m, 'token ' + name); return m[2] === 'rem' ? Number(m[1]) * 16 : Number(m[1]); };
+  const sizes = {}; for (const m of tok.matchAll(/(--nf-fs-(?!fig)[a-z0-9-]+)\s*:\s*([0-9.]+)(rem|px)/g)) sizes[m[1]] = m[3] === 'rem' ? Number(m[2]) * 16 : Number(m[2]);
+  const ov = /\.patient-shell,\.drawer\.sheet\{([^}]*)\}/.exec(src); assert.ok(ov, 'obálka pacienta skládá drobné tokeny');
+  const eff = Object.assign({}, sizes); for (const m of ov[1].matchAll(/(--nf-fs-[a-z0-9-]+)\s*:\s*var\((--nf-fs-[a-z0-9-]+)\)/g)) eff[m[1]] = sizes[m[2]];
+  const low = Object.keys(eff).filter(k => k !== '--nf-fs-h1-desk' && eff[k] < 15).map(k => k + ' ' + eff[k] + ' px');
+  assert.deepEqual(low, [], 'u pacienta je každý textový token ≥ 15 px');
+  const bad = decls.filter(d => d.prop === 'font-size' && !/^(var\(--nf-fs-[a-z0-9-]+\)|inherit)$/.test(d.value)).map(d => 'ř. ' + d.line + ' ' + d.value);
+  assert.deepEqual(bad, [], 'font-size jen tokenem (žádné em, %, smaller)');
+  assert.match(src, /:where\(\.patient-shell,\.drawer\.sheet\) :where\(small,sub,sup\)\{font-size:var\(--nf-fs-sm\)\}/, '<small> u pacienta 15 px');
+  const pat = /\.patient\{[^}]*font-size:var\((--nf-fs-[a-z0-9-]+)\)/.exec(src); assert.ok(pat && sizes[pat[1]] >= 17, 'hlavní text pacienta ≥ 17 px');
+  const ch = /\.patient \.btn\.sm,\.patient \.choice\.sm,[^{]*\{font-size:var\((--nf-fs-[a-z0-9-]+)\)\}/.exec(src); assert.ok(ch && sizes[ch[1]] >= 17, 'malé volby a tlačítka pacienta ≥ 17 px');
+  assert.ok(px('--nf-fs-sm') >= 15);
+  /* text v SVG u pacienta: popisky ilustrace „Jak to funguje“ jsou v HTML */
+  const scr = read('app/screens.js'), key = /function explainerKey[\s\S]*?\n\}/.exec(scr)[0];
+  assert.ok(!/<text/.test(key) && /class="kleg"/.test(key), 'P04 bez textu v SVG');
+});
+
 console.log('');
 console.log('Prošlo: ' + passed + ', selhalo: ' + failed);
 if (fails.length) console.log('Selhaly: ' + fails.join(' | '));

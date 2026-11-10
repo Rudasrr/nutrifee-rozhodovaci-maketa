@@ -8,12 +8,12 @@
 <meta name="description" content="Živý katalog designového systému NutriFee: tokeny, komponenty, pravidla a předání vývojáři. Čte přímo CSS makety.">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; form-action 'none'; base-uri 'none'">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%231A6E85'/%3E%3Cpath d='M11 29V11l18 18V11' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="../app/tokens.css?v=89">
-<link rel="stylesheet" href="../app/design.css?v=89">
-<link rel="stylesheet" href="../demo/demo.css?v=89">
-<link rel="stylesheet" href="catalog.css?v=89">
+<link rel="stylesheet" href="../app/tokens.css?v=90">
+<link rel="stylesheet" href="../app/design.css?v=90">
+<link rel="stylesheet" href="../demo/demo.css?v=90">
+<link rel="stylesheet" href="catalog.css?v=90">
 </head>
-<body class="ds" data-version="89">
+<body class="ds" data-version="90">
 <a class="skip" href="#main">Přeskočit na obsah</a>
 <header class="ds-head">
   <div class="ds-brand"><span class="brandmark" aria-hidden="true">N</span><div><b>NutriFee · designový systém</b><small>Živý katalog. Čte přímo <code>app/tokens.css</code>, <code>app/design.css</code> a <code>demo/demo.css</code> makety, proto se od ní nemůže rozejít.</small></div></div>
@@ -209,6 +209,22 @@
       <section class="card how mini-card"><p class="eyebrow">Jak si vedu</p><p class="how-line mixed"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" data-icon="arrow-up"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg><span>Tento týden: po obědě a večeři většinou v cíli, po snídani častěji nad cílem.</span></p><button type="button" class="rowlink"><span>Můj plán<small>cesta ke kontrole a plnění plánu</small></span><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" data-icon="chevron-right"><path d="m9 18 6-6-6-6"/></svg></button></section>
     </div></article>
 
+  <article class="comp" id="c-schema90"><header><h2>Nové prvky verze 90</h2><p>Fáze 2 SCHEMA 90 (36/08 odd. 6). <b>Věta o českém čase</b> <code>.hint.neutral.tz-note</code> nahoře na Dnes. <b>Slot „před plánem“</b> <code>.dnode.before</code>: tečkovaný, tlumený, bez akce. <b>Vedlejší tlačítka v Co teď</b> (<code>.actions.split</code>, <code>.btn.quiet.sm</code>) se zalamují, na 320 px jsou pod sebou. <b>Oprava zápisu</b> v <code>.fix-ins</code>: porce volbou, „Smazat zápis“ s potvrzením <code>.hint.warn</code> a <code>.btn.danger.sm</code>. <b>Dlaždice bez hodnocení</b> <code>.tile.few</code> (málo dní dat): neutrální vložená plocha, slovo „bez hodnocení“. <b>Popisky ilustrace</b> <code>.kleg</code> jsou text v rem pod obrázkem. Písmo pacienta: hlavní text a volby od 17 px, doplňky od 15 px, nic menšího (rozhodnutí 36/05 bod 10; v aplikaci to zajišťuje obálka <code>.patient-shell</code>, náhledy katalogu ji nemají).</p></header>
+    <div class="preview patient">
+      <p class="hint neutral tz-note">Na cestách se řiďte pokyny svého lékaře; zápisy jsou v českém čase.</p>
+      <section class="card"><ol class="daystrip" aria-label="Dnešní den"><li class="dnode wait before"><span class="dot" aria-hidden="true"></span><b>Snídaně</b><small>před plánem</small></li><li class="dnode done"><span class="dot" aria-hidden="true"></span><b>Oběd</b><small>zapsáno</small></li><li class="dnode next"><span class="dot" aria-hidden="true"></span><b>Večeře</b><small>další</small></li><li class="dnode wait"><span class="dot" aria-hidden="true"></span><b>Bazál</b><small>21:00</small></li></ol></section>
+      <section class="card hero"><p class="eyebrow">Co teď</p><h2 class="hero-msg">Další jídlo: večeře</h2><p class="hero-sub">Inzulin k večeři až před jídlem.</p><div class="actions col mt-4"><button type="button" class="btn primary big">Zapsat svačinu</button></div><div class="actions split"><button type="button" class="btn">Chystám se na večeři</button><button type="button" class="btn">Večeře už byla</button></div><div class="actions split mt-2"><button type="button" class="btn quiet sm">Doplnit snídani</button></div></section>
+    </div>
+    <div class="preview patient">
+      <section class="card"><div class="fix-ins mt-0"><p class="small mt-0 mb-0"><b>Zapsáno: Oběd</b> · Kuřecí rizoto · inzulin 8 j. podle plánu</p><div class="actions split"><button type="button" class="btn link">Zavřít</button></div><div class="mt-2"><p class="small mb-1"><b>Jaká byla porce?</b></p><div class="choice-row" role="group" aria-label="Porce"><button type="button" class="choice sm">Menší</button><button type="button" class="choice sm" aria-pressed="true">Obvyklá</button><button type="button" class="choice sm">Větší</button></div><p class="hint warn"><b>Smazat zápis?</b> Kuřecí rizoto zmizí ze seznamu zápisů; v záznamu změn zůstane.</p><div class="actions mt-2"><button type="button" class="btn danger sm">Smazat</button><button type="button" class="btn sm">Nechat</button></div></div></div></section>
+      <ol class="kleg"><li class="kl1">Obvyklá porce → v cíli</li><li class="kl2">Větší porce → nad cíl</li><li class="kl3">Zpět k obvyklé → zase v cíli</li></ol>
+    </div>
+    <div class="preview">
+      <div class="tiles"><button type="button" class="tile c-none few"><div class="k">Čas v cíli</div><div class="v">71 <small>%</small></div><div class="st">– bez hodnocení · málo dní dat</div></button></div>
+      <div class="verify"><span class="v-text">U jídla nebyl v období pokles pod 4 <span class="tag ok">sedí podle dat</span></span><span class="choice-row"><button type="button" class="choice sm yes" aria-pressed="true">Sedí</button><button type="button" class="choice sm no">Nesedí</button></span></div>
+      <div class="error" role="alert">V zařízení jsou data z novější verze NutriFee. Tahle verze je starší a nic neukládá.</div>
+    </div></article>
+
   <article class="comp" id="c-tabbar"><header><h2>Lišta záložek</h2><p>Čtyři záložky pacienta (Dnes · Jídla · Můj plán · Bezpečí; od verze 86 „Můj plán“), klasická lišta od kraje ke kraji přilepená ke spodnímu okraji, nad ní jemná linka a stín nahoru; spodní odsazení počítá s bezpečnou zónou telefonu (domovský indikátor). Aktivní záložka: bledě petrolejová pilulka 64 × 32 px jen kolem ikony, tučnější tah ikony, tmavší a tučnější popisek, <code>aria-current="page"</code>. Popisky vždy u všech čtyř. Rozhodnutí vlastníka 19. 10. 2026 (plovoucí pilulka zavržena: obsah kolem ní prosvítal, cíle nebyly u hrany telefonu). Jídla mají ikonu příboru, ne talíř.</p></header>
     <div class="preview patient" style="padding-bottom:20px">
       <nav class="tabbar ds-static" aria-label="Hlavní nabídka"><button type="button" class="active" aria-current="page"><span class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>Dnes</button><button type="button"><span class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></svg></span>Jídla</button><button type="button"><span class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/></svg></span>Můj plán</button><button type="button"><span class="ic" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></span>Bezpečí</button></nav>
@@ -374,6 +390,6 @@
 </aside>
 </div>
 <div id="toast" aria-live="polite" aria-atomic="true"></div>
-<script src="catalog.js?v=89"></script>
+<script src="catalog.js?v=90"></script>
 </body>
 </html>

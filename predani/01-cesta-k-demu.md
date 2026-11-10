@@ -1,8 +1,8 @@
 # Cesta k prvnímu demu
 
-*Vlastník rozhodl 9. a 10. 11. 2026, že první demo se postaví nad převzatým jádrem makety, ne přepisem. Stav makety je SCHEMA 89. Pokyny pro AI asistenta jsou v [`AGENTS.md`](AGENTS.md). Atlasy obrazovek ([`10-atlas-pacient.md`](10-atlas-pacient.md), [`20-atlas-ordinace.md`](20-atlas-ordinace.md)) slouží jako příručka k jednotlivým obrazovkám. Plán ostré aplikace v 17 etapách je v [`00-postup.md`](00-postup.md) a pro demo ho nepotřebujete.*
+*Vlastník rozhodl 9. a 10. 11. 2026, že první demo se postaví nad převzatým jádrem makety, ne přepisem. Stav makety je SCHEMA 90. Pokyny pro AI asistenta jsou v [`AGENTS.md`](AGENTS.md). Atlasy obrazovek ([`10-atlas-pacient.md`](10-atlas-pacient.md), [`20-atlas-ordinace.md`](20-atlas-ordinace.md)) slouží jako příručka k jednotlivým obrazovkám. Plán ostré aplikace v 17 etapách je v [`00-postup.md`](00-postup.md) a pro demo ho nepotřebujete.*
 
-> **Stav 11. 11. 2026:** Maketa na odkazu je SCHEMA 89. Po poslední kontrole (sedm nezávislých prověrek, `zdroj/navrhy-designu/36-posledni-kontrola/00-souhrn.md`) vzniká **SCHEMA 90** s opravami a s 12 rozhodnutími vlastníka (`zdroj/navrhy-designu/36-posledni-kontrola/05-rozhodnuti.md`). Až bude nasazená, změní se číslo verze v tomto odstavci a v README. Pro procházení makety dnes platí SCHEMA 89. Změny níže se do dema promítnou až se SCHEMA 90.
+> **Stav 10. 11. 2026 večer:** Maketa na odkazu je **SCHEMA 90**. Obsahuje opravy z poslední kontroly (sedm nezávislých prověrek, `zdroj/navrhy-designu/36-posledni-kontrola/00-souhrn.md`) a 12 rozhodnutí vlastníka (`zdroj/navrhy-designu/36-posledni-kontrola/05-rozhodnuti.md`). Podrobnosti jádra a API pro synchronizaci jsou v `zdroj/navrhy-designu/36-posledni-kontrola/08-schema90-jadro.md`. Atlas obrazovek a snímky se doplňují podle SCHEMA 90; kde se snímek liší od makety, platí maketa.
 
 ## Co je první demo
 
@@ -24,11 +24,11 @@ Klinická logika je tentýž kód jako v maketě.
 | Co | Odkud | Poznámka |
 |---|---|---|
 | jádro celé | `app/` (`core.js`, `screens.js`, `screens-clinic.js`, `ui.js`, `icons.js`) | doména, obrazovky i akce |
-| katalogy | `app/data/` (`registry.js`, `catalogs.js`, `foods.js`) | 42 položek registru, 7 pravidel, 171 jídel |
+| katalogy | `app/data/` (`registry.js`, `catalogs.js`, `foods.js`) | 43 položek registru, 8 pravidel, 171 jídel |
 | vzhled | `app/tokens.css`, `app/design.css`, `app/fonts/` | jediný zdroj hodnot vzhledu je `tokens.css`; viz [`40-design-system.md`](40-design-system.md) |
 | katalog komponent | `design-system/` | bez sekce „Prezentační vrstva“ a bez `demo/demo.css` |
 | data modelového pacienta | `demo/fixtures.js` | jediný soubor z `demo/`, slouží jako zdroj historie syntetických pacientů: 27 kapitol (`D.chapters`), funkce `D.play(index)` |
-| testy | `rychle.test.cjs`, `zlate-vystupy.test.cjs`, `zlate-vystupy/` | zábradlí nového repozitáře (viz níže) |
+| testy | `rychle.test.cjs`, `zlate-vystupy.test.cjs`, `schema90-jadro.test.cjs`, `zlate-vystupy/` | zábradlí nového repozitáře (viz níže) |
 
 Od SCHEMA 89 jádro obsahuje i to, co dřív leželo v obrazovkách nebo v prezentační vrstvě:
 - volbu větve návrhu (`NF.proposalBranch`),
@@ -43,7 +43,7 @@ Celý příběh až po vydání druhého plánu proto jde přehrát jen s `app/c
 1. **Přihlášení a role.** E-mail a heslo ve službě, kterou zvolíte pro server. Každý účet nese roli (pacient, sestra, lékař) a u pacienta odkaz na jeho záznam. Vlastník zakládá účty sám, proto pro to připravte jednoduchý postup, například pozvánku e-mailem nebo krátký návod v administraci služby. Roli dnes jádro čte z adresy (`?role=pacient|lekar|sestra`). Demo ji nastaví z přihlášeného účtu.
 2. **Server a synchronizační vrstva mimo jádro.** Kde a jak server poběží, **zvolíte vy**. Požadavky:
    - přihlášení,
-   - jeden záznam stavu na pacienta (celý `S` jako JSON),
+   - jeden záznam stavu na pacienta (doména stavu jako JSON, `NF.domainJson(S)`),
    - společný registr,
    - přístup jen podle role,
    - jen syntetická data.
@@ -52,8 +52,16 @@ Celý příběh až po vydání druhého plánu proto jde přehrát jen s `app/c
    - `get` vrací řetězec nebo `null`,
    - `set` při chybě vyhodí výjimku.
 
-   Jádro volá úložiště synchronně. Vrstva proto drží poslední stav v paměti a na server ho odešle v háčku `NF.onChange(fn)`. Ten se volá po každém `NF.save`, tedy po každé akci, s argumenty `fn(S, { saved, key })`. Když se uložení nepovede, `NF.save` vrátí `false` a nastaví `NF.storageOK = false`. **Jádro síť nevolá.** Síť volá jen vrstva a test „Jádro bez sítě“ musí zůstat zelený.
-3. **Souběh zařízení.** Platí, že poslední zápis vyhrává. Když se stav pacienta změní na jiném zařízení, aplikace sama načte novou verzi a krátce to oznámí. Například pacient s otevřenou aplikací uvidí „Lékař vydal nový plán“, jinak „Data se aktualizovala“. Kontrolujte to po návratu do aplikace (událost viditelnosti stránky) a v krátkém intervalu, dokud je aplikace otevřená. Nic se nesmí potichu přepsat.
+   Jádro volá úložiště synchronně. Vrstva proto drží poslední stav v paměti a na server ho odešle v háčku `NF.onChange(fn)`. Od SCHEMA 90 platí:
+   - Háček se volá **jen po akci uživatele**, ne při minutovém tiku, psaní do pole, načtení ani migraci: `fn(S, { saved, key, action, domainChanged, rev, schema, reset })`. Na server posílejte jen při `domainChanged`.
+   - Posílá se **jen doména** (`NF.domainOf(S)` / `NF.domainJson(S)`). Stav zobrazení (role, stránka, rozpracovaný zápis, oznámení; `NF.VIEW_KEYS`, `NF.VIEW_PATHS`) zůstává v zařízení, takže lékař nepřepíše pacientovi rozpracovaný zápis.
+   - Vzdálenou verzi spojte funkcí `NF.mergeRemote(místní, vzdálený)` → `{ ok, state, reason }` (`newer` = vzdálený je z novější verze, klient se musí obnovit; `stale`, `older`, `shape`) a výsledek nastavte `NF.setState(state)`.
+   - `S.rev` je pořadí doménové verze. Server zapisuje podmíněně (jen když `rev` na serveru odpovídá verzi, ze které klient vyšel); při konfliktu klient načte, spojí a akci zopakuje. Server odmítne nižší `schema`.
+   - ID zápisů (`E-n`, `W-n`, `Q-n`) počítá každé zařízení zvlášť; pro souběh dvou zápisů jim vrstva přidá předponu zařízení.
+   - Pád vykreslení ani starší verze aplikace nikdy nepřepíšou data čistým stavem (`NF.readOnly`, `NF.backup`).
+
+   Když se uložení nepovede, `NF.save` vrátí `false` a nastaví `NF.storageOK = false`. **Jádro síť nevolá.** Síť volá jen vrstva a test „Jádro bez sítě“ musí zůstat zelený. Hodiny jádra běží v českém čase (`NF.TZ`, `NF.configure({ now, storage, zone })`).
+3. **Souběh zařízení.** Zápis je podmíněný podle `S.rev` (bod 2). Když se stav pacienta změní na jiném zařízení, aplikace sama načte novou verzi a krátce to oznámí. Například pacient s otevřenou aplikací uvidí „Lékař vydal nový plán“, jinak „Data se aktualizovala“. Kontrolujte to po návratu do aplikace (událost viditelnosti stránky) a v krátkém intervalu, dokud je aplikace otevřená. Nic se nesmí potichu přepsat.
 4. **Společný registr.** V maketě je registr uvnitř stavu pacienta (`S.registry`). V demu je jeden registr pro všechny pacienty a na serveru je uložený zvlášť.
    - Vrstva ho při načtení vloží do stavu pacienta.
    - Stav všech klinických položek je „schváleno“.

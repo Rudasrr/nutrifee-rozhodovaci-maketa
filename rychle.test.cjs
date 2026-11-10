@@ -13,12 +13,13 @@ const { spawn } = require('node:child_process');
 const G = require('./zlate-vystupy/generuj.cjs');
 
 const T0 = Date.now();
-const html = fs.readFileSync(path.join(__dirname, 'nutrifee-rozhodovaci-maketa.html'), 'utf8');
-const CORE = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1].split('?')[0]).filter(s => s.startsWith('app/'));
+/* SCHEMA 90 (kód K5): seznam skriptů jádra ze složky app/ (ne z HTML makety) – sada projde i v repozitáři dema, který má jen soubory z tabulky „Co převzít“. */
+const CORE = ['app/core.js', 'app/icons.js', 'app/screens.js', 'app/screens-clinic.js', 'app/ui.js'].concat(fs.readdirSync(path.join(__dirname, 'app/data')).filter(f => /\.js$/.test(f)).map(f => 'app/data/' + f)).filter(f => fs.existsSync(path.join(__dirname, f)));
 const src = f => fs.readFileSync(path.join(__dirname, f), 'utf8');
 
-/* Souběžné sady: spustí se hned, výsledky se sbírají na konci. */
-const SUBS = [['zlate-vystupy.test.cjs', 'zlaté výstupy jádra'], ['obsah-pacienta.test.cjs', 'obsah obrazovek pacienta P1–P11'], ['tokeny.test.cjs', 'tokeny vzhledu a katalog']];
+/* Souběžné sady: spustí se hned, výsledky se sbírají na konci. Sada, jejíž soubor (nebo to, co potřebuje) v repozitáři není, se přeskočí s hláškou (K5). */
+const SUBS = [['zlate-vystupy.test.cjs', 'zlaté výstupy jádra', []], ['schema90-jadro.test.cjs', 'jádro SCHEMA 90', []], ['obsah-pacienta.test.cjs', 'obsah obrazovek pacienta P1–P11', ['nutrifee-rozhodovaci-maketa.html', 'pravdivost.test.cjs']], ['tokeny.test.cjs', 'tokeny vzhledu a katalog', ['design-system/index.html', 'app/tokens.css']]]
+  .filter(([f, what, needs]) => { const ok = [f].concat(needs).every(x => fs.existsSync(path.join(__dirname, x))); if (!ok) console.log('SKIP ' + f + ' – ' + what + ' (soubor nebo jeho podklady v tomto repozitáři nejsou)'); return ok; });
 const running = process.env.ONLY ? [] : SUBS.map(([f, what]) => new Promise(resolve => {
   const p = spawn(process.execPath, [path.join(__dirname, f)], { cwd: __dirname }); let out = '';
   p.stdout.on('data', d => { out += d; }); p.stderr.on('data', d => { out += d; });
@@ -53,7 +54,7 @@ test('Jádro: NF.save bez úložiště vrátí false a NF.storageOK = false (ž�
 });
 test('Jádro: NF.configure({ storage: { get, set } }) – uložení a načtení přes adaptér; jiné schéma se zálohuje', () => {
   const NF = coreOnly(), mem = new Map(); NF.configure({ storage: { get: k => (mem.has(k) ? mem.get(k) : null), set: (k, v) => mem.set(k, String(v)) } });
-  const S = NF.load(); assert.equal(NF.storageOK, true); assert.equal(S.registry.items.length, 42, 'čistý start naplní registr');
+  const S = NF.load(); assert.equal(NF.storageOK, true); assert.equal(S.registry.items.length, 43, 'čistý start naplní registr');
   S.clock = '2026-10-06T07:00:00'; assert.equal(NF.save(S), true); assert.ok(mem.has(NF.STORAGE));
   const back = NF.load(); assert.equal(back.clock, '2026-10-06T07:00:00');
   const old = JSON.parse(mem.get(NF.STORAGE)); old.schema = 1; mem.set(NF.STORAGE, JSON.stringify(old)); NF.load(); assert.equal(NF.migrated, '1'); assert.ok(mem.has(NF.STORAGE + '.zaloha-1'));
@@ -80,9 +81,9 @@ test('Jádro: síť nevolá, DOM ani generativní AI nepoužívá (app/*); nové
 });
 
 /* ---------- registr ---------- */
-test('Registr: 42 položek, 28 garantových; provozní bez stavu; parametry v mezích; otisk „fp-“ + 16 hex shodný se zlatými výstupy', () => {
+test('Registr: 43 položek, 29 garantových; provozní bez stavu; parametry v mezích; otisk „fp-“ + 16 hex shodný se zlatými výstupy', () => {
   const NF = coreOnly(), S = NF.createState(); NF.seed(S, '2026-09-28T10:00:00', 'g');
-  assert.equal(S.registry.items.length, 42); assert.equal(NF.garantItems(S).length, 28); assert.equal(S.foods.length, 171);
+  assert.equal(S.registry.items.length, 43); assert.equal(NF.garantItems(S).length, 29); assert.equal(S.foods.length, 171); /* SCHEMA 90: I-VYSSI */
   S.registry.items.filter(r => r.scope === 'provozni').forEach(r => assert.equal(NF.itemState(S, r.id), null, r.id));
   for (const [id, b] of Object.entries(NF.PARAM_BOUNDS)) { const r = NF.item(S, id); if (!r) continue; for (const [k, [lo, hi]] of Object.entries(b)) if (typeof r.params[k] === 'number') assert.ok(r.params[k] >= lo && r.params[k] <= hi, id + '.' + k); }
   const gold = G.readStored()['otisky.json']; const fp = {}; gold.polozky.forEach(p => { fp[p.id] = p.fp; });

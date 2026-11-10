@@ -1010,3 +1010,65 @@ details.path-compact>summary .ico{width:var(--nf-icon-sm);height:var(--nf-icon-s
 .hweek .marks svg.ico{width:var(--nf-icon-4xs);height:var(--nf-icon-4xs);stroke-width:2.4}
 .fix-ins .btn.link{min-height:var(--nf-tap)}
 .export-how ol{margin-top:var(--nf-s2)}
+
+/* ---------- SCHEMA 90 fáze 2 (36/08 odd. 6, 36/05 bod 10, 36/07): vzhled nových prvků, písmo pacienta, přístupnost. Jen tokeny. ---------- */
+/* Písmo pacienta (rozhodnutí 10): hlavní text a volby od 17 px, doplňkový text od 15 px, nic pod 15 px.
+   Drobné tokeny se v obálce pacienta (i v náhledu telefonu a v listu Bezpečí) skládají na 15 px; prvek <small> bez třídy nedostane „smaller“ prohlížeče. Hlídá tokeny.test.cjs. */
+.patient-shell,.drawer.sheet{--nf-fs-2xs:var(--nf-fs-sm);--nf-fs-xs:var(--nf-fs-sm)}
+:where(.patient-shell,.drawer.sheet) :where(small,sub,sup){font-size:var(--nf-fs-sm)}
+.patient .btn.sm,.patient .choice.sm,.patient .reasons .choice,.patient .actions.split>.btn,.patient .actions.split>.choice,.patient .choice.plate,.patient .sick-chip{font-size:var(--nf-fs-md)}
+/* věta o českém čase nahoře na Dnes (bod 11) */
+.hint.tz-note{margin:0 0 var(--nf-s3)}
+/* pás dne: slot „před plánem“ (K8) – tlumený, tečkovaný, bez akce */
+.dnode.before .dot{border-style:dotted;background:var(--nf-surface-2);color:var(--nf-muted)}
+.dnode.before b{color:var(--nf-muted);font-weight:var(--nf-w-semi)}
+/* „Co teď“: vedlejší tlačítka (Doplnit, Na řadě je … · Chystám se jíst) se zalamují, nikdy neořezávají */
+.patient .actions .btn.quiet{white-space:normal;text-align:center;justify-content:center;line-height:var(--nf-lh-tight)}
+.patient .actions.split>.btn{white-space:normal;line-height:var(--nf-lh-tight)}
+/* panel opravy zápisu */
+.fix-ins .choice-row .choice{flex:1 1 auto}
+.fix-ins .hint .actions{margin-top:var(--nf-s2)}
+.fix-ins .hint .btn{flex:1 1 auto}
+/* dlaždice času v cíli „bez hodnocení“ (málo dní dat) */
+.tile.few{background:var(--nf-surface-2);box-shadow:var(--nf-sh-inset)}
+.tile.few .v{color:var(--nf-muted)}
+/* štítek „sedí podle dat“ u předvyplněného bodu */
+.verify .v-text .tag.ok{white-space:nowrap}
+/* hláška o migraci s „Začít znovu“ a lišta „data z novější verze“ */
+.hint>.btn{margin-left:var(--nf-s2)}
+.error[role="alert"]{line-height:var(--nf-lh)}
+/* V1, S4: náhled telefonu – obsah inert, rámeček se posouvá */
+.preview-scroll{overflow-y:auto;overscroll-behavior:contain;max-height:calc(100vh - 2 * var(--nf-s6) - 2 * var(--nf-preview-edge));border-radius:calc(var(--nf-preview-r) - var(--nf-preview-edge))}
+.preview-scroll .patient-shell{max-height:none;overflow-y:visible}
+.preview-scroll:focus-visible{outline:var(--nf-focus-w) solid var(--nf-focus);outline-offset:calc(-1 * var(--nf-focus-w))}
+/* V2: náhled v kroku 4 se v úzkém sloupci nesmršťuje */
+@container (max-width:900px){.split .phone-preview{width:100%}}
+/* S1: úzký telefon s velkým písmem – zalamovat místo ořezu */
+.patient-shell{overflow:visible;overflow-x:clip}
+.head-row{flex-wrap:wrap}
+.sick-chip{white-space:normal;flex:0 1 auto}
+.hweek{flex-wrap:wrap}
+.hweek .marks{flex-wrap:wrap}
+.nots{grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--nf-nots-min)),1fr))}
+.tabbar button{white-space:normal;text-align:center;line-height:var(--nf-lh-tight);overflow-wrap:anywhere}
+/* S2: fokus pod lištou „Další krok“ v ordinaci */
+html:has(.nextbar){scroll-padding-bottom:var(--nf-nextbar-reserve)}
+@media (max-height:37.5rem){.nextbar{position:static;margin-top:var(--nf-s6)}html:has(.nextbar){scroll-padding-bottom:var(--nf-s4)}}
+/* N1: doplněk v krokovníku ordinace má token */
+.flow .step small{font-size:var(--nf-fs-2xs)}
+/* N2: cíle klepnutí pacienta 48 px (−/+ i „pod 4“ a „nad 15“) */
+.patient .vs-step{width:var(--nf-tap);height:var(--nf-tap)}
+.patient .vs-scale .vs-end{min-height:var(--nf-tap)}
+/* N3: „×“ listu nepřekrývá úvodní text */
+.drawerpanel>:not(.close):nth-child(-n+3){padding-right:calc(var(--nf-tap) + var(--nf-s4))}
+/* S3: popisky „Jak to funguje“ pod obrázkem (text v rem, ne v SVG) */
+.kleg{margin:var(--nf-s2) 0 0;padding-left:var(--nf-s6);font-size:var(--nf-fs-sm);font-weight:var(--nf-w-semi);color:var(--nf-muted);line-height:var(--nf-lh)}
+.kleg .kl3{color:var(--nf-ink);font-weight:var(--nf-w-strong)}
+.anim.play .kleg .kl1{animation:kB1 var(--nf-anim-key) linear both}.anim.play .kleg .kl2{animation:kB2 var(--nf-anim-key) linear both}.anim.play .kleg .kl3{animation:kB3 var(--nf-anim-key) linear both}
+@keyframes kB1{0%,33%{color:var(--nf-ink)}41%,100%{color:var(--nf-muted)}}
+@keyframes kB2{0%,33%{color:var(--nf-muted)}41%,66%{color:var(--nf-ink)}74%,100%{color:var(--nf-muted)}}
+@keyframes kB3{0%,66%{color:var(--nf-muted)}74%,100%{color:var(--nf-ink)}}
+@media (prefers-reduced-motion:reduce){.anim.play .kleg li{animation:none}}
+.patient .btn.link{min-width:var(--nf-tap)} /* N2: krátký odkaz „Zavřít“ má cíl 48 px i do šířky */
+.patient .btn.big{white-space:normal;text-wrap:balance} /* S1: hlavní tlačítko se při velkém písmu na úzkém telefonu zalomí, neořízne */
+.hweek .marks{flex:0 1 auto;min-width:0}

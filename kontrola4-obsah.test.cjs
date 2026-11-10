@@ -158,7 +158,7 @@ test('06 A2, B4, B6: Co neděláme, vylučovací kritéria, otázka na novou dá
   const h = at(D, 'handover'); h.onboarding.page = 5; const t = text(NF, h);
   assert.ok(t.indexOf('Nízkou ani vysokou glukózu nehlídáme.') >= 0); assert.ok(t.indexOf('upozorňuje aplikace vašeho senzoru') < 0);
   assert.ok(NF.trainingItems(h).some(x => x.id === 'alerts'));
-  assert.equal(NF.ELIGIBILITY.length, 4, 'podmínky zůstávají čtyři');
+  assert.equal(NF.ELIGIBILITY.length, 5, 'podmínky zařazení jsou od SCHEMA 90 pět (bez korekčního schématu, K-KRITERIA v2)');
   const e = at(D, 'enroll'); e.enrollment.criteria = {}; NF.ELIGIBILITY.forEach(c => NF.setEligibility(e, c[0], true));
   assert.ok(NF.planBlockers(e).some(x => /vylučovací/.test(x)));
   NF.setEligibility(e, NF.EXCLUSION[0], true); assert.ok(!NF.planBlockers(e).some(x => /vylučovací/.test(x)));

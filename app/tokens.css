@@ -56,7 +56,7 @@
   --nf-font-display:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;   /* titulky, čísla, značka (700–800) */
   --nf-font-text:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;      /* text, tlačítka, štítky (500, zvýraznění 700) */
   /* velikosti v rem (19. 10. 2026): písmo roste se systémovým nastavením telefonu; při výchozích 16 px = 13 · 14 · 15 · 17 · 19 · 24 · 30 · 44 px */
-  --nf-fs-2xs:.8125rem;       /* jen ordinace: popisky, záhlaví tabulek, čísla v kolečkách (pacient nikdy pod 14 px) */
+  --nf-fs-2xs:.8125rem;       /* jen ordinace: popisky, záhlaví tabulek, čísla v kolečkách (u pacienta se skládá na 15 px (--nf-fs-sm), nic menšího, rozhodnutí 36/05 bod 10) */
   --nf-fs-xs:.875rem;--nf-fs-sm:.9375rem;--nf-fs-md:1.0625rem;--nf-fs-lg:1.1875rem;--nf-fs-xl:1.5rem;--nf-fs-2xl:1.875rem;--nf-fs-num:2.75rem;--nf-fs-num-sm:2rem;
   --nf-fs-hero:1.625rem;      /* zpráva karty „Co teď“ na Dnes (26 px): jediný hrdina obrazovky */
   --nf-fs-desk:.9375rem;      /* základní velikost textu v ordinaci (desktop) */
@@ -163,6 +163,8 @@
   /* náhled telefonu u sestry */
   --nf-preview-w:440px;--nf-preview-edge:12px;--nf-preview-r:52px;--nf-preview-top:28px;--nf-preview-min-h:700px;
   --nf-preview-inset:46px;    /* obsah pod výřezem */
+  --nf-nots-min:6.5rem;       /* SCHEMA 90 (36/07 S1): nejužší sloupec „Co neděláme“; v rem, aby se při větším písmu zalomil na jeden sloupec */
+  --nf-nextbar-reserve:9rem;  /* SCHEMA 90 (36/07 S2): rezerva pro rolování nad lištou „Další krok“ v ordinaci (2 řádky + tlačítko) */
   --nf-island-w:120px;--nf-island-h:34px; /* výřez nahoře */
 
   /* ---------- stíny ---------- */

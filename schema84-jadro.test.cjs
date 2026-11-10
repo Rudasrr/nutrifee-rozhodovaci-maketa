@@ -73,7 +73,7 @@ test('2: karta k dávce vzniká i při „nejdřív rady“; bod 10 „Pacient r
   const rady = r.proposals.find(p => p.id === 'PR-BREAKFAST-RADY'), dose = r.proposals.find(p => p.id === 'PR-BREAKFAST');
   assert.ok(rady && dose && !dose.row, 'obě karty'); assert.ok(r.proposals.indexOf(rady) < r.proposals.indexOf(dose), '„Nejdřív rady“ je první');
   assert.match(rady.why, /rada k jídlu: nabídnuto \d+×, přijato \d+×/); assert.doesNotMatch(rady.why, /přijata jen u/);
-  const i = dose.verify.findIndex(t => /Pacient rady k jídlu zkoušel/.test(t)); assert.equal(i, dose.verify.length - 1, 'bod 10');
+  const i = dose.verify.findIndex(t => /Pacient rady k jídlu zkoušel/.test(t)); assert.equal(i, 9, 'bod 10'); /* SCHEMA 90: za ním bod 11 čas pod cílem */
   assert.match(dose.verify[i], /aspoň 3× z nejméně 5 nabídek/, 'parametry D-PRAND dosazené');
   assert.ok(dose.facts[i].against && !dose.facts[i].block); assert.match(dose.facts[i].text, /^nabídnuto \d+×, přijato \d+×/);
   assert.ok(dose.branches.some(b => b.when === 'bod 10 nesedí' && b.text === 'ponechat dávku, posílit radu'));
@@ -91,7 +91,7 @@ test('2: brána rad neplatí pod odmitnutiMin nabídek – žádná karta „Nej
   let kept = 0; s.episodes.forEach(e => { if (e.meal !== 'breakfast' || !e.advice) return; if (e.advice.some(a => a.lever !== 'portion') && kept < 3) { kept++; return; } e.advice = e.advice.filter(a => a.lever === 'portion'); }); NF.refreshReview(s);
   const r = s.review; assert.equal(r.proposals.some(p => p.id === 'PR-BREAKFAST-RADY'), false, 'bez brány'); assert.ok(r.proposals.some(p => p.id === 'PR-LUNCH-RADY'), 'u oběda brána dál platí');
   const dose = r.proposals.find(p => p.id === 'PR-BREAKFAST'); assert.ok(dose && !dose.row);
-  const i = dose.verify.length - 1; assert.equal(!!dose.facts[i].against, false); assert.match(dose.facts[i].text, /brána rad se neuplatní/);
+  const i = 9; /* bod 10 (SCHEMA 90: poslední je bod 11) */ assert.equal(!!dose.facts[i].against, false); assert.match(dose.facts[i].text, /brána rad se neuplatní/);
   assert.equal(dose.priority, 2, 'bez brány je karta k dávce na obvyklém místě');
 });
 
@@ -207,13 +207,14 @@ test('B5 + C2: věta o dávkách, které si pacient sám snížil; tlačítko �
   assert.equal(r.summary.basalAs, 88, 'C1: včerejší bazál je v zápisech před zahájením kontroly');
 });
 
-test('Verze: NF.SCHEMA 89, ?v=89 v HTML, data-version="89" v katalogu; D-POSTUP a S-SEMAFOR nesou nové parametry s mezemi', ({ NF, D }) => {
-  assert.equal(NF.SCHEMA, 89); /* SCHEMA 89: verze zvýšena */
-  const html0 = fs.readFileSync(path.join(__dirname, 'nutrifee-rozhodovaci-maketa.html'), 'utf8'); assert.ok([...html0.matchAll(/\?v=(\d+)/g)].every(m => m[1] === '89')); /* SCHEMA 89 */
-  const ds = fs.readFileSync(path.join(__dirname, 'design-system/index.html'), 'utf8'); assert.match(ds, /data-version="89"/); /* SCHEMA 89 */
+test('Verze: NF.SCHEMA 90, ?v=90 v HTML, data-version="90" v katalogu; D-POSTUP a S-SEMAFOR nesou nové parametry s mezemi', ({ NF, D }) => {
+  assert.equal(NF.SCHEMA, 90); /* SCHEMA 90: verze zvýšena */
+  const html0 = fs.readFileSync(path.join(__dirname, 'nutrifee-rozhodovaci-maketa.html'), 'utf8'); assert.ok([...html0.matchAll(/\?v=(\d+)/g)].every(m => m[1] === '90')); /* SCHEMA 90 */
+  const ds = fs.readFileSync(path.join(__dirname, 'design-system/index.html'), 'utf8'); assert.match(ds, /data-version="90"/); /* SCHEMA 90 */
+  assert.match(fs.readFileSync(path.join(__dirname, 'demo/sync-config.js'), 'utf8'), /D\.build = 'schema-90'/); /* SCHEMA 90 */
   const s = review(D); ['poklesy_jen_ciste'].forEach(k => assert.ok(NF.PARAM_BOUNDS['D-POSTUP'][k] && NF.item(s, 'D-POSTUP').labels[k], k));
   ['smer_mmol', 'vyvoj_tydny'].forEach(k => assert.ok(NF.PARAM_BOUNDS['S-SEMAFOR'][k] && NF.item(s, 'S-SEMAFOR').labels[k], k));
-  const reg = NF.item(s, 'D-POSTUP'); assert.equal(reg.postup.prandHigh.verify.length, 10); assert.equal(reg.postup.prandHigh.fakta[9], 'rady'); assert.equal(JSON.stringify(reg.postup.bazalLow.sestraBody), JSON.stringify([null, 'vecer', null])); assert.equal(reg.postup.bazalLow.fakta[1], 'noci');
+  const reg = NF.item(s, 'D-POSTUP'); assert.equal(reg.postup.prandHigh.verify.length, 11); /* SCHEMA 90 (bod 4): bod 11 čas pod cílem */ assert.equal(reg.postup.prandHigh.fakta[10], 'podCilem'); assert.equal(reg.postup.prandHigh.fakta[9], 'rady'); assert.equal(JSON.stringify(reg.postup.bazalLow.sestraBody), JSON.stringify([null, 'vecer', null])); assert.equal(reg.postup.bazalLow.fakta[1], 'noci');
   assert.equal(reg.postup.prandHigh.verify[7], 'U jídla nebyl v období pokles pod 4 při obvyklé porci a dávce podle plánu');
 });
 

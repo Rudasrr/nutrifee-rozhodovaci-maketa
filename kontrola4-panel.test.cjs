@@ -176,13 +176,15 @@ test('SCHEMA 84 B3: karta ukazuje z „Co schvalujete“ celé věty do 60 slov;
   for (const r of NF.garantItems(S())) { const co = String((D.guide[r.id] || {}).co || ''); if (!co) continue; const out = D.shortCo(co); assert.ok(words(out.replace(/ Celé znění je v průvodci níže\.$/, '')) <= D.CO_WORDS || out === D.firstSentence(co) + (out.length > D.firstSentence(co).length ? ' Celé znění je v průvodci níže.' : ''), r.id + ': ' + words(out)); }
   assert.match(D.guide['D-PRAND'].co, /^Kdy vznikne návrh k dávce „nad cílem“: za posledních nejméně \d+ dní je aspoň \d+ čistých jídel/); assert.match(D.guide['D-CISTA'].co, /^Co je čistý zápis/);
   assert.match(D.guide['D-POSTUP'].co, /větve jsou zvýšit, snížit nebo ponechat, nikdy velikost kroku/); assert.match(D.guide['R-REAKCE'].co, /^Co znamená „v cíli“/);
-  assert.match(D.guide['K-KRITERIA'].co, /^Čtyři podmínky zařazení:[\s\S]*?žádný jiný lék na diabetes[\s\S]*?\. Vylučovací kritéria: těhotenství/); assert.match(D.guide['R-DOPLNEK'].co, /bílý jogurt, hrst ořechů, plátek sýra, vejce, kousek masa/); assert.match(D.guide['S-SEMAFOR'].co, /^Semafor času v cíli: zelený/);
+  assert.match(D.guide['K-KRITERIA'].co, /^Pět podmínek zařazení:[\s\S]*?žádný jiný lék na diabetes[\s\S]*?\. Vylučovací kritéria: těhotenství/); assert.match(D.guide['R-DOPLNEK'].co, /bílý jogurt, hrst ořechů, plátek sýra, vejce, kousek masa/); assert.match(D.guide['S-SEMAFOR'].co, /^Semafor času v cíli: zelený/); /* SCHEMA 90: K-KRITERIA v2 má pět podmínek (záměrná změna) */
   assert.equal(/\{[A-Za-z_|%:-]+\}/.test(['D-PRAND', 'D-CISTA', 'D-POSTUP', 'R-REAKCE', 'R-DOPLNEK', 'S-SEMAFOR'].map(id => D.guide[id].co).join(' ')), false, 'všechny zástupné hodnoty dosazené');
-  goScene(sceneOf('enroll')); runTo(2); assert.match(panel(), /<p class="gco"><b>Co schvalujete:<\/b> Čtyři podmínky zařazení:[^<]*Vylučovací kritéria: těhotenství[^<]*pamětí\. Celé znění je v průvodci níže\.<\/p>/);
+  goScene(sceneOf('enroll')); runTo(2); assert.match(panel(), /<p class="gco"><b>Co schvalujete:<\/b> Pět podmínek zařazení:[^<]*Vylučovací kritéria: těhotenství[^<]*pamětí\. Celé znění je v průvodci níže\.<\/p>/);
 });
 
 test('SCHEMA 84 rozhodnutí 7 (A3): úvod říká asi 60 minut a že se dá přerušit; panel ukazuje „zbývá asi N minut“ a odhad klesá', () => {
-  const intro = plain(D.introPage(S())); assert.match(intro, /Celá ukázka trvá asi 60 minut/); assert.match(intro, /Dá se přerušit a vrátit/); assert.equal(/asi 15 minut/.test(intro), false);
+  const intro = plain(D.introPage(S())); /* SCHEMA 90 (36/04 S4, záměrná změna): délka se počítá – rozpětí bez a s četbou průvodce, ne pevných 60 minut */
+  const tm = intro.match(/Celá ukázka trvá asi (\d+) minut, když [^.]* a asi (\d+) minut, když/); assert.ok(tm, 'úvod říká rozpětí délky'); assert.ok(+tm[1] >= 60 && +tm[2] > +tm[1] && +tm[2] <= 180, 'rozpětí ' + tm[1] + '–' + tm[2]);
+  assert.match(intro, /přerušit a pokračovat/); assert.equal(/asi 15 minut|asi 60 minut:/.test(intro), false);
   assert.match(intro, /Provozní pravidla – formáty, texty obrazovek, milníky – neschvalujete/); assert.match(intro, /neformální podklad pro autora, ne o podpis/);
   goScene(1); const a = D.remainingSeconds(S()); assert.ok(a > 40 * 60 && a < 120 * 60, 'odhad ' + a + ' s'); assert.match(panel(), /Průběh: [^<]*· zbývá asi \d+ minut/);
   goScene(sceneOf('reviewProposals')); const b = D.remainingSeconds(S()); assert.ok(b < a && b > 2 * 60, 'odhad klesá: ' + a + ' → ' + b);

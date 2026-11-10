@@ -99,10 +99,10 @@ D.explain = [
 
   /* ----- lékař: zařazení a plán ----- */
   { id: 'eligibility', sel: '.check', has: '[data-action=eligibility]', box: true, title: 'Podmínka zařazení',
-    text: 'Aplikace stojí na pevné dávce inzulinu, proto pacient musí splnit všechny čtyři podmínky. Údaje předvyplní karta pacienta, potvrzení je vaše. Pacienta s premixem zařadit nelze, protože jeho dávku nejde přiřadit k jídlu.',
+    text: 'Aplikace stojí na pevné dávce inzulinu, proto pacient musí splnit všech pět podmínek, mezi nimi i léčbu bez korekčního schématu. Údaje předvyplní karta pacienta, potvrzení je vaše. Pacienta s premixem zařadit nelze, protože jeho dávku nejde přiřadit k jídlu.',
     item: 'K-KRITERIA' },
   { id: 'baseline', sel: '.dose-row', has: '[data-action=baselineSet]', box: true, title: 'Výchozí hodnoty ze senzoru',
-    text: function (S) { return 'Čas v cíli a čas pod ' + dec(prm(S, 'C-CILE', 'low')) + ' mmol/l za měsíc před zařazením se načtou z karty pacienta; lékař je jen potvrdí voličem, nic nepíše (C17, kontrola 2). Při další kontrole tyto hodnoty porovnáme a uvidíte, jestli se zlepšily.'; },
+    text: function (S) { return 'Čas v cíli a čas pod ' + dec(prm(S, 'C-CILE', 'low')) + ' mmol/l za měsíc před zařazením se načtou z karty pacienta; lékař je jen potvrdí voličem, nic nepíše. Při další kontrole tyto hodnoty porovnáme a uvidíte, jestli se zlepšily.'; },
     item: 'S-SEMAFOR' },
   { id: 'targets', sel: '.dose-row', has: '[data-action=targetSet]', box: true, title: 'Cíle glukózy',
     text: function (S) { var c = function (k) { return prm(S, 'C-CILE', k); }; return 'Výchozí cíle jsou glukóza ' + dec(c('low')) + ' až ' + dec(c('high')) + ' mmol/l, ráno nalačno do ' + dec(c('fastingHigh')) + ' mmol/l, čas v cíli alespoň ' + c('tirGoal') + ' % a HbA1c do ' + c('hba1cGoal') + ' mmol/mol. Podle nich aplikace počítá, co je v cíli, a barví dlaždice na kontrole. U konkrétního pacienta je můžete změnit.'; },

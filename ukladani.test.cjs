@@ -119,7 +119,7 @@ test('Rozhodnutí 1: decision i note nesou params.ver { version, fp, fpGuide, al
   legacyNote(A, 'R-NAVYKY', 'jen poznámka'); await advance(3000);
   A.act('garantDecide', 'K-KRITERIA:approved'); await advance(100);
   const dec = srv.rows.find(r => r.kind === 'decision' && r.item === 'K-KRITERIA'), nt = srv.rows.find(r => r.kind === 'note');
-  for (const r of [dec, nt]) { const v = r.params.ver; assert.ok(v, 'ver chybí u ' + r.kind); assert.equal(v.version, 'v1'); assert.match(v.fp, /^(fp-[0-9a-f]{16}|[0-9a-f]{8})$/); assert.match(v.fpCat, /^[0-9a-f]{8}$/); assert.match(v.fpGuide, /^[0-9a-f]{8}$/); assert.ok(['sync1', 'core'].includes(v.alg)); assert.equal(typeof r.params.seq, 'number'); }
+  for (const r of [dec, nt]) { const v = r.params.ver; assert.ok(v, 'ver chybí u ' + r.kind); assert.equal(v.version, r.item === 'K-KRITERIA' ? 'v2' : 'v1') /* SCHEMA 90: K-KRITERIA v2, poznámka u R-NAVYKY zůstává v1 */; assert.match(v.fp, /^(fp-[0-9a-f]{16}|[0-9a-f]{8})$/); assert.match(v.fpCat, /^[0-9a-f]{8}$/); assert.match(v.fpGuide, /^[0-9a-f]{8}$/); assert.ok(['sync1', 'core'].includes(v.alg)); assert.equal(typeof r.params.seq, 'number'); }
   const B = device({ session: srv.session(G) });
   assert.equal(B.D.sync.ver('K-KRITERIA').fp, dec.params.ver.fp, 'jiné zařízení spočítá týž otisk');
   const c = B.D.sync.itemContent('R-PORCE'), f0 = B.D.sync.fnv1a(B.D.sync.canon(c));
@@ -169,7 +169,7 @@ test('Rozhodnutí 2: export JSON a CSV jen pro správce, z načtených řádků 
   assert.equal(srv.calls.length, calls, 'export nevolá síť'); assert.equal(M.downloads.length, 2);
   assert.match(M.downloads[0].name, /^nutrifee-rozhodnuti-garanta_garant-example\.test_\d{4}-\d{2}-\d{2}\.json$/); assert.match(M.downloads[1].name, /\.csv$/);
   const j = JSON.parse(M.blobs.get(M.downloads[0].href).text);
-  assert.equal(j.format, 'nutrifee-garant-export'); assert.equal(j.formatVersion, 1); assert.equal(j.items.length, 28); assert.equal(j.account.user_email, 'garant@example.test'); assert.equal(j.account.user_id, 'u-g');
+  assert.equal(j.format, 'nutrifee-garant-export'); assert.equal(j.formatVersion, 1); assert.equal(j.items.length, 29) /* SCHEMA 90: I-VYSSI */; assert.equal(j.account.user_email, 'garant@example.test'); assert.equal(j.account.user_id, 'u-g');
   const live = M.D.results.rows().filter(r => r.user_id === 'u-g');
   for (const it of j.items) { const rs = M.D.resultsState(live, it.id); assert.equal(it.state, rs.status || 'pending', it.id); }
   const k = j.items.find(x => x.id === 'K-KRITERIA'), cc = j.items.find(x => x.id === 'C-CILE'), nv = j.items.find(x => x.id === 'R-NAVYKY');
@@ -181,7 +181,7 @@ test('Rozhodnutí 2: export JSON a CSV jen pro správce, z načtených řádků 
   assert.ok(j.rows.length >= live.length && j.rows.some(r => r.kind === 'scene'), 'surové řádky účtu');
   assert.match(j.build.registryFp, /^[0-9a-f]{8}$/);
   const csv = M.blobs.get(M.downloads[1].href).text; assert.equal(csv.charCodeAt(0), 0xfeff, 'BOM');
-  const lines = csv.slice(1).trim().split('\r\n'); assert.equal(lines.length, 29, 'hlavička + 28 položek');
+  const lines = csv.slice(1).trim().split('\r\n'); assert.equal(lines.length, 30, 'hlavička + 29 položek') /* SCHEMA 90: I-VYSSI */;
   assert.ok(lines[0].startsWith('id;kategorie;nazev;stav;rozhodnuto_kdy;scena;kde;poznamka;pocet_zmen;schema_rozhodnuti;otisk_rozhodnuti;otisk_dnes;plati_pro_dnesni_zneni;parametry_json;text_pro_pacienta'));
   assert.match(csv, /K-KRITERIA;[^\r\n]*;schváleno;[^\r\n]*;"pozn; s ""uvozovkami""";/); assert.match(csv, /"?'=SUM\(A1\)/, 'vzorec neutralizován');
   /* garant export nemá */
@@ -517,9 +517,9 @@ test('31 B4 + C1 + C8 + C9: otisky jdou přepočítat podle předávky jen z exp
   makeServer(); const G = srv.user('u-g', 'garant@example.test', 'garant', 'pw'), Ad = srv.user('u-admin', 'admin@example.test', 'admin', 'pw');
   const A = device({ session: srv.session(G) }); scene(A); A.act('garantDecide', 'K-KRITERIA:approved'); await advance(3000);
   const M = device({ session: srv.session(Ad) }); M.act('openResults'); await advance(100);
-  const j = M.D.results.exportData('json').data; assert.equal(j.items.length, 28);
+  const j = M.D.results.exportData('json').data; assert.equal(j.items.length, 29) /* SCHEMA 90: I-VYSSI */;
   let n = 0; for (const it of j.items) { const r = X.fromExport(it), c = it.current; for (const k of ['fp', 'fpGuide', 'fpCat', 'fpExtra']) assert.equal(r[k], c[k], it.id + ' ' + k); n++; }
-  assert.equal(n, 28);
+  assert.equal(n, 29) /* SCHEMA 90: I-VYSSI */;
   const k = j.items.find(x => x.id === 'K-KRITERIA'); assert.deepEqual(X.fromExport(k).fp, k.decision.ver.fp, 'i otisk v řádku rozhodnutí');
   assert.equal(j.fingerprint.alg, 'core'); assert.match(j.fingerprint.description, /^fp \(alg core\) = NF\.itemFingerprint/); assert.match(j.fingerprint.other, /fpGuide = FNV-1a 32 nad bajty UTF-8/);
   assert.match(j.rules, /fpCat, fpExtra/); assert.equal(j.build.tag, 'schema-' + M.NF.SCHEMA);
@@ -630,6 +630,24 @@ test('31/03 B6: smazání rozhodnutí v jedné kartě druhá karta nevrátí –
   /* server: platný stav po posledním resetu odpovídá deníku */
   const live = A.D.sync.afterReset(srv.rows.filter(r => r.user_id === 'u-admin'));
   assert.equal(A.D.resultsState(live, 'K-KRITERIA').status, null); assert.equal(A.D.resultsState(live, 'I-HYPO').status, 'approved');
+});
+
+/* ---------- SCHEMA 90 (36/04 S5): návrat na jiném zařízení a po odhlášení – „Pokračovat ve scéně N“ ---------- */
+test('SCHEMA 90 S5: jiné zařízení i nové přihlášení po odhlášení nabídne pokračovat v nejdál dosažené scéně (řádky progress); skok tam vede', async () => {
+  makeServer(); const G = srv.user('u-g', 'garant@example.test', 'garant', 'pw');
+  const A = device({ session: srv.session(G) }); await advance(2000);
+  scene(A, '6'); A.act('garantDecide', 'K-KRITERIA:approved'); await advance(3000);
+  assert.ok(srv.rows.some(r => r.kind === 'progress' && r.params.scene === 7), 'průchod do scény 7 je na serveru');
+  const B = device({ session: srv.session(G) }); await advance(3000);
+  assert.equal(B.state('K-KRITERIA'), 'approved', 'rozhodnutí se načetlo'); assert.equal(B.S().sceneIndex || 0, 0, 'druhé zařízení začíná od úvodu');
+  assert.equal(B.D.resumeOffer(), 6); assert.match(B.page(), /data-action="tourResume">Pokračovat ve scéně 7: /);
+  B.act('tourResume'); assert.equal(B.S().sceneIndex, 6, 'skok do scény 7'); assert.equal(B.D.resumeOffer(), null); assert.equal(/tourResume/.test(B.page()), false, 'nabídka zmizí');
+  /* odhlášení a nové přihlášení na prvním zařízení: pozice se z prohlížeče smaže, ze serveru vrátí jako nabídka */
+  A.act('authLogout'); await advance(200); assert.equal(A.S().sceneIndex || 0, 0); assert.equal(A.D.resumeOffer(), null);
+  Object.assign(A.D.auth.form(), { email: 'garant@example.test', pass: 'pw' }); A.act('authLogin'); await advance(1000);
+  assert.equal(A.D.resumeOffer(), 6, 'po novém přihlášení nabídka'); assert.equal(A.D.progress().max, 6, 'průchod doplněn');
+  /* stejné zařízení, které je dál než server ví: žádná nabídka */
+  scene(A, '8'); await advance(3000); A.D.sync.restore('test'); await advance(200); assert.equal(A.D.resumeOffer(), null);
 });
 
 (async () => {

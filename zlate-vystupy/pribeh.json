@@ -25,12 +25,37 @@
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -65,7 +90,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -115,12 +150,37 @@
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -155,7 +215,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -200,17 +270,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 0,
-   "udalosti": 6,
+   "udalosti": 7,
    "zapisy": 0
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -245,7 +340,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -290,17 +395,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 0,
-   "udalosti": 6,
+   "udalosti": 7,
    "zapisy": 0
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -335,7 +465,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -451,6 +591,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -467,17 +611,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 8,
+   "udalosti": 9,
    "zapisy": 0
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -512,7 +681,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -628,6 +807,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -644,17 +827,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 13,
+   "udalosti": 14,
    "zapisy": 0
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -689,7 +897,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -805,6 +1023,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -821,17 +1043,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 14,
+   "udalosti": 15,
    "zapisy": 0
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -866,7 +1113,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -982,6 +1239,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -998,17 +1259,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 15,
+   "udalosti": 16,
    "zapisy": 1
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -1043,7 +1329,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -1163,6 +1459,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -1179,17 +1479,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 42,
+   "udalosti": 43,
    "zapisy": 18
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -1224,7 +1549,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -1293,7 +1628,8 @@
   "kapitola": "lateMeal",
   "naRade": {
    "meal": "breakfast",
-   "state": "missed"
+   "state": "missed",
+   "then": "lunch"
   },
   "nemoc": false,
   "plan": {
@@ -1344,6 +1680,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -1360,17 +1700,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 42,
+   "udalosti": 43,
    "zapisy": 18
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -1405,7 +1770,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -1525,6 +1900,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -1541,17 +1920,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 46,
+   "udalosti": 47,
    "zapisy": 19
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -1586,7 +1990,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -1705,6 +2119,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -1721,17 +2139,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 48,
+   "udalosti": 49,
    "zapisy": 20
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -1766,7 +2209,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -1885,6 +2338,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -1901,17 +2358,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 50,
+   "udalosti": 51,
    "zapisy": 21
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -1946,7 +2428,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -2033,7 +2525,8 @@
   "kapitola": "custom",
   "naRade": {
    "meal": "breakfast",
-   "state": "missed"
+   "state": "missed",
+   "then": "lunch"
   },
   "nemoc": false,
   "plan": {
@@ -2084,6 +2577,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -2100,17 +2597,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 61,
+   "udalosti": 62,
    "zapisy": 25
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -2145,7 +2667,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -2283,6 +2815,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -2299,17 +2835,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 64,
+   "udalosti": 65,
    "zapisy": 26
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -2344,7 +2905,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -2482,6 +3053,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -2498,17 +3073,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 65,
+   "udalosti": 66,
    "zapisy": 26
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -2543,7 +3143,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -2687,6 +3297,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -2703,17 +3317,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 68,
+   "udalosti": 69,
    "zapisy": 27
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -2748,7 +3387,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -2891,6 +3540,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -2907,17 +3560,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 70,
+   "udalosti": 71,
    "zapisy": 27
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -2952,7 +3630,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -3039,7 +3727,8 @@
   "kapitola": "impact",
   "naRade": {
    "meal": "breakfast",
-   "state": "missed"
+   "state": "missed",
+   "then": "lunch"
   },
   "nemoc": false,
   "plan": {
@@ -3090,6 +3779,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -3106,14 +3799,24 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 73,
+   "udalosti": 74,
    "zapisy": 27
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "R-SKORE",
@@ -3122,6 +3825,21 @@
    },
    {
     "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -3156,7 +3874,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -3295,6 +4023,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -3311,14 +4043,24 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 452,
+   "udalosti": 453,
    "zapisy": 247
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "R-SKORE",
@@ -3327,6 +4069,21 @@
    },
    {
     "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -3361,7 +4118,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -3449,7 +4216,11 @@
   "kapitola": "preview",
   "naRade": {
    "meal": "breakfast",
-   "state": "missed"
+   "missed": [
+    "lunch"
+   ],
+   "state": "missed",
+   "then": "dinner"
   },
   "nemoc": false,
   "plan": {
@@ -3500,6 +4271,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -3516,14 +4291,24 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 467,
+   "udalosti": 468,
    "zapisy": 256
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "R-SKORE",
@@ -3532,6 +4317,21 @@
    },
    {
     "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -3566,7 +4366,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -3705,6 +4515,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -3721,14 +4535,24 @@
    "noci": 0,
    "otazky": 1,
    "plany": 1,
-   "udalosti": 467,
+   "udalosti": 468,
    "zapisy": 256
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "R-SKORE",
@@ -3737,6 +4561,21 @@
    },
    {
     "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -3771,7 +4610,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -3831,6 +4680,7 @@
    "from": "2026-12-22T00:00:00",
    "manualOnly": 37,
    "nights": 14,
+   "planId": "P1",
    "readings": 3669,
    "skipped": 0,
    "to": "2027-01-04T23:55:00",
@@ -3925,6 +4775,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -3941,14 +4795,24 @@
    "noci": 14,
    "otazky": 1,
    "plany": 1,
-   "udalosti": 477,
+   "udalosti": 478,
    "zapisy": 256
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "R-SKORE",
@@ -3957,6 +4821,21 @@
    },
    {
     "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -3991,7 +4870,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -4003,10 +4892,12 @@
    "availability": 91,
    "below": 2,
    "days": 14,
+   "from": "2026-12-22T00:00:00",
    "interval": 5,
    "period": "22. 12. 2026 – 4. 1. 2027",
    "source": "import",
    "tir": 68,
+   "to": "2027-01-04T23:55:00",
    "veryLow": 0
   },
   "slotyDne": [
@@ -4061,6 +4952,7 @@
    "from": "2026-12-22T00:00:00",
    "manualOnly": 37,
    "nights": 14,
+   "planId": "P1",
    "readings": 3669,
    "skipped": 0,
    "to": "2027-01-04T23:55:00",
@@ -4155,6 +5047,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -4171,14 +5067,24 @@
    "noci": 14,
    "otazky": 1,
    "plany": 1,
-   "udalosti": 508,
+   "udalosti": 511,
    "zapisy": 256
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "R-SKORE",
@@ -4187,6 +5093,21 @@
    },
    {
     "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -4221,7 +5142,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -4233,10 +5164,12 @@
    "availability": 91,
    "below": 2,
    "days": 14,
+   "from": "2026-12-22T00:00:00",
    "interval": 5,
    "period": "22. 12. 2026 – 4. 1. 2027",
    "source": "import",
    "tir": 68,
+   "to": "2027-01-04T23:55:00",
    "veryLow": 0
   },
   "slotyDne": [
@@ -4291,6 +5224,7 @@
    "from": "2026-12-22T00:00:00",
    "manualOnly": 37,
    "nights": 14,
+   "planId": "P1",
    "readings": 3669,
    "skipped": 0,
    "to": "2027-01-04T23:55:00",
@@ -4384,6 +5318,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -4400,14 +5338,24 @@
    "noci": 14,
    "otazky": 1,
    "plany": 2,
-   "udalosti": 510,
+   "udalosti": 513,
    "zapisy": 256
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "R-SKORE",
@@ -4416,6 +5364,21 @@
    },
    {
     "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -4450,7 +5413,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -4510,6 +5483,7 @@
    "from": "2026-12-22T00:00:00",
    "manualOnly": 37,
    "nights": 14,
+   "planId": "P1",
    "readings": 3669,
    "skipped": 0,
    "to": "2027-01-04T23:55:00",
@@ -4603,6 +5577,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -4619,14 +5597,24 @@
    "noci": 14,
    "otazky": 1,
    "plany": 2,
-   "udalosti": 510,
+   "udalosti": 513,
    "zapisy": 256
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "R-SKORE",
@@ -4635,6 +5623,21 @@
    },
    {
     "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -4669,7 +5672,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -4729,6 +5742,7 @@
    "from": "2026-12-22T00:00:00",
    "manualOnly": 37,
    "nights": 14,
+   "planId": "P1",
    "readings": 3669,
    "skipped": 0,
    "to": "2027-01-04T23:55:00",
@@ -4822,6 +5836,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -4838,14 +5856,24 @@
    "noci": 14,
    "otazky": 1,
    "plany": 2,
-   "udalosti": 511,
+   "udalosti": 514,
    "zapisy": 256
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "R-SKORE",
@@ -4854,6 +5882,21 @@
    },
    {
     "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -4888,7 +5931,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -5004,6 +6057,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -5020,17 +6077,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 12,
+   "udalosti": 13,
    "zapisy": 0
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -5065,7 +6147,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -5183,6 +6275,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -5199,17 +6295,42 @@
    "noci": 0,
    "otazky": 0,
    "plany": 1,
-   "udalosti": 17,
+   "udalosti": 18,
    "zapisy": 0
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
    },
    {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
     "id": "R-SKORE",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -5244,7 +6365,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -5306,6 +6437,7 @@
    "from": "2026-12-22T00:00:00",
    "manualOnly": 37,
    "nights": 14,
+   "planId": "P1",
    "readings": 3669,
    "skipped": 0,
    "to": "2027-01-04T23:55:00",
@@ -5400,6 +6532,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -5416,14 +6552,24 @@
    "noci": 14,
    "otazky": 1,
    "plany": 1,
-   "udalosti": 460,
+   "udalosti": 461,
    "zapisy": 256
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "R-SKORE",
@@ -5432,6 +6578,21 @@
    },
    {
     "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -5466,7 +6627,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -5478,10 +6649,12 @@
    "availability": 91,
    "below": 0,
    "days": 14,
+   "from": "2026-12-22T00:00:00",
    "interval": 5,
    "period": "22. 12. 2026 – 4. 1. 2027",
    "source": "import",
    "tir": 63,
+   "to": "2027-01-04T23:55:00",
    "veryLow": 0
   },
   "slotyDne": [
@@ -5538,6 +6711,7 @@
    "from": "2026-12-22T00:00:00",
    "manualOnly": 37,
    "nights": 14,
+   "planId": "P1",
    "readings": 3669,
    "skipped": 0,
    "to": "2027-01-04T23:55:00",
@@ -5632,6 +6806,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -5648,14 +6826,24 @@
    "noci": 14,
    "otazky": 1,
    "plany": 1,
-   "udalosti": 460,
+   "udalosti": 461,
    "zapisy": 256
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "R-SKORE",
@@ -5664,6 +6852,21 @@
    },
    {
     "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -5698,7 +6901,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }
@@ -5710,10 +6923,12 @@
    "availability": 91,
    "below": 0,
    "days": 14,
+   "from": "2026-12-22T00:00:00",
    "interval": 5,
    "period": "22. 12. 2026 – 4. 1. 2027",
    "source": "import",
    "tir": 63,
+   "to": "2027-01-04T23:55:00",
    "veryLow": 0
   },
   "slotyDne": [
@@ -5770,6 +6985,7 @@
    "from": "2026-12-22T00:00:00",
    "manualOnly": 37,
    "nights": 14,
+   "planId": "P1",
    "readings": 3669,
    "skipped": 0,
    "to": "2027-01-04T23:55:00",
@@ -5864,6 +7080,10 @@
      "value": 15
     },
     {
+     "id": "I-VYSSI",
+     "value": 60
+    },
+    {
      "id": "I-KONTAKT",
      "value": true
     }
@@ -5883,14 +7103,24 @@
    "noci": 14,
    "otazky": 1,
    "plany": 2,
-   "udalosti": 491,
+   "udalosti": 494,
    "zapisy": 256
   },
   "registr": [
    {
-    "id": "B-HYPO",
+    "id": "K-KRITERIA",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "Z-IMPORT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "B-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "R-SKORE",
@@ -5899,6 +7129,21 @@
    },
    {
     "id": "R-PORADI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-PRAND",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-BAZAL",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "D-POSTUP",
     "status": "approved",
     "version": "v2"
    },
@@ -5933,7 +7178,17 @@
     "version": "v2"
    },
    {
+    "id": "I-VYSSI",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "I-KONTAKT",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
+    "id": "S-PRIPOMINKY",
     "status": "approved",
     "version": "v2"
    }

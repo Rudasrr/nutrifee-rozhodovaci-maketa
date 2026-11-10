@@ -68,7 +68,7 @@ test('A2: zamítnutá R-REAKCE ani nepřevzatý plán neskryjí I-MENE, pravidlo
 /* ---------- A3–A5, B4: strojový popis účinku zamítnutí u všech 28 položek ---------- */
 const DRUHY = ['vypne', 'nesouhlas'], UKAZE = ['off', 'nesouhlas', null];
 test('A3–A5, B4: každá garantová položka má v průvodci popis účinku zamítnutí (ucinek) a text „Co se stane“ mu odpovídá', ({ NF, D, S }) => {
-  const ids = NF.garantItems(S()).map(r => r.id); assert.equal(ids.length, 28);
+  const ids = NF.garantItems(S()).map(r => r.id); assert.equal(ids.length, 29); /* SCHEMA 90: I-VYSSI */
   for (const id of ids) {
     const g = D.guideRaw[id], u = g && g.ucinek;
     assert.ok(u, id + ': chybí ucinek');
@@ -193,7 +193,7 @@ test('B14, C1, C11: otázka při rozchodu – nejvyšší hodnota slovem pacient
   const ep = s.episodes.find(e => e.id === 'E7c'); delete ep.divergeAsked; ep.context = null;
   const dv = NF.divergence(s, ep); assert.ok(dv, 'rozchod');
   s.page = 'today'; s.role = 'patient'; const html = NF.screens.patient(s);
-  assert.doesNotMatch(html, /vzestup/i); assert.match(html, /class="state-big over">nad 15\u00a0mmol\/l/); assert.match(html, /Dřív bývala nejvyšší kolem \d+\./); /* SCHEMA 86 (návrh 4): výsledek jednou velkým písmem, rozdíl jednou větou */
+  assert.doesNotMatch(html, /vzestup/i); assert.match(html, /class="state-big over">nad 15\u00a0mmol\/l/); assert.match(html, /Dřív bývala nejvyšší kolem \d+\u00a0mmol\/l\./); /* SCHEMA 90 (pacient S5): číslo s jednotkou */ /* SCHEMA 86 (návrh 4): výsledek jednou velkým písmem, rozdíl jednou větou */
   assert.match(html, /data-value="E7c:amount"/); assert.match(html, /Neobvyklý den \(stres, málo spánku, alkohol\)/);
   const r = NF.answerDivergence(s, 'E7c', 'amount'); assert.equal(r.ok, true); assert.equal(ep.portion, 'other'); assert.equal(NF.usableEp(s, ep), false);
   assert.match(NF.whyNotUsable(s, Object.assign({}, ep, { portion: 'usual', context: 'unusual' })), /neobvyklý den \(stres, málo spánku, alkohol\)/);

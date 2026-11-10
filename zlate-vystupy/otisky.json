@@ -1,14 +1,14 @@
 {
- "garantovych": 28,
+ "garantovych": 29,
  "jidel": 171,
- "polozek": 42,
+ "polozek": 43,
  "polozky": [
   {
    "cat": "kohorta",
-   "fp": "fp-d45dee6220e35c7f",
+   "fp": "fp-950e11df5195b972",
    "id": "K-KRITERIA",
    "scope": null,
-   "version": "v1"
+   "version": "v2"
   },
   {
    "cat": "plan",
@@ -40,17 +40,17 @@
   },
   {
    "cat": "vypocty",
-   "fp": "fp-68eed83a939289cf",
+   "fp": "fp-95e5025ccf8262dc",
    "id": "Z-IMPORT",
    "scope": "provozni",
-   "version": "v1"
+   "version": "v2"
   },
   {
    "cat": "pokyny",
-   "fp": "fp-2ca60fe1264048c3",
+   "fp": "fp-4d14623f883d103c",
    "id": "B-HYPO",
    "scope": null,
-   "version": "v2"
+   "version": "v3"
   },
   {
    "cat": "vypocty",
@@ -103,24 +103,24 @@
   },
   {
    "cat": "davka",
-   "fp": "fp-2af4539a7efe9aa4",
+   "fp": "fp-3424ff33f2396b5c",
    "id": "D-PRAND",
    "scope": null,
-   "version": "v1"
+   "version": "v2"
   },
   {
    "cat": "davka",
-   "fp": "fp-a8e30988ee750f29",
+   "fp": "fp-5f00009690d0fef9",
    "id": "D-BAZAL",
    "scope": null,
-   "version": "v1"
+   "version": "v2"
   },
   {
    "cat": "davka",
-   "fp": "fp-bf49017463463d0c",
+   "fp": "fp-874b10c33dbf9e39",
    "id": "D-POSTUP",
    "scope": null,
-   "version": "v1"
+   "version": "v2"
   },
   {
    "cat": "pokyny",
@@ -168,6 +168,13 @@
    "cat": "pokyny",
    "fp": "fp-a6bd332485684b10",
    "id": "I-VYSOKA",
+   "scope": null,
+   "version": "v2"
+  },
+  {
+   "cat": "pokyny",
+   "fp": "fp-eeef09bce3d9b26e",
+   "id": "I-VYSSI",
    "scope": null,
    "version": "v2"
   },
@@ -285,10 +292,10 @@
   },
   {
    "cat": "rezim",
-   "fp": "fp-b1006211ae33cd87",
+   "fp": "fp-10e61dbb8fdee4ca",
    "id": "S-PRIPOMINKY",
    "scope": "provozni",
-   "version": "v1"
+   "version": "v2"
   },
   {
    "cat": "plan",
