@@ -1,20 +1,20 @@
 # Příloha: designový systém
 
-*Patří k [`01-cesta-k-demu.md`](01-cesta-k-demu.md) a [`00-postup.md`](00-postup.md) etapa 4. Stav makety SCHEMA 89 (9. 11. 2026); tabulky jsou vygenerované znovu nad SCHEMA 89 a vyšly beze změny. Tabulky v oddílech 2–6 jsou vygenerované skriptem přímo z `app/tokens.css`, `app/design.css` a `design-system/index.html`. Skript patří k podkladům předávky u vlastníka, v repozitáři není. Když se maketa změní, požádejte o nové vygenerování; ručně tabulky nepřepisujte.*
+*Patří k [`01-cesta-k-demu.md`](01-cesta-k-demu.md) a [`00-postup.md`](00-postup.md) etapa 4. Stav makety SCHEMA 90 (11. 11. 2026); tabulky jsou vygenerované znovu nad SCHEMA 90 (přibyly dva tokeny a karta katalogu `#c-schema90`). Tabulky v oddílech 2–6 jsou vygenerované skriptem přímo z `app/tokens.css`, `app/design.css` a `design-system/index.html`. Skript patří k podkladům předávky u vlastníka, v repozitáři není. Když se maketa změní, požádejte o nové vygenerování; ručně tabulky nepřepisujte.*
 
 ## 1. Co se přenáší a jak
 
 - **`app/tokens.css` se přenáší beze změny.** Je to jediný zdroj hodnot vzhledu: barvy, písmo, odstupy, zaoblení, stíny, pohyb a rozměry komponent. Každý token začíná `--nf-`.
 - **`app/design.css` tokeny jen skládá do komponent.** Nemá pevné barvy, velikosti písma ani rozměry; hlídá to `tokeny.test.cjs`. Nová komponenta v demu se řídí stejným pravidlem.
 - **Písmo** je jedno, vlastní hostované, s licencí OFL v `app/fonts/` (deklarace `@font-face` jsou na začátku `tokens.css`). **Ikony** jsou obrysové SVG 24 × 24 v `app/icons.js`; licence sady ikon je v kořeni repozitáře makety.
-- **Zásady vzhledu** (z katalogu, oddíl „Zásady“): jedna akční barva, stav nikdy jen barvou (vždy slovo a ikona), cíl dotyku aspoň 48 px u pacienta a 40 px v ordinaci, text pacienta od 17 px, kontrast textu aspoň 4,5 : 1, jedno primární tlačítko na obrazovce, obrys = dá se zmáčknout, plná výplň = vybráno, pohyb jen vysvětlující a s ohledem na `prefers-reduced-motion`.
+- **Zásady vzhledu** (z katalogu, oddíl „Zásady“): jedna akční barva, stav nikdy jen barvou (vždy slovo a ikona), cíl dotyku aspoň 48 px u pacienta a 40 px v ordinaci, text pacienta od 17 px (od SCHEMA 90: hlavní text a volby od 17 px, doplňkový od 15 px, nic pod 15 px; v obálce pacienta `.patient-shell` se `--nf-fs-2xs` a `--nf-fs-xs` skládají na `--nf-fs-sm` 15 px, hlídá `tokeny.test.cjs` „Písmo pacienta…“), kontrast textu aspoň 4,5 : 1, jedno primární tlačítko na obrazovce, obrys = dá se zmáčknout, plná výplň = vybráno, pohyb jen vysvětlující a s ohledem na `prefers-reduced-motion`.
 - **Vysoký kontrast:** při `prefers-contrast: more` přepne `design.css` tři tokeny `--nf-hc-*` místo běžných.
 - **Mapování starších názvů** (`--ink`, `--brand`, `--ok` …) na konci `tokens.css` je jen pro starší pravidla `design.css`. Nová komponenta používá jen `--nf-*`.
 
 ## 2. Kategorie tokenů
 <!-- vygenerováno skriptem z app/tokens.css, app/design.css a design-system/index.html; needitovat ručně -->
 
-Tokenů `--nf-*` celkem: **295**.
+Tokenů `--nf-*` celkem: **297**.
 
 | Kategorie | Počet | Hlavní hodnoty |
 |---|---|---|
@@ -30,7 +30,7 @@ Tokenů `--nf-*` celkem: **295**.
 | Ikony | 16 | `icon-5xs` 10px · `icon-4xs` 13px · `icon-3xs` 14px · `icon-2xs` 16px · `icon-xs` 18px · `icon-sm` 20px · … |
 | Rozměry – ostatní (dávka, tkanina, šířky) | 14 | `dose-h` 44px · `dose-h-sm` 32px · `dose-border` 2px · `dose-border-sm` 1.5px · `weave-dot` 6px · `weave-row` 16px · … |
 | Čáry a fokus | 8 | `bw` 2px · `bw-lg` 2.5px · `bw-xl` 3px · `halo` 4px · `focus-w` 3px · `focus-offset` 3px · … |
-| Rozměry komponent | 90 | `rail-w` 224px · `desk-max` 1460px · `desk-col` 880px · `desk-end` 120px · … |
+| Rozměry komponent | 92 | `rail-w` 224px · `desk-max` 1460px · `desk-col` 880px · `desk-end` 120px · … |
 | Stíny a ztmavení | 9 | `sh-card` 0 1px 2px rgba(11,28,43,.04),0 4px 14px  · `sh-raised` 0 14px 36px rgba(11,28,43,.10) · `sh-primary` 0 1px 2px rgba(10,90,114,.24) · `sh-inset` inset 0 0 0 1px var(--nf-line) · `sh-knob` 0 2px 6px var(--nf-shadow-ink) · `sh-marker` 0 2px 8px var(--nf-shadow-ink) · … |
 | Grafické prvky (fajfka) | 2 | `check-white` url("data:image/svg+xml,%3Csvg xmlns='ht · `check-ink` url("data:image/svg+xml,%3Csvg xmlns='ht |
 | Pohyb | 29 | `t-success` .6s · `t-dose` .22s · `t-fast` .15s · `t` .25s · `t-slow` .4s · `t-fade` .2s · … |
@@ -126,7 +126,7 @@ Kontrast spočítaný podle WCAG 2.1 z hodnot v `tokens.css`.
 
 ## 6. Komponenty v katalogu
 
-Katalog má 25 karet komponent aplikace a 5 karet prezentační vrstvy.
+Katalog má 26 karet komponent aplikace a 5 karet prezentační vrstvy.
 
 | Kotva | Komponenta | Co to je (první věta z katalogu) | Varianty v ukázce (třídy) | Stavy v ukázce |
 |---|---|---|---|---|
@@ -145,6 +145,7 @@ Katalog má 25 karet komponent aplikace a 5 karet prezentační vrstvy.
 | `#c-kroky` | Kroky a postup | Tři kroky před jídlem jako tenký pruh, kroky kontroly v ordinaci jako číslované pilulky. | `.on` `.done` `.now` | – |
 | `#c-formular` | Volič hodnot a pole | V ordinaci se nepíše: hodnoty se volí voličem. | `.ok` | – |
 | `#c-mene` | Méně je víc: otázka po jedné, Co teď s „Potom“, krátké pravidlo, víc o datech | Otázka po jedné: v kroku 1 je otevřená jen jedna otázka s číslem .qnum; zodpovězená je řádek .qdone s fajfkou a „Změnit“, čekající šedé řádky .qnext pod nadpisem „Potom“. | `.hero` `.primary` `.big` `.doc` `.low` `.event` `.result` `.over` `.how` `.mini-card` | – |
+| `#c-schema90` | Nové prvky verze 90 | Fáze 2 SCHEMA 90 (36/08 odd. 6). | `.done` `.next` `.hero` `.primary` `.big` `.quiet` `.sm` `.warn` `.danger` `.ok` | `aria-pressed` |
 | `#c-tabbar` | Lišta záložek | Čtyři záložky pacienta (Dnes · Jídla · Můj plán · Bezpečí; od verze 86 „Můj plán“), klasická lišta od kraje ke kraji přilepená ke spodnímu okraji, nad ní jemná linka a stín nahoru; spodní odsazení … | – | `aria-current` |
 | `#c-ordinace` | Ordinace: dlaždice, návrhová karta, položka registru | Dlaždice souhrnu nesou barvu, znak i slovo. | `.now` `.flat` `.on` | – |
 | `#c-jidlo` | Jídlo a učení | Karta jídla: neutrální talíř uvnitř prstence učení (čtyři oblouky = čtyři shodné zápisy; fajfka = známé jídlo), název, štítek úrovně (bledý, stav) a štítek reakce (zelený / oranžový). | `.food` `.ok` | `aria-expanded` |

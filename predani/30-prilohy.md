@@ -1,6 +1,6 @@
 # NutriFee – předání programátorovi: přílohy
 
-*Stav makety SCHEMA 89 (9. 11. 2026); registr, katalogy a jídla se ve SCHEMA 89 nezměnily. Patří k `00-postup.md`. Tabulky v přílohách 2, 3 a 5 jsou vygenerované skriptem z kódu makety při přípravě předávky; skript patří k podkladům u vlastníka a v repozitáři není. Když se maketa změní, požádejte o nové vygenerování a tabulky nepřepisujte ručně. Designový systém je v samostatné příloze [`40-design-system.md`](40-design-system.md). Cesty k souborům jsou vůči složce makety.*
+*Stav makety SCHEMA 90 (11. 11. 2026, commit `ef4f761`). Ve SCHEMA 90 přibyla klinická položka I-VYSSI (8. bezpečnostní pravidlo) a nové verze ke schválení B-HYPO v3, D-POSTUP v2, K-KRITERIA v2, D-PRAND v2, D-BAZAL v2 a provozní Z-IMPORT v2 a S-PRIPOMINKY v2. Patří k `00-postup.md`. Tabulky v přílohách 2, 3 a 5 jsou vygenerované skriptem z kódu makety při přípravě předávky; skript patří k podkladům u vlastníka a v repozitáři není. Když se maketa změní, požádejte o nové vygenerování a tabulky nepřepisujte ručně. Designový systém je v samostatné příloze [`40-design-system.md`](40-design-system.md). Cesty k souborům jsou vůči složce makety.*
 
 1. Slovník pojmů
 2. Registr položek
@@ -20,10 +20,13 @@ Závazný slovník s rozlišením slov pro pacienta, pro lékaře a v kódu je v
 - **Opsaná hodnota** – celé číslo, které pacient přepíše z aplikace senzoru posuvníkem (pod 4 · 4 … 15 · nad 15 · nemám), hodnota před jídlem a nejvyšší hodnota do 2 hodin po předchozím jídle (Z-GLUKOZA, `NF.chip`).
 - **„Pod 4“ a „nad 15“** – krajní volby posuvníku uložené jako hranice se značkou, ne jako vymyšlené číslo; „pod 4“ hned ukáže pravidlo k nízké a „nad 15“ pravidlo k vysoké glukóze.
 - **Zápis** – jedno zapsané jídlo s časem, porcí, odpovědí o inzulinu, odpověďmi na rady a hodnotami glukózy (`episode`).
-- **Zpětný zápis** – zápis jídla, které už proběhlo („Už jsem jedl“, „Byla dnes snídaně?“); radí jen procházku, a to do 60 minut od jídla.
+- **Zpětný zápis** – zápis jídla, které už proběhlo („Už jsem jedl“, „Byla dnes snídaně?“, „Doplnit snídani“); radí jen procházku, a to do 60 minut od jídla (`NF.walkWindow`). Čas zpětného zápisu se počítá ke dni aplikace (`NF.retroAt`).
+- **Den aplikace** – den v aplikaci končí ve 4:00, ne o půlnoci: jídlo do 4:00 patří k předchozímu dni, takže pozdní večeře ve 0:20 je večeře a ráno je na řadě snídaně (provozní parametr S-PRIPOMINKY `den_konec` 4 [2–6], `NF.appDay`, `NF.appHour`; SCHEMA 90). Řídí se jím sloty dne, vynechání, bazál po půlnoci, zpětný zápis, „Včera chybí“, ranní otázka po večeři a tkanina.
+- **Český čas** – aplikace počítá vždy v čase Europe/Prague bez ohledu na pásmo telefonu (`NF.TZ`, `NF.zoneIso`); když má telefon jiný místní čas, Dnes nahoře ukáže větu „Na cestách se řiďte pokyny svého lékaře; zápisy jsou v českém čase.“ (`NF.tzMismatch`, text S-PRIPOMINKY `pasmo`). Cestování je mimo rozsah studie (SCHEMA 90).
 - **Slot dne (hlavní jídlo)** – snídaně, oběd nebo večeře; aplikace se řídí tím, který slot je prázdný, ne časovými okny (`NF.MEALS`, `NF.daySlots`).
 - **Hrubá denní doba slotu** – hodina dne, od které je prázdný slot „minulý“ a Dnes se ptá „Byla dnes snídaně?“ místo „Chystám se jíst“: snídaně od 10:00, oběd od 15:30, večeře od 21:00; od SCHEMA 87 parametry `snidane_do`, `obed_do`, `vecere_do` provozní položky S-PRIPOMINKY s mezemi (`NF.daypartEnd`, pořadí snídaně < oběd < večeře se hlídá).
-- **Svačina** – čtvrtý a další zápis dne, bez inzulinu, mimo sloty a mimo návrhy k dávce; učí se zvlášť.
+- **Svačina** – zápis tlačítkem „Zapsat svačinu“ (`meal: 'snack'`, `NF.isSnack`), bez inzulinu, mimo sloty a mimo návrhy k dávce; učí se zvlášť. Do 3 h po hlavním jídle (B-HYPO `dalsi_slot_h`) je „Zapsat svačinu“ hlavní tlačítko Dnes a další hlavní jídlo jen vedlejší volba (`NF.snackFirst`, SCHEMA 90).
+- **Před plánem** – slot dne převzetí, který skončil dřív, než pacient plán převzal; Dnes se na něj neptá a tkanina ho nepočítá (`NF.slotBeforePlan`, SCHEMA 90).
 - **Obvyklá porce** – množství, na které lékař nastavil dávku, „tak, jak to jíte obvykle“; pacient nic nepočítá (`portion: 'usual'`, dále `smaller` a `bigger`).
 - **Vrchol** – nejvyšší glukóza 0–120 minut po jídle; pacient ho zná jako „nejvyšší hodnotu po jídle“ (`NF.peakOf`).
 - **Vzestup** – vrchol minus hodnota před jídlem; slouží jen ke shodě zápisů při učení a lékař ho vidí v podkladech (`NF.riseOf`).
@@ -46,8 +49,10 @@ Závazný slovník s rozlišením slov pro pacienta, pro lékaře a v kódu je v
 - **Dávka** – počet jednotek předepsaný lékařem; aplikace ji zobrazuje, připomíná a ptá se na podání, nikdy ji nepočítá ani nepředvyplňuje.
 - **Bazál** – inzulin na noc, jednou večer v pevný čas.
 - **Inzulin k jídlu (prandiální)** – inzulin ke třem hlavním jídlům.
-- **Potvrzení inzulinu** – odpověď podle plánu · jinak · ještě ne · nevím; do 60 minut opravitelné, opravený zápis nejde do návrhu k dávce. Čas podání: právě teď · před 5 · před 15 · před 30 min · jiný čas (posuvník „před kolika minutami“ 0–120 min po 5 min, `NF.INS_AGO_MAX`, SCHEMA 87).
+- **Potvrzení inzulinu** – odpověď podle plánu · jinak · ještě ne · nevím; do 60 minut opravitelné („Opravit inzulin“), opravený zápis nejde do návrhu k dávce. Čas podání: právě teď · před 5 · před 15 · před 30 min · jiný čas (posuvník „před kolika minutami“ 0–120 min po 5 min, `NF.INS_AGO_MAX`, SCHEMA 87).
 - **Rozsah dávky** – 1–60 j., jedna konstanta jádra `NF.DOSE_RANGE` (pomocníci `NF.validDose`, `NF.clampDose`) pro zařazení, kontrolu, „jinou dávku“ i zápisy pacienta; je to mez vstupu, ne klinická hodnota (SCHEMA 87).
+- **Oprava a smazání zápisu** – zápis jídla jde do 24 h opravit nebo smazat (`NF.EDIT_WINDOW_H`, `NF.canEditEpisode`, `NF.editEpisode`, `NF.deleteEpisode`); oprava jde do stopy (`jidlo.zapis.opraven` z čeho na co, `jidlo.zapis.smazan`) a opravený zápis pak nejde do návrhu k dávce, do učení ano. Obrazovka v SCHEMA 90 umí opravit porci a smazat zápis, jádro umí i jídlo a hodnoty (SCHEMA 90).
+- **Výrazně vyšší dávka** – dávka k jídlu o 2 j. a víc nad plánem (`NF.higherDose`, I-VYSSI `nad_j`); ukáže pravidlo I-VYSSI, procházka se nenabízí a za 60 min přijde otázka „Klesla glukóza pod 4?“. O dávce se nic neradí (SCHEMA 90).
 - **Jiná dávka než v plánu** – když pacient u téhož jídla dne dvakrát po sobě zapíše jinou dávku, Dnes ho požádá, ať to řekne sestře na kontrole; aplikace se neptá proč a nic nemění (S-DAVKA).
 - **Rada (páka)** – jedna ze čtyř nepovinných rad před jídlem: obvyklá porce, doplněk k jídlu, pořadí jídla, procházka (`NF.LEVERS`; R-PORCE, R-DOPLNEK, R-PORADI, R-PROCHAZKA).
 - **Zásada porcí** – před píchnutím rada k obvyklé porci oběma směry, po píchnutí a při „nevím“ jen z větší porce zpět, nikdy „snězte víc“ (`NF.talksAmount` hlídá i nové verze rad).
@@ -58,23 +63,27 @@ Závazný slovník s rozlišením slov pro pacienta, pro lékaře a v kódu je v
 
 ### Bezpečnost
 
-- **Bezpečnostní pravidlo** – obecné pravidlo NutriFee schválené garantem, stejné pro všechny pacienty, bez uvozovek a bez podpisu lékaře (I-HYPO, I-MENE, I-NEVIM, I-NEMOC-BAZAL, I-NEMOC-JIDLO, I-VYSOKA, I-KONTAKT).
+- **Bezpečnostní pravidlo** – obecné pravidlo NutriFee schválené garantem, stejné pro všechny pacienty, bez uvozovek a bez podpisu lékaře (I-HYPO, I-MENE, I-NEVIM, I-NEMOC-BAZAL, I-NEMOC-JIDLO, I-VYSOKA, I-VYSSI, I-KONTAKT; osm pravidel).
 - **Krátká podoba pravidla** – první krok, „Co dál“ a jedna věta, vše doslova věty schváleného znění; celé znění je pod „Celé pravidlo“.
 - **Kontakty** – informace v Bezpečí, kam se obrátit se zdravotním a s technickým problémem; aplikace na ně nikoho neposílá.
-- **Větev nízké glukózy** – po menší porci nebo vynechaném jídle s inzulinem pravidlo hned, za 60 minut otázka „Klesla glukóza pod 4?“ (po večeři ráno) a po 2 poklesech za klouzavých 7 dní karta s obecnou radou (B-HYPO).
+- **Větev nízké glukózy** – po menší porci, vynechaném jídle s inzulinem nebo výrazně vyšší dávce pravidlo hned, za 60 minut otázka „Klesla glukóza pod 4?“ (po večeři ráno) a po 2 poklesech za klouzavých 7 dní karta s obecnou radou (B-HYPO v3; sledování `NF.watchEpisode`).
+- **Pokles před jídlem** – glukóza „pod 4“ vybraná v kroku 1 se počítá jako pokles se všemi důsledky (karta po opakovaných poklesech, Bezpečnost u lékaře, blokace „zvýšit“); připíše se k předchozímu hlavnímu jídlu téhož dne aplikace, u snídaně k noci a bazálu (`NF.epLowBefore`, `NF.lowBeforeOwner`; SCHEMA 90).
+- **Pokles z exportu** – nejnižší hodnota z exportu do 4 h po jídle se k jídlu přiřadí jako pokles (`ep.lowAfter`, `NF.epLowAfter`, Z-IMPORT `pokles_min` 240); nejvyšší hodnota zůstává do 2 h (SCHEMA 90).
 - **Noční pokles** – nepovinný čip „V noci klesla glukóza pod 4“ u snídaně; počítá se do poklesů za 7 dní a k návrhu k bazálu.
 - **Čistý pokles** – pokles pod 4 při obvyklé porci a dávce podle plánu; jen ten blokuje v návrhu větev „zvýšit“, ostatní poklesy jsou varování (`NF.lowEvents`, D-POSTUP `poklesy_jen_ciste`).
+- **Čas pod cílem nad mezí** – když je čas pod dolním cílem ze senzoru nad mezí (`C-CILE.tbrGoal`, `S-SEMAFOR.tbr3_max`), blokuje větev „zvýšit“ u všech dávek, i u řádků bez návrhu; větev zní „ponechat – čas pod cílem nad mezí, nejdřív řešit nízkou glukózu“ (D-POSTUP v2, bod „Čas pod cílem je pod mezí“, fakt `podCilem`; SCHEMA 90).
 - **Režim nemoci** – zapíná a ukončuje pacient („Není mi dobře“); zápisy se štítkují a nejdou do učení, rady k jídlu se nedávají, nahoře jsou pravidla pro nemoc (P-NEMOC).
 
 ### Plán, ordinace a kontrola
 
 - **Plán (P1, P2…)** – dávky, návyky, bezpečnostní pravidla s případnými výjimkami, cíle glukózy, vypnuté rady a platnost; vydává ho lékař.
-- **Zařazení** – karta pacienta, čtyři podmínky a zaškrtnutí bez vylučovacích kritérií, dávky, cíle a startovní plán (K-KRITERIA).
+- **Zařazení** – karta pacienta, pět podmínek (od SCHEMA 90 i „Bez korekčního schématu“ a bazál 1× denně večer) a zaškrtnutí bez vylučovacích kritérií, dávky, cíle a startovní plán (K-KRITERIA v2, `NF.ELIGIBILITY`).
 - **Cíle glukózy** – dolní cíl 3,9, horní cíl po jídle 10,0, ráno nalačno do 7,2 mmol/l, čas v cíli aspoň 70 %, čas pod cílem méně než 4 %, HbA1c do 53 mmol/mol; mírnější sada pro starší a křehké (C-CILE).
 - **Čas v cíli (TIR) a čas pod dolním cílem** – podíl času ze senzoru v rozmezí cílů a pod dolním cílem; pacient je nevidí, lékař v souhrnu za období exportu.
 - **Vydání · předání · převzetí** – lékař plán vydá, předá sestře, ta pacienta zaučí a pacient plán převezme po šesti stránkách průvodce.
 - **Zaučení a bod zaučení** – sestra odškrtává body složené z návyků plánu, tří pevných bodů a bodu o exportu, s náhledem telefonu pacienta (Z-BODY).
 - **Export ze senzoru** – soubor s průběhem glukózy, který pacient před kontrolou pošle do ordinace a sestra nahraje; nahradí opsané hodnoty a doplní noci (Z-IMPORT).
+- **Export za jiné období** – export celý mimo období plánu se odmítne („Export je z jiného období než současný plán. Ze souboru jsme nic nenačetli.“), částečný se ořízne na období plánu (Z-IMPORT `jineObdobi`, `castObdobi`; SCHEMA 90). Export nahraný po zahájení kontroly souhrn i návrhy přepočítá (`NF.recomputeReview`).
 - **Shoda opsaných hodnot** – u kolika jídel se opsaný vrchol shoduje s vrcholem z exportu do 1 mmol/l; doklad, že učení stojí na správných číslech.
 - **Kontrola** – návštěva v ordinaci na konci platnosti plánu a čtyřkrokový tok lékaře: souhrn → návrhy → potvrzení plánu → předání.
 - **Report · souhrn · shrnutí** – report je celý výstup pro lékaře, souhrn je jeho první krok s dlaždicemi a větou „co se dělo“, shrnutí je závěr před nevratným krokem; pacient nikdy neslyší „report“.
@@ -84,6 +93,8 @@ Závazný slovník s rozlišením slov pro pacienta, pro lékaře a v kódu je v
 - **Postup posouzení dávky** – lékařem schválené větvení s ověřovacími body a větvemi zvýšit / snížit / ponechat pro každý bod, nikdy s velikostí kroku (D-POSTUP).
 - **Větev postupu** – doporučení plynoucí z ověřovacích bodů; není to zámek, lékař má u každé dávky volič „jiná dávka“.
 - **Sedí / nesedí** – tři stavy ověřovacího bodu (neověřeno · sedí · nesedí); „Vše sedí“ nepřepne body sestry ani body, kterým data odporují.
+- **Sedí podle dat** – bod ověření, který potvrdila data (jen fakta měřená z dat, `NF.DATA_FACTS`), je předvyplněný „Sedí“ se štítkem „sedí podle dat“; lékař ho může změnit a stopa to zapíše s `protiDatum` (`NF.verifyByData`, `NF.verifyState`: lékař → sestra → data; jen se schválenou D-POSTUP; SCHEMA 90).
+- **Bez hodnocení** – stav dlaždice času v cíli a semaforu, když je ze senzoru méně než `S-SEMAFOR.min_dni` (14) dní dat: slovo „– bez hodnocení · málo dní dat“, bez barvy zlepšení (stav `few`, SCHEMA 90). Zelená je jen s časem pod 3,0 pod mezí.
 - **Data říkají jinak** – štítek bodu, kterému odporují data; lékař ho nepřepíná.
 - **Rozhodnuto jinak než postup / proti datům / jiná dávka bez návrhu** – záznamy ve stopě, když lékař zvolí dávku proti větvi, proti blokujícímu poklesu nebo u jídla dne bez karty.
 - **Nejdřív rady** – karta před návrhem k dávce, když pacient rady k jídlu dne přijal méně než 3× nebo je většinou odmítal; neplatí při méně než 5 nabídkách.
@@ -93,7 +104,7 @@ Závazný slovník s rozlišením slov pro pacienta, pro lékaře a v kódu je v
 ### Obrazovky pacienta
 
 - **Dnes** – první záložka: co teď, jak si vedu, aktuální bezpečnost a výsledek posledního jídla.
-- **Co teď** – jediná hlavní karta Dnes s jednou větou a jedním tlačítkem („Chystám se jíst“) a řádkem „Potom“.
+- **Co teď** – jediná hlavní karta Dnes s jednou větou a jedním tlačítkem („Chystám se jíst“, do 3 h po hlavním jídle „Zapsat svačinu“, večer bazál) a řádkem „Potom“.
 - **Pás dne** – seznam uzlů dne (snídaně, oběd, večeře, bazál) se stavem a zkratkami; dávka je druhý řádek uzlu „teď“.
 - **Jak si vedu** – jedna věta slovem a ikonou ze započítaných zápisů posledních 7 dní po jídlech dne, čísla až v Podrobnostech (`NF.howAmI`).
 - **Jak to dopadlo** – karta po příchodu dat k zápisu s věcným výsledkem a poděkováním za čin (S-VYSLEDEK).
@@ -108,7 +119,7 @@ Závazný slovník s rozlišením slov pro pacienta, pro lékaře a v kódu je v
 ### Registr a schvalování
 
 - **Registr** – seznam všeho, co aplikace počítá, radí, navrhuje a říká; každá položka má kód, verzi, parametry s mezemi a texty.
-- **Položka klinická** – položka, za kterou lékařsky odpovídá garant a kterou schvaluje (28 položek, `NF.garantItems`).
+- **Položka klinická** – položka, za kterou lékařsky odpovídá garant a kterou schvaluje (29 položek, `NF.garantItems`).
 - **Položka provozní** – pravidlo aplikace bez klinického obsahu (export, body zaučení, seznam jídel, poděkování…); neschvaluje ji nikdo a nemá stav (`scope: 'provozni'`, 14 položek).
 - **Parametr a meze** – číselná hodnota položky s výchozí hodnotou a povoleným rozsahem (`params`, `NF.PARAM_BOUNDS`).
 - **Garant** – lékař v roli schvalovatele klinických položek; v první studii lékař studie; pacient slovo „garant“ nikdy nevidí.
@@ -120,50 +131,52 @@ Závazný slovník s rozlišením slov pro pacienta, pro lékaře a v kódu je v
 - **Nová verze** – oprava pravidla jako nová verze položky ke schválení; každá verze má zase jen dva výsledky.
 - **Otisk znění** – deterministický otisk položky (`NF.itemFingerprint`). Otisk rozhodnutí garanta zahrnuje i text „Co schvalujete“ (`fp`); otisk ve stopě je od SCHEMA 89 otisk jádra bez tohoto textu (`fpTrace` v exportu garanta).
 - **Podnět z provozu** – karta v detailu položky s návrhem vypnutí nebo nové verze; provádí výrobce v řízení změn.
-- **Stopa** – záznam každého výpočtu, rady, návrhu a rozhodnutí se vstupy, položkou, verzí, parametry, výstupem a aktérem (`NF.log`, `S.events`). Od SCHEMA 87 nese událost výpočtu pole `polozky = [{ id, version, fp, stav }]` (`NF.TRACE_ITEMS`, `NF.itemRefs`) a zobrazení bezpečnostních pravidel se zapisuje (`pravidlo.nizka`, `pravidlo.mene`, `pravidlo.nevim`, `pravidlo.vysoka`). Krácení stopy v maketě (4000 událostí, data u posledních 1000; `NF.TRACE_MAX`, `NF.TRACE_FULL`) je omezení makety; ostrá aplikace má stopu úplnou.
+- **Stopa** – záznam každého výpočtu, rady, návrhu a rozhodnutí se vstupy, položkou, verzí, parametry, výstupem a aktérem (`NF.log`, `S.events`). Od SCHEMA 87 nese událost výpočtu pole `polozky = [{ id, version, fp, stav }]` (`NF.TRACE_ITEMS`, `NF.itemRefs`) a zobrazení bezpečnostních pravidel se zapisuje (`pravidlo.nizka`, `pravidlo.mene`, `pravidlo.nevim`, `pravidlo.vysoka`, od SCHEMA 90 `pravidlo.vyssi`). SCHEMA 90 přidala události `jidlo.zapis.opraven`, `jidlo.zapis.smazan`, `hypo.sledovani.zruseno` a `kontrola.prepocet`; činnosti sestry nesou aktéra „sestra“ (`NF.whoOf`) a rozhodnutí o dávce nese větev v okamžiku rozhodnutí (řádek „· postup: zvýšit · jinak než postup“). Krácení stopy v maketě (4000 událostí, data u posledních 1000; `NF.TRACE_MAX`, `NF.TRACE_FULL`) je omezení makety; ostrá aplikace má stopu úplnou.
 
 ### Maketa
 
 - **Jádro** – složka `app/` (doména, obrazovky, vykreslení, data); přenáší se jako specifikace.
 - **Prezentační vrstva** – složka `demo/` (modelový pacient, příběh, vyprávění, panel, ukládání rozhodnutí garanta makety); nepřenáší se.
 - **Produkční sestavení** – maketa bez `demo/`: skutečný čas, vlastní úložiště, role podle adresy, start bez plánu.
-- **SCHEMA** – číslo verze makety a tvaru uloženého stavu (`NF.SCHEMA`, `?v=` v HTML); předání odpovídá SCHEMA 87.
+- **Doména a pohled** – stav pacienta se dělí na doménu (data, která se synchronizují) a pohled (role, stránka, rozpracovaný zápis, oznámení, hodiny); `NF.VIEW_KEYS`, `NF.VIEW_PATHS`, `NF.domainOf`, `NF.mergeRemote` převezme vzdálenou doménu a ponechá místní pohled, `S.rev` je pořadí doménové verze a háček `NF.onChange` hlásí jen akce (SCHEMA 90).
+- **SCHEMA** – číslo verze makety a tvaru uloženého stavu (`NF.SCHEMA`, `?v=` v HTML); předání odpovídá SCHEMA 90.
 
 ---
 
 ## 2. Registr položek
 
-Vygenerováno skriptem předávky z `app/data/registry.js`, `app/data/catalogs.js` a `NF.PARAM_BOUNDS` v `app/core.js` (SCHEMA 87). Celkem **42 položek: 28 klinických** (schvaluje garant, `NF.garantItems`) **a 14 provozních** (`scope: 'provozni'`, neschvaluje nikdo, nemají stav).
+Vygenerováno skriptem předávky z `app/data/registry.js`, `app/data/catalogs.js` a `NF.PARAM_BOUNDS` v `app/core.js` (SCHEMA 90). Celkem **43 položek: 29 klinických** (schvaluje garant, `NF.garantItems`) **a 14 provozních** (`scope: 'provozni'`, neschvaluje nikdo, nemají stav).
 
-Sloupec „Parametry“: `klíč = výchozí hodnota [min–max]`; meze jsou z `NF.PARAM_BOUNDS`, u bezpečnostních pravidel I-* z katalogu pravidel (`min`, `max`, `step` u hodnoty `v`). „bez mezí“ = parametr v kódu meze nemá (`NF.clampParam` pak jen nedovolí zápornou hodnotu). Popis je první věta pole `summary` položky; plné znění, texty pro pacienta (`texts`, `lists`) a postupy (`postup`) jsou v souboru.
+Sloupec „Parametry“: `klíč = výchozí hodnota [min–max]`; meze jsou z `NF.PARAM_BOUNDS`, u hodnoty `v` bezpečnostních pravidel I-* z katalogu pravidel (`min`, `max`, `step`; „pevná“ = hodnotu nejde změnit, `fixed: true`). „bez mezí“ = parametr v kódu meze nemá (`NF.clampParam` pak jen nedovolí zápornou hodnotu). Popis je první věta pole `summary` položky (dlouhé věty zkrácené „…“); plné znění, texty pro pacienta (`texts`, `lists`) a postupy (`postup`) jsou v souboru. Verze „v2“ a „v3“ u položek změněných ve SCHEMA 90 (B-HYPO v3, D-POSTUP v2, K-KRITERIA v2, D-PRAND v2, D-BAZAL v2, Z-IMPORT v2, S-PRIPOMINKY v2) jsou nové verze ke schválení; I-VYSSI je nová položka (verze v2 dostala stejným mechanismem jako ostatní pravidla s krátkou podobou, je to její první znění).
 
-### Klinické položky (28)
+### Klinické položky (29)
 
 | ID | Název | Kategorie | Verze | Parametry | Popis |
 |---|---|---|---|---|---|
-| `K-KRITERIA` | Podmínky zařazení | Kohorta a zařazení | v1 | – | Zařadit lze dospělého s diabetem 2. typu (DM2), který má inzulin v pevných dávkách (bazál a tři dávky k jídlu), nosí senzor glukózy (CGM) a nebere žádný jiný lék na diabetes: ani tablety, ani GLP-1. |
+| `K-KRITERIA` | Podmínky zařazení | Kohorta a zařazení | v2 | – | Zařadit lze dospělého s diabetem 2. typu (DM2), který má inzulin v pevných dávkách (bazál 1× denně večer a tři dávky k jídlu) bez korekčního schématu (žádné dávky navíc podle aktuální glukózy), nosí senzor glukózy (CGM) a nebere žádný jiný lék na diabetes: ani tablety, ani GLP-1. |
 | `C-CILE` | Cíle glukózy | Startovní plán a návyky | v1 | `low` = 3,9 [3–5] – dolní cíl (mmol/l)<br>`high` = 10 [7–14] – horní cíl po jídle (mmol/l)<br>`fastingHigh` = 7,2 [5–10] – ráno nalačno do (mmol/l)<br>`tirGoal` = 70 [30–90] – čas v cíli alespoň (%)<br>`tbrGoal` = 4 [1–10] – čas pod dolním cílem méně než (%)<br>`hba1cGoal` = 53 [42–75] – HbA1c do (mmol/mol)<br>`tirGoalMirnejsi` = 50 [30–90] – mírnější cíle: čas v cíli alespoň (%)<br>`tbrGoalMirnejsi` = 1 [0,5–10] – mírnější cíle: čas pod dolním cílem méně než (%) | Výchozí (běžné) cíle pro každého pacienta: v cíli 3,9–10,0 mmol/l, ráno nalačno do 7,2, čas v cíli alespoň 70 %, čas pod cílem méně než 4 %, HbA1c do 53 mmol/mol. |
 | `R-NAVYKY` | Startovní sada návyků | Startovní plán a návyky | v1 | – | Všichni pacienti začínají se stejnými čtyřmi návyky: zapisovat hlavní jídla, držet obvyklou porci, potvrzovat inzulin a dávat bazál každý večer. |
-| `R-REAKCE` | Vyhodnocení reakce na jídlo | Výpočty a prahy | v1 | `minKnown` = 4 [1–10] – známé od (počet započítaných zápisů)<br>`okno_min` = 120 [60–240] – okno vrcholu po jídle (min)<br>`okno_tucne_min` = 0 [0–300] – okno u tučných (smažených) jídel z databáze (min; 0 = vypnuto)<br>`kriterium` = „vrchol“ – kritérium v cíli (vrchol = horní cíl pacienta; vzestup = připraveno, vypnuto)<br>`vzestup_max` = 3 [1–6] – při kritériu vzestup: v cíli = vzestup nejvýš (mmol/l)<br>`minQuantile` = 8 [4–20] – percentily od (počet zápisů)<br>`shoda_mmol` = 2,5 [1–8] – shoda zápisů: rozdíl vzestupů do (mmol/l)<br>`rozchod_mmol` = 3,5 [1–8] – otázka při rozchodu od (mmol/l)<br>`maxUceni` = 6 [3–12] – nejvýš zápisů na poznání | Reakci na jídlo měříme nejvyšší hodnotou glukózy (vrcholem) v prvních 120 minutách po jídle. |
-| `Z-GLUKOZA` | Hodnoty glukózy opsané z aplikace senzoru | Výpočty a prahy | v1 | `pripominka_min` = 120 [60–240] – okno nejvyšší hodnoty po jídle (min) | Aplikace není napojená na výrobce senzoru. V kroku 1 pacient klepne na celé číslo, které právě ukazuje aplikace senzoru (posuvník po celých mmol/l 4–15 s konci „pod 4“ a „nad 15“ a volba „nemám hodnotu“; do SCHEMA 84 čipy); na nejvyšší hodnotu po minulém … |
-| `B-HYPO` | Nízká glukóza: sledování a opakované poklesy | Bezpečnostní pravidla | v2 | `poklesy` = 2 [1–5] – poklesů pod 4 pro kartu s radou<br>`dny` = 7 [3–14] – za posledních (dní)<br>`pripominka_min` = 60 [30–120] – otázka po menší porci za (min)<br>`dalsi_slot_h` = 3 [2–5] – další jídlo je „na řadě“ nejdřív (h po posledním) | Po menší porci s podaným inzulinem nebo po vynechaném jídle s inzulinem se ukáže pravidlo k menší porci a za 60 min otázka „Klesla glukóza pod 4?“; po večeři se ptáme až ráno při další snídani, protože pokles po večeři bývá mezi 22. a 24. hodinou. |
+| `R-REAKCE` | Vyhodnocení reakce na jídlo | Výpočty a prahy | v1 | `minKnown` = 4 [1–10] – známé od (počet započítaných zápisů)<br>`okno_min` = 120 [60–240] – okno vrcholu po jídle (min)<br>`okno_tucne_min` = 0 [0–300] – okno u tučných (smažených) jídel z databáze (min; 0 = vypnuto)<br>`kriterium` = „vrchol“ – kritérium v cíli (vrchol = horní cíl pacienta; vzestup = připraveno, vypnuto)<br>`vzestup_max` = 3 [1–6] – při kritériu vzestup: v cíli = vzestup nejvýš (mmol/l)<br>`minQuantile` = 8 [4–20] – percentily od (počet zápisů)<br>`shoda_mmol` = 2,5 [1–8] – shoda zápisů: rozdíl vzestupů do (mmol/l)<br>`rozchod_mmol` = 3,5 [1–8] – otázka při rozchodu od (mmol/l)<br>`maxUceni` = 6 [3–12] – nejvýš zápisů na poznání | Reakci na jídlo měříme nejvyšší hodnotou glukózy (vrcholem) v prvních 120 minutách po jídle. Jídlo je v cíli, když vrchol nepřekročí horní cíl pacienta (10,0 mmol/l); stejnou míru používá Dnes, týdenní shrnutí i návrh k dávce. |
+| `Z-GLUKOZA` | Hodnoty glukózy opsané z aplikace senzoru | Výpočty a prahy | v1 | `pripominka_min` = 120 [60–240] – okno nejvyšší hodnoty po jídle (min) | Aplikace není napojená na výrobce senzoru. V kroku 1 pacient klepne na celé číslo, které právě ukazuje aplikace senzoru (posuvník po celých mmol/l 4–15 s konci „pod 4“ a „nad 15“ a volba „nemám hodnotu“; do SCHEMA 84 čipy); na nejvyšší hodnotu po minulém jídle se aplikace zeptá … |
+| `B-HYPO` | Nízká glukóza: sledování a opakované poklesy | Bezpečnostní pravidla | v3 | `poklesy` = 2 [1–3] – poklesů pod 4 pro kartu s radou<br>`dny` = 7 [7–14] – za posledních (dní)<br>`pripominka_min` = 60 [30–120] – otázka po menší porci nebo vyšší dávce za (min)<br>`dalsi_slot_h` = 3 [2–5] – do tolika hodin po hlavním jídle je hlavní tlačítko „Zapsat svačinu“ a další jídlo jen vedlejší volba (h)<br>`ranni_otazka_h` = 5 [4–9] – otázka po večeři ráno od (hodina dne)<br>`zpetne_h` = 4 [2–6] – zpětný zápis založí otázku na pokles jen do (h od jídla) | Po menší porci s podaným inzulinem nebo po vynechaném jídle s inzulinem se ukáže pravidlo k menší porci a za 60 min otázka „Klesla glukóza pod 4?“; po večeři se ptáme až ráno při další snídani, protože pokles po večeři bývá mezi 22. a 24. hodinou. |
 | `R-PODOBNOST` | Podobné jídlo podle pacienta | Výpočty a prahy | v1 | `minJidel` = 3 [1–6] – databázová jídla: nejméně podobných<br>`minZapisu` = 6 [2–20] – databázová jídla: nejméně zápisů<br>`shoda` = 0,67 [0,5–1] – databázová jídla: shoda (0–1)<br>`vaha` = 2 [0–5] – váha odhadu (virtuální zápisy)<br>`maxNaJidlo` = 3 [1–10] – nejvýš zápisů z jednoho jídla | Při zápisu nového jídla může pacient nepovinně odpovědět na „Podobá se některému jídlu, které už známe?“ (jedno ze známých jídel, nebo „Nic podobného“). |
 | `R-SKORE` | Stupeň reakce: většinou v cíli / častěji nad cílem | Reakce těla | v2 | `mirna` = 0,5 [0,5–1] – většinou v cíli od podílu v cíli (0–1)<br>`odKolika` = 4 [2–6] – stupeň od (počet zápisů)<br>`oknoZapisu` = 8 [3–12] – podíl z posledních (počet zápisů)<br>`ustaleneOd` = 8 [3–12] – ustálené od (počet zápisů)<br>`vedu_min` = 3 [1–7] – věta „jak si vedu“: jídlo dne hodnotit od (zápisů za 7 dní) | Stupně jsou dva: „většinou v cíli“, když je v cíli aspoň polovina započítaných zápisů, jinak „častěji nad cílem“ (tři stupně ze 6 zápisů rozlišit nešlo, proto od 18. 10. 2026 dva). |
-| `R-PORCE` | Rada: obvyklá porce | Rady a texty | v1 | – | Před píchnutím aplikace radí vrátit se k obvyklé porci z větší i z menší. |
-| `R-DOPLNEK` | Rada: doplněk k jídlu | Rady a texty | v1 | `stahnout_po` = 3 [1–10] – stáhnout, když ani jeden z aspoň tolika pokusů nebyl v cíli (počet) | Rada doporučí přidat k jídlu bílkovinu nebo tuk a nic z jídla neubírat. |
+| `R-PORCE` | Rada: obvyklá porce | Rady a texty | v1 | – | Před píchnutím aplikace radí vrátit se k obvyklé porci z větší i z menší. Po píchnutí a při „nevím“ radí jen z větší porce zpět k obvyklé. |
+| `R-DOPLNEK` | Rada: doplněk k jídlu | Rady a texty | v1 | `stahnout_po` = 3 [1–10] – stáhnout, když ani jeden z aspoň tolika pokusů nebyl v cíli (počet) | Rada doporučí přidat k jídlu bílkovinu nebo tuk a nic z jídla neubírat. Doplněk je vždy ze seznamu povolených doplňků níže (parametr položky); který se nabídne, určuje druh jídla v seznamu jídel: ke sladkému jídlu „bílý jogurt nebo hrst ořechů“, ke slanému jídlu bez přílohy … |
 | `R-PORADI` | Rada: pořadí jídla | Rady a texty | v1 | – | Rada doporučí sníst nejdřív část jídla, která zpomalí vzestup, a potom zbytek jídla; množství se nemění. |
 | `R-PROCHAZKA` | Rada: procházka po jídle | Rady a texty | v1 | `minut` = 15 [5–60] – délka procházky (min)<br>`okno_min` = 60 [15–180] – ve zpětném zápisu nabízet nejdéle (min po jídle) | Rada doporučí asi 15 minut svižné chůze po jídle. Nabízí se u jídla, po kterém je pacient častěji nad cílem (pod 50 % v cíli), nebo kde ji už zkoušel. |
-| `D-CISTA` | Čistá data pro návrhy k dávce | Signály k dávce | v1 | `pred_min` = 30 [0–60] – inzulin nejvýš před jídlem (min)<br>`po_min` = 15 [0–60] – inzulin nejvýš po jídle (min)<br>`pred_uceni_min` = 45 [0–90] – pro učení: inzulin nejvýš před jídlem (min)<br>`po_uceni_min` = 30 [0–60] – pro učení: inzulin nejvýš po jídle (min)<br>`svacina_min` = 120 [60–240] – svačina vyřazuje do (min po jídle)<br>`oprava_min` = 60 [15–120] – oprava inzulinu možná do (min od potvrzení) | Jen jídla s obvyklou porcí, dávkou potvrzenou podle plánu a včas (pro návrh k dávce nejvýš 30 min před jídlem a 15 min po něm; pro učení jídel širší okno 45 min před a 30 min po), mimo nemoc a mimo „neobvyklý den“ (stres, málo spánku, alkohol – pacient … |
-| `D-PRAND` | Návrhy k prandiální dávce a radám | Signály k dávce | v1 | `dny` = 28 [7–120] – okno nejméně (dní)<br>`minJidel` = 8 [3–30] – nejméně čistých jídel (počet)<br>`podil` = 0,67 [0,5–1] – podíl nad cílem nejméně (0–1)<br>`radyPrve` = 3 [0–10] – bod „Pacient rady k jídlu zkoušel“: přijatých rad nejméně (počet)<br>`hypo` = 2 [1–10] – poklesů pod dolní cíl nejméně (počet)<br>`hypoPodil` = 0,15 [0–0,5] – podíl jídel s poklesem nejméně (0–1)<br>`hypoMin` = 6 [3–30] – jídel pro posouzení poklesů nejméně (počet)<br>`medianNad` = 0,5 [0–3] – medián vrcholu nad cílem o (mmol/l)<br>`odmitnutiMin` = 5 [1–20] – nejméně nabídek rad pro bránu „nejdřív rady“ (počet)<br>`odmitnutiPodil` = 0,6 [0,3–1] – podíl odmítnutých nabídek (0–1)<br>`podilDvouJidel` = 0,67 [0,5–1] – nad cílem jen jedno nebo dvě jídla: od podílu zápisů nad cílem (0–1) | Návrh se týká jednoho jídla dne (snídaně, oběd nebo večeře) a ukazuje rozpad po jednotlivých jídlech, seřazený podle počtu zápisů nad cílem. |
-| `D-BAZAL` | Návrh: posoudit bazální dávku | Signály k dávce | v1 | `dny` = 14 [7–120] – okno (dní)<br>`nociPod` = 2 [1–10] – nocí pod dolním cílem nejméně (počet)<br>`minNoci` = 10 [3–30] – nocí s daty nejméně (počet) | Posuzuje se nejméně 10 nocí za 14 dní. Když je medián ranních hodnot nad cílem a žádná noc neklesla pod cíl, vznikne návrh posoudit bazál. |
-| `D-POSTUP` | Postup posouzení dávky (větve) | Signály k dávce | v1 | `poklesy_od` = 1 [1–5] – bod „U jídla nebyl v období pokles pod 4“ nesedí od (počet poklesů)<br>`poklesy_jen_ciste` = 1 [0–1] – větev „zvýšit“ blokují jen poklesy při obvyklé porci a dávce podle plánu (1 = ano, 0 = každý pokles); ostatní poklesy jsou varování<br>`shoda_podil` = 0,8 [0,5–1] – bod „Opsané nejvyšší hodnoty se shodují s exportem“: shoda aspoň u podílu jídel (0–1)<br>`shoda_min` = 5 [1–20] – bod „Opsané nejvyšší hodnoty se shodují s exportem“: jídel ke srovnání nejméně (počet)<br>`v_cili_podil` = 0,9 [0,5–1] – jídlo „v cíli“ pro varování a bod „nad cílem nejsou jen jedno nebo dvě jídla“: aspoň u podílu zápisů (0–1)<br>`hba_rezerva` = 5 [0–15] – „Co návrh oslabuje“ upozorní, když bod o vyrovnání sedí jen díky HbA1c méně než (mmol/mol) nad cílem | Postup říká, co s pacientem ověřit a co z výsledku plyne. Když všechny body sedí a hodnoty jsou nad cílem, větev zní „zvýšit“; když nesedí podání, pacient po jídle dojídá, jsou nad cílem jen jedno či dvě jídla, pacient rady k jídlu nezkoušel nebo byl u … |
+| `D-CISTA` | Čistá data pro návrhy k dávce | Signály k dávce | v1 | `pred_min` = 30 [0–60] – inzulin nejvýš před jídlem (min)<br>`po_min` = 15 [0–60] – inzulin nejvýš po jídle (min)<br>`pred_uceni_min` = 45 [0–90] – pro učení: inzulin nejvýš před jídlem (min)<br>`po_uceni_min` = 30 [0–60] – pro učení: inzulin nejvýš po jídle (min)<br>`svacina_min` = 120 [60–240] – svačina vyřazuje do (min po jídle)<br>`oprava_min` = 60 [15–120] – oprava inzulinu možná do (min od potvrzení) | Jen jídla s obvyklou porcí, dávkou potvrzenou podle plánu a včas (pro návrh k dávce nejvýš 30 min před jídlem a 15 min po něm; pro učení jídel širší okno 45 min před a 30 min po), mimo nemoc a mimo „neobvyklý den“ (stres, málo spánku, alkohol – pacient označí jedním klepnutím), s … |
+| `D-PRAND` | Návrhy k prandiální dávce a radám | Signály k dávce | v2 | `dny` = 28 [7–120] – okno nejméně (dní)<br>`minJidel` = 8 [3–30] – nejméně čistých jídel (počet)<br>`podil` = 0,67 [0,5–1] – podíl nad cílem nejméně (0–1)<br>`radyPrve` = 3 [0–10] – bod „Pacient rady k jídlu zkoušel“: přijatých rad nejméně (počet)<br>`hypo` = 2 [1–10] – poklesů pod dolní cíl nejméně (počet)<br>`hypoPodil` = 0,15 [0,05–0,5] – podíl jídel s poklesem nejméně (0–1)<br>`hypoMin` = 6 [3–30] – jídel pro posouzení poklesů nejméně (počet)<br>`medianNad` = 0,5 [0–3] – medián vrcholu nad cílem o (mmol/l)<br>`odmitnutiMin` = 5 [1–20] – nejméně nabídek rad pro bránu „nejdřív rady“ (počet)<br>`odmitnutiPodil` = 0,6 [0,3–1] – podíl odmítnutých nabídek (0–1)<br>`podilDvouJidel` = 0,67 [0,5–1] – nad cílem jen jedno nebo dvě jídla: od podílu zápisů nad cílem (0–1)<br>`velmiNizka` = 3 [2,5–3,5] – velmi nízká hodnota po jídle pod (mmol/l; jediný pokles stačí) | Návrh se týká jednoho jídla dne (snídaně, oběd nebo večeře) a ukazuje rozpad po jednotlivých jídlech, seřazený podle počtu zápisů nad cílem. |
+| `D-BAZAL` | Návrh: posoudit bazální dávku | Signály k dávce | v2 | `dny` = 14 [7–120] – okno (dní)<br>`nociPod` = 2 [1–10] – nocí pod dolním cílem nejméně (počet)<br>`minNoci` = 10 [3–30] – nocí s daty nejméně (počet)<br>`velmiNizka` = 3 [2,5–3,5] – velmi nízká noc pod (mmol/l; jediná noc stačí) | Posuzuje se nejméně 10 nocí za 14 dní. Když je medián ranních hodnot nad cílem a žádná noc neklesla pod cíl, vznikne návrh posoudit bazál. |
+| `D-POSTUP` | Postup posouzení dávky (větve) | Signály k dávce | v2 | `poklesy_od` = 1 [1–2] – bod „U jídla nebyl v období pokles pod 4“ nesedí od (počet poklesů)<br>`poklesy_jen_ciste` = 1 [0–1] – větev „zvýšit“ blokují jen poklesy při obvyklé porci a dávce podle plánu (1 = ano, 0 = každý pokles); ostatní poklesy jsou varování<br>`shoda_podil` = 0,8 [0,5–1] – bod „Opsané nejvyšší hodnoty se shodují s exportem“: shoda aspoň u podílu jídel (0–1)<br>`shoda_min` = 5 [1–20] – bod „Opsané nejvyšší hodnoty se shodují s exportem“: jídel ke srovnání nejméně (počet)<br>`v_cili_podil` = 0,9 [0,5–1] – jídlo „v cíli“ pro varování a bod „nad cílem nejsou jen jedno nebo dvě jídla“: aspoň u podílu zápisů (0–1)<br>`hba_rezerva` = 5 [0–15] – „Co návrh oslabuje“ upozorní, když bod o vyrovnání sedí jen díky HbA1c méně než (mmol/mol) nad cílem | Postup říká, co s pacientem ověřit a co z výsledku plyne. Když všechny body sedí a hodnoty jsou nad cílem, větev zní „zvýšit“; když nesedí podání, pacient po jídle dojídá, jsou nad cílem jen jedno či dvě jídla, pacient rady k jídlu nezkoušel nebo byl u jídla v období pokles pod 4 … |
 | `R-POKYNY` | Bezpečnostní pravidla jsou součást plánu | Bezpečnostní pravidla | v1 | – | Sedm bezpečnostních pravidel pro pacienta (nízká glukóza, méně jídla než obvykle, nevím u inzulinu, nemoc zvlášť pro inzulin na noc a pro inzulin k jídlu, vysoká glukóza, kontakty) je v plánu automaticky, každé jako vlastní položka registru s výchozí hodnotou. |
 | `I-HYPO` | Pravidlo: nízká glukóza | Bezpečnostní pravidla | v2 | – | Pacient uvidí: „Když glukóza klesne pod 4 mmol/l, hned vypijte asi 1,5 dl džusu nebo snězte 3–4 kostky cukru. …“ |
 | `I-MENE` | Pravidlo: méně jídla než obvykle | Bezpečnostní pravidla | v2 | `v` = 60 [15–240 min, krok 15] – změřit glukózu za (min) | Pacient uvidí: „Když sníte méně než obvykle a inzulin už je píchnutý, změřte glukózu za 60 min. …“ |
 | `I-NEVIM` | Pravidlo: nevím, jestli byl inzulin píchnutý | Bezpečnostní pravidla | v2 | `v` = 60 [15–240 min, krok 15] – změřit glukózu za (min) | Pacient uvidí: „Když nevíte, jestli byl inzulin už píchnutý, znovu ho nepíchejte. …“ |
-| `I-NEMOC-BAZAL` | Pravidlo: nemoc, inzulin na noc (bazál) | Bezpečnostní pravidla | v2 | `v` = 3 [1–12 h, krok 1] – měřit glukózu každé (h) | Pacient uvidí: „Bazál si píchejte dál ve stejný čas, i když nejíte. Pijte a měřte glukózu každé 3 h. …“ |
-| `I-NEMOC-JIDLO` | Pravidlo: nemoc, inzulin k jídlu | Bezpečnostní pravidla | v2 | `v` = 15 [10–25 mmol/l, krok 0,5] – hranice vysoké glukózy při nemoci (mmol/l) | Pacient uvidí: „Když jídlo vynecháte, inzulin k němu nepíchejte. Když jíte, píchněte podle plánu. …“ |
-| `I-VYSOKA` | Pravidlo: vysoká glukóza | Bezpečnostní pravidla | v2 | `v` = 15 [10–25 mmol/l, krok 0,5] – hranice vysoké glukózy (mmol/l) | Pacient uvidí: „Když je glukóza nad 15 mmol/l, vypijte sklenici vody a pijte dál po malých doušcích. …“ |
+| `I-NEMOC-BAZAL` | Pravidlo: nemoc, inzulin na noc (bazál) | Bezpečnostní pravidla | v2 | `v` = 3 [1–12 h, krok 1] – měřit glukózu každé (h) | Pacient uvidí: „Bazál si píchejte dál ve stejný čas, i když nejíte. …“ |
+| `I-NEMOC-JIDLO` | Pravidlo: nemoc, inzulin k jídlu | Bezpečnostní pravidla | v2 | `v` = 15 [10–25 mmol/l, krok 0,5] – hranice vysoké glukózy při nemoci (mmol/l) | Pacient uvidí: „Když jídlo vynecháte, inzulin k němu nepíchejte. …“ |
+| `I-VYSOKA` | Pravidlo: vysoká glukóza | Bezpečnostní pravidla | v2 | `v` = 15 mmol/l, pevná – hranice vysoké glukózy (mmol/l) | Pacient uvidí: „Když je glukóza nad 15 mmol/l, vypijte sklenici vody a pijte dál po malých doušcích. …“ |
+| `I-VYSSI` | Vyšší dávka než v plánu | Bezpečnostní pravidla | v2 | `v` = 60 min, pevná – za kolik minut se podívat na senzor (min; stejně jako otázka B-HYPO)<br>`nad_j` = 2 [1–10] – výrazně vyšší dávka = o tolik jednotek nad dávkou plánu a víc (j.) | Když pacient zapíše k jídlu výrazně vyšší dávku inzulinu, než má v plánu (o 2 j. a víc), ukáže se hned toto obecné pravidlo: častěji se dívat na senzor, mít po ruce cukr a jídlo nevynechávat. |
 | `I-KONTAKT` | Kontakty (jen informace) | Bezpečnostní pravidla | v2 | – | Pacient uvidí: „Zdravotní potíže: v ordinační době ordinace, mimo ni pohotovost. …“ |
 | `S-SILNA` | Jídla opakovaně nad cílem: jedna věta pro lékaře | Report a souhrny | v1 | `silnych` = 3 [2–6] – práh (počet zápisů nad cílem; jídlo navíc častěji nad cílem)<br>`dvaNad_mmol` = 3 [1–6] – nebo 2 zápisy se vzestupem nad hranici aspoň (mmol/l)<br>`maxJidel` = 3 [1–10] – nejvýš jídel ve větě pro lékaře | Lékař dostane na kontrole jednu větu: kolik jídel je opakovaně nad cílem, kolik zápisů nad cílem celkem a nejvýš 3 jídla s nejvíc zápisy nad cílem; ostatní jen rozbalením. |
 | `S-SEMAFOR` | Semafor času v cíli (TIR) | Report a souhrny | v1 | `smer_pb` = 2 [0–10] – slovo „zlepšuje se / zhoršuje se“ u procent až od rozdílu (procentní body)<br>`smer_mmol` = 1 [0,3–3] – vývoj v čase: slovo „zhoršuje se / zlepšuje se“ u mediánu glukózy až od rozdílu (mmol/l)<br>`vyvoj_tydny` = 4 [2–8] – vývoj v čase: druhé číslo je medián za posledních (týdnů)<br>`tir_zluta` = 50 [30–70] – oranžová od času v cíli (%)<br>`tbr3_max` = 1 [0,5–5] – pod 3,0 nejvýš (%)<br>`min_dni` = 14 [7–30] – nejméně dní dat ze senzoru<br>`porce_ok` = 0,8 [0,5–1] – dlaždice Obvyklá porce: v pořádku od podílu (0–1)<br>`porce_varovani` = 0,6 [0,3–0,9] – dlaždice Obvyklá porce: oranžová od podílu (0–1)<br>`inzulin_ok` = 0,8 [0,5–1] – dlaždice Inzulin podle plánu: v pořádku od podílu (0–1)<br>`inzulin_varovani` = 0,6 [0,3–0,9] – dlaždice Inzulin podle plánu: oranžová od podílu (0–1)<br>`mimo_dni` = 7 [1–30] – dlaždice Mimo učení: oranžová od (dní) | Zelená, když čas v cíli (TIR) dosahuje cíle pacienta a čas pod dolním cílem je pod mezí pacienta – obojí z položky Cíle glukózy (běžné cíle: aspoň 70 % a méně než 4 %; mírnější cíle: aspoň 50 % a méně než 1 %). |
@@ -174,8 +187,8 @@ Sloupec „Parametry“: `klíč = výchozí hodnota [min–max]`; meze jsou z `
 
 | ID | Název | Kategorie | Verze | Parametry | Popis |
 |---|---|---|---|---|---|
-| `Z-IMPORT` | Export z aplikace senzoru | Výpočty a prahy | v1 | `po_jidle_min` = 180 [120–300] – měření po jídle do (min)<br>`shoda_mmol` = 1 [0,5–3] – opsaná nejvyšší hodnota se shoduje s exportem do (mmol/l) | Během plánu pacient hodnoty ze senzoru opisuje (Z-GLUKOZA). Před kontrolou mu aplikace připomene, ať pošle do ordinace export ze senzoru; sestra ho na kontrole nahraje. |
-| `Z-BODY` | Body zaučení | Zaučení | v1 | – | Tři pevné body (aplikace, Bezpečí, kontakty), body, které sestra ověří ústně – „pacient ví, že před kontrolou pošle do ordinace export ze senzoru“ (nahrává ho sestra na kontrole), „pacient má v aplikaci senzoru zapnuté upozornění na nízkou glukózu“ a … |
+| `Z-IMPORT` | Export z aplikace senzoru | Výpočty a prahy | v2 | `po_jidle_min` = 180 [120–300] – měření po jídle do (min)<br>`shoda_mmol` = 1 [0,5–3] – opsaná nejvyšší hodnota se shoduje s exportem do (mmol/l)<br>`pokles_min` = 240 [180–360] – pokles z exportu patří k jídlu do (min po jídle)<br>`noc_od` = 0 [0–3] – noc od (hodina dne)<br>`noc_do` = 6 [5–8] – noc do (hodina dne; první měření v tu hodinu = ranní hodnota)<br>`spani_od` = 21 [20–23] – hodnota před spaním od (hodina dne) | Během plánu pacient hodnoty ze senzoru opisuje (Z-GLUKOZA). Před kontrolou mu aplikace připomene, ať pošle do ordinace export ze senzoru; sestra ho na kontrole nahraje. |
+| `Z-BODY` | Body zaučení | Zaučení | v1 | – | Tři pevné body (aplikace, Bezpečí, kontakty), body, které sestra ověří ústně – „pacient ví, že před kontrolou pošle do ordinace export ze senzoru“ (nahrává ho sestra na kontrole), „pacient má v aplikaci senzoru zapnuté upozornění na nízkou glukózu“ a „pacient si se sestrou vybral … |
 | `J-DATABAZE` | Seznam jídel | Jídla | v1 | – | Syntetický seznam 171 běžných českých jídel a hotovek. Skutečný zdroj a licence se vyberou pro studii. |
 | `J-STITKY` | Nové jídlo jen názvem | Jídla | v1 | – | Pacient napíše název (našeptávač), případně nepovinně odpoví na „Podobá se některému jídlu, které už známe?“, a hotovo. |
 | `S-SOUHRN` | Věta „co se dělo“ a srovnání rad | Report a souhrny | v1 | `min_n` = 8 [3–30] – zápisů s radou i bez ní nejméně (počet)<br>`rozdil_mmol` = 1 [0,3–3] – rozdíl mediánů nejméně (mmol/l) | Šablona z pravidel (porce, potvrzení inzulinu, rady, TIR). Srovnání „s radou bývalo níž“ se říká jen od 8 zápisů s radou a 8 bez ní u téže rady a při rozdílu mediánu vrcholu ≥ 1,0 mmol/l; jinak „zatím nelze říct“. |
@@ -184,10 +197,10 @@ Sloupec „Parametry“: `klíč = výchozí hodnota [min–max]`; meze jsou z `
 | `R-MILNIKY` | Milníky za snahu a návyk | Rady a texty | v1 | – | Jednorázové milníky: jídlo poznáno, rada zdomácněla, týden bez mezery, obvyklá porce 10× po sobě, všechna častá jídla známe a zpětně doplněno 5×. |
 | `S-CESTA` | Cesta ke kontrole | Report a souhrny | v1 | – | Karta ukazuje pruh dní do kontroly, kolik častých jídel (jedených aspoň 2×) už známe, kolik jídel je tento týden zapsáno s potvrzeným inzulinem a jednu větu o tom, co se na kontrole stane. |
 | `S-TYDEN` | Týdenní shrnutí „Váš týden“ | Report a souhrny | v1 | `nabidka` = 0 [0–1] – nabídka na příští týden (0 = vypnuto, 1 = zapnuto) | Každých 7 dní od vydání plánu karta shrne, kolik jídel je zapsáno, kolik z nich v obvyklé porci, kolik zápisů šlo do učení, kterému jídlu chybí nejméně zápisů do „známe ho“, co pomohlo a případný milník. |
-| `S-PODPORA` | Kam se obrátit a kontaktní formulář | Bezpečnost a režim | v1 | – | Bezpečí rozlišuje čtyři cesty. Zdravotní cesty (ordinace, mimo ordinační dobu pohotovost, při ohrožení života záchranná služba) jsou klinický obsah a jejich znění je pravidlo Kontakty (I-KONTAKT), které schvaluje garant; tato položka jen určuje, že jsou v … |
-| `R-ZMIZELA` | Věta o zmizelé radě | Rady a texty | v1 | – | Když garant radu zamítne a pacient ji dřív u jídla přijímal, dostane jednu neutrální větu. |
-| `S-PRIPOMINKY` | Připomínky v telefonu | Bezpečnost a režim | v1 | `max_denne` = 4 [1–4] – nejvýš připomínek denně k jídlům a bazálu<br>`snidane_do` = 10 [8–12] – snídaně je minulá od (hodina dne; 10 = 10:00)<br>`obed_do` = 15,5 [13–17] – oběd je minulý od (hodina dne; 15,5 = 15:30)<br>`vecere_do` = 21 [19–23,5] – večeře je minulá od (hodina dne; 21 = 21:00) | Nejvýš 4 připomínky denně jako oznámení telefonu, bez sítě: tři k hlavním jídlům a jedna k bazálu, v časech, které pacient vybere se sestrou při zaučení. |
-| `S-DAVKA` | Dávka podle plánu a jiná dávka než v plánu | Startovní plán a návyky | v1 | `po_sobe` = 2 [2–5] – karta po tolika zápisech jiné dávky po sobě u téhož jídla dne (počet) | U dávky v kroku 1 a u bazálu je původ a datum plánu. Když pacient u téhož jídla dne dvakrát po sobě zapíše jinou dávku než v plánu, ukáže se na Dnes karta „Jiná dávka než v plánu“: „Dvakrát jste zapsali jinou dávku než v plánu. …“ |
+| `S-PODPORA` | Kam se obrátit a kontaktní formulář | Bezpečnost a režim | v1 | – | Bezpečí rozlišuje čtyři cesty. Zdravotní cesty (ordinace, mimo ordinační dobu pohotovost, při ohrožení života záchranná služba) jsou klinický obsah a jejich znění je pravidlo Kontakty (I-KONTAKT), které schvaluje garant; tato položka jen určuje, že jsou v Bezpečí vedle technických cest. |
+| `R-ZMIZELA` | Věta o zmizelé radě | Rady a texty | v1 | – | Když garant radu zamítne a pacient ji dřív u jídla přijímal, dostane jednu neutrální větu. O garantovi se nemluví. |
+| `S-PRIPOMINKY` | Připomínky v telefonu | Bezpečnost a režim | v2 | `max_denne` = 4 [1–4] – nejvýš připomínek denně k jídlům a bazálu<br>`snidane_do` = 10 [8–12] – snídaně je minulá od (hodina dne; 10 = 10:00)<br>`obed_do` = 15,5 [13–17] – oběd je minulý od (hodina dne; 15,5 = 15:30)<br>`vecere_do` = 21 [19–23,5] – večeře je minulá od (hodina dne; 21 = 21:00)<br>`den_konec` = 4 [2–6] – den aplikace končí v (hodina dne; jídlo dřív patří k předchozímu dni) | Nejvýš 4 připomínky denně jako oznámení telefonu, bez sítě: tři k hlavním jídlům a jedna k bazálu, v časech, které pacient vybere se sestrou při zaučení. |
+| `S-DAVKA` | Dávka podle plánu a jiná dávka než v plánu | Startovní plán a návyky | v1 | `po_sobe` = 2 [2–5] – karta po tolika zápisech jiné dávky po sobě u téhož jídla dne (počet) | U dávky v kroku 1 a u bazálu je původ a datum plánu. Když pacient u téhož jídla dne dvakrát po sobě zapíše jinou dávku než v plánu, ukáže se na Dnes karta „Jiná dávka než v plánu“: „Dvakrát jste zapsali jinou dávku než v plánu. Řekněte to prosím na kontrole sestře.“ Aplikace … |
 
 Kde se položky v jádře používají, najdete hledáním jejich kódu v `app/` (`NF.usable(S, 'ID')`, `NF.param(S, 'ID', …)`, `NF.item(S, 'ID')`). Účinek zamítnutí každé klinické položky popisuje pole `ucinek` v `demo/guide.js` a ověřuje ho `kontrola2-obsah.test.cjs` a `pravdivost.test.cjs` (T3).
 
@@ -201,7 +214,7 @@ Katalogy jsou součást jádra v `app/data/`; produkční sestavení bez `demo/`
 - **Návyky** – `app/data/catalogs.js`, `NF.data.habits`. Každý návyk patří k položce registru (R-NAVYKY nebo R-PROCHAZKA), má krátký název, vysvětlení „proč“ a body zaučení.
 - **Jídla** – `app/data/foods.js`, `NF.data.foods()`. Syntetický seznam běžných českých jídel a hotovek (provozní položka J-DATABAZE; skutečný zdroj a licence se vyberou pro studii). U jídla jsou jen vnitřní údaje pro rady: `slozky` (co jde sníst napřed), `bilkovina`, `jednolite`, `doplnek` (skupina doplňku) a znaky `tags`; pacient je nevidí ani nezadává.
 
-#### Bezpečnostní pravidla I-* (`NF.data.instructions`, 7)
+#### Bezpečnostní pravidla I-* (`NF.data.instructions`, 8)
 
 | ID | Název | Hodnota `{v}` | Krátká podoba (`kratce`) |
 |---|---|---|---|
@@ -210,7 +223,8 @@ Katalogy jsou součást jádra v `app/data/`; produkční sestavení bez `demo/`
 | `I-MENE` | Méně jídla než obvykle | 60 min [15–240, krok 15] | Když sníte méně než obvykle a inzulin už je píchnutý, změřte glukózu za {v}. |
 | `I-NEMOC-BAZAL` | Nemoc: inzulin na noc (bazál) | 3 h [1–12, krok 1] | Bazál si píchejte dál ve stejný čas, i když nejíte. |
 | `I-NEMOC-JIDLO` | Nemoc: inzulin k jídlu | 15 mmol/l [10–25, krok 0,5] | Když jídlo vynecháte, inzulin k němu nepíchejte. |
-| `I-VYSOKA` | Vysoká glukóza | 15 mmol/l [10–25, krok 0,5] | Když je glukóza nad {v}, vypijte sklenici vody a pijte dál po malých doušcích. |
+| `I-VYSOKA` | Vysoká glukóza | 15 mmol/l, pevná | Když je glukóza nad {v}, vypijte sklenici vody a pijte dál po malých doušcích. |
+| `I-VYSSI` | Vyšší dávka než v plánu | 60 min, pevná | Když jste si píchli víc inzulinu, než máte v plánu, dívejte se během několika hodin častěji na senzor. |
 | `I-KONTAKT` | Kontakty | – (jen text) | Zdravotní potíže: v ordinační době ordinace, mimo ni pohotovost. |
 
 #### Návyky (`NF.data.habits`, 6)
@@ -334,13 +348,13 @@ Varianty níže byly vědomě zavržené. Když je někdo navrhne znovu, připom
 
 ### 5.1 Přehled souborů a seznam testů
 
-Vygenerováno skriptem předávky z `*.test.cjs` (názvy jsou první argument funkce `test`). Seznam testů prvních 17 souborů je ze SCHEMA 88, testy SCHEMA 89 (`rychle.test.cjs`, `zlate-vystupy.test.cjs` a dva nové řádky „Sada … projde“) jsou doplněné. Jak spolu souvisejí čísla, která v předávce potkáte:
+Vygenerováno skriptem předávky z `*.test.cjs` (názvy jsou první argument funkce `test`) ve stavu SCHEMA 90. Jak spolu souvisejí čísla, která v předávce potkáte:
 
-- **393** je počet zapsaných testů (volání `test('…')`) ve zdrojích 19 souborů.
-- **128** z nich je v hlavní sadě `nutrifee-rozhodovaci-maketa.test.cjs`. Jeden z těch 128 je smyčka, která za běhu vytvoří **17** testů „Sada … projde“; každý spustí jednu další sadu jako samostatný proces.
-- **144** je počet řádků OK, které vypíše hlavní sada: 127 vlastních testů a 17 řádků „Sada … projde“ (referenční běh SCHEMA 89: 144 prošlo, 0 selhalo).
-- **14** testů vypíše rychlá sada (11 vlastních a 3 souběžné podsady) a **9** zlaté výstupy (4 vlastní a 5 souborů JSON).
-- Seznam níže má 415 řádků: 144 testů hlavní sady (smyčka je rozepsaná) a 271 testů ostatních 18 souborů.
+- **432** je počet zapsaných testů (volání `test('…')`) ve zdrojích 20 souborů.
+- **128** z nich je v hlavní sadě `nutrifee-rozhodovaci-maketa.test.cjs`. Jeden z těch 128 je smyčka, která za běhu vytvoří **17** testů „Sada … projde“; každý spustí jednu další sadu jako samostatný proces. Sadu `schema90-jadro.test.cjs` hlavní sada sama nepouští; pouští ji rychlá sada.
+- **144** je počet řádků OK, které vypíše hlavní sada: 127 vlastních testů a 17 řádků „Sada … projde“ (referenční běh SCHEMA 90 viz `00-postup.md` odd. 1.4).
+- **15** testů vypíše rychlá sada (11 vlastních a 4 souběžné podsady) a **9** zlaté výstupy (4 vlastní a 5 souborů JSON).
+- Seznam níže má 455 řádků: 144 testů hlavní sady (smyčka je rozepsaná) a 311 testů ostatních 19 souborů.
 
 Celá sada (`node nutrifee-rozhodovaci-maketa.test.cjs`) běží asi 15–30 minut podle stroje, rychlá sada asi 40 s. Pro demo se testy nepřevádějí: zábradlím je rychlá sada a zlaté výstupy ([`01-cesta-k-demu.md`](01-cesta-k-demu.md)).
 
@@ -360,10 +374,11 @@ Celá sada (`node nutrifee-rozhodovaci-maketa.test.cjs`) běží asi 15–30 min
 | `pravdivost.test.cjs` | 4 | prezentační vrstva + účinek zamítnutí | Kontroly pravdivosti T1–T4: položka se nabízí jen tam, kde je vidět, mapa scén odpovídá příběhu, zamítnutí každé položky mění obrazovku přesně podle `ucinek` a vyprávění necituje nic, co na obrazovce není. |
 | `robustnost.test.cjs` | 14 | jádro | Hlídá odolnost jádra: poškozený stav, neplatné vstupy akcí, escapování do HTML, vykreslení bez vedlejších účinků, determinismus, nulová síťová volání bez `demo/` a výkon při 300 zápisech. |
 | `schema84-jadro.test.cjs` | 15 | jádro kontroly | Hlídá rozhodnutí vlastníka ze SCHEMA 84–85: volič „jiná dávka“ u každé dávky, rady první bez zámku, blok „zvýšit“ jen z čistých poklesů, vývoj v čase, kohortu jen s inzulinem, hmotnost a dvě okna včasného inzulinu. |
-| `tokeny.test.cjs` | 7 | vzhled | Hlídá, že `app/design.css` nemá pevné hodnoty, každý token je v `app/tokens.css` a katalog `design-system/` ukazuje všechny tokeny. |
-| `ukladani.test.cjs` | 29 | prezentační vrstva (vzor klienta) | Hlídá ukládání rozhodnutí garanta na server makety (fronta, opakování, pořadí řádků, pravdivý stav uložení, přihlášení, export pro správce, otisky a testovací vektory) v simulaci bez sítě. |
-| `rychle.test.cjs` | 12 (14 spuštěných) | jádro (SCHEMA 89) | Rychlá sada pod 1 minutu: hodiny, úložiště a háček změny jádra, `NF.proposalBranch` a `NF.OFF_TEXT` v jádře, bez sítě a DOM, registr, zásady 1 a 3 a souběžně podsady zlatých výstupů, P1–P11 a tokenů. |
-| `zlate-vystupy.test.cjs` | 5 (9 spuštěných) | jádro (SCHEMA 89) | Zlaté výstupy: přehrání 32 scén jen nad jádrem a `demo/fixtures.js`, shoda pěti souborů JSON ve složce `zlate-vystupy/`, kanonický tvar, otisky položek a shoda výstupů s prezentační vrstvou i bez ní. |
+| `schema90-jadro.test.cjs` | 37 | jádro a produkční sestavení (SCHEMA 90) | Hlídá rozhodnutí vlastníka 11. 11. 2026 a opravy poslední kontroly: synchronizaci (doména a pohled, `NF.mergeRemote`, háček jen po akci, `NF.readOnly`, pád vykreslení), český čas, den do 4:00, „Zapsat svačinu“, „pod 4“ jako pokles, čas pod cílem, I-VYSSI, poklesy z exportu do 4 h, opravu a smazání zápisu, předvyplnění „sedí podle dat“, pátou podmínku zařazení, semafor „bez hodnocení“ a export za jiné období. Běží bez prohlížeče a projde i v repozitáři dema. |
+| `tokeny.test.cjs` | 8 | vzhled | Hlídá, že `app/design.css` nemá pevné hodnoty, každý token je v `app/tokens.css`, katalog `design-system/` ukazuje všechny tokeny a (od SCHEMA 90) písmo pacienta: hlavní text a volby od 17 px, nic pod 15 px, P04 bez textu v SVG. |
+| `ukladani.test.cjs` | 30 | prezentační vrstva (vzor klienta) | Hlídá ukládání rozhodnutí garanta na server makety (fronta, opakování, pořadí řádků, pravdivý stav uložení, přihlášení, export pro správce, otisky a testovací vektory) v simulaci bez sítě. |
+| `rychle.test.cjs` | 12 (15 spuštěných) | jádro (od SCHEMA 89) | Rychlá sada pod 1 minutu: hodiny, úložiště a háček změny jádra, `NF.proposalBranch` a `NF.OFF_TEXT` v jádře, bez sítě a DOM, registr, zásady 1 a 3 a souběžně podsady zlatých výstupů, `schema90-jadro`, P1–P11 a tokenů. Skripty jádra bere ze složky `app/`, chybějící podsady přeskočí s hláškou „SKIP“. |
+| `zlate-vystupy.test.cjs` | 5 (9 spuštěných) | jádro (od SCHEMA 89) | Zlaté výstupy: přehrání 32 scén jen nad jádrem a `demo/fixtures.js`, shoda pěti souborů JSON ve složce `zlate-vystupy/`, kanonický tvar, otisky položek a shoda výstupů s prezentační vrstvou i bez ní (bez prezentační vrstvy se poslední test přeskočí). |
 | `zaverecne80.test.cjs` | 22 | jádro a produkční sestavení | Hlídá opravy závěrečného ověření SCHEMA 80–82: produkční sestavení se skutečným časem, vlastním úložištěm a rolí podle adresy, žádné volné textové pole v ordinaci, noční poklesy (čip u snídaně, export, zápis pacienta) a rady modelové historie skládané jádrem. |
 
 #### `nutrifee-rozhodovaci-maketa.test.cjs` (128 zapsaných, 144 spuštěných)
@@ -373,7 +388,7 @@ Celá sada (`node nutrifee-rozhodovaci-maketa.test.cjs`) běží asi 15–30 min
 - Každá rada a výpočet nese položku registru; zamítnutá položka přestane působit
 - Registr: rozhodnutí se uloží ihned, historie jen přibývá, lze měnit
 - Lékař mezi kontrolami nic nedělá
-- Jádro bez sítě a bez generativní AI; síť volá jen demo/sync.js (rozhodnutí garanta do úložiště makety) – název v kódu končí jménem služby úložiště makety, které předávka kvůli zásadě 9 nepíše; test najdete výběrem `ONLY="Jádro bez sítě"`
+- Jádro bez sítě a bez generativní AI; síť volá jen demo/sync.js – název v kódu končí jménem služby úložiště makety, které předávka kvůli zásadě 9 nepíše; test najdete výběrem `ONLY="Jádro bez sítě"`
 - Přihlášení (7. 10. 2026): bez přihlášení jen přihlašovací stránka; garant ukládá a vidí své, správce vidí výsledky; rozhodnutí z registru přežijí skok na scénu
 - Stav položek (7. 10. 2026 večer): ke schválení místo „schváleno předem“; zamítnutí ukáže na místě „tahle část nefunguje“ a příběh pokračuje
 - Panel vyprávění (8. 10. 2026): říká, co je na obrazovce; žádný krok nemá titulek, který popisuje jen akci místo výsledku
@@ -483,6 +498,8 @@ Celá sada (`node nutrifee-rozhodovaci-maketa.test.cjs`) běží asi 15–30 min
 - SCHEMA 87 (body 3, 7): čísla pacienta posuvníkem 1–60 j. z jednoho místa; čas inzulinu „jiný čas“ posuvníkem; ordinace má týž rozsah
 - SCHEMA 87 (body 4, 5, 6): meze pěti parametrů; denní doby slotů z registru (S-PRIPOMINKY, provozní); výchozí oznámení jádra bez prezentační vrstvy
 - Trvalé testy robustnosti (robustnost.test.cjs, závěrečná kontrola 23. 10. 2026) projdou
+- Sada `zlate-vystupy.test.cjs` – zlaté výstupy jádra (SCHEMA 89) – celý příběh jen nad jádrem projde
+- Sada `rychle.test.cjs` – rychlá sada pod 1 minutu (SCHEMA 89) projde
 - Sada `tokeny.test.cjs` – tokeny vzhledu a katalog (B8, C1, C2) projde
 - Sada `obsah-pacienta.test.cjs` – obsah obrazovek pacienta P1–P11 (SCHEMA 86, 15 odst. 15b) projde
 - Sada `schema84-jadro.test.cjs` – SCHEMA 84 – jádro kontroly podle rozhodnutí vlastníka 4. 11. 2026 projde
@@ -498,8 +515,6 @@ Celá sada (`node nutrifee-rozhodovaci-maketa.test.cjs`) běží asi 15–30 min
 - Sada `kontrola4-obsah.test.cjs` – kontrola 4 – obsah, jádro a rozhodnutí vlastníka (SCHEMA 78) projde
 - Sada `kontrola4-panel.test.cjs` – kontrola 4 – panel, vyprávění, rozvržení a přístupnost (SCHEMA 78) projde
 - Sada `ukladani.test.cjs` – kontrola 4 – ukládání, přihlášení a výsledky správce (SCHEMA 78) projde
-- Sada `zlate-vystupy.test.cjs` – zlaté výstupy jádra (SCHEMA 89) – celý příběh jen nad jádrem projde
-- Sada `rychle.test.cjs` – rychlá sada pod 1 minutu (SCHEMA 89) projde
 - SCHEMA 72 + 83: jen dvě rozhodnutí; pole poznámky až po rozhodnutí, hned pod tlačítky; poznámka zůstane v poli po rozhodnutí, změně rozhodnutí, překreslení, skoku i F5; bez rozhodnutí nevzniká
 - SCHEMA 72: zásuvka „Vaše rozhodnutí“ z lišty nad příběhem – příběh stojí, nic se nepřehrává; přehled scén ukazuje nerozhodnuté
 - SCHEMA 72: „Změnit rozhodnutí“ v oznámení otevře kartu v panelu na místě (ne registr); funguje i v zamčené obrazovce
@@ -739,10 +754,50 @@ Celá sada (`node nutrifee-rozhodovaci-maketa.test.cjs`) běží asi 15–30 min
 - A4 + B6 + B9 + B10: karta bazálu – odpověď sestry u bodu 2, okolnosti nocí, ranní opsané hodnoty, přednost jen bez „jídla pozdě večer“ nebo pod 3,0
 - B2 + C6 + C7: tabulka jídel podle jídla dne, řazení podle „nad cílem“, svačiny na konci, 5 řádků a „Další (N)“
 - B5 + C2: věta o dávkách, které si pacient sám snížil; tlačítko „Pravidla a kontakty“
-- Verze: NF.SCHEMA 89, ?v=89 v HTML, data-version="89" v katalogu; D-POSTUP a S-SEMAFOR nesou nové parametry s mezemi – číslo verze v názvu se mění s každou SCHEMA; výběr `ONLY="Verze: NF.SCHEMA"`
+- Verze: NF.SCHEMA 90, ?v=90 v HTML, data-version="90" v katalogu; D-POSTUP a S-SEMAFOR nesou nové parametry s mezemi – číslo verze v názvu se mění s každou SCHEMA; výběr `ONLY="Verze: NF.SCHEMA"`
 - SCHEMA 85: učení jídel bere inzulin 45 min před / 30 min po jídle, návrh k dávce dál 30 / 15 (D-CISTA pred_uceni_min, po_uceni_min)
 
-#### `tokeny.test.cjs` (7)
+#### `schema90-jadro.test.cjs` (37)
+
+- K1: minutový tik ani psaní do pole synchronizaci nic neposílají a tik neukládá; akce ano (info.action, domainChanged, rev)
+- K2: pohled (role, stránka, rozpracovaný zápis, oznámení) není v doméně; NF.mergeRemote převezme doménu a ponechá místní pohled
+- K3: tvar stavu hlídá i položky polí; pád vykreslení neuloží čistý stav přes data (záloha, nouzová obrazovka, háček bez prázdného stavu)
+- K4: stav novější verze jádra v úložišti starší klient nepřepíše (NF.readOnly, nic nezapíše ani nenahlásí)
+- K4: po migraci ze starší verze se čistý stav synchronizaci nehlásí, dokud uživatel nezvolí „Začít znovu“
+- K5: rychlá sada bere skripty jádra ze složky app/ a chybějící podsady přeskočí; zlaté výstupy bez pravdivost.test.cjs přeskočí test s prezentační vrstvou
+- K9: adresa bez ?role= otevře pacienta; ?role=lekar lékaře (role je pohled, uloží se jen v zařízení)
+- K6 + bod 11: čas v Europe/Prague bez ohledu na pásmo zařízení; věta „Na cestách…“ jen při jiném místním čase
+- Bod 1: den aplikace končí ve 4:00 – pozdní večeře po půlnoci je večeře předchozího dne, ne snídaně
+- Bod 2: do 3 h po hlavním jídle je hlavní tlačítko Dnes „Zapsat svačinu“, další hlavní jídlo jen vedlejší volba
+- Bod 3: glukóza „pod 4“ před jídlem je pokles – karta po opakovaných poklesech, Bezpečnost, blokace „zvýšit“ u předchozího jídla
+- Bod 4: čas pod cílem nad mezí blokuje větev „zvýšit“ u všech dávek (bod 11 D-POSTUP, bod 5 u bazálu ráno), i u řádků bez návrhu
+- Bod 5: výrazně vyšší dávka – pravidlo I-VYSSI, bez procházky, za 60 min otázka „pod 4?“; nic o dávce, bez výzvy volat
+- Bod 6: pokles z exportu se k jídlu přiřadí do 4 h (Z-IMPORT pokles_min), nejvyšší hodnota zůstává do 2 h; měření v čase jídla není pokles po jídle (K10)
+- Bod 7: zápis jde opravit nebo smazat do 24 h; oprava jde do stopy a zápis do návrhu k dávce nejde; po 24 h nejde
+- Bod 8: body potvrzené daty jsou předvyplněné „sedí podle dat“; lékař je může změnit a stopa to zapíše
+- Bod 12: K-KRITERIA v2 – podmínky zařazení obsahují bazál 1× denně večer a „bez korekčního schématu“; bez nich plán nejde vydat
+- Nové položky a verze jsou „ke schválení“; meze parametrů obsahují výchozí hodnoty
+- Ordinace V1, V2: semafor zelený jen s časem pod 3,0 pod mezí; pod 14 dní dat „bez hodnocení“ (few) a bod o vyrovnání bez rozhodnutí
+- Ordinace V2: export celý z jiného období se odmítne, částečný se ořízne na období plánu
+- Pacient K3: „Zahodit“ po potvrzeném inzulinu zapíše vynechané jídlo s inzulinem (pravidlo, sledování); bez inzulinu jen zahodí
+- Klinika K3, K12: oprava „nepíchnuto → podle plánu“ u menší porce založí sledování; „podáno → nepíchnuto“ otázku zruší
+- Klinika K7: pravidlo k vysoké glukóze má pevnou hranici 15 jako čip „nad 15“
+- Klinika K4, K14: hlášené „pod 4“ se počítá jako pokles i při dolním cíli 3,5; velmi nízká hodnota a hranice noci jsou parametry registru
+- Klinika K8, ordinace S5: jádro samo zapíše „jinak než postup“ podle směru dávky proti větvi; změna ve směru větve odchylka není; větev v okamžiku rozhodnutí jde do rozhodnutí
+- Klinika K11: okno pro návrh k dávce není širší než okno pro učení; meze B-HYPO a D-POSTUP neoslabí bezpečnost
+- Ordinace S1: export nahraný po zahájení kontroly přepočítá souhrn i návrhy (a ponechá rozhodnutí)
+- Ordinace S2, S7: po vydání dalšího plánu export minulého období, dny nemoci a sledování nepatří k novému období; dny nemoci jen do dne před kontrolou
+- Ordinace S4: činnosti sestry jdou do stopy jako „sestra“
+- Ordinace S9: pacient u zamítnutého návrhu čte „beze změny“, ne „lékař náš návrh zamítl“
+- Kód K7: „Nevím“ u bazálu se lékaři ukáže jako „pacient neví, zda podán“, ne „jinak (null j.)“
+- Kód K8: den převzetí odpoledne – sloty, které skončily před převzetím, jsou „před plánem“ (Dnes se na ně neptá, tkanina je nepočítá)
+- Kód K12, K13: dny plánu kalendářně (jarní změna času); vykreslení stav nemění (týdenní shrnutí)
+- Kód K14: uložit jde jen z kroku 3 s porcí a platnou odpovědí; druhé „Zahájit kontrolu“ rozhodnutí nezahodí; nesmyslné hodnoty akcí nevyhodí výjimku
+- Pacient V1: chybějící snídaně neblokuje večeři; od 19:00 Dnes nepíše „další věc až zítra ráno“, když jídlo dne chybí
+- Pacient V3: nesmyslné názvy jídel se nepřijmou
+- Pacient S2, S5, S6: otázka po vynechaném jídle bez hodiny; texty pacienta bez „upřesní se“, „do učení“, čísla s jednotkou, „Můj plán“; „Zatím ho neznáme. Poznáme ho, až…“
+
+#### `tokeny.test.cjs` (8)
 
 - Úvodní komentář design.css nese pravidlo hodnot a jeho výjimky
 - design.css: žádné pevné rozměry, délky pohybu, řezy ani rodiny písma mimo výjimky (B8)
@@ -751,8 +806,9 @@ Celá sada (`node nutrifee-rozhodovaci-maketa.test.cjs`) běží asi 15–30 min
 - Lokální proměnné v design.css (--rl, --c …) nenesou pevné hodnoty
 - Katalog načítá tokens.css, design.css, demo.css, catalog.css a catalog.js s ?v= = NF.SCHEMA (C1)
 - Katalog ukazuje všechny tokeny a inspektor u vlastnosti uvádí token z pravidla
+- Písmo pacienta: nic pod 15 px, hlavní text a volby od 17 px (rozhodnutí 10)
 
-#### `ukladani.test.cjs` (29)
+#### `ukladani.test.cjs` (30)
 
 - Rozhodnutí 1: decision i note nesou params.ver { version, fp, fpGuide, alg }; otisk je deterministický a závisí na znění, parametrech i průvodci
 - Rozhodnutí 1: výsledky správce ukážou „rozhodnuto k předchozímu znění“, když otisk nesedí; bez otisku „bez otisku znění“
@@ -783,8 +839,9 @@ Celá sada (`node nutrifee-rozhodovaci-maketa.test.cjs`) běží asi 15–30 min
 - 31 C6: rozepsaná poznámka v poli s kurzorem se při zavírání stránky uloží a odejde; neuložený koncept vyvolá dotaz prohlížeče
 - SCHEMA 83 (vlastník 2. 11. 2026): poznámka po rozhodnutí se ukládá sama po 1 s bez psaní, bez opuštění pole; „Ukládá se…“ → „Uloženo … na serveru“; opuštění pole uloží hned bez dvojího řádku; změna rozhodnutí poznámku zachová; správce vidí úpravy jako jednu řádku
 - 31/03 B6: smazání rozhodnutí v jedné kartě druhá karta nevrátí – značka resetu nahradí její deník (storage) a starší záznamy se nezapíšou ani bez události
+- SCHEMA 90 S5: jiné zařízení i nové přihlášení po odhlášení nabídne pokračovat v nejdál dosažené scéně (řádky progress); skok tam vede
 
-#### `rychle.test.cjs` (12 zapsaných, 14 spuštěných)
+#### `rychle.test.cjs` (12 zapsaných, 15 spuštěných)
 
 - Jádro: NF.configure({ now }) vymění hodiny; výchozí je čas zařízení
 - Jádro: NF.save bez úložiště vrátí false a NF.storageOK = false (žádný tichý „úspěch“)
@@ -792,12 +849,13 @@ Celá sada (`node nutrifee-rozhodovaci-maketa.test.cjs`) běží asi 15–30 min
 - Jádro: háček změny NF.onChange pro synchronizační vrstvu – po každém NF.save, odhlásit jde, při NF.muteHooks mlčí
 - Jádro: NF.proposalBranch a NF.OFF_TEXT jsou v jádře; obrazovky mají jen aliasy
 - Jádro: síť nevolá, DOM ani generativní AI nepoužívá (app/*); nové globální objekty nezakládá
-- Registr: 42 položek, 28 garantových; provozní bez stavu; parametry v mezích; otisk „fp-“ + 16 hex shodný se zlatými výstupy
+- Registr: 43 položek, 29 garantových; provozní bez stavu; parametry v mezích; otisk „fp-“ + 16 hex shodný se zlatými výstupy
 - Zásada 1: aplikace nepočítá ani nenavrhuje dávku – návrhy bez jednotek, větve jen z postupu D-POSTUP, jádro jednotky samo nemění
 - Zásada 3: porce před píchnutím oběma směry, po píchnutí a při „nevím“ jen z větší; nikdy „sněz víc“
 - Zásada 3: nízká glukóza – po menší porci s inzulinem otázka za 60 min, 2 poklesy za 7 dní → karta s obecnou radou; pokles blokuje „zvýšit“
 - Zásada 3: aplikace pacienta k volání do ordinace sama nevyzve (pravidla I-* a znění registru)
 - Sada `zlate-vystupy.test.cjs` – zlaté výstupy jádra projde (…)
+- Sada `schema90-jadro.test.cjs` – jádro SCHEMA 90 projde (…)
 - Sada `obsah-pacienta.test.cjs` – obsah obrazovek pacienta P1–P11 projde (…)
 - Sada `tokeny.test.cjs` – tokeny vzhledu a katalog projde (…)
 
@@ -810,7 +868,7 @@ Celá sada (`node nutrifee-rozhodovaci-maketa.test.cjs`) běží asi 15–30 min
 - Zlatý výstup rady.json se shoduje s přepočtem jádra
 - Zlatý výstup stopa.json se shoduje s přepočtem jádra
 - Soubory zlatých výstupů jsou čistý JSON se seřazenými klíči (stejné porovnání jde pustit z jiného jazyka)
-- Otisky položek: otisk jádra je NF.itemFingerprint(položka) bez průvodce, „fp-“ + 16 hex, 42 položek, 28 garantových
+- Otisky položek: otisk jádra je NF.itemFingerprint(položka) bez průvodce, „fp-“ + 16 hex, 43 položek, 29 garantových
 - S prezentační vrstvou (celé HTML) vyjdou stejné výstupy jádra i otisky ve stopě
 
 #### `zaverecne80.test.cjs` (22)
@@ -846,6 +904,6 @@ Celá sada (`node nutrifee-rozhodovaci-maketa.test.cjs`) běží asi 15–30 min
 4. **Zachovejte aserce doslova.** Prahy, počty, data a věty jsou specifikace. Před porovnáním textu nahraďte nezlomitelné mezery obyčejnými (testy to dělají funkcí `plain`). Aserci neoslabujte; selhání opravte kódem.
 5. **Vynechte testy prezentační vrstvy.** Nepřevádějí se soubory `faze2-pribeh.test.cjs`, `kontrola3-panel.test.cjs`, `kontrola4-panel.test.cjs`, `kontrola74-panel.test.cjs` a v `pravdivost.test.cjs` testy T1, T2 a T4. V hlavní sadě se nepřevádějí testy o průchodu ukázkou: názvy začínající „Průchod pro garanta“, „Panel vyprávění“, „Zámek průchodu“, „Úvodní obrazovka“, „Z registru na místo v příběhu“, „Lišta garanta“, „Skok na kapitolu“, „Celou maketu včetně všech odboček“, „Krok zpět“, „Každý krok vypráví“, „Tempo průchodu“, „Bublina“, „Vysvětlivky“, „Souhrn rozhodnutí na celou šířku“, „Garant 23. 10.“, „Katalog: sekce Prezentační vrstva“, „Přihlášení (7. 10. 2026)“, „Poznámka garanta v panelu vyprávění“, „Smoke“, „SCHEMA 84 (vlastník 5. 11. 2026): panel = rámeček“, „SCHEMA 83: hláška po rozhodnutí v patičce panelu“ a testy „SCHEMA 72“ o zásuvce, scénách a výsledcích garanta. Smíšené testy (část o obrazovce aplikace, část o panelu) převeďte jen v části o obrazovce.
 6. **Ukládání garanta jako vzor.** `ukladani.test.cjs` testuje server makety pro rozhodnutí garanta. Pro ostrou aplikaci z něj převezměte scénáře klienta (výpadek, opakování, dvě karty, dvě zařízení, ztracená odpověď, pořadí, pravdivý stav uložení) a testovací vektory otisku; server makety nepřevádějte.
-7. **Zobecněte T3.** Test T3 z `pravdivost.test.cjs` zamítne každou klinickou položku zvlášť a ověří, že obrazovky se změní přesně podle `ucinek` v `demo/guide.js`. V cílovém projektu napište stejný průchod: pro každou z 28 položek zamítnout, projít obrazovky, ověřit, co zmizí, co zůstane a jaké je oznámení.
+7. **Zobecněte T3.** Test T3 z `pravdivost.test.cjs` zamítne každou klinickou položku zvlášť a ověří, že obrazovky se změní přesně podle `ucinek` v `demo/guide.js`. V cílovém projektu napište stejný průchod: pro každou z 29 položek zamítnout, projít obrazovky, ověřit, co zmizí, co zůstane a jaké je oznámení.
 8. **Názvy testů nejsou vždy aktuální.** Čtyři zastaralé názvy SCHEMA 87 opravila (komentář „SCHEMA 87“ u každého). Zůstal název „volič dávky mřížkou“ v `kontrola4-obsah.test.cjs`, jehož tělo testuje posuvník. Specifikací je vždy tělo testu.
 9. **Po převodu** spouštějte celou sadu při každé změně a kontrolujte celý výstup. Výběr jednotlivých testů v maketě: proměnná `ONLY=část názvu` (v hlavní sadě i `ONLYRE=regulární výraz`).

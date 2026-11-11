@@ -1,9 +1,9 @@
-# NutriFee – atlas obrazovek ordinace (O01–O30)
+# NutriFee – atlas obrazovek ordinace (O01–O30, SCHEMA 90)
 
-> **10. 11. 2026 večer:** snímky v tomto atlasu jsou pořízené ze SCHEMA 90. Popisy se doplňují podle SCHEMA 90 (souhrn změn v `01-cesta-k-demu.md` a `zdroj/navrhy-designu/36-posledni-kontrola/`); kde se text liší od snímku nebo makety, platí maketa.
+> **Atlas odpovídá SCHEMA 90** (11. 11. 2026, commit `ef4f761`): snímky i popisy jsou ze SCHEMA 90. Změny proti SCHEMA 89 jsou u obrazovek označené „od SCHEMA 90“; souhrn je v `zdroj/navrhy-designu/36-posledni-kontrola/`. Kde se text liší od snímku nebo makety, platí maketa.
 
 
-*Stav makety SCHEMA 89 (9. 11. 2026). Patří k předání spolu s postupem programování (`00-postup.md`), atlasem aplikace pacienta (`10-atlas-pacient.md`) a přílohami (`30-prilohy.md`). Zdrojem pravdy je `15-ZDROJ-PRAVDY-MAKETA.md` a při rozporu chování makety (`maketa-rozhodovaci/`). Cesty ke kódu jsou uvedené vůči složce makety. Funkce `NF.xxx` jsou v `app/core.js`, vykreslení `V.xxx` v `app/screens-clinic.js` (ordinace) a `app/screens.js` (společné prvky), akce v `app/ui.js`.*
+*Stav makety SCHEMA 90 (11. 11. 2026). Patří k předání spolu s postupem programování (`00-postup.md`), atlasem aplikace pacienta (`10-atlas-pacient.md`) a přílohami (`30-prilohy.md`). Zdrojem pravdy je `15-ZDROJ-PRAVDY-MAKETA.md` a při rozporu chování makety (`maketa-rozhodovaci/`). Cesty ke kódu jsou uvedené vůči složce makety. Funkce `NF.xxx` jsou v `app/core.js`, vykreslení `V.xxx` v `app/screens-clinic.js` (ordinace) a `app/screens.js` (společné prvky), akce v `app/ui.js`.*
 
 Atlas popisuje všechno, co se v ordinaci zobrazuje: zařazení a první plán, zaučení u sestry, práci sestry na kontrole (otázky, hmotnost, HbA1c, nahrání exportu ze senzoru), čtyři kroky kontroly s návrhovými kartami „posoudit dávku“, vydání a předání plánu, schvalovací registr a stopu. Aplikaci pacienta popisuje `10-atlas-pacient.md`; tady se objevuje jen jako náhled telefonu.
 
@@ -13,9 +13,9 @@ Atlas popisuje všechno, co se v ordinaci zobrazuje: zařazení a první plán, 
 
 - Snímky jsou ve složce `obrazovky/` (soubory `ordinace-O01-…` až `ordinace-O30-…`), šířka 1440 px, celá výška stránky. Vznikly v maketě skriptem v automaticky řízeném prohlížeči: příběh se dovedl do potřebného stavu (kapitoly `NutriFeeDemo`, krok Další), všechny klinické položky registru byly schválené a prezentační vrstva se skryla (lišta ukázky, panel prezentujícího, vyprávění, rámečky kroků, tečkované vysvětlivky, tlačítko „Použít ukázkový export“, štítky položek v náhledu telefonu pacienta).
 - Několik stavů se navodilo přímo akcemi jádra; u obrazovky je to uvedeno v řádku „Stav na snímku“.
-- Řádek **„Kapitola“** u každé obrazovky říká, kde ji v příběhu najdete živě: název scény, identifikátor kapitoly v `demo/fixtures.js`, volání `D.play(…)` pro skok v demu, číslo scény v „Přehledu scén“ makety, počet klepnutí na **Další ▶** a případné další akce. Při snímání byly všechny klinické položky schválené. Počty klepnutí jsou ověřené přehráním na SCHEMA 89 (9. 11. 2026): role, stránka, krok kontroly a nadpis vyšly stejně jako na snímku. V demu bez vyprávění `D.play` ukáže začátek kapitoly a zbytek se doklepe ručně.
+- Řádek **„Kapitola“** u každé obrazovky říká, kde ji v příběhu najdete živě: název scény, identifikátor kapitoly v `demo/fixtures.js`, volání `D.play(…)` pro skok v demu, číslo scény v „Přehledu scén“ makety, počet klepnutí na **Další ▶** a případné další akce. Při snímání byly všechny klinické položky schválené. Počty klepnutí jsou ověřené přehráním na SCHEMA 90 (10. 11. 2026, snímání atlasu): role, stránka, krok kontroly a nadpis vyšly stejně jako na snímku. V demu bez vyprávění `D.play` ukáže začátek kapitoly a zbytek se doklepe ručně.
 - Slot `NF.slots.patientTag` byl při snímání vypnutý, takže náhled telefonu pacienta je bez štítků schvalování.
-- **Snímky ze SCHEMA 87:** O03 (posuvníky dávek 1–60 j.), O06 a O07 (náhled telefonu bez místa po štítcích; obsah beze změny) a O30 (rozbalená data události s polem `polozky`). Ostatní obrazovky se ve SCHEMA 87 viditelně nezměnily, snímky zůstávají ze SCHEMA 86. Datum rozhodnutí garanta v registru (O24–O29) je den, kdy skript položky schválil, ne údaj z příběhu.
+- **Snímky ze SCHEMA 90:** všech 30 snímků je pořízených znovu 10. 11. 2026. Viditelné změny proti SCHEMA 89: pět podmínek zařazení (O02), náhled telefonu jen ke čtení s vlastním posuvným rámečkem (O05–O07, O22), body ověření předvyplněné „sedí podle dat“ a jedenáctý bod „Čas pod cílem je pod mezí“ (O14, O15), počty 29 klinických a 8 pravidel (O12, O23, O25). Datum rozhodnutí garanta v registru (O24–O29) je den, kdy skript položky schválil, ne údaj z příběhu.
 - **Co na snímcích zůstalo z prezentační vrstvy a v ostré aplikaci nebude:** obsah z karty pacienta (O02: modelový pacient z `demo/fixtures.js`; bez napojení na kartu pacienta jádro napíše „Karta pacienta s NutriFee propojená není…“), průvodce položkou v detailu registru (O26–O29: oddíly „Proč existuje · Jak funguje · Kde je použita · Co schvalujete · Co se stane při zamítnutí“ jsou z `demo/guide.js`; bez něj jádro ukáže souhrn, detail, texty a parametry položky), věty o maketě v hlavičce registru (`V.demoText('registr')`), modelový registr scénáře 5 (O29).
 - Na šířce 1440 px se kontextový sloupec vpravo nezobrazuje (zobrazuje se od 1600 px, `ctxAside`); náhled telefonu u sestry a v kroku 4 leží pod pracovním sloupcem.
 
@@ -43,7 +43,7 @@ Atlas popisuje všechno, co se v ordinaci zobrazuje: zařazení a první plán, 
 ### 2.1 Zařazení (jednou, na začátku)
 
 1. **O01** lékař zahájí zařazení („Připravit zařazení →“, `NF.newDraft`).
-2. **O02** krok 1: karta pacienta (jen ke čtení), čtyři podmínky zařazení + páté zaškrtnutí „žádné vylučovací kritérium“, výchozí hodnoty ze senzoru (čas v cíli, čas pod 3,9) a HbA1c s datem odběru. Bez všech zaškrtnutí nelze pokračovat.
+2. **O02** krok 1: karta pacienta (jen ke čtení), pět podmínek zařazení (od SCHEMA 90 i „Bez korekčního schématu“) + šesté zaškrtnutí „žádné vylučovací kritérium“, výchozí hodnoty ze senzoru (čas v cíli, čas pod 3,9) a HbA1c s datem odběru. Bez všech zaškrtnutí nelze pokračovat.
 3. **O03** krok 2: čtyři dávky posuvníkem (aplikace žádnou nepředvyplňuje), čas bazálu, zaškrtnutí „dávky ověřené s pacientem“, startovní návyky, bezpečnostní pravidla (v plánu automaticky) a cíle glukózy.
 4. **O04** krok 3: shrnutí a „Vydat plán a předat sestře“ (`NF.issuePlan`, `NF.handover`). Role se přepne na sestru.
 5. **O05–O07** sestra zaučí pacienta a výsledek zapíše („Dokončit zaučení“ nebo „Zaučení se nezdařilo“ s důvodem). Pak pacient na telefonu plán převezme (atlas pacienta); návyky začnou platit až po převzetí a dokončeném zaučení (`NF.confirmUnderstanding`).
@@ -56,9 +56,9 @@ Atlas popisuje všechno, co se v ordinaci zobrazuje: zařazení a první plán, 
 
 1. **O09** Lékař otevře záložku Kontrola. Před zahájením jsou na obrazovce dvě části sestry: „Sestra · S pacientem před lékařem“ (jiný lék na diabetes, zdravotní stav, hmotnost, HbA1c, body D-POSTUP, které z dat ověřit nejde) a „Sestra · Data ze senzoru“ (nahrání exportu).
 2. **O10 / O11** Sestra vyplní odpovědi a nahraje export (`NF.parseSensorCsv` → `NF.importReadings`). Nečitelný soubor se odmítne celý.
-3. Lékař klepne **„Zahájit kontrolu →“** (`NF.startReview`): jednou se spočítá souhrn období (`NF.summary`) a návrhy (`NF.proposals`) a zapíšou se do stopy. Export musí být nahraný před zahájením, protože souhrn i návrhy se počítají v tu chvíli.
+3. Lékař klepne **„Zahájit kontrolu →“** (`NF.startReview`): jednou se spočítá souhrn období (`NF.summary`) a návrhy (`NF.proposals`) a zapíšou se do stopy. Export má být nahraný před zahájením; od SCHEMA 90 export nahraný až po zahájení souhrn i návrhy přepočítá a rozhodnutí ponechá (`NF.recomputeReview`, stopa `kontrola.prepocet`). Druhé „Zahájit kontrolu“ nad otevřenou kontrolou ji jen přepočítá.
 4. **Krok 1 Souhrn – O12, O13:** dlaždice dříve · teď · rozdíl se semaforem, tkanina zápisů, věta „Co se dělo“, otázky na jiný lék a zdravotní stav, tabulka „Jídla dne za období“, podklady (data ze senzoru, bezpečnost, jídla, rady, otázky pacienta).
-5. **Krok 2 Návrhy – O14–O20:** návrhové karty jedna po druhé (jen aktuální je otevřená): Proč návrh vznikl · Co návrh oslabuje · Ověřit s pacientem · Postup říká · Rozhodnout. Na konci karta „Beze změny (N) · Potvrdit vše beze změny“ a „Dávky bez návrhu (N)“ s posuvníkem.
+5. **Krok 2 Návrhy – O14–O20:** návrhové karty jedna po druhé (jen aktuální je otevřená): Proč návrh vznikl · Co návrh oslabuje · Ověřit s pacientem (od SCHEMA 90 body potvrzené daty předvyplněné „sedí podle dat“) · Postup říká · Rozhodnout. Na konci karta „Beze změny (N) · Potvrdit vše beze změny“ a „Dávky bez návrhu (N)“ s posuvníkem.
 6. **Krok 3 Potvrdit plán – O21:** výsledek rozhodnutí (dávky s posuvníkem u každé, návyky, cíle, platnost, rady, pravidla) a „Vydat plán“ (`NF.issueFromReview`).
 7. **Krok 4 Předat pacientovi – O22:** náhled telefonu s novým plánem. Kontrola se uzavře, až pacient nový plán převezme (`NF.reviewClosed`).
 
@@ -104,30 +104,30 @@ Přechody mezi kroky kontroly hlídá `ui.reviewStep`: na krok 3 jen při `NF.re
 
 ### 4.1 Položky
 
-Registr (`app/data/registry.js`, 42 položek) je jediný zdroj prahů, parametrů, textů a postupů. Každá položka má `id` (nikdy se nemění), `version` (`v1`, `v2`…), `cat`, `scope`, `title`, `summary`, `detail`, `params` s českými `labels`, případně `text`/`texts`, `lists`, `postup` (jen D-POSTUP) a `sestra` (jen D-POSTUP). Meze parametrů jsou v `NF.PARAM_BOUNDS`. Znění bezpečnostních pravidel I-* je v `app/data/catalogs.js` (hodnota `{v}` = `params.v`).
+Registr (`app/data/registry.js`, 43 položek) je jediný zdroj prahů, parametrů, textů a postupů. Každá položka má `id` (nikdy se nemění), `version` (`v1`, `v2`…), `cat`, `scope`, `title`, `summary`, `detail`, `params` s českými `labels`, případně `text`/`texts`, `lists`, `postup` (jen D-POSTUP) a `sestra` (jen D-POSTUP). Meze parametrů jsou v `NF.PARAM_BOUNDS`. Znění bezpečnostních pravidel I-* je v `app/data/catalogs.js` (hodnota `{v}` = `params.v`).
 
-- **Klinické položky (28)** schvaluje garant: K-KRITERIA, C-CILE, R-NAVYKY, R-REAKCE, Z-GLUKOZA, B-HYPO, R-PODOBNOST, R-SKORE, R-PORCE, R-DOPLNEK, R-PORADI, R-PROCHAZKA, D-CISTA, D-PRAND, D-BAZAL, D-POSTUP, R-POKYNY, I-HYPO, I-MENE, I-NEVIM, I-NEMOC-BAZAL, I-NEMOC-JIDLO, I-VYSOKA, I-KONTAKT, S-SILNA, S-SEMAFOR, P-NEMOC, P-LEKAR. Seznam vrací `NF.garantItems(S)`.
+- **Klinické položky (29)** schvaluje garant: K-KRITERIA, C-CILE, R-NAVYKY, R-REAKCE, Z-GLUKOZA, B-HYPO, R-PODOBNOST, R-SKORE, R-PORCE, R-DOPLNEK, R-PORADI, R-PROCHAZKA, D-CISTA, D-PRAND, D-BAZAL, D-POSTUP, R-POKYNY, I-HYPO, I-MENE, I-NEVIM, I-NEMOC-BAZAL, I-NEMOC-JIDLO, I-VYSOKA, I-VYSSI (nová ve SCHEMA 90), I-KONTAKT, S-SILNA, S-SEMAFOR, P-NEMOC, P-LEKAR. Seznam vrací `NF.garantItems(S)`.
 - **Provozní položky (14, `scope: 'provozni'`)** neschvaluje nikdo: Z-IMPORT, Z-BODY, J-DATABAZE, J-STITKY, S-SOUHRN, S-VYSLEDEK, R-DIKY, R-MILNIKY, S-CESTA, S-TYDEN, S-PODPORA, R-ZMIZELA, S-PRIPOMINKY, S-DAVKA. Nemají stav, štítek ani tlačítka; `NF.itemState` pro ně vrací `null`. V registru jsou jen jako popis pravidla aplikace (O28).
 
 Položky, které v ordinaci působí nejvíc:
 
 | Položka | Parametry (výchozí = návrh autora) | Kde v ordinaci |
 |---|---|---|
-| K-KRITERIA | – (podmínky `NF.ELIGIBILITY`, `NF.EXCLUSION`) | O02, otázka na jiný lék (O09, O12) |
+| K-KRITERIA (v2) | – (pět podmínek `NF.ELIGIBILITY`, `NF.EXCLUSION`) | O02, otázka na jiný lék (O09, O12) |
 | C-CILE | low 3,9 · high 10,0 · fastingHigh 7,2 · tirGoal 70 · tbrGoal 4 · hba1cGoal 53 · tirGoalMirnejsi 50 · tbrGoalMirnejsi 1 | O02 (značky posuvníků), O03, O12, O21 |
 | R-NAVYKY, R-PROCHAZKA | minut 15, okno_min 60 (procházka) | O03, O05, O21 |
-| R-POKYNY + I-* | `v` u I-MENE 60, I-NEVIM 60, I-NEMOC-BAZAL 3, I-NEMOC-JIDLO 15, I-VYSOKA 15 | O03, O04, O21, O23 |
+| R-POKYNY + I-* | `v` u I-MENE 60, I-NEVIM 60, I-NEMOC-BAZAL 3, I-NEMOC-JIDLO 15, I-VYSOKA 15 (pevně), I-VYSSI 60 (pevně) a `nad_j` 2; osm pravidel | O03, O04, O21, O23 |
 | D-CISTA | pred_min 30, po_min 15 (návrh k dávce), pred_uceni_min 45, po_uceni_min 30 (učení), svacina_min 120 [60–240], oprava_min 60 [15–120] (meze od SCHEMA 87) | O13–O18 |
-| D-PRAND | dny 28, minJidel 8, podil 0,67, medianNad 0,5, hypo 2, hypoPodil 0,15, hypoMin 6 [3–30, od SCHEMA 87], radyPrve 3, odmitnutiMin 5, odmitnutiPodil 0,6, podilDvouJidel 0,67 | O12 (tabulka), O14–O20 |
-| D-BAZAL | dny 14, nociPod 2, minNoci 10 | O17, O18 (řádek bazálu) |
-| D-POSTUP | poklesy_od 1, poklesy_jen_ciste 1, shoda_podil 0,8, shoda_min 5, v_cili_podil 0,9, hba_rezerva 5; texty `postupne`; sedm postupů; body sestry `technika`, `jidlo`, `vecer`, `stres` | O09, O14–O21 |
+| D-PRAND (v2) | velmiNizka 3,0 [2,5–3,5] (od SCHEMA 90), dny 28, minJidel 8, podil 0,67, medianNad 0,5, hypo 2, hypoPodil 0,15, hypoMin 6 [3–30, od SCHEMA 87], radyPrve 3, odmitnutiMin 5, odmitnutiPodil 0,6, podilDvouJidel 0,67 | O12 (tabulka), O14–O20 |
+| D-BAZAL (v2) | dny 14, nociPod 2, minNoci 10, velmiNizka 3,0 [2,5–3,5] (od SCHEMA 90) | O17, O18 (řádek bazálu) |
+| D-POSTUP (v2) | poklesy_od 1 [1–2], poklesy_jen_ciste 1, shoda_podil 0,8, shoda_min 5, v_cili_podil 0,9, hba_rezerva 5; texty `postupne`; sedm postupů (`prandHigh` 11 bodů, `bazalHigh` 5 bodů – od SCHEMA 90 s bodem „Čas pod cílem je pod mezí“); body sestry `technika`, `jidlo`, `vecer`, `stres`; předvyplnění „sedí podle dat“ | O09, O14–O21 |
 | S-SEMAFOR | smer_pb 2, smer_mmol 1,0, vyvoj_tydny 4, tir_zluta 50, tbr3_max 1, min_dni 14, porce_ok 0,8, porce_varovani 0,6, inzulin_ok 0,8, inzulin_varovani 0,6, mimo_dni 7 | O12, O13 |
 | S-SILNA | silnych 3, dvaNad_mmol 3, maxJidel 3 | O13 |
-| B-HYPO | poklesy 2, dny 7, pripominka_min 60 | O13 (Bezpečnost) |
+| B-HYPO (v3) | poklesy 2 [1–3], dny 7 [7–14], pripominka_min 60, dalsi_slot_h 3, ranni_otazka_h 5, zpetne_h 4 | O13 (Bezpečnost), O14 (poklesy včetně „pod 4“ před jídlem) |
 | P-NEMOC | dny 3 | O13 (Mimo učení) |
-| Z-IMPORT (provozní) | po_jidle_min 180, shoda_mmol 1; text `nociChybi` | O10, O11, O13 |
+| Z-IMPORT (provozní, v2) | po_jidle_min 180, shoda_mmol 1, pokles_min 240, noc_od 0, noc_do 6, spani_od 21; texty `nociChybi`, `jineObdobi`, `castObdobi` | O10, O11, O13 |
 | S-SOUHRN (provozní) | min_n 8, rozdil_mmol 1,0 | O12, O13 |
-| S-PRIPOMINKY (provozní) | max_denne 4; od SCHEMA 87 hrubé denní doby slotů snidane_do 10 [8–12], obed_do 15,5 [13–17], vecere_do 21 [19–23,5] | O05; u pacienta stav slotu na Dnes |
+| S-PRIPOMINKY (provozní, v2) | max_denne 4; hrubé denní doby slotů snidane_do 10 [8–12], obed_do 15,5 [13–17], vecere_do 21 [19–23,5]; den_konec 4 [2–6] a text `pasmo` (od SCHEMA 90) | O05; u pacienta stav slotu na Dnes |
 
 ### 4.2 Stavy a schvalování
 
@@ -140,7 +140,7 @@ Položky, které v ordinaci působí nejvíc:
 
 ### 4.3 Stopa
 
-`NF.log(S, co, podrobnost, data)` zapíše `{ at, who, what, detail, data }` do `S.events`. Jádro nevolá síť ani generativní AI (hlídá test).
+`NF.log(S, co, podrobnost, data)` zapíše `{ at, who, what, detail, data }` do `S.events`. Jádro nevolá síť ani generativní AI (hlídá test). Od SCHEMA 90 určuje aktéra `NF.whoOf`: činnosti sestry (zaučení, připomínky, části kontroly sestry, export) mají `who: 'sestra'`.
 
 **Položky ve stopě (SCHEMA 87).** Data každé události, ke které patří položky registru, dostanou pole `polozky = [{ id, version, fp, stav }]`. Seznam se skládá z pevných položek podle druhu události (`NF.TRACE_ITEMS`, například `kontrola.zahajena` → C-CILE, D-CISTA, D-PRAND, D-BAZAL, D-POSTUP, S-SEMAFOR, S-SILNA, S-SOUHRN, R-REAKCE, R-SKORE, B-HYPO, K-KRITERIA) a z položek, které událost sama jmenuje (`item`, `items[].item`, `proposals[].item`; `NF.traceItemIds`, `NF.itemRefs`). `fp` je od SCHEMA 89 **otisk jádra** `NF.itemFingerprint(položka)` bez druhého argumentu, spočítaný jen z dat jádra (`id`, `scope`, `cat`, `title`, `summary`, `detail`, `text`, `texts`, `lists`, `postup`, `sestra`, `params`, `labels`). Vychází stejně s prezentační vrstvou i bez ní; slot `NF.slots.itemGuide` je zrušený. Otisk rozhodnutí garanta (`NF.itemFingerprint(položka, { co })` s textem „Co schvalujete“ z `demo/guide.js`) zůstal beze změny v prezentační vrstvě; export garanta nese u každé položky obojí: `fp` (s průvodcem) a `fpTrace` (otisk jádra jako ve stopě). Data události jsou kopie, stav aplikace se jimi nemění.
 
@@ -157,13 +157,14 @@ Události ordinace:
 | `kontrola.sestra` | odpověď sestry na bod D-POSTUP | klíč, sedí/nesedí, `item: 'D-POSTUP'` |
 | `kontrola.leky`, `kontrola.stav` | jiný lék na diabetes, zdravotní stav (sestra i lékař) | hodnota, `item: 'K-KRITERIA'` |
 | `hmotnost`, `hba1c` | hmotnost, HbA1c (karta při zařazení, sestra na kontrole) | hodnota, datum, zdroj |
-| `senzor.import` | nahrání exportu (i opakované) | počet měření, doplněná jídla a noci, shoda, přeskočené řádky, období, `item: 'Z-IMPORT'` |
+| `senzor.import` | nahrání exportu (i opakované; od SCHEMA 90 i odmítnutý export z jiného období) | počet měření, doplněná jídla a noci, shoda, přeskočené řádky, období, oříznutí, `item: 'Z-IMPORT'` |
+| `kontrola.prepocet` | export nahraný po zahájení kontroly (od SCHEMA 90, `NF.recomputeReview`) | id plánu, návrhy; položky Z-IMPORT, S-SEMAFOR |
 | `zarazeni.podminka` / `zarazeni.vylouceni` | zaškrtnutí nebo zrušení podmínky zařazení / zaškrtnutí „bez vylučovacího kritéria“ (O02; od SCHEMA 87) | `key`, `value`, `eligible`, `excluded`; položka K-KRITERIA |
 | `zarazeni.vychozi` | výchozí čas v cíli nebo pod dolním cílem ze senzoru (O02; od SCHEMA 87) | `key`, `value`, `from`; položka C-CILE |
 | `zarazeni.davky.overeny` | zaškrtnutí „Dávky jsou s pacientem ověřené…“ (O03; `NF.setMedicationChecked`; od SCHEMA 87) | `value`, dávky |
 | `kontrola.zahajena` | Zahájit kontrolu | celý souhrn, seznam návrhů (id, název, položka) |
-| `navrh.overeni` / `navrh.overeni.vse` | ověřovací bod lékaře sedí / nesedí, „Vše sedí“ (O14–O16; `NF.setVerify`, `NF.verifyAll`; od SCHEMA 87) | `proposal`, `bod`, `text`, `value`, `item`; položka D-POSTUP |
-| `navrh.rozhodnut` | každé rozhodnutí návrhu | celé rozhodnutí: `choice`, `branch`, `units`, `reason`, `againstBranch`, `againstData`, `noProposal`, `viaPlan`, `bulk`, `swapTo` |
+| `navrh.overeni` / `navrh.overeni.vse` | ověřovací bod lékaře sedí / nesedí, „Vše sedí“ (O14–O16; `NF.setVerify`, `NF.verifyAll`; od SCHEMA 87) | `proposal`, `bod`, `text`, `value`, `item`; od SCHEMA 90 `dataOk` a `protiDatum` (lékař změnil bod potvrzený daty: „(lékař změnil bod potvrzený daty)“); položka D-POSTUP |
+| `navrh.rozhodnut` | každé rozhodnutí návrhu | celé rozhodnutí: `choice`, `branch`, `units`, `reason`, `againstBranch`, `againstData`, `noProposal`, `viaPlan`, `bulk`, `swapTo`; od SCHEMA 90 `postup` (větev v okamžiku rozhodnutí); řádek stopy „… · postup: zvýšit · jinak než postup“ |
 | `registr.rozhodnuti`, `registr.poznamka`, `registr.verze` | registr (O26–O29) | záznam historie |
 
 ---
@@ -171,6 +172,8 @@ Události ordinace:
 ## 5. Společné prvky ordinace
 
 - **Lišta (`rail`)** vlevo: záložky role. Bez prezentační vrstvy v ní je štítek DEMO (jednou).
+- **Náhled telefonu pacienta** (u sestry O05–O07 a v kroku 4 O22; od SCHEMA 90 `previewBody`): obsah je v `<div class="preview-inert" inert aria-hidden="true">`, takže v náhledu nejde nic zaostřit ani klepnout; rámeček `.preview-scroll` má `tabindex="0"`, `role="region"` a popisek „… (náhled jen ke čtení; posunete šipkami)“ a roluje kolečkem, dotykem i šipkami. Pod 900 px šířky kontejneru má náhled plnou šířku.
+- **Lišta novější verze** (od SCHEMA 90): když jsou v zařízení data z novější verze, jádro nic neukládá a ukáže „V zařízení jsou data z novější verze NutriFee. Tahle verze je starší a nic neukládá…“ (`NF.readOnly`).
 - **Hlavička (`pagehead`)**: eyebrow (místo a datum), nadpis, podnadpis s obdobím.
 - **Spodní lišta „Další krok“ (`nextbar`)**: říká, co zbývá, a nese jediné primární tlačítko kroku; tlačítko je zamčené, dokud krok není hotový (věta proč je v liště).
 - **Posuvník hodnoty (`V.slider`)**: velké číslo s jednotkou, −/+ po stranách (≥ 44 px), dráha s jezdcem, nativní `input type=range` pro klávesnici a čtečku. Bez volby nic nepředvyplněno (hodnota „–“, jezdec čárkovaný). Značka cíle (C-CILE) nebo „dnes N j.“ u dávky. Dávka má všude rozsah 1–60 j. z jediné konstanty jádra `NF.DOSE_RANGE` (`NF.validDose`, `NF.clampDose`; od SCHEMA 87, dřív při zařazení 1–40); `NF.DOSE_GRID` zůstal jen jako alias. **U dávky nikdy žádná navržená hodnota** (`doseSlider`).
@@ -212,17 +215,17 @@ Události ordinace:
 - **Co to je:** první krok průvodce zařazením: karta pacienta (jen ke čtení), podmínky zařazení a výchozí hodnoty ze senzoru a HbA1c.
 - **Kdo a kdy:** lékař, při zařazení, s pacientem.
 - **K čemu:** potvrdit, že pacient patří do kohorty (jen inzulin v pevných dávkách, bazál + 3 prandiální, senzor, žádný jiný lék na diabetes, žádné vylučovací kritérium), a uložit výchozí hodnoty pro srovnání „dříve · teď“ na první kontrole.
-- **Spojitost s daty pacienta:** karta pacienta (v maketě `D.patientContext` z prezentační vrstvy; v ostré aplikaci napojení na kartu, nebo věta „Karta pacienta s NutriFee propojená není…“). Štítek „z karty: splněno“ jen u podmínek, které karta dokládá (`D.cardEligibility`); potvrzuje je vždy lékař. Výchozí čas v cíli a čas pod 3,9 lékař převezme ze souhrnu v aplikaci senzoru za poslední měsíc; HbA1c a datum odběru z karty.
+- **Spojitost s daty pacienta:** karta pacienta (v maketě `D.patientContext` z prezentační vrstvy; v ostré aplikaci napojení na kartu, nebo věta „Karta pacienta s NutriFee propojená není…“). Štítek „z karty: splněno“ jen u podmínek, které karta dokládá (`D.cardEligibility`); pátou podmínku „Bez korekčního schématu“ karta modelového pacienta nedokládá, lékař ji potvrzuje sám (snímek). Potvrzuje je vždy lékař. Výchozí čas v cíli a čas pod 3,9 lékař převezme ze souhrnu v aplikaci senzoru za poslední měsíc; HbA1c a datum odběru z karty.
 - **Co se počítá:**
-  - `NF.setEligibility(S, klíč, hodnota)` → `S.enrollment.eligible` = všechny čtyři `NF.ELIGIBILITY` zaškrtnuté. `NF.excluded(S)` = páté zaškrtnutí `NF.EXCLUSION` chybí.
+  - `NF.setEligibility(S, klíč, hodnota)` → `S.enrollment.eligible` = všech pět `NF.ELIGIBILITY` zaškrtnutých: dospělý s DM2 (`adult`) · inzulin v pevných dávkách a žádný jiný lék na diabetes (`insulinOnly`) · bazál 1× denně večer + prandiální inzulin ke třem hlavním jídlům, pevné dávky (`regimen`) · od SCHEMA 90 „Bez korekčního schématu: žádné dávky navíc podle aktuální glukózy“ (`noCorrection`, K-KRITERIA v2) · senzor glukózy (`cgm`). `NF.excluded(S)` = páté zaškrtnutí `NF.EXCLUSION` chybí.
   - `NF.setBaselineValue` (akce `baselineSet`) → `S.enrollment.baseline.tir` / `.below` v %, posuvník 0–100 / 0–40 se značkou cíle pacienta (C-CILE `tirGoal`, `tbrGoal`) a slovem „pod cílem / v cíli“.
   - `NF.setHba1c(S, 'karta', hodnota, datum)` → `S.patient.hba1cLog` (posuvník 30–120 mmol/mol se značkou C-CILE `hba1cGoal`; jádro přijme 20–150); datum výběrem ze dnů (`NF.hbaDates`).
   - Lišta: „Zbývá potvrdit N podmínek zařazení a že pacient nemá vylučovací kritérium.“; „Pokračovat →“ zamčené, dokud `eligible && !excluded`.
-- **Pravidla:** K-KRITERIA, C-CILE (značky posuvníků).
+- **Pravidla:** K-KRITERIA (v2), C-CILE (značky posuvníků).
 - **Stavy a hraniční případy:** bez karty pacienta vysvětlující věta místo údajů; zamítnutá K-KRITERIA = záznam nesouhlasu, podmínky se dál vyžadují (oznámení na místě); věta „Pacient s jiným lékem na diabetes (tablety, GLP-1) do NutriFee nepatří…“ je vždy pod podmínkami.
 - **Stopa:** od SCHEMA 87 každé zaškrtnutí i zrušení podmínky `zarazeni.podminka`, zaškrtnutí „bez vylučovacího kritéria“ `zarazeni.vylouceni` (obě s položkou K-KRITERIA), každá změna výchozí hodnoty ze senzoru `zarazeni.vychozi` (C-CILE); HbA1c `hba1c`.
 - **Pozor při programování:** nic se nepíše (posuvníky a zaškrtnutí); hodnoty z karty nesmí podmínky potvrdit samy; kohorta je od SCHEMA 84 jen inzulin.
-- **Testy:** hlavní sada „SCHEMA 87 (bod 1): odpovědi pacienta, podmínky zařazení, výchozí hodnoty, ověření dávek a ověřovací body lékaře jdou do stopy“; `nutrifee-rozhodovaci-maketa.test.cjs` „Zařazení: podmínky zamykají pokračování…“, „V ordinaci se nepíše…“; `schema84-jadro.test.cjs` „5: kohorta jen inzulin…“; `kontrola4-obsah.test.cjs` „06 A2, B4, B6…“; `zaverecne80.test.cjs` „03 B2, B3, B4…“, „02 B1, B3…“.
+- **Testy:** hlavní sada „SCHEMA 87 (bod 1): odpovědi pacienta, podmínky zařazení, výchozí hodnoty, ověření dávek a ověřovací body lékaře jdou do stopy“; `nutrifee-rozhodovaci-maketa.test.cjs` „Zařazení: podmínky zamykají pokračování…“, „V ordinaci se nepíše…“; `schema84-jadro.test.cjs` „5: kohorta jen inzulin…“; `schema90-jadro.test.cjs` „Bod 12: K-KRITERIA v2 – podmínky zařazení obsahují bazál 1× denně večer a „bez korekčního schématu“…“; `kontrola4-obsah.test.cjs` „06 A2, B4, B6…“; `zaverecne80.test.cjs` „03 B2, B3, B4…“, „02 B1, B3…“.
 
 ### O03 Zařazení, krok 2: dávky, návyky, pravidla a cíle
 
@@ -239,11 +242,11 @@ Události ordinace:
 - **Co se počítá:**
   - Dávky: `NF.setDoseValue(S, klíč, jednotky)` (akce `doseSet`), posuvník 1–60 j. (`NF.DOSE_RANGE`; do SCHEMA 86 1–40 j. z `NF.DOSE_GRID`) bez předvyplnění („Dávku nastavte posuvníkem“); čas bazálu volbou 20:00 / 21:00 / 22:00. Zaškrtnutí „Dávky jsou s pacientem ověřené podle předpisu (bazál a tři dávky k jídlu, bez premixu)“ (`draft.medicationChecked`, `NF.setMedicationChecked`).
   - Návyky: `NF.toggleHabit`; nabízí se jen návyk, jehož položka je použitelná (`NF.usable(S, h.item)`); štítek „startovní sada“; text „Pacient uvidí: …“.
-  - Pravidla: sedm I-* je v plánu automaticky (`NF.defaultInstructions`); výjimku u pacienta (vypnutí zaškrtnutím, jiná hodnota posuvníkem v mezích katalogu) ukládá `NF.setInstruction` a vypisuje `NF.instructionExceptions`. Text pravidla s dosazenou hodnotou `NF.instrHtml`.
+  - Pravidla: osm I-* (od SCHEMA 90 i I-VYSSI) je v plánu automaticky (`NF.defaultInstructions`); výjimku u pacienta (vypnutí zaškrtnutím, jiná hodnota posuvníkem v mezích katalogu) ukládá `NF.setInstruction` a vypisuje `NF.instructionExceptions`. Text pravidla s dosazenou hodnotou `NF.instrHtml`.
   - Cíle: „Běžné cíle“ / „Mírnější cíle pro starší a křehké“ (`NF.setTargetPreset`, sady z C-CILE), každý cíl posuvníkem s krokem a mezemi `NF.TARGET_STEPS` (`NF.setTargetValue`).
   - Lišta: `NF.planBlockers(S)` – chybí potvrzení podmínek, vylučovacího kritéria, některá ze čtyř dávek (≥ 1 j.), ověření dávek s pacientem, aspoň jeden návyk (jen když R-NAVYKY platí).
-- **Pravidla:** R-NAVYKY, R-PROCHAZKA, R-POKYNY, I-HYPO, I-MENE, I-NEVIM, I-NEMOC-BAZAL, I-NEMOC-JIDLO, I-VYSOKA, I-KONTAKT, C-CILE.
-- **Stavy a hraniční případy:** zamítnutá R-POKYNY → místo pravidel oznámení, pravidla do plánu nejdou; zamítnuté jednotlivé I-* → oznámení u pravidla; zamítnutá R-NAVYKY → plán se vydá bez startovních návyků; pevná hodnota pravidla (práh nízké glukózy 4 mmol/l) nemá posuvník („pevně 4 mmol/l“).
+- **Pravidla:** R-NAVYKY, R-PROCHAZKA, R-POKYNY, I-HYPO, I-MENE, I-NEVIM, I-NEMOC-BAZAL, I-NEMOC-JIDLO, I-VYSOKA, I-VYSSI, I-KONTAKT, C-CILE.
+- **Stavy a hraniční případy:** zamítnutá R-POKYNY → místo pravidel oznámení, pravidla do plánu nejdou; zamítnuté jednotlivé I-* → oznámení u pravidla; zamítnutá R-NAVYKY → plán se vydá bez startovních návyků; pevná hodnota pravidla (práh nízké glukózy 4 mmol/l; od SCHEMA 90 také I-VYSOKA 15 mmol/l a I-VYSSI 60 min) nemá posuvník („pevně …“).
 - **Stopa:** jednotlivé změny konceptu se nezapisují; vše přijde v `plan.vydan`. Výjimka od SCHEMA 87: ověření dávek s pacientem se zapíše hned jako `zarazeni.davky.overeny` (i zrušení, s kopií dávek).
 - **Pozor při programování:** **dávka se nikdy nepředvyplňuje a aplikace žádnou výši nenabízí**; lékař pravidla nevybírá ani nepíše, vydáním podepisuje plán jako celek; výjimky u pacienta jsou vidět v plánu i v návrhu na kontrole.
 - **Testy:** hlavní sada „SCHEMA 87 (body 3, 7): čísla pacienta posuvníkem 1–60 j. z jednoho místa; čas inzulinu „jiný čas“ posuvníkem; ordinace má týž rozsah“; hlavní sada „SCHEMA 87 (bod 1): odpovědi pacienta, podmínky zařazení, výchozí hodnoty, ověření dávek a ověřovací body lékaře jdou do stopy“; `nutrifee-rozhodovaci-maketa.test.cjs` „Aplikace nikde nepočítá ani nenavrhuje dávku; volí ji lékař“, „Pokyny jsou součást plánu (SCHEMA 66…)“, „Cíle glukózy voličem při zařazení i při kontrole…“; `kontrola74-obsah.test.cjs` „B1: pravidla v zařazení jsou vlastní blok…“; `kontrola4-obsah.test.cjs` „Bod 8 a C15…“, „07 A2, B3, B8…“; `faze2-jadro.test.cjs` „A05…“.
@@ -278,13 +281,13 @@ Události ordinace:
 - **Co to je:** obrazovka sestry: body zaučení k odškrtnutí, náhled telefonu pacienta a karta „Připomínky v telefonu“.
 - **Kdo a kdy:** sestra, hned po vydání plánu (P1), s pacientem a jeho telefonem.
 - **K čemu:** ověřit, že pacient aplikaci sám zvládne, a s pacientem vybrat časy připomínek. Bez dokončeného zaučení návyky nezačnou platit.
-- **Spojitost s daty pacienta:** body se skládají z pevných bodů a z bodů návyků v plánu (`NF.trainingItems` = `NF.FIXED_TRAINING` + `h.training` návyků plánu); body „Sestra ověří ústně“ jsou ústní (export před kontrolou, upozornění na nízkou glukózu v aplikaci senzoru, připomínky nemusí přijít). Náhled telefonu vykresluje skutečnou obrazovku pacienta (`nursePreview` → `V.patient`); u bodů jídla ukáže ukázkové jídlo; sestra v náhledu neklepe.
+- **Spojitost s daty pacienta:** body se skládají z pevných bodů a z bodů návyků v plánu (`NF.trainingItems` = `NF.FIXED_TRAINING` + `h.training` návyků plánu); body „Sestra ověří ústně“ jsou ústní (export před kontrolou, upozornění na nízkou glukózu v aplikaci senzoru, připomínky nemusí přijít). Náhled telefonu vykresluje skutečnou obrazovku pacienta (`nursePreview` → `V.patient`); u bodů jídla ukáže ukázkové jídlo; sestra v náhledu neklepe – od SCHEMA 90 je náhled `inert` a rolovat jde jen jeho rámeček (odd. 5).
 - **Co se počítá:** zaškrtnutí `trainingStep`; „Náhled“ přepne obrazovku náhledu (Dnes / Plán / Bezpečí / krok jídla). Připomínky: `NF.reminderSettings`, nejvýš `S-PRIPOMINKY.max_denne` (4) denně, volby času a „Vypnout“.
 - **Pravidla:** Z-BODY (provozní), návyky R-NAVYKY a R-PROCHAZKA (body návyků nesou jejich štítek), S-PRIPOMINKY (provozní).
 - **Stavy:** bez plánu „Zatím není co zaučovat“; „Dokončit zaučení“ zamčené, dokud chybí bod.
 - **Stopa:** `pripominka.*`; výsledek zaučení viz O06/O07.
 - **Pozor:** sestra lékaři nic neposílá; připomínky nejsou bezpečnostní funkce (pacient si inzulin píchá podle plánu i bez nich).
-- **Testy:** hlavní test „Sestra: „Ukázat“ u jídla ukáže ukázkové jídlo, … nezdar s důvodem vidí lékař“; `kontrola4-obsah.test.cjs` „Bod 4: připomínky v telefonu…“; `faze2-jadro.test.cjs` „C21…“.
+- **Testy:** hlavní test „Sestra: „Ukázat“ u jídla ukáže ukázkové jídlo, … nezdar s důvodem vidí lékař“; `kontrola4-obsah.test.cjs` „Bod 4: připomínky v telefonu…“; `faze2-jadro.test.cjs` „C21…“; `schema90-jadro.test.cjs` „Ordinace S4: činnosti sestry jdou do stopy jako „sestra““.
 
 ### O06 Sestra: zaučení dokončeno
 
@@ -354,12 +357,12 @@ Události ordinace:
   - Hmotnost posuvníkem 40–160 kg se značkou „při zařazení N“ – `NF.setWeight(S, 'sestra', kg)`; jádro přijme 30–250.
   - HbA1c pro kontrolu: „Nový výsledek zatím není“ (`NF.setNurseHbaNone`) nebo posuvník a datum odběru jen ze dnů od začátku plánu (`NF.setHba1c(S, 'sestra', …)`).
   - Body D-POSTUP, které z dat ověřit nejde (`NF.nurseKeys` = klíče `D-POSTUP.sestra`: technika · jídlo · vecer · stres), každý Sedí / Nesedí (`NF.setNurseCheck`, opakované klepnutí volbu zruší).
-- **Část „Sestra · Data ze senzoru“:** výběr souboru; v souhrnu „N zápisů bez průběhu z exportu“ (`NF.importDue`). Popis O10.
+- **Část „Sestra · Data ze senzoru“:** výběr souboru; v hlavičce části „export nenahrán“ (od SCHEMA 90) a v souhrnu „N zápisů bez průběhu z exportu“ (`NF.importDue`). Popis O10. Od SCHEMA 90 patří export jen k období aktivního plánu (`NF.sensorImportFor`): po vydání dalšího plánu se export minulého období, dny nemoci (`NF.illnessDays(S, plán, do)`, jen do dne před kontrolou) ani sledování nízké glukózy (`NF.periodHypoWatch`, `NF.periodNights`) do nové kontroly nepočítají.
 - **Pravidla:** K-KRITERIA (otázky), D-POSTUP (body sestry), C-CILE (značka HbA1c), Z-IMPORT (provozní).
 - **Stavy a hraniční případy:** zamítnutá D-POSTUP → místo bodů oznámení; po vydání plánu z této kontroly je část zamčená („Plán je vydaný; odpovědi zůstávají ve stopě“); nová kontrola po převzetí P2 začne s prázdnou částí. Odpovědi sestry nic samy nemění: lékař je uvidí u bodů návrhu jako výchozí stav a může je změnit; „Vše sedí“ je nepřepíná.
 - **Stopa:** `kontrola.leky`, `kontrola.stav` (s „(zapsala sestra)“), `kontrola.sestra`, `hmotnost`, `hba1c`.
 - **Pozor:** sestra nic nepíše; hmotnost a HbA1c jsou posuvníky; o podobě exportu se na obrazovce nemluví.
-- **Testy:** `kontrola4-obsah.test.cjs` „Bod 7: body, které nejdou ověřit z dat, ověří sestra…“; `schema84-jadro.test.cjs` „5…“, „C8…“, „6: hmotnost…“; `zaverecne80.test.cjs` „02 B1, B3: sestra potvrzuje jen to, co data neukážou; HbA1c s datem odběru výběrem“, „03 B5…“.
+- **Testy:** `kontrola4-obsah.test.cjs` „Bod 7: body, které nejdou ověřit z dat, ověří sestra…“; `schema84-jadro.test.cjs` „5…“, „C8…“, „6: hmotnost…“; `schema90-jadro.test.cjs` „Ordinace S2, S7: po vydání dalšího plánu export minulého období…“, „Ordinace S4: činnosti sestry jdou do stopy jako „sestra““; `zaverecne80.test.cjs` „02 B1, B3: sestra potvrzuje jen to, co data neukážou; HbA1c s datem odběru výběrem“, „03 B5…“.
 
 ### O10 Části sestry vyplněné, export nahraný
 
@@ -375,13 +378,13 @@ Události ordinace:
 - **Spojitost s daty pacienta:** export ze senzoru, který pacient před kontrolou poslal do ordinace; soubor se čte jen v zařízení.
 - **Co se počítá:**
   - `NF.parseSensorCsv(text)`: najde hlavičku se sloupcem času a glukózy v prvních čtyřech řádcích; snese oddělovač `;`/`,`/tab, desetinnou čárku, uvozovky, řádek metadat a mg/dl; bez rozpoznané hlavičky vrátí prázdný seznam (soubor se odmítne, nic se nehádá). Neplatné řádky přeskočí a spočítá.
-  - `NF.importReadings(S, měření)`: ke každému zápisu bez průběhu přiřadí měření −5 až +`Z-IMPORT.po_jidle_min` (180) min; průběh se přijme jen s ≥ 4 body, bodem do 10 min a bodem po `R-REAKCE.okno_min` (120); u zápisu s opsaným vrcholem porovná vrchol z exportu (`NF.peakAgrees`, tolerance `Z-IMPORT.shoda_mmol` 1,0; „nad 15“ sedí, když export leží nad 15). Noci: hodnoty 0:00–6:00 → nejnižší hodnota, čas pod dolním cílem, ranní hodnota a poslední hodnota po 21:00 předchozího dne („před spaním“); noci z exportu přepíší dosavadní. `NF.sensorSummaryFrom`: čas v cíli, pod cílem, pod 3,0, nad cílem, dostupnost podle mediánu rozestupu měření, počet dní.
+  - `NF.importReadings(S, měření)`: od SCHEMA 90 nejdřív vezme jen měření z období aktivního plánu (od vydání plánu): export celý z jiného období odmítne hláškou „Export je z jiného období než současný plán. Ze souboru jsme nic nenačetli.“ (Z-IMPORT `jineObdobi`), u částečného použije jen část v období plánu a řekne to („Část exportu byla mimo období plánu; použili jsme jen měření z období plánu.“, `castObdobi`). Ke každému zápisu bez průběhu přiřadí měření −5 až +`Z-IMPORT.po_jidle_min` (180) min a od SCHEMA 90 uloží nejnižší hodnotu 180–240 min po jídle jako `ep.lowAfter` (pokles z exportu patří k jídlu do `Z-IMPORT.pokles_min` 240 min, `NF.epLowAfter`; měření v čase jídla je hodnota před jídlem, ne pokles po jídle); import hledá měření binárním vyhledáváním (92 dní za desítky milisekund); průběh se přijme jen s ≥ 4 body, bodem do 10 min a bodem po `R-REAKCE.okno_min` (120); u zápisu s opsaným vrcholem porovná vrchol z exportu (`NF.peakAgrees`, tolerance `Z-IMPORT.shoda_mmol` 1,0; „nad 15“ sedí, když export leží nad 15). Noci: hodnoty `Z-IMPORT.noc_od`–`noc_do` (0:00–6:00; od SCHEMA 90 parametry) → nejnižší hodnota, čas pod dolním cílem, ranní hodnota a poslední hodnota po `spani_od` (21:00) předchozího dne („před spaním“); noci z exportu přepíší dosavadní. `NF.sensorSummaryFrom`: čas v cíli, pod cílem, pod 3,0, nad cílem, dostupnost podle mediánu rozestupu měření, počet dní.
   - Stejný export podruhé: nic nového, věta „Tentýž export byl nahrán znovu (čas); nic nového nepřibylo.“ (`prevI.again`).
 - **Pravidla:** Z-IMPORT (provozní), R-REAKCE (okno), C-CILE (hranice), D-BAZAL (noci).
-- **Stavy:** bez exportu dlaždice času v cíli řekne „souhrn ze senzoru chybí“ a Bezpečnost „Noční hodnoty nejsou k dispozici – bez exportu nelze posoudit noční poklesy.“ (Z-IMPORT `nociChybi`, O13).
+- **Stavy:** export nahraný po zahájení kontroly souhrn i návrhy přepočítá a rozhodnutí ponechá (`NF.recomputeReview`, stopa `kontrola.prepocet`; od SCHEMA 90). Souhrn ze senzoru nese období jako `from`/`to` (ISO) a formátuje se až při vykreslení (`NF.sensorPeriod`). Bez exportu dlaždice času v cíli řekne „souhrn ze senzoru chybí“ a Bezpečnost „Noční hodnoty nejsou k dispozici – bez exportu nelze posoudit noční poklesy.“ (Z-IMPORT `nociChybi`, O13).
 - **Stopa:** `senzor.import` (počet měření, doplněná jídla, noci, shoda, přeskočené řádky, období).
 - **Pozor:** obrazovky o typech a formátech exportu nemluví; převodníky pro skutečné exporty senzorů v kohortě jsou otevřený úkol ostré aplikace (`15` odst. 6a). Export nahrává jen personál; pacient v aplikaci export nenahrává.
-- **Testy:** hlavní test „Export ze senzoru (15. 10. 2026): parser čte běžné formáty…“, „Ukázkový export a souhrn ze senzoru jsou týž soubor…“, „SCHEMA 74: o exportu ze senzoru maketa nemluví konkrétně…“; `faze2-jadro.test.cjs` „A08…“, „A20…“; `zaverecne80.test.cjs` „03 A5…“, „03 C3…C9: hrany“.
+- **Testy:** hlavní test „Export ze senzoru (15. 10. 2026): parser čte běžné formáty…“, „Ukázkový export a souhrn ze senzoru jsou týž soubor…“, „SCHEMA 74: o exportu ze senzoru maketa nemluví konkrétně…“; `faze2-jadro.test.cjs` „A08…“, „A20…“; `zaverecne80.test.cjs` „03 A5…“, „03 C3…C9: hrany“; `schema90-jadro.test.cjs` „Bod 6: pokles z exportu se k jídlu přiřadí do 4 h…“, „Ordinace V2: export celý z jiného období se odmítne…“, „Ordinace S1: export nahraný po zahájení kontroly přepočítá souhrn i návrhy…“.
 
 ### O11 Export odmítnut
 
@@ -394,8 +397,8 @@ Události ordinace:
 - **Co to je:** chybová hláška nahoře na obrazovce: „Tento soubor neumíme načíst. Zkontrolujte, že jde o export ze senzoru, a zkuste to znovu. Ze souboru jsme nic nenačetli.“ (`NF.IMPORT_REJECT`).
 - **Kdo a kdy:** sestra, když vybere nečitelný soubor.
 - **Co se počítá:** `NF.parseSensorCsv` vrátí prázdný seznam → `NF.importReadings` vrátí chybu, **stav se nemění**.
-- **Stavy:** dřívější úspěšný export (pokud byl) zůstává.
-- **Stopa:** nic.
+- **Stavy:** dřívější úspěšný export (pokud byl) zůstává. Od SCHEMA 90 se stejně (stav beze změny) odmítne i čitelný export, který celý leží mimo období plánu, hláškou Z-IMPORT `jineObdobi` (O10).
+- **Stopa:** nic; u exportu z jiného období `senzor.import` s `rejected: 'obdobi'`.
 - **Pozor:** soubor se nikdy nenačte napůl; hláška nemluví o formátu.
 - **Testy:** hlavní test „Export ze senzoru…“; `zaverecne80.test.cjs` „03 C3…C9: hrany“.
 
@@ -407,7 +410,7 @@ Události ordinace:
 
 *Stav na snímku: hned po „Zahájit kontrolu“.*
 
-- **Co to je:** první krok vedené kontroly: kroky nahoře, hlavička s obdobím a HbA1c, dlaždice dříve · teď · rozdíl, tkanina zápisů, věta „Co se dělo“, otázky na jiný lék a zdravotní stav, tabulka „Jídla dne za období“, sbalené podklady a lišta „Další krok: návrhy na příští plán (N)“.
+- **Co to je:** první krok vedené kontroly: kroky nahoře (na snímku „Návrhy 0 z 8“), hlavička s obdobím a HbA1c, dlaždice dříve · teď · rozdíl, tkanina zápisů, věta „Co se dělo“, otázky na jiný lék a zdravotní stav, tabulka „Jídla dne za období“, sbalené podklady a lišta „Další krok: návrhy na příští plán (N)“.
 - **Kdo a kdy:** lékař, na kontrole s pacientem.
 - **K čemu:** za minutu pochopit období: jak pacient zapisoval, jak držel porci a inzulin, kde je glukóza proti cílům a jak se to změnilo.
 - **Spojitost s daty pacienta:** zápisy jídel, potvrzení inzulinu a bazálu, odpovědi na rady, nemoc, export (souhrn ze senzoru), hmotnost a HbA1c od sestry, výchozí hodnoty ze zařazení nebo souhrn minulého plánu.
@@ -415,8 +418,8 @@ Události ordinace:
   - `NF.startReview(S)` jednou při zahájení: `S.review = { planId, startedAt, step: 1, summary: NF.summary(...), proposals: NF.proposals(...), decisions: {}, verify: {}, newDoses, newInstructions, newTargets, meds, health, validDays: 92 }`.
   - `NF.summary(S, planId)`: jídla a svačiny zvlášť; obvyklá porce `usualPct`; inzulin podle plánu `asPct` (podíly zaokrouhlené dolů, 239 z 240 není 100 %); jinak / bez inzulinu / neví; bazál „potvrzeno X z Y dnů plánu“ (jen dny před dneškem); inzulin včas (`NF.onTime`, D-CISTA 30/15); nemoc (`NF.illnessDays`, `NF.illnessLongPeriods` proti P-NEMOC.dny); zápisy bez dat; souhrn ze senzoru (patří k plánu); rady (`NF.adviceOutcome`); HbA1c (`NF.hba1cFor`); hmotnost (`NF.weightFor`); sám snížené dávky (`selfLower`, `basalLower`); menší porce ohlášená předem (`smallerPlanned`); spolehlivost dat „zapsáno X z Y hlavních jídel · nejvyšší hodnota u X z Y“.
   - Dlaždice (`cmpTile`): velké číslo = teď; řádek „dříve X → teď Y · ±rozdíl“ (u procent v procentních bodech); slovo stavu = cíl + směr. Směr u procent až od `S-SEMAFOR.smer_pb` (2 p. b.), jinak „beze změny“.
-    - Čas v cíli: zelená při `tir ≥ C-CILE.tirGoal` a `below < tbrGoal`; oranžová při `tir ≥ S-SEMAFOR.tir_zluta` (50) a pod 3,0 < `tbr3_max` (1 %); jinak červená (`NF.summary.tirState`); pruh pod · v cíli · nad.
-    - Čas pod 3,9: „méně než 4 % času“ / „4 % času a víc“ proti `C-CILE.tbrGoal`; hlášené poklesy po jídle jako samostatný údaj (v procentech času nejsou).
+    - Čas v cíli (`NF.summary.tirState`): méně než `S-SEMAFOR.min_dni` (14) dní dat → stav `few`, dlaždice neutrální se slovem „– bez hodnocení · málo dní dat“ i při zlepšení a věta „Co se dělo“ končí „bez hodnocení – málo dní dat“ (od SCHEMA 90); čas pod 3,0 ≥ `tbr3_max` (1 %) → vždy červená (od SCHEMA 90 ani zelená); zelená při `tir ≥ C-CILE.tirGoal` a `below < tbrGoal`; oranžová při `tir ≥ S-SEMAFOR.tir_zluta` (50) a `below < tbrGoal`; jinak červená; pruh pod · v cíli · nad.
+    - Čas pod 3,9: „méně než 4 % času“ / „4 % času a víc“ proti `C-CILE.tbrGoal` (při stavu `few` bez hodnocení); hlášené poklesy po jídle jako samostatný údaj („hlášené poklesy po jídle: 2 (pod 4 mmol/l podle pacienta; v procentech času nejsou, v návrhu k dávce se počítají jako pod dolním cílem)“).
     - HbA1c: proti `C-CILE.hba1cGoal`, s daty odběru; bez nového výsledku „nový výsledek od začátku plánu chybí“.
     - Obvyklá porce a Inzulin podle plánu: ok od `porce_ok`/`inzulin_ok` (80 %), oranžová pod, výrazně pod `*_varovani` (60 %).
     - Přijaté rady: neutrální, slovo „– s radou bývalo níž / podobně / zatím nelze říct / nebylo níž“ (`S-SOUHRN` min_n 8, rozdil_mmol 1,0).
@@ -427,10 +430,10 @@ Události ordinace:
   - „Jídla dne za období“ (`mealOverview`): pro snídani, oběd, večeři z `pr.stats` návrhu: čistá jídla, nad cílem (počet a %), medián vrcholu, vývoj „první polovina → poslední 4 týdny · slovo“ (`NF.trendOf`, `S-SEMAFOR.vyvoj_tydny` 4, `smer_mmol` 1,0), výsledek (karta / bez návrhu); řádek „Ráno před snídaní“ z `NF.morningValues`.
   - Otázky „Začal pacient brát jiný lék na diabetes?“ a zdravotní stav: předvyplněné odpovědí sestry („zjistila sestra“), lékař je může změnit (`NF.setReviewMeds`, `NF.setReviewHealth`).
 - **Pravidla:** C-CILE, S-SEMAFOR, D-CISTA, S-SOUHRN (provozní, bez štítku), K-KRITERIA, D-PRAND.
-- **Stavy a hraniční případy:** první kontrola: „dříve“ = výchozí hodnoty ze zařazení, porce a inzulin „první období · bez srovnání“; souhrn ze senzoru kratší než `min_dni` (14) řekne „jen N dní dat“; zamítnutá S-SEMAFOR → dlaždice bez barvy, „– semafor vypnutý“, směr podle znaménka; zamítnuté C-CILE → oznámení „Váš nesouhlas je zapsaný“, hodnocení dál s navrženými cíli; pacient nic nezapsal → „Pacient zatím nezapsal žádné jídlo.“
+- **Stavy a hraniční případy:** první kontrola: „dříve“ = výchozí hodnoty ze zařazení, porce a inzulin „první období · bez srovnání“; souhrn ze senzoru kratší než `min_dni` (14) je „bez hodnocení · málo dní dat“ a bod D-POSTUP o vyrovnání se nevyhodnotí (od SCHEMA 90); zamítnutá S-SEMAFOR → dlaždice bez barvy, „– semafor vypnutý“, směr podle znaménka; zamítnuté C-CILE → oznámení „Váš nesouhlas je zapsaný“, hodnocení dál s navrženými cíli; pacient nic nezapsal → „Pacient zatím nezapsal žádné jídlo.“
 - **Stopa:** `kontrola.zahajena` (celý souhrn a seznam návrhů), `kontrola.leky`, `kontrola.stav`.
 - **Pozor:** souhrn se počítá jednou při zahájení; souhrn ze senzoru patří k plánu, ke kterému byl export nahrán; slova stavu i barvy jen podle barevných rolí.
-- **Testy:** hlavní test „Kontrola je vedené flow…“, „Závěrečná kontrola 23. 10. (02 #3)…“; `faze2-jadro.test.cjs` „A14 prahy dlaždic kontroly ze S-SEMAFOR“, „A30…“; `kontrola74-obsah.test.cjs` „B8, B10…“, „B11…“, „B19…“; `zaverecne80.test.cjs` „81 bod 11…“; `schema84-jadro.test.cjs` „4…“, „6…“, „B5 + C2…“; `kontrola4-obsah.test.cjs` „01 M3…“.
+- **Testy:** hlavní test „Kontrola je vedené flow…“, „Závěrečná kontrola 23. 10. (02 #3)…“; `faze2-jadro.test.cjs` „A14 prahy dlaždic kontroly ze S-SEMAFOR“, „A30…“; `kontrola74-obsah.test.cjs` „B8, B10…“, „B11…“, „B19…“; `zaverecne80.test.cjs` „81 bod 11…“; `schema84-jadro.test.cjs` „4…“, „6…“, „B5 + C2…“; `kontrola4-obsah.test.cjs` „01 M3…“; `schema90-jadro.test.cjs` „Ordinace V1, V2: semafor zelený jen s časem pod 3,0 pod mezí…“.
 
 ### O13 Krok 1: rozbalená dlaždice a podklady
 
@@ -440,11 +443,11 @@ Události ordinace:
 
 *Stav na snímku: rozbalená dlaždice „Čas v cíli“ a všechny části podkladů.*
 
-- **Co to je:** detail dlaždice (`tileDetail`) a podklady pro podrobnější pohled: Sestra · Data ze senzoru, Bezpečnost, Jídla opakovaně nad cílem, Reakce na jednotlivá jídla, Rady, Otázky pacienta.
+- **Co to je:** detail dlaždice (`tileDetail`) a podklady pro podrobnější pohled: Sestra · Data ze senzoru, Bezpečnost, Jídla opakovaně nad cílem, Reakce na jednotlivá jídla, S radou bývalo níž?, Plán, dávky a jejich potvrzení, Senzor, Pravidla pro pacienta (na snímku 8), Zaučení u sestry, Otázky pacienta.
 - **Kdo a kdy:** lékař, jen když chce víc (vše je sbalené).
 - **Spojitost s daty pacienta:** zápisy, odpovědi na otázky, export, otázky, které si pacient uložil.
 - **Co se počítá:**
-  - **Bezpečnost** (`safetyPart`): poklesy po jídle za 92 dní z `NF.lowEvents` (průběh pod dolním cílem do 4 h, opsané „pod 4“, odpovědi „ano“ na otázku po menší porci; jeden pokles na jídlo dne a den); kolikrát se aplikace ptala po menší porci a odpovědi (ano / ne / nevím / bez odpovědi, `NF.hypoWatchState`); poklesy zapsané pacientem mimo otázku; noční poklesy zapsané čipem u snídaně (a zda je export nepotvrdil); noci pod dolním cílem z exportu s časem a nejnižší hodnotou; bez exportu výrazná věta `Z-IMPORT.texts.nociChybi`.
+  - **Bezpečnost** (`safetyPart`): poklesy po jídle za 92 dní z `NF.lowEvents` (průběh pod dolním cílem do 4 h, nejnižší hodnota z exportu do `Z-IMPORT.pokles_min`, opsané „pod 4“, odpovědi „ano“ na otázku po menší porci, vynechaném jídle nebo vyšší dávce, od SCHEMA 90 i glukóza „pod 4“ před dalším jídlem připsaná předchozímu jídlu; jeden pokles na jídlo dne a den); u každého poklesu důvod, proč není čistý (menší porce, jiná dávka, od SCHEMA 90 i „vyšší dávka než v plánu“); kolikrát se aplikace ptala po menší porci a odpovědi (ano / ne / nevím / bez odpovědi, `NF.hypoWatchState`); poklesy zapsané pacientem mimo otázku; noční poklesy zapsané čipem u snídaně (a zda je export nepotvrdil); noci pod dolním cílem z exportu s časem a nejnižší hodnotou; bez exportu výrazná věta `Z-IMPORT.texts.nociChybi`.
   - **Jídla opakovaně nad cílem** (`NF.strongFoods`, S-SILNA): jedna věta a nejvýš `maxJidel` (3) jídel s nejvíc zápisy nad cílem, zbytek pod „Další (N)“.
   - **Reakce na jednotlivá jídla:** řádek pro každé jídlo a jídlo dne (`NF.foodStats` po jídle dne), úroveň, stupeň reakce, nad cílem, v cíli, rozmezí vrcholů, rady se srovnáním „s radou bývalo níž“ jen od `S-SOUHRN.min_n` v obou skupinách a rozdílu `rozdil_mmol`; nestálá jídla.
   - **Rady:** nabídky, přijato, odmítnuto, bez odpovědi, důvody (`NF.adviceOutcome`); zápis se dvěma přijatými radami se počítá ke každé se značkou „spolu s další radou“.
@@ -460,7 +463,7 @@ Události ordinace:
 
 *Kapitola: „Lékař – krok 2: návrhy s důvodem a postupem“ (`reviewProposals`, `D.play(22)`; v Přehledu scén scéna 23), na začátku scény.*
 
-*Stav na snímku: začátek kroku 2, otevřená první karta „Posoudit prandiální dávku ke snídani – hodnoty nad cílem“, nic neověřeno.*
+*Stav na snímku: začátek kroku 2, otevřená první karta „Posoudit prandiální dávku ke snídani – hodnoty nad cílem“; lékař zatím nic neklepl. Od SCHEMA 90 jsou body potvrzené daty předvyplněné „Sedí“ se štítkem „sedí podle dat“ a body sestry nesou její odpověď, takže karta ukazuje „Ověřeno 10 z 11 bodů“ a čeká jen bod 1 (potvrzení dávek ke snídani) – jeho fakt patří k bodům, které se z dat nepředvyplňují.*
 
 - **Co to je:** seznam návrhů; aktuální karta je otevřená, ostatní jsou řádky „čeká“ nebo rozhodnuté („souhlas · 8 → 10 j. (+2 j.) · změnit“).
 - **Kdo a kdy:** lékař, na kontrole s pacientem; body, které z dat ověřit nejde, už prošla sestra.
@@ -468,18 +471,18 @@ Události ordinace:
 - **Části karty:**
   1. **Proč návrh vznikl** (`pr.why`), dlaždice rozpadu podle jídel (`pr.breakdown`, nejvýš 3 jídla s nejvíc zápisy nad cílem), poklesy pod 4 v období (`pr.lows`), řádky „Vývoj vrcholů v čase“, „Celkové vyrovnání“ (`pr.context`), štítek položky, ze které návrh vzniká (D-PRAND / D-BAZAL / R-POKYNY).
   2. **Co návrh oslabuje (N)** (`pr.weak`) a seznam vyřazených zápisů s důvodem (`NF.whyNotForDose`), štítek D-CISTA.
-  3. **Ověřit s pacientem**: body postupu D-POSTUP, u bodu číslo z dat (`pr.facts[i].text`), štítek „data říkají jinak“ (`against`), „sestra s pacientem: sedí / nesedí / zatím neověřila“; „Vše sedí“ (`NF.verifyAll`) nepřepne body proti datům ani body sestry.
-  4. **Postup říká**: dokud není ověřeno vše, „čeká · Ověřeno N z M bodů. Větev postupu se ukáže, až ověříte všechny.“
+  3. **Ověřit s pacientem**: body postupu D-POSTUP, u bodu číslo z dat (`pr.facts[i].text`), štítek „data říkají jinak“ (`against`), „sestra s pacientem: sedí / nesedí / zatím neověřila“; „Vše sedí“ (`NF.verifyAll`) nepřepne body proti datům ani body sestry. **Od SCHEMA 90 (rozhodnutí vlastníka bod 8)** jsou body potvrzené daty předvyplněné „Sedí“ se štítkem „sedí podle dat“ (`pr.dataOk`, `NF.verifyByData`); předvyplňují se jen fakta měřená z dat (`NF.DATA_FACTS`: vrcholy, vyrovnání, jídla, poklesy, shoda, rady, čas pod cílem, poklesy po porci a dávce), ne body o rozhovoru, a jen se schválenou D-POSTUP. Stav bodu bere `NF.verifyState` v pořadí lékař → sestra → data; lékař může předvyplněný bod změnit a stopa to zapíše (`navrh.overeni` s `protiDatum`). Hlavička bloku ukazuje počet „N z M“.
+  4. **Postup říká**: dokud není ověřeno vše, „čeká · Ověřeno N z M bodů. Větev postupu se ukáže, až ověříte všechny.“ (snímek: „Ověřeno 10 z 11 bodů“) a pod tím „Větve postupu (12)“.
   5. **Rozhodnout**: „Souhlasím (dokončete ověření)“ zamčené, „Jiné rozhodnutí“ dostupné (ponechat a zamítnout nepotřebují ověření).
 - **Kdy návrh k prandiální dávce vznikne (`NF.proposals`, pro každé jídlo dne, okno od poslední změny dávky, nejméně `D-PRAND.dny` 28 dní):**
   - **Hodnoty pod cílem (přednost, priorita 1):** ze **všech** zápisů jídla dne: aspoň jeden pokles < 3,0, nebo aspoň `hypoMin` (6) jídel, z nich aspoň `hypo` (2) s poklesem < dolní cíl do 4 h, které tvoří aspoň `hypoPodil` (15 %). Opsané „pod 4“ se počítá jako pod 3,9. Postup `prandLow`. Když vznikne, návrh „nad cílem“ k témuž jídlu nevznikne.
   - **Hodnoty nad cílem (priorita 2, s branou rad 3,5):** z **čistých** jídel (`NF.usableForDose`: obvyklá porce, dávka potvrzená podle plánu a včas v okně D-CISTA 30 min před / 15 min po, bez svačiny do 2 h, mimo nemoc, úplná data, ne zpětný zápis): aspoň `minJidel` (8) čistých jídel, aspoň `podil` (2/3) s vrcholem 0–120 min nad horním cílem (10,0) a medián vrcholu nad cíl + `medianNad` (0,5). Jinak řádek „bez návrhu“ (O18) s důvodem.
   - **Nejdřív rady (priorita 3, karta před kartou k dávce):** když bylo aspoň `odmitnutiMin` (5) nabídek rad a pacient je přijal méně než `radyPrve` (3)×, nebo jich odmítl aspoň `odmitnutiPodil` (60 %). Karta k dávce přesto vznikne (brána není zámek), jen bod 10 podle dat nesedí.
-- **Body postupu `prandHigh` (D-POSTUP) a jejich fakta:** 1 dávky potvrzené podle plánu a včas (fakt: včas X z Y, kolikrát nižší/vyšší dávka, kolikrát „nevím“) · 2 technika a místo píchání (sestra) · 3 vrcholy opakovaně, ne jednorázově (X z N nad cílem, medián) · 4 mezi jídlem a měřením nic dalšího (svačina do 2 h; sestra) · 5 nebyl nemocný ani ve stresu (zápisy z nemoci; sestra) · 6 vyrovnání nedosahuje cíle: čas v cíli pod cílem nebo HbA1c nad cílem (proti datům jen, když platí obojí naopak) · 7 nad cílem nejsou jen jedno nebo dvě jídla (proti datům, když dvě jídla tvoří ≥ `podilDvouJidel` 67 % zápisů nad cílem a pacient jí k témuž jídlu dne i jiné jídlo v cíli aspoň u `v_cili_podil` 90 % zápisů) · 8 u jídla nebyl pokles pod 4 při obvyklé porci a dávce podle plánu (viz níže) · 9 opsané vrcholy se shodují s exportem (proti datům, když je k porovnání méně než `shoda_min` 5 jídel nebo shoda < `shoda_podil` 80 %) · 10 pacient rady zkoušel (brána rad).
+- **Body postupu `prandHigh` (D-POSTUP) a jejich fakta:** 1 dávky potvrzené podle plánu a včas (fakt: včas X z Y, kolikrát nižší/vyšší dávka, kolikrát „nevím“) · 2 technika a místo píchání (sestra) · 3 vrcholy opakovaně, ne jednorázově (X z N nad cílem, medián) · 4 mezi jídlem a měřením nic dalšího (svačina do 2 h; sestra) · 5 nebyl nemocný ani ve stresu (zápisy z nemoci; sestra) · 6 vyrovnání nedosahuje cíle: čas v cíli pod cílem nebo HbA1c nad cílem (proti datům jen, když platí obojí naopak) · 7 nad cílem nejsou jen jedno nebo dvě jídla (proti datům, když dvě jídla tvoří ≥ `podilDvouJidel` 67 % zápisů nad cílem a pacient jí k témuž jídlu dne i jiné jídlo v cíli aspoň u `v_cili_podil` 90 % zápisů) · 8 u jídla nebyl pokles pod 4 při obvyklé porci a dávce podle plánu (viz níže) · 9 opsané vrcholy se shodují s exportem (proti datům, když je k porovnání méně než `shoda_min` 5 jídel nebo shoda < `shoda_podil` 80 %) · 10 pacient rady zkoušel (brána rad) · 11 (od SCHEMA 90, D-POSTUP v2) čas pod cílem je pod mezí: pod dolním cílem méně než `C-CILE.tbrGoal` (4 %) a pod 3,0 méně než `S-SEMAFOR.tbr3_max` (1 %) času (fakt `podCilem`; nad mezí bod nesedí podle dat, nepřepíná se a větev zní „ponechat – čas pod cílem nad mezí, nejdřív řešit nízkou glukózu“; blokuje „zvýšit“ u všech dávek, i u řádků bez návrhu, a je první položkou „Co návrh oslabuje“).
 - **Pravidla:** D-PRAND, D-POSTUP, D-CISTA, C-CILE, Z-IMPORT (shoda), S-SEMAFOR (vývoj v čase).
 - **Stopa:** od SCHEMA 87 každé označení bodu lékařem `navrh.overeni` (návrh, číslo a text bodu, sedí / nesedí, položka; `NF.setVerify`) a „Vše sedí“ `navrh.overeni.vse`; rozhodnutí pak `navrh.rozhodnut` s větví. Odpovědi sestry jsou `kontrola.sestra`.
 - **Pozor:** pořadí karet je podle priority; návrh kvůli nízkým hodnotám vždy vytlačí návrh kvůli vysokým u téže dávky. Postup ani karta nikdy neobsahují velikost kroku v jednotkách.
-- **Testy:** hlavní sada „SCHEMA 87 (bod 1): odpovědi pacienta, podmínky zařazení, výchozí hodnoty, ověření dávek a ověřovací body lékaře jdou do stopy“; hlavní test „Návrh k dávce: čistá data, rady první, větve podle ověření, jednotky volí lékař“, „Návrh k dávce 6. 10. 2026…“, „Čistá data pro dávku…“, „Registr R13…“, „Závěrečná kontrola 23. 10. (02 #2)…“; `schema84-jadro.test.cjs` „2…“, „4…“, „SCHEMA 85…“; `faze2-jadro.test.cjs` „A11…“, „A12 A13…“; `kontrola4-obsah.test.cjs` „06 B5…“; `zaverecne80.test.cjs` „02 A1…“, „81 bod 9“, „81 bod 10“; `kontrola2-obsah.test.cjs` „B10…“, „B12, C12, C15…“.
+- **Testy:** hlavní sada „SCHEMA 87 (bod 1): odpovědi pacienta, podmínky zařazení, výchozí hodnoty, ověření dávek a ověřovací body lékaře jdou do stopy“; hlavní test „Návrh k dávce: čistá data, rady první, větve podle ověření, jednotky volí lékař“, „Návrh k dávce 6. 10. 2026…“, „Čistá data pro dávku…“, „Registr R13…“, „Závěrečná kontrola 23. 10. (02 #2)…“; `schema84-jadro.test.cjs` „2…“, „4…“, „SCHEMA 85…“; `faze2-jadro.test.cjs` „A11…“, „A12 A13…“; `kontrola4-obsah.test.cjs` „06 B5…“; `zaverecne80.test.cjs` „02 A1…“, „81 bod 9“, „81 bod 10“; `kontrola2-obsah.test.cjs` „B10…“, „B12, C12, C15…“; `schema90-jadro.test.cjs` „Bod 4: čas pod cílem nad mezí blokuje větev „zvýšit“ u všech dávek…“, „Bod 8: body potvrzené daty jsou předvyplněné „sedí podle dat“…“.
 
 ### O15 Krok 2: ověřeno, větev postupu a nová dávka
 
@@ -487,21 +490,21 @@ Události ordinace:
 
 *Kapitola: „Lékař – krok 2: návrhy s důvodem a postupem“ (`reviewProposals`, `D.play(22)`; v Přehledu scén scéna 23), po 5. klepnutí na Další.*
 
-*Stav na snímku: karta ke snídani, 10 z 10 bodů sedí, lékař posuvníkem nastavil 10 j. (dnes 8 j.). Ověřovací body jsou na snímku rozbalené (šipka nahoru, všech 10 bodů s tlačítky Sedí / Nesedí) a rozbalený je i oddíl „Co návrh oslabuje (3)“. Sbalený řádek „10 z 10 sedí · upravit“ se ukáže po sbalení.*
+*Stav na snímku: karta ke snídani, 11 z 11 bodů sedí, lékař posuvníkem nastavil 10 j. (dnes 8 j.). Ověřovací body jsou na snímku rozbalené (řádek „11 z 11 sedí · upravit“ se šipkou nahoru, všech 11 bodů s tlačítky Sedí / Nesedí) a rozbalený je i oddíl „Co návrh oslabuje (3)“ se seznamem 11 vyřazených zápisů.*
 
-- **Co to je:** karta po dokončeném ověření: „Postup říká: zvýšit · Všechny body sedí a hodnoty jsou nad cílem: zvýšit dávku ke snídani“, ostatní větve pod „Ostatní větve postupu (N)“; blok Rozhodnout s posuvníkem dávky a tlačítkem „Souhlasím · z 8 na 10 j.“
+- **Co to je:** karta po dokončeném ověření: „Postup říká: zvýšit · Všechny body sedí a hodnoty jsou nad cílem: zvýšit dávku ke snídani“, ostatní větve pod „Ostatní větve postupu (11)“ (na snímku rozbalené, poslední „Bod 11 nesedí: ponechat – čas pod cílem nad mezí, nejdřív řešit nízkou glukózu“); blok Rozhodnout s posuvníkem dávky a tlačítkem „Souhlasím · z 8 na 10 j.“
 - **Kdo a kdy:** lékař, s pacientem.
 - **Co se počítá:**
-  - **Větev** `NF.proposalBranch` `(S, návrh)` v `app/core.js` (od SCHEMA 89; `V.proposalBranch` v `screens-clinic.js` je jen alias), vrací `{ action, text, when?, block?, missing? }` s `action` = `wait | free | keep | up | down | swap | edit`: stav bodu `NF.verifyState` = rozhodnutí lékaře, jinak odpověď sestry; bod blokovaný daty je vždy „nesedí“. Dokud je bod neověřený → `wait`. Bez schváleného postupu → `free` („rozhodněte sami“). Všechny body sedí → větev bez „nesedí“ (u `prandHigh` „zvýšit“). Jinak větev prvního nesedícího bodu, **body blokované daty mají přednost** před pořadím. Bod bez větve → „ponechat dávku – schválený postup pro tento bod nemá větev“ (nikdy zvýšení).
+  - **Větev** `NF.proposalBranch` `(S, návrh)` v `app/core.js` (od SCHEMA 89; `V.proposalBranch` v `screens-clinic.js` je jen alias), vrací `{ action, text, when?, block?, missing? }` s `action` = `wait | free | keep | up | down | swap | edit`: stav bodu `NF.verifyState` = rozhodnutí lékaře, jinak odpověď sestry, jinak od SCHEMA 90 potvrzení daty (`NF.verifyByData`); bod blokovaný daty je vždy „nesedí“. Dokud je bod neověřený → `wait`. Bez schváleného postupu → `free` („rozhodněte sami“). Všechny body sedí → větev bez „nesedí“ (u `prandHigh` „zvýšit“). Jinak větev prvního nesedícího bodu, **body blokované daty mají přednost** před pořadím. Bod bez větve → „ponechat dávku – schválený postup pro tento bod nemá větev“ (nikdy zvýšení).
   - **Posuvník dávky** se ukáže jen u větve zvýšit / snížit / bez postupu; značka „dnes N j.“, rozsah 1–60 j. (`NF.DOSE_RANGE`); rozdíl „+2 j. (8 → 10)“. Hodnotu volí lékař; aplikace ji nenavrhuje (věta „Nastavte novou dávku posuvníkem; aplikace ji nenavrhuje.“). „Souhlasím“ je zamčené, dokud dávka = dnešní.
-  - **Rozhodnutí** `NF.decideProposal(S, id, { choice: 'agree', branch, units })` (jen role lékař). Když lékař při větvi „zvýšit“ nastaví nižší dávku (nebo při „snížit“ vyšší), tlačítko zní „Rozhodnout jinak než postup · 8 → 7 j.“, pod ním „Změna jde proti větvi vašeho postupu; zapíše se jako „rozhodnuto jinak než postup““ a zapíše se `choice: 'other', againstBranch: true`.
-  - **Blok „zvýšit“ poklesem (bod 8):** `NF.lowEvents` u každého poklesu určí `clean` (obvyklá porce + dávka potvrzená podle plánu a včas) a důvod (`why`: menší porce, větší porce, jiná nebo nepotvrzená dávka, dávka mimo čas, vynechané jídlo s inzulinem). Při `D-POSTUP.poklesy_jen_ciste` = 1 blokují jen čisté poklesy, a to od `poklesy_od` (1). Blokující bod je „nesedí podle dat“, nepřepíná se („Nepřepíná se: větev „zvýšit“ je zablokovaná.“) a větev zní „ponechat dávku, řešit jídlo“. Ostatní poklesy jsou varování ve faktu bodu 8 a jako první položka „Co návrh oslabuje“. Návrh si blok nese i bez schváleného postupu (`pr.lowBlock`): **zvýšení dávky u jídla s blokujícím poklesem jádro vždy zapíše jako `choice: 'other', againstBranch: true, againstData: true`** („rozhodnuto jinak než postup · proti datům (pokles pod 4)“), ať lékař klepl na cokoli.
+  - **Rozhodnutí** `NF.decideProposal(S, id, { choice: 'agree', branch, units })` (jen role lékař). Od SCHEMA 90 jádro samo porovná směr dávky s větví v okamžiku rozhodnutí a větev zapíše do rozhodnutí (`postup`); změna ve směru větve odchylka není. Když lékař při větvi „zvýšit“ nastaví nižší dávku (nebo při „snížit“ vyšší), tlačítko zní „Rozhodnout jinak než postup · 8 → 7 j.“, pod ním „Změna jde proti větvi vašeho postupu; zapíše se jako „rozhodnuto jinak než postup““ a zapíše se `choice: 'other', againstBranch: true`.
+  - **Blok „zvýšit“ poklesem (bod 8):** `NF.lowEvents` u každého poklesu určí `clean` (obvyklá porce + dávka potvrzená podle plánu a včas) a důvod (`why`: menší porce, větší porce, jiná nebo nepotvrzená dávka, dávka mimo čas, vynechané jídlo s inzulinem). Při `D-POSTUP.poklesy_jen_ciste` = 1 blokují jen čisté poklesy, a to od `poklesy_od` (1). Od SCHEMA 90 se mezi poklesy počítá i glukóza „pod 4“ před dalším jídlem téhož dne (`NF.epLowBefore`, `NF.lowBeforeOwner`) a pokles z exportu do 4 h po jídle. Blokující bod je „nesedí podle dat“, nepřepíná se („Nepřepíná se: větev „zvýšit“ je zablokovaná.“) a větev zní „ponechat dávku, řešit jídlo“. Ostatní poklesy jsou varování ve faktu bodu 8 a jako první položka „Co návrh oslabuje“. Návrh si blok nese i bez schváleného postupu (`pr.lowBlock`): **zvýšení dávky u jídla s blokujícím poklesem jádro vždy zapíše jako `choice: 'other', againstBranch: true, againstData: true`** („rozhodnuto jinak než postup · proti datům (pokles pod 4)“), ať lékař klepl na cokoli.
   - Po rozhodnutí se karta zavře do řádku s výsledkem (`decisionLabel`) a otevře se další návrh (`NF.nextProposal`); „změnit“ návrh znovu otevře (`propReopen`, dávka se vrátí na dávku plánu).
 - **Pravidla:** D-POSTUP (štítek v boxu „Postup říká“), D-PRAND, D-CISTA.
 - **Stavy:** větev bez postupu (`free`): štítek „bez postupu“ a u blokovaného jídla hláška „Zvýšení dávky u jídla s poklesem pod 4 se zapíše jako rozhodnutí proti datům“.
-- **Stopa:** `navrh.rozhodnut` `PR-BREAKFAST → agree` s `{ choice, branch: 'up', units: 10, againstBranch, againstData, … }`.
+- **Stopa:** `navrh.rozhodnut` `PR-BREAKFAST → agree` s `{ choice, branch: 'up', units: 10, againstBranch, againstData, postup, … }`; řádek stopy „… – souhlas · 10 j. · postup: zvýšit“.
 - **Pozor při programování:** **aplikace nikdy nevymýšlí směr ani výši dávky**: směr je jen větev schváleného postupu, výši zadá lékař; větev je doporučení, ne zámek (lékař má vždy „Jiné rozhodnutí“). Kontrola `againstData` musí být v doméně, ne v UI.
-- **Testy:** `kontrola3-obsah.test.cjs` „A1: každý postup D-POSTUP má větev pro každý bod…“, „A1: bod s poklesem pod 4 má přednost…“; `kontrola74-obsah.test.cjs` „A1…“; `schema84-jadro.test.cjs` „1 + 3: zvýšení u jídla s poklesem při obvyklé porci je rozhodnutí proti datům…“; hlavní test „Klinická bezpečnost (23. 10. 2026): dávka jen z rozhodnutí lékaře…“, „SCHEMA 84 … posuvník“.
+- **Testy:** `kontrola3-obsah.test.cjs` „A1: každý postup D-POSTUP má větev pro každý bod…“, „A1: bod s poklesem pod 4 má přednost…“; `kontrola74-obsah.test.cjs` „A1…“; `schema84-jadro.test.cjs` „1 + 3: zvýšení u jídla s poklesem při obvyklé porci je rozhodnutí proti datům…“; hlavní test „Klinická bezpečnost (23. 10. 2026): dávka jen z rozhodnutí lékaře…“, „SCHEMA 84 … posuvník“; `schema90-jadro.test.cjs` „Klinika K8, ordinace S5: jádro samo zapíše „jinak než postup“ podle směru dávky proti větvi…“, „Bod 3: glukóza „pod 4“ před jídlem je pokles…“.
 
 ### O16 Krok 2: Jiné rozhodnutí
 
@@ -516,7 +519,7 @@ Události ordinace:
 - **Co se počítá:**
   - „Ponechat beze změny“ a „Zamítnout s důvodem“ nepotřebují dokončené ověření (`choice: 'keep'` / `'reject'` s `reason`); dávka se vrátí na dávku plánu.
   - „Jiná dávka“ (volič u každé dávky, i u větve „ponechat“): jen po dokončeném ověření; `NF.decideOtherDose(S, id, jednotky, větev)` → `choice: 'other'`, `againstBranch: true` (když existuje větev postupu), u blokujícího poklesu a vyšší dávky navíc `againstData: true`. Stejná dávka jako dnes je chyba („Jiná dávka musí být jiná než dnes…“).
-  - Záhlaví rozhodnuté karty: „rozhodnuto jinak než postup · 10 → 11 j. (+1 j.)“.
+  - Záhlaví rozhodnuté karty: „rozhodnuto jinak než postup · 10 → 11 j. (+1 j.)“. Od SCHEMA 90 o „jinak než postup“ rozhoduje jádro podle směru dávky proti větvi (`NF.decideProposal`), ne obrazovka.
 - **Pravidla:** D-POSTUP.
 - **Stopa:** `navrh.rozhodnut` s `againstBranch` / `againstData`, u zamítnutí `reason`.
 - **Pozor:** **žádné volné pole „Komentář“** (zrušeno, v ordinaci se nepíše); důvod zamítnutí je volba.
@@ -531,10 +534,10 @@ Události ordinace:
 *Stav na snímku: třetí karta příběhu „Posoudit bazální dávku – noční hodnoty pod cílem“; sestra u „Pozdě večer a v noci pacient nic nejí“ vybrala „Nesedí“.*
 
 - **Co to je:** návrhová karta k bazálu s řádkem okolností u každé noci, ranními hodnotami za období a vývojem ranních hodnot.
-- **Kdy vznikne (`NF.proposals`, D-BAZAL, okno `dny` 14):** noci = noci z exportu + noci, které hlásil pacient (čip u snídaně nebo ranní odpověď po menší či vynechané večeři; `NF.basalNights`). V okně exportu rozhoduje export (noc bez poklesu v exportu se nepočítá: „export nepotvrdil“); noc ze zápisu mimo okno exportu se počítá navíc i do jmenovatele. S exportem musí být posouzených nocí aspoň `minNoci` (10), bez exportu stačí noci ze zápisu. Návrh „noční hodnoty pod cílem“: aspoň `nociPod` (2) noci pod dolním cílem nebo 1 noc pod 3,0. Návrh „ranní hodnoty nad cílem“: aspoň `minNoci` nocí, medián ranních hodnot nad `C-CILE.fastingHigh` (7,2) a žádná noc pod dolním cílem.
+- **Kdy vznikne (`NF.proposals`, D-BAZAL, okno `dny` 14):** noci = noci z exportu + noci, které hlásil pacient (čip u snídaně nebo ranní odpověď po menší či vynechané večeři; `NF.basalNights`). V okně exportu rozhoduje export (noc bez poklesu v exportu se nepočítá: „export nepotvrdil“); noc ze zápisu mimo okno exportu se počítá navíc i do jmenovatele. S exportem musí být posouzených nocí aspoň `minNoci` (10), bez exportu stačí noci ze zápisu. Návrh „noční hodnoty pod cílem“: aspoň `nociPod` (2) noci pod dolním cílem nebo 1 noc pod `velmiNizka` (3,0). Od SCHEMA 90 se jako noční pokles počítá i glukóza „pod 4“ před snídaní (`basalNights` s `via: 'pred'`). Návrh „ranní hodnoty nad cílem“: aspoň `minNoci` nocí, medián ranních hodnot nad `C-CILE.fastingHigh` (7,2) a žádná noc pod dolním cílem.
 - **Přednost:** noční pokles má prioritu 0 (před vším), jen když noc klesla pod 3,0 nebo sestra neuvedla jídlo pozdě večer a v noci; jinak priorita 2,5 s větou „Sestra s pacientem uvedla jídlo pozdě večer a v noci, proto karta nemá přednost před ostatními.“ a v „Co návrh oslabuje“ „… snížení bazálu by zhoršilo hodnoty po jídle“.
-- **Řádky:** `NF.nightCircumstances` „Noc na DD. MM.: večeře čas jídlo (porce) · bazál čas podle plánu · před spaním X · ráno Y“; `NF.morningValues` „Ranní hodnoty za období: medián · nad 7,2: X z Y“; `NF.trendOf` ranních hodnot. Pod 3,0 věta o možném artefaktu senzoru.
-- **Body postupu `bazalLow`:** 1 bazál potvrzený ve stejnou hodinu (fakt „potvrzeno X z Y dnů plánu“) · 2 večeře v těch nocích obvyklé, bez alkoholu a nočního jídla (sestra `vecer`; fakt ranní hodnoty) · 3 pohyb běžný. Větve: vše sedí → snížit bazál; bod 1/2/3 nesedí → ponechat (řešit čas podání / večeře / posoudit příště). `bazalHigh` má 4 body (bazál, jídlo pozdě večer, technika, vyrovnání) a větev „zvýšit bazál“.
+- **Řádky:** `NF.nightCircumstances` „Noc na DD. MM.: večeře čas jídlo (porce) · bazál čas podle plánu · před spaním X · ráno Y“ (od SCHEMA 90 u bazálu s odpovědí „Nevím“ „pacient neví, zda podán“ místo „jinak (null j.)“); `NF.morningValues` „Ranní hodnoty za období: medián · nad 7,2: X z Y“; `NF.trendOf` ranních hodnot. Pod 3,0 věta o možném artefaktu senzoru.
+- **Body postupu `bazalLow`:** 1 bazál potvrzený ve stejnou hodinu (fakt „potvrzeno X z Y dnů plánu“) · 2 večeře v těch nocích obvyklé, bez alkoholu a nočního jídla (sestra `vecer`; fakt ranní hodnoty) · 3 pohyb běžný. Větve: vše sedí → snížit bazál; bod 1/2/3 nesedí → ponechat (řešit čas podání / večeře / posoudit příště). `bazalHigh` má od SCHEMA 90 5 bodů (bazál, jídlo pozdě večer, technika, vyrovnání a „Čas pod cílem je pod mezí“) a větev „zvýšit bazál“; bod 5 nad mezí dává „ponechat – čas pod cílem nad mezí, nejdřív řešit nízkou glukózu“. Hranice velmi nízké noční hodnoty je od SCHEMA 90 parametr `D-BAZAL.velmiNizka` (3,0).
 - **Pravidla:** D-BAZAL, D-POSTUP, B-HYPO (noční čip), Z-IMPORT, C-CILE.
 - **Stavy:** zamítnutá D-BAZAL → karta nevznikne, bazál je řádek „bez návrhu (návrh k bazálu není v registru schválený)“; zamítnutí během kontroly kartu odebere (`NF.refreshReview`).
 - **Stopa:** `navrh.rozhodnut` `PR-BAZAL`.
@@ -553,7 +556,7 @@ Události ordinace:
 - **Kdo a kdy:** lékař, na konci kroku 2.
 - **Co se počítá:**
   - Do „Beze změny“ patří návrhy s `group: 'keep'`: „Zachovat radu „X““ (rada přijatá aspoň `odmitnutiMin`× a nestažená) a „Bezpečnostní pravidla beze změny?“ (R-POKYNY, postup `pokynyBezeZmeny`). „Potvrdit vše beze změny“ (`NF.keepAll`) zapíše každou položku zvlášť jako `keep` s `bulk: true` a **neoznačí ověřovací body jako „sedí“**. „Rozhodnout zvlášť“ (`propSingle`) udělá z položky samostatnou kartu (u pravidel s větví „upravit“: úprava hodnot pravidel a cílů `reviewInstructions`).
-  - „Dávky bez návrhu“ (`NF.reviewRows`): řádek „Večeře · dnes 8 j. – 37 z 75 nad cílem · medián vrcholu 10,0 mmol/l · bez návrhu (práh 2/3 nad cílem)“; důvody: méně než `minJidel` čistých jídel, práh `podil`, medián do cíle + `medianNad`, zamítnutá D-PRAND; bazál bez karty s ranními hodnotami. Řádky nejsou karty, nevyžadují rozhodnutí a nepočítají se do „Rozhodněte N návrhů“. Změna posuvníkem + „Jiná dávka · 8 → 9 j.“ zapíše `choice: 'other', noProposal: true` („jiná dávka bez návrhu“); u blokujícího poklesu i proti datům. „Ponechat 8 j.“ rozhodnutí vrátí.
+  - „Dávky bez návrhu“ (`NF.reviewRows`): řádek „Večeře · dnes 8 j. – 37 z 75 nad cílem · medián vrcholu 10,0 mmol/l · bez návrhu (práh 2/3 nad cílem)“; důvody: méně než `minJidel` čistých jídel, práh `podil`, medián do cíle + `medianNad`, zamítnutá D-PRAND; bazál bez karty s ranními hodnotami. Řádky nejsou karty, nevyžadují rozhodnutí a nepočítají se do „Rozhodněte N návrhů“. Změna posuvníkem + „Jiná dávka · 8 → 9 j.“ zapíše `choice: 'other', noProposal: true` („jiná dávka bez návrhu“); u blokujícího poklesu i proti datům. Od SCHEMA 90 nesou řádky bez návrhu blok `lowBlock` také při času pod cílem nad mezí; řádek bazálu bez karty uvádí přesný důvod. „Ponechat 8 j.“ rozhodnutí vrátí.
   - `NF.reviewComplete` = každý ne-řádek má rozhodnutí.
 - **Pravidla:** D-PRAND, D-BAZAL, R-POKYNY, D-POSTUP.
 - **Stopa:** `navrh.rozhodnut` pro každou položku zvlášť.
@@ -623,7 +626,7 @@ Události ordinace:
 
 *Stav na snímku: scéna „Lékař – krok 4: předání pacientovi“.*
 
-- **Co to je:** karta „Předání pacientovi“ (datum příští kontroly) a náhled telefonu s obrazovkou nového plánu (`V.patient(S, 'newplan')`, atlas pacienta).
+- **Co to je:** karta „Předání pacientovi“ (datum příští kontroly) a náhled telefonu s obrazovkou nového plánu (`V.patient(S, 'newplan')`, atlas pacienta, P53). Od SCHEMA 90 je náhled jen ke čtení (`previewBody`: obsah `inert`, rámeček `.preview-scroll` roluje šipkami, kolečkem i dotykem) a při úzkém kontejneru má plnou šířku.
 - **Kdo a kdy:** lékař, na konci kontroly; pacient pak plán na svém telefonu převezme.
 - **Co se počítá:** nic; kontrola je uzavřená, až pacient převezme plán, který z ní vzešel (`NF.reviewClosed`), a záložka Kontrola pak začne novým obdobím (O09).
 - **Pozor:** „Do příští kontroly vám aplikace nic neposílá a nic po vás nežádá.“
@@ -637,8 +640,8 @@ Události ordinace:
 
 - **Co to je:** zásuvka mimo kroky kontroly (tlačítko se štítem v hlavičce kontroly): bezpečnostní pravidla pacienta z platného plánu a „Kam se obrátit“ (`V.acute`).
 - **Kdo a kdy:** lékař, kdykoli během kontroly pro rychlou orientaci.
-- **Co se počítá:** `V.instructionsList(S, plán)`; kontakty jen jako informace.
-- **Pravidla:** R-POKYNY, I-*, I-KONTAKT.
+- **Co se počítá:** `V.instructionsList(S, plán)` (od SCHEMA 90 osm pravidel včetně „Vyšší dávka než v plánu“); kontakty jen jako informace.
+- **Pravidla:** R-POKYNY, I-* (včetně I-VYSSI), I-KONTAKT.
 - **Pozor:** aplikace do léčby nezasahuje; nic se nezapisuje.
 - **Testy:** hlavní test „„Pravidla a kontakty“ otevře pokyny a kontakty (C2, SCHEMA 84)…“.
 
@@ -662,12 +665,12 @@ Události ordinace:
 
 *Kapitola: „Souhrn – vaše rozhodnutí o položkách registru“ (`trace`, `D.play(26)`; v Přehledu scén scéna 27), na začátku scény; potom stránka registru (`page:registry`).*
 
-*Stav na snímku: všech 28 klinických položek schválených.*
+*Stav na snímku: všech 29 klinických položek schválených.*
 
-- **Co to je:** hlavička „Schvalovací registr · Rozhodnuto X z 28“, tři dlaždice-filtry (Ke schválení · Schváleno · Zamítnuto), hledání, filtry kategorií a stavu (ke schválení, schválené, zamítnuté, s poznámkou), seznam položek (název, kód a kategorie, stav, datum, první věta poznámky), panel detailu a sbalený oddíl „Pravidla aplikace bez schvalování (14)“.
+- **Co to je:** hlavička „Schvalovací registr · Rozhodnuto X z 29“, tři dlaždice-filtry (Ke schválení · Schváleno · Zamítnuto), hledání, filtry kategorií a stavu (ke schválení, schválené, zamítnuté, s poznámkou), seznam položek (název, kód a kategorie, stav, datum, první věta poznámky), panel detailu a sbalený oddíl „Pravidla aplikace bez schvalování (14)“.
 - **Kdo a kdy:** garant (v první studii lékař), mimo práci s pacientem.
 - **Co se počítá:** `NF.registrySummary` (celkem, rozhodnuto, schváleno, zamítnuto, zbývá, s poznámkou) nad `NF.garantItems`; filtr v paměti; právě rozhodnutá položka ze seznamu nezmizí, dokud se nezmění filtr (`S.reg.keep`).
-- **Pravidla:** všech 28 klinických položek.
+- **Pravidla:** všech 29 klinických položek (od SCHEMA 90 i I-VYSSI; nové verze ke schválení B-HYPO v3, D-POSTUP v2, K-KRITERIA v2, D-PRAND v2, D-BAZAL v2).
 - **Stopa:** jen čtení.
 - **Pozor:** provozní položky se nepočítají do „zbývá“ ani do souhrnu.
 - **Testy:** hlavní test „Registr jako seznam ke schválení…“, „Registr: rozhodnutí se uloží ihned…“; `faze2-jadro.test.cjs` „A31…“; „Přístupnost 23. 10.…“.
@@ -709,7 +712,7 @@ Události ordinace:
 
 *Stav na snímku: otevřená Z-IMPORT a rozbalený oddíl „Pravidla aplikace bez schvalování“.*
 
-- **Co to je:** detail provozní položky: popis pravidla aplikace bez stavu, bez tlačítek a bez štítku.
+- **Co to je:** detail provozní položky: popis pravidla aplikace bez stavu, bez tlačítek a bez štítku. Na snímku Z-IMPORT ve verzi v2 (od SCHEMA 90 parametry `pokles_min`, `noc_od`, `noc_do`, `spani_od` a texty `jineObdobi`, `castObdobi`); nová verze provozní položky nemá stav ani nečeká na schválení.
 - **Pravidla:** 14 provozních položek (odst. 4.1).
 - **Pozor:** provozní položky neschvaluje nikdo; do „zbývá N“ ani do souhrnu se nepočítají.
 - **Testy:** hlavní test „Sedm rozhodnutí z 18. 10. 2026 (SCHEMA 54): … provozní položky bez garanta…“; `kontrola3-obsah.test.cjs` „C9, C10…“.
@@ -735,7 +738,7 @@ Události ordinace:
 
 *Kapitola: „Souhrn – vaše rozhodnutí o položkách registru“ (`trace`, `D.play(26)`; v Přehledu scén scéna 27), na začátku scény; potom `traceOpen` u události `navrh.rozhodnut` s volbou Souhlasím.*
 
-- **Co to je:** plány (stav, platnost, dávky), návyky se stavem a tabulka stopy od nejnovějšího: čas, kdo (pacient / lékař / sestra / aplikace), událost česky, podrobnost; filtr podle toho, kdo jednal; „Zobrazit dalších 80“; technická data v rozbalení řádku (`V.trace`, `traceDetail`). Snímek ukazuje rozbalená data rozhodnutí návrhu ke snídani s polem `polozky` (id, verze, otisk a stav položky D-POSTUP). Od SCHEMA 87 mají české názvy i nové události (`pravidlo.nizka`, `pravidlo.mene`, `pravidlo.nevim`, `plan.davky.overeni`, `plan.kontrolni.otazka`, `nemoc.dotaz`, `otazka.lekari`, `podpora.odeslano`, `zarazeni.*`, `navrh.overeni`, `navrh.overeni.vse`).
+- **Co to je:** plány (stav, platnost, dávky), návyky se stavem a tabulka stopy od nejnovějšího: čas, kdo (pacient / lékař / sestra / aplikace), událost česky, podrobnost; filtr podle toho, kdo jednal; „Zobrazit dalších 80“; technická data v rozbalení řádku (`V.trace`, `traceDetail`). Snímek ukazuje rozbalená data rozhodnutí návrhu ke snídani s polem `polozky` (id, verze, otisk a stav položky D-POSTUP). Od SCHEMA 87 mají české názvy i nové události (`pravidlo.nizka`, `pravidlo.mene`, `pravidlo.nevim`, `plan.davky.overeni`, `plan.kontrolni.otazka`, `nemoc.dotaz`, `otazka.lekari`, `podpora.odeslano`, `zarazeni.*`, `navrh.overeni`, `navrh.overeni.vse`). SCHEMA 90 přidala `pravidlo.vyssi`, `jidlo.zapis.opraven`, `jidlo.zapis.smazan`, `hypo.sledovani.zruseno` a `kontrola.prepocet`; řádek rozhodnutí návrhu nese větev v okamžiku rozhodnutí („· postup: zvýšit · jinak než postup“) a činnosti sestry mají aktéra „sestra“ (`NF.whoOf`).
 - **Kdo a kdy:** lékař a garant, k dohledání, co aplikace udělala a proč.
 - **Co se počítá:** řazení podle času události; události prezentační vrstvy (`prezentace.*`) se nezobrazují; kódy a syrová data jen v rozbalení.
 - **Pozor:** stopa nesmí obsahovat výsledek generativní AI ani síťové volání. Verze a otisk položek u každé události (`polozky`) se přenášejí. Krácení stopy (4000 / 1000) je omezení makety; ostrá aplikace má stopu úplnou.
@@ -749,7 +752,11 @@ Body, které zdroj pravdy neurčuje a rozhodne vlastník. Do rozhodnutí platí 
 
 - **R9 Kontextový sloupec.** `15` odst. 15a popisuje ordinaci „od 1600 px: pruh · pracovní sloupec do 880 px · kontextový sloupec“; pod 1600 px se sloupec nezobrazuje vůbec a náhled telefonu u sestry a v kroku 4 se na 1440 px skládá pod pracovní sloupec, ne vpravo („vpravo náhled telefonu“, odst. 5). Jde o rozhodnutí o rozložení, které `15` pro užší obrazovky neříká.
 
-## 8. Vyřešeno v SCHEMA 87
+## 8. Vyřešeno v SCHEMA 87 a 90
+
+**SCHEMA 90 (rozhodnutí vlastníka 11. 11. 2026, body 3, 4, 6, 8, 12 a nálezy ordinace z poslední kontroly):** pátá podmínka zařazení „Bez korekčního schématu“ (O02), body ověření předvyplněné „sedí podle dat“ (O14, O15), čas pod cílem nad mezí blokuje „zvýšit“ u všech dávek (O14, O15, O17, O18), „pod 4“ před jídlem a poklesy z exportu do 4 h jako poklesy (O10, O13, O15), semafor zelený jen s časem pod 3,0 pod mezí a „bez hodnocení“ pod 14 dny dat (O12), export za jiné období odmítnut nebo oříznut a pozdní export přepočítá kontrolu (O09–O11), druhá kontrola bez dat minulého období (O09), aktér „sestra“ a větev v řádku stopy (odd. 4.3, O30), „pacient neví, zda podán“ u bazálu (O17), náhledy telefonu jen ke čtení (O05, O22).
+
+### SCHEMA 87
 
 Body R1–R8, které atlas ve SCHEMA 86 našel, vyřešila SCHEMA 87 (rozhodnutí vlastníka 6. 11. 2026, bod 1) nebo dopsání `15` za maketou. Popisy obrazovek výše odpovídají novému stavu.
 

@@ -171,7 +171,7 @@ Dokud garant nerozhodne, programujete podle makety tak, jako by bylo vše schvá
 
 Ostatní:
 - Otisk ve stopě je od SCHEMA 89 otisk jádra `NF.itemFingerprint(položka)`.
-- Referenční výsledek je celá sada bez `FAIL` a nezměněné zlaté výstupy. Čísla 144 a 393 vysvětluje [`30-prilohy.md`](30-prilohy.md) odd. 5.1.
+- Referenční výsledek je celá sada bez `FAIL` a nezměněné zlaté výstupy. Počty testů (144 řádků celé sady, 432 zapsaných testů) vysvětluje [`30-prilohy.md`](30-prilohy.md) odd. 5.1.
 - Zastaralá čísla v `15` odst. 16–17 jsou deník a platí chování makety.
 
 Pokud narazíte na otázku, kterou tento dokument ani atlas neřeší, zeptejte se vlastníka. Do odpovědi platí chování makety.
