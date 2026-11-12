@@ -1,10 +1,10 @@
 # NutriFee – předání programátorovi
 
-Tyto podklady popisují stav makety **SCHEMA 90** k 9. 11. 2026. Vedou ke dvěma cílům. Začněte první cestou.
+Tyto podklady popisují stav makety **SCHEMA 91** k 12. 11. 2026. Vedou ke dvěma cílům. Začněte první cestou.
 
 **Celá předávka jako webová stránka:** <https://rudasrr.github.io/nutrifee-rozhodovaci-maketa/predani/> (stejný obsah jako soubory v této složce, se snímky a záložkami; bez přihlášení).
 
-> **10. 11. 2026 večer:** Nasazena **SCHEMA 90** s opravami z poslední kontroly. Co se změnilo, shrnuje `01-cesta-k-demu.md` (odstavec „Stav“ a rozhodnutí z 11. 11.). Snímky obrazovek jsou ze SCHEMA 90; texty atlasu se doplňují, při rozdílu platí maketa.
+> **12. 11. 2026:** Nasazena **SCHEMA 91** (rozhodnutí vlastníka 13–15 a zbytek nálezů poslední kontroly). Co se změnilo, shrnuje `01-cesta-k-demu.md` (odstavec „Stav“ a rozhodnutí z 11. 11.). Snímky obrazovek i popisy atlasu jsou ze SCHEMA 91; při rozdílu platí maketa.
 
 ## Cesta 1: první demo (teď)
 
@@ -34,7 +34,7 @@ Vlastník 9. 11. 2026 rozhodl, že první demo se staví **nad převzatým jádr
 
 - Živá ukázka: <https://rudasrr.github.io/nutrifee-rozhodovaci-maketa/> (vyžaduje přihlášení). Jak ukázku spustit lokálně bez přihlášení, popisuje `01-cesta-k-demu.md`.
 - Testy se spouštějí v kořeni repozitáře:
-  - `node rychle.test.cjs` – rychlá sada, asi 40 s (14 testů);
+  - `node rychle.test.cjs` – rychlá sada, asi 40 s (15 řádků);
   - `node zlate-vystupy.test.cjs` – zlaté výstupy jádra (9 testů; soubory JSON a generátor jsou ve složce `zlate-vystupy/`, test leží v kořeni);
   - `node nutrifee-rozhodovaci-maketa.test.cjs` – celá sada, asi 15–30 minut podle stroje (144 řádků OK). Kontrolujte celý výstup (řádky `FAIL`).
 - Od SCHEMA 89 testy najdou `15` i generátor `scene-items.cjs` v `predani/zdroj/`, takže samostatný klon s libovolným názvem složky projde bez kopírování souborů o úroveň výš (ověřeno: 144 prošlo, 0 selhalo).

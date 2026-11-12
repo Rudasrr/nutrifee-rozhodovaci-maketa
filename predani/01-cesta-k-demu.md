@@ -1,8 +1,8 @@
 # Cesta k prvnímu demu
 
-*Vlastník rozhodl 9. a 10. 11. 2026, že první demo se postaví nad převzatým jádrem makety, ne přepisem. Stav makety je SCHEMA 90. Pokyny pro AI asistenta jsou v [`AGENTS.md`](AGENTS.md). Atlasy obrazovek ([`10-atlas-pacient.md`](10-atlas-pacient.md), [`20-atlas-ordinace.md`](20-atlas-ordinace.md)) slouží jako příručka k jednotlivým obrazovkám. Plán ostré aplikace v 17 etapách je v [`00-postup.md`](00-postup.md) a pro demo ho nepotřebujete.*
+*Vlastník rozhodl 9. a 10. 11. 2026, že první demo se postaví nad převzatým jádrem makety, ne přepisem. Stav makety je SCHEMA 91. Pokyny pro AI asistenta jsou v [`AGENTS.md`](AGENTS.md). Atlasy obrazovek ([`10-atlas-pacient.md`](10-atlas-pacient.md), [`20-atlas-ordinace.md`](20-atlas-ordinace.md)) slouží jako příručka k jednotlivým obrazovkám. Plán ostré aplikace v 17 etapách je v [`00-postup.md`](00-postup.md) a pro demo ho nepotřebujete.*
 
-> **Stav 10. 11. 2026 večer:** Maketa na odkazu je **SCHEMA 90**. Obsahuje opravy z poslední kontroly (sedm nezávislých prověrek, `zdroj/navrhy-designu/36-posledni-kontrola/00-souhrn.md`) a 12 rozhodnutí vlastníka (`zdroj/navrhy-designu/36-posledni-kontrola/05-rozhodnuti.md`). Podrobnosti jádra a API pro synchronizaci jsou v `zdroj/navrhy-designu/36-posledni-kontrola/08-schema90-jadro.md`. Všech 87 snímků v atlasu je pořízených ze SCHEMA 90 (10. 11. 2026 večer). Texty popisů atlasu se doplňují; kde se text liší od snímku nebo makety, platí maketa.
+> **Stav 12. 11. 2026:** Maketa na odkazu je **SCHEMA 91** (commit `2077ed3`). Obsahuje opravy z poslední kontroly (sedm nezávislých prověrek, `zdroj/navrhy-designu/36-posledni-kontrola/00-souhrn.md`) a 15 rozhodnutí vlastníka (`zdroj/navrhy-designu/36-posledni-kontrola/05-rozhodnuti.md`): body 1–12 přinesla SCHEMA 90, body 13–15 a zbylé nálezy kontroly SCHEMA 91 (`zdroj/navrhy-designu/36-posledni-kontrola/12-schema91.md`). Podrobnosti jádra a API pro synchronizaci jsou v `zdroj/navrhy-designu/36-posledni-kontrola/08-schema90-jadro.md`; SCHEMA 91 na nich nic nezměnila. Všech 87 snímků v atlasu je pořízených ze SCHEMA 91 (12. 11. 2026) a popisy atlasu odpovídají SCHEMA 91 (`zdroj/navrhy-designu/36-posledni-kontrola/14-snimky-atlas91.md`); kde se text liší od snímku nebo makety, platí maketa.
 
 ## Co je první demo
 
@@ -99,7 +99,7 @@ Ve složce makety spusťte libovolný statický server, aby se stav držel i po 
 
 ## Testy jako zábradlí
 
-- **Rychlá sada** `node rychle.test.cjs` (asi 40 s, 14 testů) po každé změně. Ověřuje hodiny, úložiště a háček jádra, registr, zásady 1 a 3 a běh bez sítě a DOM. Souběžně pouští zlaté výstupy, P1–P11 a tokeny.
+- **Rychlá sada** `node rychle.test.cjs` (asi 40 s, 15 řádků) po každé změně. Ověřuje hodiny, úložiště a háček jádra, registr, zásady 1 a 3 a běh bez sítě a DOM. Souběžně pouští zlaté výstupy, P1–P11 a tokeny.
 - **Zlaté výstupy** `node zlate-vystupy.test.cjs` (test leží v kořeni repozitáře, 9 testů) porovnávají referenční výstupy jádra z přehrání všech 32 scén. Výstupy jsou v pěti souborech JSON ve složce `zlate-vystupy/` (`otisky`, `pribeh`, `kontrola`, `rady`, `stopa`), popis je v `zlate-vystupy/README.md`. Přegenerovat je (`node zlate-vystupy/generuj.cjs`) smíte jen při změně chování, kterou schválil vlastník.
 - **Celá sada** `node nutrifee-rozhodovaci-maketa.test.cjs` (podle stroje asi 15–30 minut, 144 řádků OK) pusťte před předáním dema a po každé změně v `app/`. Kontrolujte celý výstup, tedy i řádky `FAIL`.
 
@@ -167,11 +167,14 @@ Dokud garant nerozhodne, programujete podle makety tak, jako by bylo vše schvá
 - výrazně vyšší dávka než předepsaná ukáže obecné pravidlo a za 60 min otázku „pod 4?“;
 - poklesy z exportu se k jídlu přiřazují do 4 h;
 - u lékaře se body potvrzené daty předvyplní jako „sedí podle dat“;
-- podmínky zařazení: bez korekčního schématu a bazál večer.
+- podmínky zařazení: bez korekčního schématu a bazál večer;
+- „Jako obvykle“ u známého jídla: jeden řádek předvyplní porci a inzulin podle plánu, glukózu pacient vybírá dál posuvníkem, rady a pravidla se ukazují stejně (bod 13, SCHEMA 91);
+- jeden čas otázky po menší porci: pravidlo I-MENE i otázka „pod 4?“ používají stejný parametr, u večeře se aplikace zeptá také za 60 min a ranní otázka na noční pokles zůstává (bod 14, SCHEMA 91);
+- jediná noc pod 3,0 ukáže lékaři kartu k bazálu bez ohledu na počet nocí (bod 15, SCHEMA 91).
 
 Ostatní:
 - Otisk ve stopě je od SCHEMA 89 otisk jádra `NF.itemFingerprint(položka)`.
-- Referenční výsledek je celá sada bez `FAIL` a nezměněné zlaté výstupy. Počty testů (144 řádků celé sady, 432 zapsaných testů) vysvětluje [`30-prilohy.md`](30-prilohy.md) odd. 5.1.
+- Referenční výsledek je celá sada bez `FAIL` a nezměněné zlaté výstupy. Počty testů (144 řádků celé sady, 438 zapsaných testů) vysvětluje [`30-prilohy.md`](30-prilohy.md) odd. 5.1.
 - Zastaralá čísla v `15` odst. 16–17 jsou deník a platí chování makety.
 
 Pokud narazíte na otázku, kterou tento dokument ani atlas neřeší, zeptejte se vlastníka. Do odpovědi platí chování makety.
