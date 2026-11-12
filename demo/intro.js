@@ -32,7 +32,7 @@ D.introTime = timeParts;
 function intro(s) {
   var main = D.mainSceneCount ? D.mainSceneCount() : D.scenes.filter(function (x) { return !x.appendix; }).length;
   var ap = D.scenes.filter(function (x) { return x.appendix; }).length;
-  var nRules = NF.garantItems && s && s.registry ? NF.garantItems(s).length : 28; /* B02: počet pravidel ke schválení z registru */
+  var nRules = NF.garantItems && s && s.registry ? NF.garantItems(s).length : NF.data && NF.data.registry ? NF.data.registry().filter(function (r) { return r.scope !== 'provozni'; }).length : 0; /* B02: počet pravidel ke schválení z registru; SCHEMA 91 (garant): bez pevného „28“, záloha z katalogu jádra */
   var nar = D.narrow ? D.narrow() : false, app = nar ? 'nahoře' : 'vlevo', pan = nar ? 'dole' : 'vpravo'; /* V3: pod 1100 px je panel dole */
   return '<div class="intro"><div class="intro-head">' +
     '<h1>NutriFee: interaktivní ukázka ke schválení</h1>' +

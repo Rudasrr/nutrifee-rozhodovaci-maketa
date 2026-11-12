@@ -85,7 +85,7 @@ test('A04 pokyn I-MENE po menší porci i při zamítnuté B-HYPO; místo otázk
   assert.equal((S().hypoWatch || []).some(w => w.epId === r.episode.id), false, 'bez B-HYPO se sledování nezakládá');
   const m = plain(NF.screens.lessFoodCards(S()));
   assert.match(m, /Méně jídla než obvykle/, 'pokyn lékaře hned');
-  assert.equal(/Za \d+ min od jídla se zeptáme/.test(m), false, 'otázka za 60 min chybí');
+  assert.equal(/[Zz]a \d+ min(ut)? od jídla se zeptáme/.test(m), false, 'otázka za 60 min chybí');
 });
 
 test('A05 zamítnutí R-NAVYKY, R-POKYNY a P-NEMOC má účinek', () => {

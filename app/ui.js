@@ -369,9 +369,14 @@ var A = {
   mealAt: function (v) { if (!needMeal()) return; var h = v == null || String(v).trim() === '' ? NaN : Number(v); if (!Number.isFinite(h) || h < 0 || h >= 24) return fail('Vyberte čas jídla.'); S.meal.at = h; }, /* jen hodina dne 0–23,99 (robustnost #4) */
   mealSkipAsk: function (v) { if (!NF.MEALS.some(function (m) { return m[0] === v; })) return; S.ask = S.ask && S.ask.meal === v ? null : { day: NF.appDay(S, S.clock), meal: v }; },
   mealSkip: function (v) { var p = String(v).split(':'); if (!NF.MEALS.some(function (m) { return m[0] === p[0]; }) || ['as', 'other', 'none', 'unknown'].indexOf(p[1]) < 0) return; var r = NF.skipMeal(S, p[0], p[1]); S.ask = null; if (r.warn) NF.noteRule(S, 'I-MENE', 'vynechano'); /* SCHEMA 87 */ toast(r.warn ? 'Zapsáno. Inzulin bez jídla – pravidlo máte na Dnes.' : 'Zapsáno: dnes ' + NF.mealText(p[0], 'without') + '.'); },
-  mealBolus: function (v) { if (!needMeal()) return; if (['as', 'other', 'before', 'unknown', 'none', 'snack'].indexOf(v) < 0) return; S.meal.bolus = v; S.meal.decisions = {}; S.meal.reasons = {};
+  mealBolus: function (v) { if (!needMeal()) return; if (['as', 'other', 'before', 'unknown', 'none', 'snack'].indexOf(v) < 0) return; if (S.meal.usual) { S.meal.usual = false; S.meal.foodId = null; S.meal.portion = null; } /* SCHEMA 91: jiná odpověď ruší „Jako obvykle“ i s předvyplněným jídlem */ S.meal.bolus = v; S.meal.decisions = {}; S.meal.reasons = {};
     if (S.meal.qOpen !== 'ins') S.meal.q1done = v === 'as' || v === 'before' || (!!S.meal.retro && v === 'none'); if (v === 'unknown') NF.noteRule(S, 'I-NEVIM', 'krok1'); }, /* SCHEMA 87: pravidlo I-NEVIM do stopy */ /* SCHEMA 86: jednoznačná odpověď otázku sbalí, „jinak“ a „nevím“ čekají na Pokračovat */
   /* SCHEMA 86 (rozhodnutí vlastníka 5. 11. 2026, bod 3): otázky kroku 1 jedna po druhé – „Změnit“ otevře zodpovězenou otázku, „Pokračovat“ ji sbalí. Do stopy nic nejde (odpovědi zapisují jejich vlastní akce). */
+  /* SCHEMA 91 (rozhodnutí vlastníka 11. 11. 2026, bod 13; pacient V5): „Jako obvykle“ – inzulin podle plánu právě teď, totéž známé jídlo a obvyklá porce (NF.usualMeal);
+     glukózu pacient vybírá dál posuvníkem, krok 2 se přeskočí, rady a pravidla v kroku 3 jsou stejné. Do stopy jde volba. */
+  mealUsual: function (v) { if (!needMeal()) return; var m = S.meal, u = m.retro ? null : NF.usualMeal(S, m.meal); if (!u || u.foodId !== v) return fail('Volba „Jako obvykle“ tu není.');
+    m.usual = true; m.bolus = 'as'; m.offset = '0'; m.timeOther = false; m.q1done = true; m.qOpen = null; m.foodId = u.foodId; m.portion = 'usual'; m.q = ''; m.newFood = null; m.decisions = {}; m.reasons = {};
+    NF.log(S, 'jidlo.jako_obvykle', u.food.name + ' · ' + u.units + ' j.', { meal: m.meal, foodId: u.foodId, units: u.units, item: 'S-DAVKA' }); },
   mealQ: function (v) { if (!needMeal()) return; var m = S.meal;
     if (v === 'ins' || v === 'when' || v === 'atmeal') { m.qOpen = v; return; }
     if (v === 'next:ins') { if (!m.bolus) return; m.q1done = true; m.qOpen = null; return; }
@@ -399,6 +404,7 @@ var A = {
     var m = S.meal, n = Number(v);
     if (n === 2 && !m.bolus) return fail('Vyberte, jak to je s inzulinem.');
     if (n === 2 && m.step === 1 && !m.beforeAsked) return fail('Vyberte hodnotu ze senzoru, nebo „nemám“.');
+    if (n === 3 && m.step === 1 && (!m.usual || !m.bolus || !m.beforeAsked || m.retro)) return fail('Vyberte hodnotu ze senzoru, nebo „nemám“.'); /* SCHEMA 91: z kroku 1 rovnou do kroku 3 jen s „Jako obvykle“ */
     if ([1, 2, 3].indexOf(n) < 0 || (NF.isSnack(m.meal) && n === 1)) return;
     if (n === 2 && m.retro && (m.at == null || NF.retroAt(S, m.at) == null)) return fail('Vyberte čas jídla.');
     if (n === 3 && (!m.foodId || !NF.foodById(S, m.foodId) || !m.portion)) return fail(!m.foodId || !NF.foodById(S, m.foodId) ? 'Vyberte jídlo.' : 'Vyberte porci.');
@@ -409,7 +415,7 @@ var A = {
     if (n === 3) { var f = NF.foodById(S, m.foodId), res = NF.advise(S, f.id, m.portion, m.bolus, m.meal); NF.log(S, 'rada.zobrazena', f.name, { level: res.conf.level, items: res.items.map(function (i) { return { lever: i.lever, item: i.item }; }), blocked: res.blocked.map(function (b) { return { lever: b.lever, reason: b.reason }; }), bolus: m.bolus, portion: m.portion, gate: res.gate });
       if (prevStep !== 3) { if (res.lowNow) NF.noteRule(S, 'I-HYPO', 'krok3'); else if (m.portion === 'smaller' && !NF.isSnack(m.meal) && NF.insulinInBody(m.bolus)) NF.noteRule(S, 'I-MENE', 'krok3'); } } /* SCHEMA 87 */
   },
-  mealFood: function (v) { if (!needMeal()) return; if (!NF.foodById(S, v)) { if (S.meal.step === 3) S.meal.step = 2; return fail('Vyberte jídlo.'); } S.meal.foodId = v; S.meal.newFood = null; S.meal.decisions = {}; S.meal.reasons = {}; },
+  mealFood: function (v) { if (!needMeal()) return; S.meal.usual = false; if (!NF.foodById(S, v)) { if (S.meal.step === 3) S.meal.step = 2; return fail('Vyberte jídlo.'); } S.meal.foodId = v; S.meal.newFood = null; S.meal.decisions = {}; S.meal.reasons = {}; },
   mealNewFood: function () { if (!needMeal()) return; S.meal.newFood = S.meal.newFood || {}; },
   mealTag: function (v) { if (!needMeal()) return; var p = String(v == null ? '' : v).split(':'); var nf = S.meal.newFood = S.meal.newFood || {}; nf[p[0]] = p[1]; if (p[0] === 'source' && !nf.prepTouched) nf.prep = NF.defaultPrep(p[1]); if (p[0] === 'prep') nf.prepTouched = true; nf.suggest = null; },
   mealLike: function (v) { if (!needMeal()) return; var nf = S.meal.newFood = S.meal.newFood || {}; nf.like = v; }, /* „Podobné jídlo: X?“ Ano = id, Ne = 'none' */
@@ -425,7 +431,7 @@ var A = {
   /* Posuvník v režimu potvrzení (SCHEMA 84, rozhodnutí 9): volba se jen podrží, uloží ji „Uložit“ (nejvyšší hodnota po minulém jídle). Hodnota jako čip: 4–15, low, high. */
   vsPick: function (v) {
     var i = String(v).lastIndexOf('|'); if (i < 1) return; var id = String(v).slice(0, i), t = String(v).slice(i + 1), c = NF.chip(t);
-    if (!/^peak-[\w-]+$/.test(id) || (t !== 'low' && t !== 'high' && (c.mmol == null || c.mmol < 4 || c.mmol > 15))) return;
+    if (!/^(peak|edit-[bp])-[\w-]+$/.test(id) || /* SCHEMA 91: posuvník opravy zápisu */ (t !== 'low' && t !== 'high' && (c.mmol == null || c.mmol < 4 || c.mmol > 15))) return;
     S.vsPick = S.vsPick || {}; S.vsPick[id] = t === 'low' ? 3 : t === 'high' ? 16 : Math.round(c.mmol);
   },
   /* „Změnit“ u sbaleného řádku minulého jídla: otázky se znovu otevřou (jen během rozpracovaného zápisu) */
@@ -434,7 +440,10 @@ var A = {
   hypoAnswer: function (v) { var p = String(v == null ? '' : v).split(':'); var r = NF.answerHypoWatch(S, p[0], p[1]); if (!r.ok) return fail(r.error); if (r.low) { S.lowNotice = { at: S.clock }; NF.noteRule(S, 'I-HYPO', 'odpoved'); } else toast('Zapsáno.'); },
   lowNoticeSeen: function () { S.lowNotice = null; S.hypoRuleSeen = S.clock; }, /* C4 (32/01): pravidlo I-HYPO pacient viděl */
   hypoAlertSeen: function () { NF.hypoAlertSeen(S); }, /* karta po opakovaných poklesech se zavírá „Rozumím“ (SCHEMA 74) */
-  pendingInsulin: function (v) { var p = String(v == null ? '' : v).split(':'); var r = NF.confirmPendingInsulin(S, p[0], p[1]); if (!r.ok) return fail(r.error); toast(p[1] === 'as' ? 'Inzulin je zapsaný.' : 'Zapsáno.'); },
+  pendingInsulin: function (v) { var p = String(v == null ? '' : v).split(':'); var r = NF.confirmPendingInsulin(S, p[0], p[1], p[1] === 'other' ? S.pendUnits : undefined); if (!r.ok) return fail(r.error); S.pendOther = null; S.pendUnits = null; toast(p[1] === 'as' || p[1] === 'other' ? 'Inzulin je zapsaný.' : 'Zapsáno.'); },
+  /* SCHEMA 91 (pacient S3): „Píchnuto jinak“ u čekajícího inzulinu – posuvník jednotek jako v kroku 3 */
+  pendingOther: function (v) { var ep = S.episodes.filter(function (x) { return x.id === v; })[0]; if (!ep || !ep.insulin || ep.insulin.confirmed !== 'pending') return; S.pendOther = S.pendOther === v ? null : v; S.pendUnits = ep.insulin.prescribed; },
+  pendingUnitsSet: function (v) { var u = NF.int(v, NF.DOSE_RANGE[0], NF.DOSE_RANGE[1], null); if (u == null || !S.pendOther) return; S.pendUnits = u; },
   takeoverPage: function (v) { var trained = !!(S.training && S.training.result === 'done'); S.onboarding.page = trained ? NF.int(v, 1, 6, 1) : 1; }, /* bez zaučení dál než na první stránku nepustí (A26) */
   doseReadback: function (v) { NF.setReadback(S, v); }, /* SCHEMA 87: zpětné přečtení dávky do stopy */
   mealSaveFood: function () {
@@ -444,7 +453,7 @@ var A = {
     if (r.suggest) { nf.suggest = r.suggest.id; return; } /* „Myslíte X?“ — rozhodne pacient */
     S.meal.foodId = r.food.id; S.meal.newFood = null; S.meal.q = r.food.name; toast('Jídlo je ve vašem seznamu. Příště ho najdete pod „naposledy“.');
   },
-  mealPortion: function (v) { if (!needMeal()) return; if (!NF.PORTIONS.some(function (x) { return x[0] === v; })) return; S.meal.portion = v; S.meal.decisions = {}; S.meal.reasons = {}; },
+  mealPortion: function (v) { if (!needMeal()) return; if (!NF.PORTIONS.some(function (x) { return x[0] === v; })) return; if (v !== S.meal.portion) S.meal.usual = false; S.meal.portion = v; S.meal.decisions = {}; S.meal.reasons = {}; },
   mealDecide: function (v) { if (!needMeal()) return; var p = String(v == null ? '' : v).split(':'), m = S.meal, was = m.decisions[p[0]]; m.decisions[p[0]] = p[1] === 'yes'; if (p[1] === 'yes') delete m.reasons[p[0]];
     if (p[0] === 'portion' && p[1] !== 'yes' && was !== false && m.portion === 'smaller' && m.bolus === 'before' && !NF.isSnack(m.meal)) NF.noteRule(S, 'I-MENE', 'odmitnuta'); }, /* SCHEMA 87: pravidlo „Méně jídla“ se ukáže po odmítnuté radě k porci */
   mealReason: function (v) { if (!needMeal()) return; var p = String(v == null ? '' : v).split(':'); S.meal.reasons[p[0]] = p[1]; },
@@ -497,6 +506,10 @@ var A = {
   /* SCHEMA 90 (rozhodnutí vlastníka 11. 11. 2026, bod 7): oprava a smazání uloženého zápisu do NF.EDIT_WINDOW_H (24) h; jádro zapíše do stopy, zápis pak není čistý. */
   mealEditOpen: function (v) { var ep = S.episodes.filter(function (x) { return x.id === v; })[0]; if (!ep || !NF.canEditEpisode(S, ep)) return fail('Zápis lze opravit jen do ' + NF.EDIT_WINDOW_H + ' hodin po uložení.'); S.editEp = S.editEp && S.editEp.id === v ? null : { id: v, del: false }; S.fixInsulin = null; },
   mealEditPortion: function (v) { var p = String(v == null ? '' : v).split(':'); var r = NF.editEpisode(S, p[0], { portion: p[1] }); if (!r.ok) return fail(r.error); if (!r.unchanged) { S.editEp = null; toast('Zápis je opravený. Do hodnocení jídla se počítá dál, do návrhu k dávce už ne.'); } },
+  /* SCHEMA 91 (bod 7; 36/10 „Zbývá“ 2): oprava jídla a hodnot v uloženém zápisu – jádro NF.editEpisode zapíše do stopy a zápis pak není čistý */
+  mealEditSub: function (v) { var p = String(v == null ? '' : v).split(':'); if (!S.editEp || S.editEp.id !== p[0] || ['food', 'before', 'peak'].indexOf(p[1]) < 0) return; S.editEp.sub = S.editEp.sub === p[1] ? null : p[1]; S.editEp.del = false; if (S.form) delete S.form.editq; },
+  mealEditFood: function (v) { var i = String(v == null ? '' : v).indexOf(':'); if (i < 1) return; var id = String(v).slice(0, i), fid = String(v).slice(i + 1); var r = NF.editEpisode(S, id, { foodId: fid }); if (!r.ok) return fail(r.error); if (S.form) delete S.form.editq; if (!r.unchanged) { S.editEp = null; toast('Zápis je opravený. Do hodnocení jídla se počítá dál, do návrhu k dávce už ne.'); } },
+  mealEditValue: function (v) { var p = String(v == null ? '' : v).split(':'); if (p.length < 3 || ['before', 'peak'].indexOf(p[1]) < 0) return; var ch = {}; ch[p[1]] = p[2] === 'none' ? 'none' : p[2]; var r = NF.editEpisode(S, p[0], ch); if (!r.ok) return fail(r.error); if (S.vsPick) { delete S.vsPick['edit-b-' + p[0]]; delete S.vsPick['edit-p-' + p[0]]; } if (!r.unchanged) { S.editEp = null; toast('Zápis je opravený. Do hodnocení jídla se počítá dál, do návrhu k dávce už ne.'); } },
   mealEditDeleteAsk: function (v) { if (!S.editEp || S.editEp.id !== v) return; S.editEp.del = !S.editEp.del; },
   mealEditDelete: function (v) { if (!S.editEp || S.editEp.id !== v || !S.editEp.del) return; var r = NF.deleteEpisode(S, v); if (!r.ok) return fail(r.error); S.editEp = null; toast('Zápis je smazaný.'); },
   openFood: function (v) { S.page = 'food'; S.foodsSeg = 'all'; S.foodOpen = v; },

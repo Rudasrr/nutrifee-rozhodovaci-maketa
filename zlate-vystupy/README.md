@@ -67,3 +67,7 @@ export garanta nese oba (`fp` a `fpTrace`).
 
 Přehrání 32 scén trvá asi 20 s (nejdelší jsou kapitoly kontroly, protože modelová řada má 256 zápisů);
 celý test i se srovnáním s prezentační vrstvou asi 30 s.
+
+## Přegenerováno záměrně
+
+- **SCHEMA 91 (11. 11. 2026):** `otisky.json` – nové verze B-HYPO v4, D-BAZAL v3, I-MENE v3, I-VYSSI v3, I-HYPO v3, I-NEVIM v3, I-NEMOC-JIDLO v3, I-VYSOKA v3, R-POKYNY v2 a provozní S-DAVKA v2, S-SOUHRN v2, S-PRIPOMINKY v3 (otisky a verze, počty 43/29 beze změny); `pribeh.json` – tytéž verze v registru scén a čas v cíli 69 % místo 68 % se souhrnem `raw` (ordinace S3: zaokrouhlení přímo, 68,6 %); `kontrola.json` – čas v cíli 69 % v souhrnu a v textu bodu o vyrovnání. `rady.json` a `stopa.json` beze změny; žádná změna rad, větví ani dávek.

@@ -47,10 +47,10 @@
   },
   {
    "cat": "pokyny",
-   "fp": "fp-4d14623f883d103c",
+   "fp": "fp-0208b42ccfcfa977",
    "id": "B-HYPO",
    "scope": null,
-   "version": "v3"
+   "version": "v4"
   },
   {
    "cat": "vypocty",
@@ -110,10 +110,10 @@
   },
   {
    "cat": "davka",
-   "fp": "fp-5f00009690d0fef9",
+   "fp": "fp-d573a1caec140701",
    "id": "D-BAZAL",
    "scope": null,
-   "version": "v2"
+   "version": "v3"
   },
   {
    "cat": "davka",
@@ -124,31 +124,31 @@
   },
   {
    "cat": "pokyny",
-   "fp": "fp-6e483b976d6d89c5",
+   "fp": "fp-b853b0838855c209",
    "id": "R-POKYNY",
    "scope": null,
-   "version": "v1"
+   "version": "v2"
   },
   {
    "cat": "pokyny",
-   "fp": "fp-dd2958972aacf979",
+   "fp": "fp-cd81545235d97834",
    "id": "I-HYPO",
    "scope": null,
-   "version": "v2"
+   "version": "v3"
   },
   {
    "cat": "pokyny",
-   "fp": "fp-851c618bcbead6fd",
+   "fp": "fp-da6d62921f341272",
    "id": "I-MENE",
    "scope": null,
-   "version": "v2"
+   "version": "v3"
   },
   {
    "cat": "pokyny",
-   "fp": "fp-a2c4964f65bee4eb",
+   "fp": "fp-f7c66e5ee97415f4",
    "id": "I-NEVIM",
    "scope": null,
-   "version": "v2"
+   "version": "v3"
   },
   {
    "cat": "pokyny",
@@ -159,24 +159,24 @@
   },
   {
    "cat": "pokyny",
-   "fp": "fp-d4561fe8abca1fb2",
+   "fp": "fp-a92fdfe41a04ccfa",
    "id": "I-NEMOC-JIDLO",
    "scope": null,
-   "version": "v2"
+   "version": "v3"
   },
   {
    "cat": "pokyny",
-   "fp": "fp-a6bd332485684b10",
+   "fp": "fp-49e5ecf700ba8baa",
    "id": "I-VYSOKA",
    "scope": null,
-   "version": "v2"
+   "version": "v3"
   },
   {
    "cat": "pokyny",
-   "fp": "fp-eeef09bce3d9b26e",
+   "fp": "fp-25c4b1c744681b82",
    "id": "I-VYSSI",
    "scope": null,
-   "version": "v2"
+   "version": "v3"
   },
   {
    "cat": "pokyny",
@@ -215,10 +215,10 @@
   },
   {
    "cat": "report",
-   "fp": "fp-f2d9aa1cfa02c477",
+   "fp": "fp-30f6e33bd74fd6ec",
    "id": "S-SOUHRN",
    "scope": "provozni",
-   "version": "v1"
+   "version": "v2"
   },
   {
    "cat": "report",
@@ -292,17 +292,17 @@
   },
   {
    "cat": "rezim",
-   "fp": "fp-10e61dbb8fdee4ca",
+   "fp": "fp-7dcfb34af3b38ce0",
    "id": "S-PRIPOMINKY",
    "scope": "provozni",
-   "version": "v2"
+   "version": "v3"
   },
   {
    "cat": "plan",
-   "fp": "fp-b4fc60f717e351c0",
+   "fp": "fp-8dd7300ddfe2f9a1",
    "id": "S-DAVKA",
    "scope": "provozni",
-   "version": "v1"
+   "version": "v2"
   }
  ]
 }

@@ -78,7 +78,9 @@ test('Žádná hodnota ze stavu nejde do HTML neescapovaná', () => {
 });
 /* #9 Vykreslení nemění stav (štítek reakce se počítá při vykreslení a uloží až příští akcí). */
 test('Vykreslení je bez vedlejšího účinku na stav: po reloadu je stav stejný jako před ním', () => {
-  chapter('advice'); meal('Ovesná kaše s mlékem a banánem', 'bigger', 'before', 'as'); act('page', 'plan'); const before = JSON.stringify(S()); app.render(); app.render(); assert.equal(JSON.stringify(S()), before, 'render změnil stav'); assert.equal(store.get('nutrifee-maketa'), before, 'uložený stav se liší od stavu v paměti');
+  /* SCHEMA 91 (kód K16): vykreslení všech stránek všech rolí v kapitolách přes celý příběh (dřív jen jedna kapitola) */
+  for (const ch of ['firstResult', 'week', 'hypo', 'illness', 'nightLow', 'preview', 'reviewSummary', 'reviewProposals', 'reviewConfirm', 'newplan']) { boot(); chapter(ch); for (const r of ['patient', 'doctor', 'nurse']) for (const pg of NF.PAGES) { S().role = r; S().page = pg; const b = JSON.stringify(S()); app.render(); assert.equal(JSON.stringify(S()), b, 'render změnil stav: ' + ch + ' · ' + r + ' · ' + pg); } }
+  boot(); chapter('advice'); meal('Ovesná kaše s mlékem a banánem', 'bigger', 'before', 'as'); act('page', 'plan'); const before = JSON.stringify(S()); app.render(); app.render(); assert.equal(JSON.stringify(S()), before, 'render změnil stav'); assert.equal(store.get('nutrifee-maketa'), before, 'uložený stav se liší od stavu v paměti');
 });
 /* #10 Determinismus: stejná posloupnost → stejný stav; skok na kapitolu po jiné historii → stejný stav. */
 test('Determinismus akcí a skoku na kapitolu', () => {

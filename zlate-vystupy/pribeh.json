@@ -37,7 +37,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -52,7 +52,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -60,19 +60,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -82,17 +87,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -100,7 +105,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -162,7 +177,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -177,7 +192,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -185,19 +200,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -207,17 +227,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -225,7 +245,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -287,7 +317,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -302,7 +332,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -310,19 +340,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -332,17 +367,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -350,7 +385,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -412,7 +457,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -427,7 +472,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -435,19 +480,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -457,17 +507,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -475,7 +525,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -628,7 +688,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -643,7 +703,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -651,19 +711,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -673,17 +738,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -691,7 +756,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -844,7 +919,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -859,7 +934,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -867,19 +942,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -889,17 +969,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -907,7 +987,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -1060,7 +1150,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -1075,7 +1165,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -1083,19 +1173,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -1105,17 +1200,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -1123,7 +1218,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -1276,7 +1381,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -1291,7 +1396,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -1299,19 +1404,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -1321,17 +1431,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -1339,7 +1449,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -1496,7 +1616,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -1511,7 +1631,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -1519,19 +1639,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -1541,17 +1666,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -1559,7 +1684,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -1717,7 +1852,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -1732,7 +1867,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -1740,19 +1875,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -1762,17 +1902,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -1780,7 +1920,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -1937,7 +2087,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -1952,7 +2102,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -1960,19 +2110,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -1982,17 +2137,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -2000,7 +2155,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -2156,7 +2321,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -2171,7 +2336,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -2179,19 +2344,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -2201,17 +2371,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -2219,7 +2389,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -2375,7 +2555,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -2390,7 +2570,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -2398,19 +2578,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -2420,17 +2605,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -2438,7 +2623,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -2614,7 +2809,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -2629,7 +2824,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -2637,19 +2832,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -2659,17 +2859,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -2677,7 +2877,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -2852,7 +3062,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -2867,7 +3077,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -2875,19 +3085,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -2897,17 +3112,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -2915,7 +3130,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -3090,7 +3315,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -3105,7 +3330,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -3113,19 +3338,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -3135,17 +3365,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -3153,7 +3383,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -3334,7 +3574,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -3349,7 +3589,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -3357,19 +3597,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -3379,17 +3624,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -3397,7 +3642,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -3577,7 +3832,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -3592,7 +3847,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -3600,19 +3855,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -3622,17 +3882,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -3640,7 +3900,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -3816,7 +4086,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -3836,7 +4106,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -3844,19 +4114,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -3866,17 +4141,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -3884,7 +4159,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -4060,7 +4345,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -4080,7 +4365,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -4088,19 +4373,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -4110,17 +4400,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -4128,7 +4418,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -4308,7 +4608,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -4328,7 +4628,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -4336,19 +4636,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -4358,17 +4663,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -4376,7 +4681,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -4552,7 +4867,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -4572,7 +4887,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -4580,19 +4895,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -4602,17 +4922,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -4620,7 +4940,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -4812,7 +5142,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -4832,7 +5162,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -4840,19 +5170,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -4862,17 +5197,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -4880,7 +5215,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -4895,8 +5240,14 @@
    "from": "2026-12-22T00:00:00",
    "interval": 5,
    "period": "22. 12. 2026 – 4. 1. 2027",
+   "raw": {
+    "above": 29.518,
+    "below": 1.881,
+    "tir": 68.602,
+    "veryLow": 0
+   },
    "source": "import",
-   "tir": 68,
+   "tir": 69,
    "to": "2027-01-04T23:55:00",
    "veryLow": 0
   },
@@ -5084,7 +5435,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -5104,7 +5455,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -5112,19 +5463,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -5134,17 +5490,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -5152,7 +5508,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -5167,8 +5533,14 @@
    "from": "2026-12-22T00:00:00",
    "interval": 5,
    "period": "22. 12. 2026 – 4. 1. 2027",
+   "raw": {
+    "above": 29.518,
+    "below": 1.881,
+    "tir": 68.602,
+    "veryLow": 0
+   },
    "source": "import",
-   "tir": 68,
+   "tir": 69,
    "to": "2027-01-04T23:55:00",
    "veryLow": 0
   },
@@ -5355,7 +5727,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -5375,7 +5747,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -5383,19 +5755,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -5405,17 +5782,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -5423,7 +5800,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -5614,7 +6001,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -5634,7 +6021,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -5642,19 +6029,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -5664,17 +6056,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -5682,7 +6074,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -5873,7 +6275,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -5893,7 +6295,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -5901,19 +6303,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -5923,17 +6330,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -5941,7 +6348,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -6094,7 +6511,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -6109,7 +6526,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -6117,19 +6534,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -6139,17 +6561,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -6157,7 +6579,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -6312,7 +6744,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -6327,7 +6759,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -6335,19 +6767,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -6357,17 +6794,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -6375,7 +6812,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -6569,7 +7016,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -6589,7 +7036,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -6597,19 +7044,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -6619,17 +7071,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -6637,7 +7089,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -6652,6 +7114,12 @@
    "from": "2026-12-22T00:00:00",
    "interval": 5,
    "period": "22. 12. 2026 – 4. 1. 2027",
+   "raw": {
+    "above": 36.549,
+    "below": 0,
+    "tir": 63.451,
+    "veryLow": 0
+   },
    "source": "import",
    "tir": 63,
    "to": "2027-01-04T23:55:00",
@@ -6843,7 +7311,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -6863,7 +7331,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -6871,19 +7339,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -6893,17 +7366,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -6911,7 +7384,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }
@@ -6926,6 +7409,12 @@
    "from": "2026-12-22T00:00:00",
    "interval": 5,
    "period": "22. 12. 2026 – 4. 1. 2027",
+   "raw": {
+    "above": 36.522,
+    "below": 0,
+    "tir": 63.478,
+    "veryLow": 0
+   },
    "source": "import",
    "tir": 63,
    "to": "2027-01-04T23:55:00",
@@ -7120,7 +7609,7 @@
    {
     "id": "B-HYPO",
     "status": "approved",
-    "version": "v3"
+    "version": "v4"
    },
    {
     "id": "R-SKORE",
@@ -7140,7 +7629,7 @@
    {
     "id": "D-BAZAL",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "D-POSTUP",
@@ -7148,19 +7637,24 @@
     "version": "v2"
    },
    {
-    "id": "I-HYPO",
+    "id": "R-POKYNY",
     "status": "approved",
     "version": "v2"
+   },
+   {
+    "id": "I-HYPO",
+    "status": "approved",
+    "version": "v3"
    },
    {
     "id": "I-MENE",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEVIM",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-NEMOC-BAZAL",
@@ -7170,17 +7664,17 @@
    {
     "id": "I-NEMOC-JIDLO",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSOKA",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-VYSSI",
     "status": "approved",
-    "version": "v2"
+    "version": "v3"
    },
    {
     "id": "I-KONTAKT",
@@ -7188,7 +7682,17 @@
     "version": "v2"
    },
    {
+    "id": "S-SOUHRN",
+    "status": "approved",
+    "version": "v2"
+   },
+   {
     "id": "S-PRIPOMINKY",
+    "status": "approved",
+    "version": "v3"
+   },
+   {
+    "id": "S-DAVKA",
     "status": "approved",
     "version": "v2"
    }

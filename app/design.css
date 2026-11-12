@@ -497,6 +497,7 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .weave i.done,.weave-legend i.done{background:var(--nf-ok)}
 .weave i.skipped,.weave-legend i.skipped{box-shadow:inset 0 0 0 var(--nf-weave-ring) var(--nf-muted)}
 .weave i.missing,.weave-legend i.missing{background:var(--nf-line)}
+.weave-legend i.today{background:var(--nf-primary-soft);box-shadow:0 0 0 var(--nf-weave-halo) var(--nf-primary-soft);border-radius:var(--nf-r-xs)} /* SCHEMA 91: dnešní sloupec v legendě */
 .weave i.future,.weave-legend i.future{border:var(--nf-weave-ring) dashed var(--nf-line-strong)} /* dnešní jídla, která ještě přijdou */
 .weave .wcol.ill .wmark{color:var(--nf-muted)} /* den nemoci jen teploměrem, tečky v plné barvě (legenda nemá další odstín) */
 .weave .wcol.today{border-radius:var(--nf-r-pill);box-shadow:0 0 0 calc(var(--nf-weave-gap) + var(--nf-weave-halo)) var(--nf-primary-soft);background:var(--nf-primary-soft)}
@@ -592,15 +593,15 @@ details.habits[open]>summary{margin-bottom:var(--nf-s1)}
 .peak{display:grid;gap:var(--nf-s2);font-size:var(--nf-fs-2xs)}
 .peak .lbl{display:flex;justify-content:space-between;font-weight:var(--nf-w-strong);align-items:center;gap:var(--nf-s2)}
 .peak .in{border-radius:var(--nf-r-pill);padding:var(--nf-peak-in-py) var(--nf-s3);font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-display-strong)}
-.peak .rows{position:relative;padding-top:var(--nf-s6)}
+.peak .rows{position:relative;padding-top:calc(var(--nf-fs-xs) * 2.6)} /* SCHEMA 91: místo pro popisek hranice cíle i ve dvou řádcích (písmo 160 %) */
 .peak{--rl:var(--nf-peak-label-w)}
 .peak .row{display:grid;grid-template-columns:calc(var(--rl) - var(--nf-s2)) 1fr;gap:var(--nf-s2);align-items:center;margin-top:var(--nf-s8)}
 .peak .rl{font-size:var(--nf-fs-2xs);color:var(--nf-muted);font-weight:var(--nf-w-strong);text-align:right;line-height:1.1}
 .peak .row.adv.ok .rl{color:var(--nf-ok-text)}
-.peak .goal{position:absolute;top:var(--nf-peak-goal-top);bottom:calc(-1 * var(--nf-goal-overhang));left:calc(var(--rl) + (100% - var(--rl)) * var(--f));width:0;border-left:var(--nf-bw) dashed var(--nf-ok-text);z-index:2}
-.peak .goal span{position:absolute;top:calc(-1 * var(--nf-s4));left:50%;transform:translateX(-50%);white-space:nowrap;font-size:var(--nf-fs-xs);font-weight:var(--nf-w-display-strong);color:var(--nf-ok-text);background:var(--nf-surface);border-radius:var(--nf-r-xs);padding:1px var(--nf-s2)}
+.peak .goal{position:absolute;top:calc(var(--nf-fs-xs) * 2.6 - var(--nf-peak-goal-top) + var(--nf-s2)); /* SCHEMA 91: čára začíná pod popiskem, popisek zůstává uvnitř místa nad řádky */bottom:calc(-1 * var(--nf-goal-overhang));left:calc(var(--rl) + (100% - var(--rl)) * var(--f));width:0;border-left:var(--nf-bw) dashed var(--nf-ok-text);z-index:2}
+.peak .goal span{position:absolute;bottom:calc(100% + var(--nf-s1));left:50%;transform:translateX(-50%);white-space:normal;width:max-content;max-width:var(--nf-goal-label-max);text-align:center;line-height:var(--nf-lh-tight);font-size:var(--nf-fs-xs);font-weight:var(--nf-w-display-strong);color:var(--nf-ok-text);background:var(--nf-surface);border-radius:var(--nf-r-xs);padding:1px var(--nf-s2)}
 .peak .row.adv.ok .win{border-color:var(--nf-ok-text)}
-.peak .axis-words{display:flex;justify-content:space-between;font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-strong);padding:0 var(--nf-s05) 0 var(--rl);margin-top:var(--nf-s05)}.peak .axis-words span:first-child{color:var(--nf-ok-text)}.peak .axis-words span:last-child{color:var(--nf-over-text)}
+.peak .axis-words{display:flex;justify-content:space-between;gap:var(--nf-s2);font-size:var(--nf-fs-2xs);font-weight:var(--nf-w-strong);padding:0 var(--nf-s05) 0 var(--rl);margin-top:var(--nf-s05)}.peak .axis-words span:first-child{color:var(--nf-ok-text)}.peak .axis-words span:last-child{color:var(--nf-over-text)}
 /* čísla osy přesně podle hodnoty (stejný výpočet jako hranice cíle), ne rozprostřená */
 .peak .axis,.rise .axis{position:relative;height:var(--nf-axis-h);margin-top:var(--nf-s1);font-size:var(--nf-fs-2xs);color:var(--nf-muted);font-variant-numeric:tabular-nums}
 .peak .axis{margin-left:var(--rl)}
@@ -945,7 +946,8 @@ details.path-compact>summary .ico{width:var(--nf-icon-sm);height:var(--nf-icon-s
 .hba-field select{min-height:var(--nf-tap);font:inherit}
 /* ---------- SCHEMA 86 „méně je víc“ (rozhodnutí vlastníka 5. 11. 2026; vzory z navrhy-designu/33/navrhy/navrh.css, hodnoty jen z tokenů) ---------- */
 /* Krok 1: zodpovězená otázka jako řádek se „Změnit“, čekající jako šedý řádek s číslem, číslo otevřené otázky */
-.qdone{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:var(--nf-s3);padding:var(--nf-s3) var(--nf-s4);background:var(--nf-surface);border-radius:var(--nf-r-md);box-shadow:var(--nf-sh-card);margin-bottom:var(--nf-s3)}
+.qdone>div{min-width:0;overflow-wrap:break-word} /* SCHEMA 91: dlouhá odpověď („Jako obvykle: … jídlo“) při 320 px a písmu 160 % nevytlačí „Změnit“ */
+.qdone{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--nf-s3);padding:var(--nf-s3) var(--nf-s4);background:var(--nf-surface);border-radius:var(--nf-r-md);box-shadow:var(--nf-sh-card);margin-bottom:var(--nf-s3)}
 .qdone .ck{width:var(--nf-radio);height:var(--nf-radio);border-radius:50%;background:var(--nf-ok-bg);color:var(--nf-ok-text);display:grid;place-items:center}
 .qdone .ck svg.ico{width:var(--nf-icon-3xs);height:var(--nf-icon-3xs);stroke-width:3}
 .qdone small{display:block;color:var(--nf-muted);font-size:var(--nf-fs-xs)}

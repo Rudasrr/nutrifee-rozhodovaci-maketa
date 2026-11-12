@@ -124,6 +124,8 @@ test('Písmo pacienta: nic pod 15 px, hlavní text a volby od 17 px (rozhodnutí
   /* text v SVG u pacienta: popisky ilustrace „Jak to funguje“ jsou v HTML */
   const scr = read('app/screens.js'), key = /function explainerKey[\s\S]*?\n\}/.exec(scr)[0];
   assert.ok(!/<text/.test(key) && /class="kleg"/.test(key), 'P04 bez textu v SVG');
+  /* SCHEMA 91 (36/07 přístupnost, 36/10 Zbývá 4): text v SVG (tokeny --nf-fs-fig-*) i v nejužším obrázku – viewBox 320 jednotek na 288 px při 320 px – vyjde aspoň 15 px */
+  ['--nf-fs-fig-xs', '--nf-fs-fig-sm', '--nf-fs-fig', '--nf-fs-fig-lg', '--nf-fs-fig-xl', '--nf-fs-fig-2xl'].forEach(t => assert.ok(px(t) * 288 / 320 >= 15, t + ' ≥ 15 px i na 320 px (' + px(t) + ')'));
 });
 
 console.log('');

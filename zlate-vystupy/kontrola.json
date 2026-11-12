@@ -23,7 +23,7 @@
      },
      {
       "against": false,
-      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+      "text": "čas v cíli 69 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
      },
      {
       "against": false,
@@ -172,7 +172,7 @@
      },
      {
       "against": false,
-      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+      "text": "čas v cíli 69 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
      },
      {
       "against": false,
@@ -671,8 +671,14 @@
     "from": "2026-12-22T00:00:00",
     "interval": 5,
     "period": "22. 12. 2026 – 4. 1. 2027",
+    "raw": {
+     "above": 29.518,
+     "below": 1.881,
+     "tir": 68.602,
+     "veryLow": 0
+    },
     "source": "import",
-    "tir": 68,
+    "tir": 69,
     "to": "2027-01-04T23:55:00",
     "veryLow": 0
    },
@@ -920,7 +926,7 @@
      },
      {
       "against": false,
-      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+      "text": "čas v cíli 69 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
      },
      {
       "against": false,
@@ -1070,7 +1076,7 @@
      },
      {
       "against": false,
-      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+      "text": "čas v cíli 69 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
      },
      {
       "against": false,
@@ -1690,8 +1696,14 @@
     "from": "2026-12-22T00:00:00",
     "interval": 5,
     "period": "22. 12. 2026 – 4. 1. 2027",
+    "raw": {
+     "above": 29.518,
+     "below": 1.881,
+     "tir": 68.602,
+     "veryLow": 0
+    },
     "source": "import",
-    "tir": 68,
+    "tir": 69,
     "to": "2027-01-04T23:55:00",
     "veryLow": 0
    },
@@ -1743,7 +1755,7 @@
      },
      {
       "against": false,
-      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+      "text": "čas v cíli 69 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
      },
      {
       "against": false,
@@ -1893,7 +1905,7 @@
      },
      {
       "against": false,
-      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+      "text": "čas v cíli 69 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
      },
      {
       "against": false,
@@ -2513,8 +2525,14 @@
     "from": "2026-12-22T00:00:00",
     "interval": 5,
     "period": "22. 12. 2026 – 4. 1. 2027",
+    "raw": {
+     "above": 29.518,
+     "below": 1.881,
+     "tir": 68.602,
+     "veryLow": 0
+    },
     "source": "import",
-    "tir": 68,
+    "tir": 69,
     "to": "2027-01-04T23:55:00",
     "veryLow": 0
    },
@@ -2566,7 +2584,7 @@
      },
      {
       "against": false,
-      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+      "text": "čas v cíli 69 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
      },
      {
       "against": false,
@@ -2716,7 +2734,7 @@
      },
      {
       "against": false,
-      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+      "text": "čas v cíli 69 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
      },
      {
       "against": false,
@@ -3336,8 +3354,14 @@
     "from": "2026-12-22T00:00:00",
     "interval": 5,
     "period": "22. 12. 2026 – 4. 1. 2027",
+    "raw": {
+     "above": 29.518,
+     "below": 1.881,
+     "tir": 68.602,
+     "veryLow": 0
+    },
     "source": "import",
-    "tir": 68,
+    "tir": 69,
     "to": "2027-01-04T23:55:00",
     "veryLow": 0
    },
@@ -3389,7 +3413,7 @@
      },
      {
       "against": false,
-      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+      "text": "čas v cíli 69 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
      },
      {
       "against": false,
@@ -3539,7 +3563,7 @@
      },
      {
       "against": false,
-      "text": "čas v cíli 68 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
+      "text": "čas v cíli 69 % (cíl 70 %) · HbA1c 55 mmol/mol z 3. 1. 2027 (cíl do 53)"
      },
      {
       "against": false,
@@ -4159,8 +4183,14 @@
     "from": "2026-12-22T00:00:00",
     "interval": 5,
     "period": "22. 12. 2026 – 4. 1. 2027",
+    "raw": {
+     "above": 29.518,
+     "below": 1.881,
+     "tir": 68.602,
+     "veryLow": 0
+    },
     "source": "import",
-    "tir": 68,
+    "tir": 69,
     "to": "2027-01-04T23:55:00",
     "veryLow": 0
    },
@@ -4884,6 +4914,12 @@
     "from": "2026-12-22T00:00:00",
     "interval": 5,
     "period": "22. 12. 2026 – 4. 1. 2027",
+    "raw": {
+     "above": 36.549,
+     "below": 0,
+     "tir": 63.451,
+     "veryLow": 0
+    },
     "source": "import",
     "tir": 63,
     "to": "2027-01-04T23:55:00",
@@ -5759,6 +5795,12 @@
     "from": "2026-12-22T00:00:00",
     "interval": 5,
     "period": "22. 12. 2026 – 4. 1. 2027",
+    "raw": {
+     "above": 36.522,
+     "below": 0,
+     "tir": 63.478,
+     "veryLow": 0
+    },
     "source": "import",
     "tir": 63,
     "to": "2027-01-04T23:55:00",
@@ -6724,6 +6766,12 @@
     "from": "2026-12-22T00:00:00",
     "interval": 5,
     "period": "22. 12. 2026 – 4. 1. 2027",
+    "raw": {
+     "above": 36.522,
+     "below": 0,
+     "tir": 63.478,
+     "veryLow": 0
+    },
     "source": "import",
     "tir": 63,
     "to": "2027-01-04T23:55:00",

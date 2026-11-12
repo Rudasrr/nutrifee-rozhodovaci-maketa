@@ -111,7 +111,7 @@ test('02 A1: návrh zvýšit dávku ke snídani stojí na snídaních obecně, n
   const chleb = pr.breakdown.find(b => /Chléb/.test(b.food)); assert.ok(chleb && chleb.above >= 3, 'i chléb se sýrem bývá nad cílem');
   assert.equal(pr.weak.some(w => /zůstalo pokaždé v cíli|zůstala pokaždé v cíli/.test(w)), false);
   const j = pr.facts[pr.verify.findIndex(v => /jen jedno nebo dvě/.test(v))]; assert.equal(j.against, false);
-  const v = pr.facts[pr.verify.findIndex(v => /Vyrovnání/.test(v))]; assert.match(v.text, /čas v cíli 68 % \(cíl 70 %\) · HbA1c 55 mmol\/mol z 3\. 1\. 2027/);
+  const v = pr.facts[pr.verify.findIndex(v => /Vyrovnání/.test(v))]; assert.match(v.text, /čas v cíli 69 % \(cíl 70 %\) · HbA1c 55 mmol\/mol z 3\. 1\. 2027/);
   const add = s.review.proposals.find(p => p.id === 'PR-KEEP-addon'); assert.ok(add && !add.group && add.pulled.length >= 3, 'B4: stažený doplněk = samostatný návrh');
   assert.match(add.title, /^Probrat radu „Doplněk k jídlu“/); assert.match(add.why, /stáhla po 3 pokusech/);
   const c = at({ NF, D }, 'reviewConfirm'); assert.equal(c.review.decisions['PR-BREAKFAST'].choice, 'agree'); assert.equal(c.review.decisions['PR-BREAKFAST'].branch, 'up');
@@ -179,7 +179,7 @@ test('81 bod 10: bod o vyrovnání jen díky HbA1c méně než 5 nad cílem → 
 });
 test('81 bod 11: slovo směru u procent až od 2 procentních bodů', ({ NF, D }) => {
   const s = at({ NF, D }, 'reviewProposals'); assert.equal(NF.item(s, 'S-SEMAFOR').params.smer_pb, 2); s.role = 'doctor'; s.page = 'review'; s.review.step = 1;
-  const t = plain(NF.screens.doctor(s)); assert.match(t, /Čas pod 3,9 mmol\/l[\s\S]*?beze změny[\s\S]*?dříve 3 → teď 2 · −1 p\. b\./); assert.match(t, /Čas v cíli[\s\S]*?zlepšuje se[\s\S]*?dříve 58 → teď 68/);
+  const t = plain(NF.screens.doctor(s)); assert.match(t, /Čas pod 3,9 mmol\/l[\s\S]*?beze změny[\s\S]*?dříve 3 → teď 2 · −1 p\. b\./); assert.match(t, /Čas v cíli[\s\S]*?zlepšuje se[\s\S]*?dříve 58 → teď 69/ /* SCHEMA 91 (S3) */);
 });
 
 /* ---------- SCHEMA 82: nezávislé ověření SCHEMA 81 (31/16) ---------- */

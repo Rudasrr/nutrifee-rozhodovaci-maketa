@@ -62,7 +62,7 @@
   --nf-fs-desk:.9375rem;      /* základní velikost textu v ordinaci (desktop) */
   --nf-fs-h1-desk:clamp(1.5rem,3vw,1.875rem); /* titulek stránky v ordinaci */
   /* popisky uvnitř vysvětlujících obrázků (SVG): jednotky viewBoxu, obrázek se zvětšuje se šířkou karty */
-  --nf-fs-fig-xs:10px;--nf-fs-fig-sm:11px;--nf-fs-fig:12px;--nf-fs-fig-lg:13px;--nf-fs-fig-xl:16px;--nf-fs-fig-2xl:28px;
+  --nf-fs-fig-xs:17px;--nf-fs-fig-sm:17px;--nf-fs-fig:17px;--nf-fs-fig-lg:17px; /* SCHEMA 91 (36/07, 36/10 Zbývá 4): text v SVG (osa inzulinu, ilustrace pák, katalog) i při 320 px (obrázek 300 jednotek na 288 px) aspoň 15 px; dřív 10–13 */ --nf-fs-fig-xl:17px;--nf-fs-fig-2xl:28px;
   --nf-fig-h:96px;--nf-fig-stroke:1.75;   /* jeden rámeček ilustrací rad: výška a tah (19. 10. 2026) */
   --nf-lh:1.45;--nf-lh-tight:1.15;
   --nf-w-text:500;--nf-w-semi:600;--nf-w-strong:700;--nf-w-display:700;--nf-w-display-strong:800; /* 600: vedlejší zvýraznění (jednotky, volby, poznámky) */
@@ -155,6 +155,7 @@
   --nf-peak-label-w:84px;     /* sloupec popisků řádků stupnice */
   --nf-peak-in-py:3px;        /* svislé odsazení štítku „v cíli“ */
   --nf-peak-goal-top:14px;    /* začátek čáry cíle pod popiskem */
+  --nf-goal-label-max:7.5em;  /* SCHEMA 91: popisek hranice cíle se při velkém písmu zalomí, nepřečnívá (36/10 Zbývá 3) */
   --nf-goal-overhang:6px;     /* čára cíle přesahuje pruh nahoru a dolů */
   --nf-axis-h:1.4em;          /* řádek čísel osy */
   --nf-track-h:18px;--nf-track-lh:16px;--nf-track-rng-gap:6px; /* pruh stupnice · řádek čísla v okénku · mezera popisku rozsahu */

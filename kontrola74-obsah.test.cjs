@@ -67,7 +67,7 @@ test('A3: zápisy mezi kontrolami jen opsaná celá čísla; průběh jen z expo
   assert.ok(si.filled >= 30 && si.nights === 14, 'export doplní desítky jídel a 14 nocí');
   assert.equal(si.agree.ok, si.agree.n - 1, 'shoda opsaných hodnot až na jedno jídlo');
   s.episodes.forEach(e => { if (NF.hasImport(e)) assert.ok(e.at >= D.EXPORT_FROM, e.id + ': průběh jen v okně exportu'); });
-  assert.equal(s.sensorSummary.tir, 68); assert.equal(s.sensorSummary.below, 2); /* 31/02 A1 (SCHEMA 80): snídaně od listopadu nad cílem u všech jídel → čas v cíli 68 % (dřív 72 %) */
+  assert.equal(s.sensorSummary.tir, 69); /* SCHEMA 91 (ordinace S3): 68,6 % zaokrouhleno správně */ assert.equal(s.sensorSummary.below, 2); /* 31/02 A1 (SCHEMA 80): snídaně od listopadu nad cílem u všech jídel → čas v cíli 68 % (dřív 72 %) */
   assert.ok(s.review.proposals.find(p => p.id === 'PR-BREAKFAST' && /nad cílem/.test(p.title)), 'snídaně dál „nad cílem“');
   assert.equal(s.review.proposals[0].id, 'PR-BREAKFAST'); /* SCHEMA 84 (B10): bazál bez přednosti, až za kartami k jídlům */ const bz0 = s.review.proposals.find(p => p.id === 'PR-BAZAL'); assert.match(bz0.why, /v noci na 25\. 12\. mezi 2:00 a 5:00 nejnižší 3,6/, 'B12: data nocí v důvodu; 31/02 B7: noc a čas, ne „ráno“');
 });

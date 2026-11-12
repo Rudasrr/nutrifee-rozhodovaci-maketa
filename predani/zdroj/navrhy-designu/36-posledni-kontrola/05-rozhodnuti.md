@@ -23,3 +23,9 @@ Podklady: `00-souhrn.md` a zprávy `01`–`07`. Vše podle doporučení:
     - hlídá to test.
 11. **Časové pásmo:** aplikace běží vždy v českém čase a cestování je mimo rozsah studie. Při jiném pásmu telefonu se ukáže věta „Na cestách se řiďte pokyny svého lékaře; zápisy jsou v českém čase.“
 12. **K-KRITERIA:** doplnit podmínky „bez korekčního schématu“ a „bazál večer“ jako novou verzi ke schválení.
+
+## Doplněno 11. 11. 2026 (zbytek nálezů, SCHEMA 91)
+
+13. **„Jako obvykle“ u známého jídla:** jeden řádek předvyplní porci a inzulin podle plánu. Glukózu pacient vybírá dál posuvníkem. Rady a pravidla se ukazují stejně (Doporučeno).
+14. **Jeden čas otázky po menší porci:** pravidlo I-MENE i otázka „pod 4?“ používají stejný parametr. U večeře se aplikace zeptá také za 60 min, ne až ráno; ranní otázka na noční pokles zůstává. Nová verze B-HYPO a I-MENE ke schválení (Doporučeno).
+15. **Jediná noc pod 3,0** ukáže lékaři kartu k bazálu bez ohledu na počet nocí. Nová verze D-BAZAL ke schválení (Doporučeno).

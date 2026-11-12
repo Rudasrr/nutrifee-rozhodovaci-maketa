@@ -277,7 +277,7 @@ test('Pacientské texty jsou bez rodu (vykání, žádné příčestí „zkusil
   for (const it of S().registry.items) { const txt = JSON.stringify(it.texts || '') + (it.text || ''); const m = txt.match(gendered); assert.equal(m, null, it.id + ': ' + (m && m[0])); }
 });
 test('Pacientské obrazovky bez zakázaných slov (report, medián, skóre, garant, studie, čistá data) a bez tykání', () => {
-  const bad = /\b(report|medián|skóre|garant|studie|čist[áé] data|čistý zápis|nečist)/i, ty = /\b(tvůj|tvoje|tvá|tvé|tebou|tobě|tebe|ti)\b|\b(zapiš|vyber|řekni|zkus|najdeš|vidíš|jsi|můžeš|chceš|máš)\b/i;
+  const bad = /\b(report|medián|skóre|garant|studie|čist[áé] data|čistý zápis|nečist)/i, ty = /(?<!\p{L})(tvůj|tvoje|tvá|tvé|tebou|tobě|tebe|ti|zapiš|vyber|řekni|zkus|najdeš|vidíš|jsi|můžeš|chceš|máš)(?!\p{L})/iu; /* SCHEMA 91: hranice slova i u písmen s diakritikou – „\b“ bez příznaku u brala „zapište“ jako „zapiš“ */
   const pages = ['today', 'meal', 'foods', 'plan', 'safety', 'takeover', 'understand', 'preview', 'report'];
   for (let i = 0; i < D.chapters.length; i++) {
     act('goChapter', String(i)); act('closeDrawer'); act('role', 'patient');
@@ -406,7 +406,7 @@ test('Nové jídlo jen názvem (15. 10. 2026): „Myslíte X?“ u podobného n�
   chapter('custom'); let m = markup();
   /* jedna akce v každém okamžiku: podobný název → dotaz hned, bez tlačítka Přidat a bez karty */
   assert.match(m, /Je to stejné jídlo jako „Smažený řízek s bramborovou kaší“ ve vašem seznamu\?/); assert.doesNotMatch(m, /Přidat „[^“]+“ do seznamu/); assert.doesNotMatch(m.slice(m.indexOf('<main')), /Nové jídlo: /, 'karta až po „Ne, je jiné“'); assert.doesNotMatch(m, /Nic takového neznáme/);
-  act('mealNotSame'); m = markup(); assert.match(m, /Nové jídlo: Řízek s kaší od maminky/); assert.match(m, /Nepovinně: podobá se některému jídlu, které už známe\?/); assert.doesNotMatch(m, /Přidat „[^“]+“ do seznamu/); assert.doesNotMatch(m, /Není to totéž jako/); assert.equal(/Z čeho jsou v jídle sacharidy|Jak vypadal talíř|Úprava/.test(m), false, 'žádné složení');
+  act('mealNotSame'); m = markup(); assert.match(m, /Nové jídlo: Řízek s kaší od maminky/); assert.match(m, /Nepovinně: podobá se některému jídlu ze seznamu\?/); assert.doesNotMatch(m, /Přidat „[^“]+“ do seznamu/); assert.doesNotMatch(m, /Není to totéž jako/); assert.equal(/Z čeho jsou v jídle sacharidy|Jak vypadal talíř|Úprava/.test(m), false, 'žádné složení');
   assert.equal(food('Řízek s kaší od maminky'), undefined);
   act('mealLike', food('Smažený řízek s bramborovou kaší').id); act('mealSaveFood');
   const f = food('Řízek s kaší od maminky'); assert.ok(f && f.custom); assert.equal(f.tags.source, undefined, 'nové jídlo bez složení'); assert.equal(f.tags.like, food('Smažený řízek s bramborovou kaší').id);
@@ -733,7 +733,7 @@ test('Ukázkový export a souhrn ze senzoru jsou týž soubor (02 #1, 25. 10. 20
   const ss = S().sensorSummary, fromCsv = NF.sensorSummaryFrom(S(), NF.parseSensorCsv(D.demoCsv(S())));
   assert.equal(ss.source, 'import', 'souhrn vznikl přes jádro z exportu');
   assert.equal(JSON.stringify(ss), JSON.stringify(fromCsv), 'tlačítko nahraje týž soubor, ze kterého je souhrn');
-  assert.equal(ss.tir, 68); assert.equal(ss.below, 2); assert.equal(ss.above, 30); /* SCHEMA 80 (31/02 A1): snídaně od listopadu nad cílem u všech jídel → čas v cíli 68 % (dřív 72 %) */ assert.equal(ss.veryLow, 0); assert.equal(ss.availability, 91); assert.equal(ss.days, 14);
+  assert.equal(ss.tir, 69); assert.equal(ss.below, 2); assert.equal(ss.above, 30); /* SCHEMA 91 (ordinace S3): čas v cíli zaokrouhlený přímo (68,6 % → 69 %), součet 101 % je zaokrouhlením */ /* SCHEMA 80 (31/02 A1): snídaně od listopadu nad cílem u všech jídel → čas v cíli 68 % (dřív 72 %) */ assert.equal(ss.veryLow, 0); assert.equal(ss.availability, 91); assert.equal(ss.days, 14);
   assert.equal(ss.period, '22. 12. 2026 – 4. 1. 2027'); assert.equal(S().enrollment.baseline.tir, 58, 'dříve 58');
   act('importDemo'); assert.equal(S().sensorImport.days, 14); assert.equal(JSON.stringify(S().sensorSummary), JSON.stringify(fromCsv), 'nahrání čísla nezmění');
   const m = markup(); assert.match(m, /<b>Export nahrán a převeden · doplněno \d+ (jídlo|jídla|jídel) a \d+ (noc|noci|nocí)\.<\/b> ?\(za 14 dní, 22\. 12\. 2026 – 4\. 1\. 2027\)/); /* SCHEMA 74 (vlastník 27. 10. 2026): jen „Export nahrán a převeden · doplněno N jídel a N nocí“, bez formátu */ assert.equal(S().sensorImport.readings, 3669); assert.match(m, /za 22\. 12\. 2026 – 4\. 1\. 2027 \(14 dní\)/);
@@ -814,7 +814,7 @@ test('Druhý průchod: Co teď dává přednost jídlu před bazálem; připomí
   act('page', 'plan'); assert.equal((markup().match(/Tři jídla denně/g) || []).length, 0, 'duplicitní karta odstraněna');
   chapter('preview'); assert.equal(/class="mark">✓<\/span><div>Zapisuj/.test(markup()), false, 'žádné falešné fajfky'); assert.match(markup(), /Díky za \d+ dní zapisování/);
   /* bez zápisů report nepadá na „null %“ */
-  chapter('handover'); act('role', 'doctor'); act('startReview'); assert.equal(/null/.test(markup()), false); assert.match(markup(), /Pacient zatím nezapsal žádné jídlo/);
+  chapter('handover'); act('role', 'doctor'); act('startReview'); assert.equal(/null/.test(markup()), false); assert.match(markup(), /Pacient za období nezapsal žádné jídlo/);
 });
 
 /* ---------- stopa ---------- */
@@ -1034,7 +1034,7 @@ test('Registr R13: cíle glukózy z položky C-CILE s fallbackem; větve a ově�
   assert.equal(NF.item(S(), 'D-POSTUP').status, 'approved'); assert.equal(NF.item(S(), 'D-POSTUP').version, 'v3'); /* SCHEMA 90: výchozí D-POSTUP je v2 */ assert.ok(NF.item(S(), 'D-POSTUP').postup.prandHigh.branches[0].off);
   assert.match(markup(), /Modelová verze v3 je jen v příběhu/); /* SCHEMA 90: výchozí D-POSTUP je v2, modelová verze z testu v3 */ /* SCHEMA 80 (předávka Z, J1): registr ukazuje garantovi znění z kódu, verze v2 je v historii */
   assert.equal(hasUp(NF.proposals(S(), r.planId)), false, 'vyřazená větev se v návrzích neukáže');
-  assert.ok(NF.proposals(S(), r.planId).some(p => p.postup && p.weak.some(w => /postup posouzení dávky/.test(w))) || true);
+  { const ph = NF.proposals(S(), r.planId).filter(p => p.postup === 'D-POSTUP' && p.id !== 'PR-BAZAL' && p.kind === 'dose' && !p.row); assert.ok(ph.length > 0, 'návrhy k prandiální dávce s postupem zůstaly'); ph.forEach(p => { assert.ok(p.branches.length > 0, p.id + ': větve zůstaly'); assert.ok(p.branches.every(b => b.action !== 'up'), p.id + ': bez vyřazené větve „zvýšit“'); }); } /* SCHEMA 91 (kód K16): dřív „… || true“ – nemohlo selhat */
   chapter('advice');
   const k = food('Ovesná kaše s mlékem a banánem').id, T = NF.item(S(), 'R-PORCE').texts;
   assert.equal(NF.advise(S(), k, 'bigger', 'before').items.find(i => i.lever === 'portion').text, T.biggerBefore);
@@ -1357,7 +1357,7 @@ test('Zátěž pacienta a bezpečnost (18. 10. 2026): čipy po celých mmol/l za
   act('hypoAnswer', w.id + ':yes'); assert.equal(ep.manual.low, true); assert.equal(NF.lowEvents(S(), 7).length >= 1, true); assert.equal(NF.hypoAlert(S()), null, 'jeden pokles výstrahu nespustí');
   NF.addHypoWatch(S(), 'skipped', 'lunch', NF.addMin(S().clock, -120), null); NF.answerHypoWatch(S(), S().hypoWatch[S().hypoWatch.length - 1].id, 'yes'); assert.ok(NF.hypoAlert(S()), 'dva poklesy za týden'); act('noop'); assert.match(markup(), /Glukóza vám za posledních 7 dní klesla pod 4 dvakrát[\s\S]*Mějte u sebe vždy cukr nebo džus\.[\s\S]*Při poklesu: pravidlo k nízké glukóze/); /* SCHEMA 86: rada v bodech (B-HYPO v2) */ assert.doesNotMatch(markup(), /Zavolejte|zavoláte/); /* obráceno SCHEMA 74: karta s obecnou radou, bez výzvy volat */
   /* vynechané jídlo s inzulinem zakládá sledování */
-  const nW = S().hypoWatch.length; NF.skipMeal(S(), 'dinner', 'as'); assert.equal(S().hypoWatch.length, nW + 1); NF.skipMeal(S(), 'dinner', 'none'); assert.equal(S().hypoWatch.length, nW + 1);
+  const nW = S().hypoWatch.length; NF.skipMeal(S(), 'dinner', 'as'); assert.equal(S().hypoWatch.length, nW + 2, 'po večeři dvě otázky: za 60 min a ráno (SCHEMA 91, bod 14)'); NF.skipMeal(S(), 'dinner', 'none'); assert.equal(S().hypoWatch.length, nW + 2);
   /* rutinní rada po 3 odpovědích je sbalená s odpovědí jako minule; Změnit ji rozbalí */
   chapter('preview'); act('role', 'patient'); act('startMeal', 'breakfast'); act('mealBolus', 'before'); act('mealBefore', '7'); act('mealStep', '2'); const kase = food('Ovesná kaše s mlékem a banánem'), rut = food('Cereálie s mlékem'); act('mealFood', rut.id); act('mealPortion', 'usual'); act('mealStep', '3'); /* C15 (27. 10. 2026): snídaně jsou pestřejší; u kaše se doplněk po 15 pokusech bez cíle stáhl (R-DOPLNEK), rutinní rada je u cereálií */
   const compactLevers = Object.keys(S().meal.compact || {}); assert.ok(compactLevers.length >= 1, 'po dlouhé řadě je aspoň jedna rada rutinní'); m = markup(); assert.match(m, /class="adv-line compact[\s\S]*Jako minule: <b>(zkusím to|tentokrát ne)<\/b>/); assert.match(m, /data-action="mealExpand"/);
@@ -1389,7 +1389,7 @@ test('Sedm rozhodnutí z 18. 10. 2026 (SCHEMA 54): katalogy v jádru, provozní 
   /* po menší večeři se otázka „pod 4?“ neptá za hodinu, ale ráno (v kroku 1 další snídaně i na Dnes) */
   chapter('week'); S().clock = '2026-10-12T19:05:00'; act('noop');
   const w = NF.addHypoWatch(S(), 'smaller', 'dinner', S().clock, null); assert.equal(w.night, true); assert.equal(w.askAt, '2026-10-13T05:00:00');
-  S().clock = '2026-10-12T20:10:00'; assert.equal(NF.pendingHypoWatch(S()).length, 0, 've 20:10 se neptáme');
+  S().clock = '2026-10-12T20:10:00'; { const pe = NF.pendingHypoWatch(S()); assert.equal(pe.length, 1, 've 20:10 se zeptáme také (SCHEMA 91, rozhodnutí vlastníka 11. 11. 2026, bod 14)'); assert.equal(pe[0].night, false); NF.answerHypoWatch(S(), pe[0].id, 'no'); }
   S().clock = '2026-10-13T07:00:00'; act('page', 'today'); assert.equal(NF.pendingHypoWatch(S()).length, 1); m = markup(); assert.match(m, /Včera večer jste snědli méně než obvykle/); assert.match(m, /Klesla glukóza v noci pod 4\?/);
   act('startMeal', 'breakfast'); act('mealBolus', 'before'); /* SCHEMA 86: noční otázka je druhá otázka kroku 1 */ assert.match(markup(), /Klesla glukóza v noci pod 4\?/, 'otázka i v kroku 1 snídaně'); act('hypoAnswer', w.id + ':yes'); assert.equal(/Klesla glukóza v noci pod 4/.test(markup()), false); S().meal = null;
   const w2 = NF.addHypoWatch(S(), 'smaller', 'lunch', '2026-10-13T12:00:00', null); assert.equal(w2.night, false); S().clock = '2026-10-13T13:05:00'; assert.equal(NF.pendingHypoWatch(S()).length, 1, 'u oběda zůstává 60 minut');
@@ -1898,10 +1898,12 @@ test('Pokyny jsou součást plánu (SCHEMA 66, 21. 10. 2026): automaticky ze sch
   const d = S().draft; assert.equal(d.instructions.length, 8, 'osm pravidel v plánu od začátku (SCHEMA 90: I-VYSSI)'); assert.equal(NF.planBlockers(S()).some(b => /pokyn/.test(b)), false, 'pokyny nejsou překážka vydání');
   assert.equal(d.instructions.find(i => i.id === 'I-MENE').value, 60); assert.equal(d.instructions.find(i => i.id === 'I-HYPO').value, 4);
   for (const id of ['I-HYPO', 'I-MENE', 'I-NEVIM', 'I-NEMOC-BAZAL', 'I-NEMOC-JIDLO', 'I-VYSOKA', 'I-KONTAKT']) { const r = NF.item(S(), id); assert.ok(r && r.scope === undefined && r.cat === 'pokyny', id + ' je klinická položka garanta'); }
-  /* výchozí hodnota z registru: garant upraví I-MENE na 45 min → nový plán ji převezme; lékař ji u pacienta mění jen výjimečně */
-  NF.newVersion(S(), 'I-MENE', { params: { v: 45 } }); S().draft = null; act('startDraft');
-  assert.equal(S().draft.instructions.find(i => i.id === 'I-MENE').value, 45); assert.equal(NF.instructionExceptions(S(), S().draft.instructions).length, 0);
-  act('instrValue', 'I-MENE:1'); assert.equal(S().draft.instructions.find(i => i.id === 'I-MENE').value, 60); assert.equal(NF.instructionExceptions(S(), S().draft.instructions).join(), 'Méně jídla než obvykle: 60 min');
+  /* výchozí hodnota z registru: garant upraví I-NEVIM na 45 min → nový plán ji převezme; lékař ji u pacienta mění jen výjimečně.
+     SCHEMA 91 (bod 14): I-MENE nemá vlastní hodnotu – čas je B-HYPO.pripominka_min a lékař ho nemění; zkouška proto u I-NEVIM. */
+  NF.newVersion(S(), 'I-NEVIM', { params: { v: 45 } }); S().draft = null; act('startDraft');
+  assert.equal(S().draft.instructions.find(i => i.id === 'I-NEVIM').value, 45); assert.equal(NF.instructionExceptions(S(), S().draft.instructions).length, 0);
+  act('instrValue', 'I-NEVIM:1'); assert.equal(S().draft.instructions.find(i => i.id === 'I-NEVIM').value, 60); assert.equal(NF.instructionExceptions(S(), S().draft.instructions).join(), 'Nevím, jestli byl inzulin píchnutý: 60 minut');
+  act('instrValue', 'I-MENE:1'); assert.equal(S().draft.instructions.find(i => i.id === 'I-MENE').value, NF.param(S(), 'B-HYPO', 'pripominka_min', 60), 'I-MENE volič nemá');
   /* zamítnutý pokyn do plánu nejde */
   act('garantDecide', 'I-VYSOKA:rejected:ano'); S().draft = null; act('startDraft'); assert.equal(S().draft.instructions.some(i => i.id === 'I-VYSOKA'), false);
   act('garantDecide', 'I-VYSOKA:approved'); D.garantClear(); act('closeDrawer');
@@ -1924,11 +1926,11 @@ test('Rozhodnutí vlastníka 23. 10. 2026 (SCHEMA 67): porce zleva menší · ob
   /* zařazení: výchozí hodnoty ze senzoru voličem; report: dříve · teď · rozdíl se směrem */
   chapter('enroll'); act('role', 'doctor'); assert.match(markup(), /Výchozí hodnoty ze senzoru/); const b0 = S().enrollment.baseline.tir; act('baseline', 'tir:1'); assert.equal(S().enrollment.baseline.tir, b0 + 1);
   chapter('reviewProposals'); act('role', 'doctor'); act('reviewStep', '1'); const m = markup();
-  assert.match(m, /Čas v cíli[\s\S]*! blízko cíle · zlepšuje se[\s\S]*dříve 58 → teď 68 · \+10 p\. b\. · za /); /* SCHEMA 80 (31/02 A1): čas v cíli 68 % pod cílem 70 % */ /* rozdíl v procentních bodech a období exportu v řádku (02 #14, #1) */
+  assert.match(m, /Čas v cíli[\s\S]*! blízko cíle · zlepšuje se[\s\S]*dříve 58 → teď 69 · \+11 p\. b\. · za /); /* SCHEMA 80 (31/02 A1): čas v cíli 68 % pod cílem 70 % */ /* rozdíl v procentních bodech a období exportu v řádku (02 #14, #1) */
   assert.match(m, /Čas pod 3,9 mmol\/l[\s\S]*dříve 3 → teď 2 · −1 p\. b\./);
   assert.match(m, /HbA1c[\s\S]*! nad cílem · zlepšuje se[\s\S]*dříve 62 → teď 55 · −7 mmol\/mol · odběr 3\. 1\. 2027 \(dříve 23\. 9\. 2026\) · cíl do 53/); /* SCHEMA 80 (31/02 B3): s datem odběru */ /* cíl HbA1c v C-CILE (25. 10. 2026) */
   assert.match(m, /Obvyklá porce[\s\S]*první období · bez srovnání/);
-  assert.match(m, /Čas v cíli byl 68 % \(dříve 58 %\)/);
+  assert.match(m, /Čas v cíli byl 69 % \(dříve 58 %\)/ /* SCHEMA 91 (S3) */);
   assert.match(m, /class="tile c-none wide"[\s\S]*Mimo učení/);
 });
 
@@ -1981,7 +1983,7 @@ test('Klinická bezpečnost (23. 10. 2026): dávka jen z rozhodnutí lékaře, z
   /* 3 · „Ještě ne“ → menší porce, rada odmítnuta, „Píchnuto“: pokyn lékaře v kroku 3 i na Dnes */
   boot(); chapter('afterBolus'); act('role', 'patient'); act('mealCancel'); act('startMeal', 'lunch'); act('mealBolus', 'before'); act('mealBefore', '7'); act('mealStep', '2'); act('mealFood', kase.id); act('mealPortion', 'smaller'); act('mealStep', '3');
   assert.doesNotMatch(markup(), /Když sníte méně než obvykle a inzulin už je píchnutý/, 'před rozhodnutím o porci ještě ne'); act('mealDecide', 'portion:no'); assert.match(markup(), /Když sníte méně než obvykle a inzulin už je píchnutý[\s\S]*Až si píchnete, platí toto pravidlo/);
-  act('mealFinish', 'as'); const ep3 = S().episodes[S().episodes.length - 1]; assert.equal(ep3.portion, 'smaller'); assert.ok(S().hypoWatch.some(w => w.epId === ep3.id)); m = markup(); assert.match(m, /Méně jídla než obvykle · [^<]+<[\s\S]*Potom: za \d+ min od jídla se zeptáme, jestli glukóza klesla pod 4/); /* SCHEMA 86: pravidlo krátce a co bude dál */ assert.doesNotMatch(m, /sledujte glukózu/);
+  act('mealFinish', 'as'); const ep3 = S().episodes[S().episodes.length - 1]; assert.equal(ep3.portion, 'smaller'); assert.ok(S().hypoWatch.some(w => w.epId === ep3.id)); m = markup(); assert.match(m, /Méně jídla než obvykle · [^<]+<[\s\S]*Potom: za \d+ minut od jídla se zeptáme, jestli glukóza klesla pod 4/); /* SCHEMA 86: pravidlo krátce a co bude dál */ assert.doesNotMatch(m, /sledujte glukózu/);
   /* „píchnu za chvíli“: pokyn až s potvrzením inzulinu */
   act('startMeal', 'snack'); act('mealCancel'); act('startMeal', 'dinner'); act('mealBolus', 'before'); act('mealBefore', '7'); act('mealStep', '2'); act('mealFood', kase.id); act('mealPortion', 'smaller'); act('mealStep', '3'); act('mealDecide', 'portion:no'); act('mealFinish', 'pending');
   const epP = S().episodes[S().episodes.length - 1]; assert.equal(S().hypoWatch.some(w => w.epId === epP.id), false); act('pendingInsulin', epP.id + ':as'); assert.ok(S().hypoWatch.some(w => w.epId === epP.id)); assert.match(markup(), /Méně jídla než obvykle · večeře/); /* SCHEMA 86 */

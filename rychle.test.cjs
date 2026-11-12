@@ -98,7 +98,9 @@ test('Zásada 1: aplikace nepočítá ani nenavrhuje dávku – návrhy bez jedn
     assert.equal(pr.postup, 'D-POSTUP'); assert.ok(pr.branches.every(b => ['up', 'down', 'keep', 'swap', 'edit'].includes(b.action)), pr.id);
     assert.ok(['wait', 'free', 'keep', 'up', 'down', 'swap', 'edit'].includes(NF.proposalBranch(s, pr).action));
   }
-  assert.equal(/units\s*[+\-]=\s*\d/.test(src('app/core.js')), false);
+  /* SCHEMA 91 (kód K16): dřív jen „units += číslo“; teď i „units = units + 2“, „units = x - d“ a ++/-- */
+  assert.equal(/units\s*(\+|-)?=[^=;,)]*[+\-]\s*[\w(]|units\s*(\+\+|--)|(\+\+|--)\s*[\w.]*units/.test(src('app/core.js')), false, 'jádro nepočítá jednotky');
+  assert.deepEqual(JSON.parse(JSON.stringify(s.review.newDoses)), JSON.parse(JSON.stringify(NF.activePlan(s).doses)), 'na začátku kontroly jsou nové dávky = dávky plánu (nic předvyplněného)');
   const p1 = at('reviewConfirm'), p2 = at('newplan'); const P = x => NF.activePlan(x).doses;
   for (const k of ['basal', 'breakfast', 'lunch', 'dinner']) { const d = p1.review.decisions['PR-' + (k === 'basal' ? 'BAZAL' : k.toUpperCase())]; if (P(p2)[k].units !== P(p1)[k].units) assert.ok(d && d.units === P(p2)[k].units, k + ': změnu dávky zapsal lékař'); }
 });
@@ -116,9 +118,16 @@ test('Zásada 3: nízká glukóza – po menší porci s inzulinem otázka za 60
   const w = s.hypoWatch.filter(x => x.kind === 'smaller' && x.meal === 'lunch'); assert.ok(w.length >= 2 && w.every(x => x.answer === 'yes'), 'dvakrát „ano, pod 4“');
   const a = NF.hypoAlert(s); assert.ok(a && a.count >= 2 && a.days === 7, 'karta B-HYPO');
   assert.match(NF.item(s, 'B-HYPO').texts ? JSON.stringify(NF.item(s, 'B-HYPO').texts) : JSON.stringify(NF.item(s, 'B-HYPO')), /nečekejte na kontrolu: poraďte se s lékařem, který vám inzulin předepsal/);
-  const r = at('reviewConfirm'), pr = NF.clone(r.review.proposals.find(p => p.kind === 'dose' && !p.row && p.branches.some(b => b.action === 'up')));
+  /* SCHEMA 91 (kód K16): blok nastaví jádro z dat – do období se doplní jeden čistý pokles (obvyklá porce, dávka podle plánu, včas) a návrhy se přepočítají;
+     dřív si test příznak „block“ nastavil sám a ověřoval jen NF.proposalBranch. */
+  const r = NF.clone(at('reviewConfirm')), pr0 = r.review.proposals.find(p => p.kind === 'dose' && !p.row && p.dose !== 'basal' && p.branches.some(b => b.action === 'up'));
+  assert.ok(pr0, 'v příběhu je návrh s větví „zvýšit“');
+  const ep = r.episodes.filter(e => e.meal === pr0.dose && e.planId === r.review.planId && e.portion === 'usual' && e.insulin && e.insulin.confirmed === 'as' && NF.onTime(r, e) && !NF.inIllness(r, e)).slice(-1)[0]; assert.ok(ep, 'čistý zápis k jídlu návrhu');
+  ep.manual = Object.assign({}, ep.manual, { low: true, lowAsked: true });
+  const pr = NF.proposals(r, r.review.planId).find(p => p.id === pr0.id); assert.ok(pr, 'návrh zůstal');
   const i = pr.verify.findIndex(v => /pokles pod 4/.test(typeof v === 'string' ? v : (v && (v.text || v.t)) || '')); assert.ok(i >= 0, 'bod „pokles pod 4“ v postupu');
-  pr.facts[i] = Object.assign({}, pr.facts[i], { block: true }); r.review.verify[pr.id] = Object.fromEntries(pr.verify.map((_, k) => [k, true]));
+  assert.equal(!!(pr.facts[i] && pr.facts[i].block), true, 'jádro bod z dat zablokovalo'); assert.ok(pr.lowBlock || pr.facts.some(f => f && f.block));
+  r.review.verify[pr.id] = Object.fromEntries(pr.verify.map((_, k) => [k, true]));
   assert.notEqual(NF.proposalBranch(r, pr).action, 'up', 'pokles pod 4 u jídla v období: větev „zvýšit“ nikdy');
 });
 test('Zásada 3: aplikace pacienta k volání do ordinace sama nevyzve (pravidla I-* a znění registru)', () => {

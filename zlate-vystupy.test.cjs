@@ -23,7 +23,7 @@ test('Jádro se načte bez DOM a bez úložiště prohlížeče; přehraje celý
   const keys = Object.keys(core.ctx).filter(k => !['console', 'NutriFee', 'NutriFeeDemo'].includes(k));
   assert.deepEqual(keys, [], 'jádro nezakládá další globální objekty: ' + keys.join(', '));
   assert.equal(typeof core.NF.proposalBranch, 'function', 'větev postupu je v jádře');
-  assert.equal(got['pribeh.json'].length, core.D.scenes.length);
+  assert.equal(got['pribeh.json'].length, 32, '32 scén (SCHEMA 91, kód K16: dřív tautologie – generátor iteruje D.scenes)'); assert.equal(stored['pribeh.json'].length, 32, 'uložené zlaté výstupy mají 32 scén');
   const last = got['pribeh.json'].find(x => x.kapitola === 'newplan' && !Object.keys(x.vetve).length);
   assert.equal(last.plan.id, 'P2', 'nový plán vydaný jen jádrem'); assert.equal(last.plan.predchozi, 'P1');
 });
